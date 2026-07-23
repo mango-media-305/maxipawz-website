@@ -175,7 +175,7 @@ Astro Storefront
     ├── Returns
     ├── Support
     └── Custom orders
-````
+```
 
 ---
 
@@ -261,13 +261,13 @@ maxipawz-store/
 
 Before running the project locally, install:
 
-* Node.js 22.12 or newer
-* npm
-* Git
-* A Stripe account
-* A Netlify account
-* The Stripe CLI for local webhook testing
-* The Netlify CLI for local function testing
+- Node.js 22.12 or newer
+- npm
+- Git
+- A Stripe account
+- A Netlify account
+- The Stripe CLI for local webhook testing
+- The Netlify CLI for local function testing
 
 Verify your local versions:
 
@@ -441,22 +441,22 @@ seoDescription: Shop a durable cotton rope tug toy for medium and large dogs.
 
 Astro product entries control:
 
-* Product descriptions
-* Images
-* Categories
-* Materials
-* Safety information
-* Search metadata
-* Storefront availability
+- Product descriptions
+- Images
+- Categories
+- Materials
+- Safety information
+- Search metadata
+- Storefront availability
 
 Stripe controls:
 
-* Chargeable prices
-* Currency
-* Checkout
-* Payment collection
-* Payment receipts
-* Customer payment records
+- Chargeable prices
+- Currency
+- Checkout
+- Payment collection
+- Payment receipts
+- Customer payment records
 
 The application must never trust a price supplied by the browser.
 
@@ -573,14 +573,14 @@ checkout.session.async_payment_failed
 
 The handler must:
 
-* Read the original raw request body
-* Verify the `Stripe-Signature` header
-* Reject invalid signatures
-* Confirm the Checkout Session payment status
-* Retrieve purchased line items
-* Handle duplicate events safely
-* Avoid logging private customer information
-* Return successful HTTP responses promptly
+- Read the original raw request body
+- Verify the `Stripe-Signature` header
+- Reject invalid signatures
+- Confirm the Checkout Session payment status
+- Retrieve purchased line items
+- Handle duplicate events safely
+- Avoid logging private customer information
+- Return successful HTTP responses promptly
 
 A browser redirect to the success page must never be considered proof of payment.
 
@@ -603,14 +603,14 @@ newsletter
 
 Each form should include:
 
-* A unique Netlify form name
-* A hidden `form-name` input
-* Accessible labels
-* Server-detectable HTML
-* Client and server validation
-* Honeypot spam protection
-* A custom success page
-* A privacy notice
+- A unique Netlify form name
+- A hidden `form-name` input
+- Accessible labels
+- Server-detectable HTML
+- Client and server validation
+- Honeypot spam protection
+- A custom success page
+- A privacy notice
 
 Example:
 
@@ -652,40 +652,40 @@ Example:
 
 Playwright should cover:
 
-* Homepage rendering
-* Store navigation
-* Category filtering
-* Product-page rendering
-* Adding a product to the cart
-* Removing a product from the cart
-* Updating quantities
-* Restoring the cart after page reload
-* Empty-cart behavior
-* Checkout Session creation
-* Invalid-cart rejection
-* Checkout cancellation
-* Successful Stripe test payment
-* Order-success rendering
-* Form submissions
-* Mobile navigation
-* Keyboard navigation
+- Homepage rendering
+- Store navigation
+- Category filtering
+- Product-page rendering
+- Adding a product to the cart
+- Removing a product from the cart
+- Updating quantities
+- Restoring the cart after page reload
+- Empty-cart behavior
+- Checkout Session creation
+- Invalid-cart rejection
+- Checkout cancellation
+- Successful Stripe test payment
+- Order-success rendering
+- Form submissions
+- Mobile navigation
+- Keyboard navigation
 
 ### Stripe test scenarios
 
 Test:
 
-* Successful payment
-* Declined payment
-* Authentication-required payment
-* Delayed payment
-* Cancelled checkout
-* Invalid Price ID
-* Disabled product
-* Invalid quantity
-* Shipping-address collection
-* Promotion codes
-* Duplicate webhooks
-* Invalid webhook signatures
+- Successful payment
+- Declined payment
+- Authentication-required payment
+- Delayed payment
+- Cancelled checkout
+- Invalid Price ID
+- Disabled product
+- Invalid quantity
+- Shipping-address collection
+- Promotion codes
+- Duplicate webhooks
+- Invalid webhook signatures
 
 ---
 
@@ -717,10 +717,10 @@ Every pull request should create a Netlify Deploy Preview.
 
 Deploy Previews should use:
 
-* Stripe test-mode credentials
-* Test Stripe Products and Prices
-* Non-production webhook endpoints
-* Protected or non-indexable preview URLs
+- Stripe test-mode credentials
+- Test Stripe Products and Prices
+- Non-production webhook endpoints
+- Protected or non-indexable preview URLs
 
 ---
 
@@ -793,17 +793,17 @@ jobs:
 
 This project follows these security principles:
 
-* Stripe secret keys remain server-side.
-* Checkout totals are never trusted from the browser.
-* Stripe webhook signatures are verified.
-* Product IDs and Price IDs are validated server-side.
-* Payment-card information never passes through MaxiPawz servers.
-* Sensitive environment variables are not committed.
-* Customer information is excluded from unnecessary logs.
-* Test and live Stripe credentials are separated.
-* Form submissions use spam protection.
-* Dependencies are reviewed and updated regularly.
-* Production errors do not expose implementation details.
+- Stripe secret keys remain server-side.
+- Checkout totals are never trusted from the browser.
+- Stripe webhook signatures are verified.
+- Product IDs and Price IDs are validated server-side.
+- Payment-card information never passes through MaxiPawz servers.
+- Sensitive environment variables are not committed.
+- Customer information is excluded from unnecessary logs.
+- Test and live Stripe credentials are separated.
+- Form submissions use spam protection.
+- Dependencies are reviewed and updated regularly.
+- Production errors do not expose implementation details.
 
 To report a security issue, contact:
 
@@ -821,19 +821,19 @@ MaxiPawz Store aims to meet WCAG 2.2 Level AA.
 
 Accessibility testing should include:
 
-* Keyboard-only navigation
-* Visible focus indicators
-* Sufficient color contrast
-* Accessible form labels
-* Form error announcements
-* Descriptive image alternative text
-* Logical heading order
-* Cart-drawer focus management
-* Modal escape behavior
-* Touch-target sizing
-* Reduced-motion preferences
-* Screen-reader testing
-* Mobile zoom support
+- Keyboard-only navigation
+- Visible focus indicators
+- Sufficient color contrast
+- Accessible form labels
+- Form error announcements
+- Descriptive image alternative text
+- Logical heading order
+- Cart-drawer focus management
+- Modal escape behavior
+- Touch-target sizing
+- Reduced-motion preferences
+- Screen-reader testing
+- Mobile zoom support
 
 ---
 
@@ -841,21 +841,21 @@ Accessibility testing should include:
 
 The storefront should provide:
 
-* Unique page titles
-* Unique meta descriptions
-* Canonical URLs
-* Product structured data
-* Offer and availability data
-* Breadcrumb structured data
-* Organization structured data
-* Open Graph metadata
-* Social-sharing images
-* XML sitemap
-* Robots directives
-* Search-friendly category descriptions
-* Optimized product images
-* Descriptive URLs
-* Internal product linking
+- Unique page titles
+- Unique meta descriptions
+- Canonical URLs
+- Product structured data
+- Offer and availability data
+- Breadcrumb structured data
+- Organization structured data
+- Open Graph metadata
+- Social-sharing images
+- XML sitemap
+- Robots directives
+- Search-friendly category descriptions
+- Optimized product images
+- Descriptive URLs
+- Internal product linking
 
 ---
 
@@ -863,33 +863,33 @@ The storefront should provide:
 
 The initial release includes:
 
-* United States sales
-* USD currency
-* Guest checkout
-* Stripe-hosted Checkout
-* Manual fulfillment
-* Manual inventory updates
-* Basic shipping rules
-* Stripe payment receipts
-* Contact and support forms
-* Responsive storefront
-* Product safety information
-* Basic analytics
-* Technical SEO
-* Accessibility testing
+- United States sales
+- USD currency
+- Guest checkout
+- Stripe-hosted Checkout
+- Manual fulfillment
+- Manual inventory updates
+- Basic shipping rules
+- Stripe payment receipts
+- Contact and support forms
+- Responsive storefront
+- Product safety information
+- Basic analytics
+- Technical SEO
+- Accessibility testing
 
 The MVP does not initially include:
 
-* Customer accounts
-* Saved addresses
-* Wishlists
-* Product reviews
-* Loyalty points
-* Advanced inventory management
-* Internal order dashboards
-* Automated shipping-label creation
-* Abandoned-cart emails
-* CRM integration
+- Customer accounts
+- Saved addresses
+- Wishlists
+- Product reviews
+- Loyalty points
+- Advanced inventory management
+- Internal order dashboards
+- Automated shipping-label creation
+- Abandoned-cart emails
+- CRM integration
 
 ---
 
@@ -897,52 +897,52 @@ The MVP does not initially include:
 
 ### Phase 1: MVP Launch
 
-* [ ] Brand identity
-* [ ] Homepage
-* [ ] Product catalog
-* [ ] Category pages
-* [ ] Product detail pages
-* [ ] Shopping cart
-* [ ] Stripe Checkout
-* [ ] Shipping rates
-* [ ] Stripe webhooks
-* [ ] Success and cancellation pages
-* [ ] Netlify Forms
-* [ ] Policy pages
-* [ ] Accessibility testing
-* [ ] SEO setup
-* [ ] Production deployment
+- [ ] Brand identity
+- [ ] Homepage
+- [ ] Product catalog
+- [ ] Category pages
+- [ ] Product detail pages
+- [ ] Shopping cart
+- [ ] Stripe Checkout
+- [ ] Shipping rates
+- [ ] Stripe webhooks
+- [ ] Success and cancellation pages
+- [ ] Netlify Forms
+- [ ] Policy pages
+- [ ] Accessibility testing
+- [ ] SEO setup
+- [ ] Production deployment
 
 ### Phase 2: Growing Store
 
-* [ ] Supabase integration
-* [ ] Automated inventory updates
-* [ ] Persistent order records
-* [ ] Customer accounts
-* [ ] Saved addresses
-* [ ] Wishlists
-* [ ] Product reviews
-* [ ] Resend transactional emails
-* [ ] Shipping-confirmation emails
-* [ ] Stripe Tax
-* [ ] Google Analytics 4
-* [ ] Microsoft Clarity
-* [ ] Admin dashboard
+- [ ] Supabase integration
+- [ ] Automated inventory updates
+- [ ] Persistent order records
+- [ ] Customer accounts
+- [ ] Saved addresses
+- [ ] Wishlists
+- [ ] Product reviews
+- [ ] Resend transactional emails
+- [ ] Shipping-confirmation emails
+- [ ] Stripe Tax
+- [ ] Google Analytics 4
+- [ ] Microsoft Clarity
+- [ ] Admin dashboard
 
 ### Phase 3: Larger Operation
 
-* [ ] Shippo or EasyPost integration
-* [ ] Live carrier rates
-* [ ] Shipping labels
-* [ ] Customer tracking portal
-* [ ] Abandoned-cart emails
-* [ ] Loyalty program
-* [ ] Product bundles
-* [ ] Advanced search
-* [ ] CRM integration
-* [ ] Accounting integration
-* [ ] Wholesale portal
-* [ ] Multi-location inventory
+- [ ] Shippo or EasyPost integration
+- [ ] Live carrier rates
+- [ ] Shipping labels
+- [ ] Customer tracking portal
+- [ ] Abandoned-cart emails
+- [ ] Loyalty program
+- [ ] Product bundles
+- [ ] Advanced search
+- [ ] CRM integration
+- [ ] Accounting integration
+- [ ] Wholesale portal
+- [ ] Multi-location inventory
 
 ---
 

@@ -1,11 +1,211 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import { Image } from 'astro:assets';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
+import BoneBold from 'phosphor-astro/BoneBold.astro';
+import CheckCircleFill from 'phosphor-astro/CheckCircleFill.astro';
+import ConfettiBold from 'phosphor-astro/ConfettiBold.astro';
+import HammerBold from 'phosphor-astro/HammerBold.astro';
+import HeartBold from 'phosphor-astro/HeartBold.astro';
+import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
+import ShieldCheckBold from 'phosphor-astro/ShieldCheckBold.astro';
+import ShoppingBagOpenBold from 'phosphor-astro/ShoppingBagOpenBold.astro';
+import TennisBallBold from 'phosphor-astro/TennisBallBold.astro';
+
+import mascotImage from '../assets/brand/maxipawz-mascot.webp';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const benefits = [
+  {
+    icon: ShieldCheckBold,
+    title: 'Thoughtfully selected',
+    description: 'Products chosen with play, enrichment, and pet-owner confidence in mind.',
+  },
+  {
+    icon: PawPrintBold,
+    title: 'Made for happy play',
+    description: 'Fun options for chewing, chasing, fetching, exploring, and bonding.',
+  },
+  {
+    icon: HeartBold,
+    title: 'A store that loves pets',
+    description: 'A warm shopping experience created for pets and the people who adore them.',
+  },
+];
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<BaseLayout
+  title="MaxiPawz Store"
+  description="Discover joyful pet toys selected for playful pets and the people who love them."
+  noIndex={true}
+>
+  <section class="relative overflow-hidden">
+    <div
+      class="pointer-events-none absolute -top-40 -left-40 size-[32rem] rounded-full bg-brand-300/25 blur-3xl"
+      aria-hidden="true"
+    >
+    </div>
+
+    <div
+      class="pointer-events-none absolute top-16 -right-48 size-[34rem] rounded-full bg-accent-300/25 blur-3xl"
+      aria-hidden="true"
+    >
+    </div>
+
+    <div
+      class="site-container-wide grid min-h-[calc(100vh-7.5rem)] items-center gap-12 py-16 lg:grid-cols-[1.08fr_0.92fr] lg:py-20"
+    >
+      <div class="relative z-10">
+        <div class="section-kicker">
+          <ConfettiBold class="size-4" aria-hidden="true" />
+
+          A joyful pet store is coming
+        </div>
+
+        <h1
+          class="mt-7 max-w-4xl text-5xl leading-[0.98] font-black tracking-[-0.055em] text-ink-900 sm:text-6xl lg:text-7xl xl:text-8xl"
+        >
+          Toys for more
+          <span class="text-brand-gradient">happy paws</span>
+          and wagging tails.
+        </h1>
+
+        <p class="mt-7 max-w-2xl text-lg leading-8 text-ink-600 sm:text-xl">
+          MaxiPawz is building a warm, playful place to discover toys that keep pets active,
+          curious, entertained, and close to the people they love.
+        </p>
+
+        <div class="mt-9 flex flex-col gap-3 sm:flex-row">
+          <a href="/shop" class="button-primary">
+            <ShoppingBagOpenBold class="size-5" aria-hidden="true" />
+
+            Explore the shop
+          </a>
+
+          <a href="/about" class="button-outline">
+            Meet MaxiPawz
+
+            <ArrowRightBold class="size-5" aria-hidden="true" />
+          </a>
+        </div>
+
+        <div class="mt-10 flex flex-wrap gap-x-7 gap-y-3 text-sm font-bold text-ink-600">
+          <span class="inline-flex items-center gap-2">
+            <CheckCircleFill class="size-5 text-brand-500" aria-hidden="true" />
+
+            Secure checkout
+          </span>
+
+          <span class="inline-flex items-center gap-2">
+            <CheckCircleFill class="size-5 text-brand-500" aria-hidden="true" />
+
+            Pet-friendly shopping
+          </span>
+
+          <span class="inline-flex items-center gap-2">
+            <CheckCircleFill class="size-5 text-brand-500" aria-hidden="true" />
+
+            Helpful support
+          </span>
+        </div>
+      </div>
+
+      <div class="relative mx-auto w-full max-w-xl">
+        <div
+          class="absolute inset-6 -z-10 rounded-full bg-gradient-to-br from-brand-300/60 via-cream to-accent-300/60 blur-2xl"
+          aria-hidden="true"
+        >
+        </div>
+
+        <div
+          class="relative overflow-hidden rounded-[3rem] border-4 border-white-warm bg-white-warm p-3 shadow-2xl shadow-ink-950/15"
+        >
+          <Image
+            src={mascotImage}
+            alt="Happy brown MaxiPawz dog mascot"
+            class="aspect-square w-full rounded-[2.4rem] object-cover"
+            loading="eager"
+            fetchpriority="high"
+            quality={92}
+          />
+
+          <div
+            class="absolute right-7 bottom-7 left-7 rounded-3xl border border-white/80 bg-white/90 p-4 shadow-card backdrop-blur"
+          >
+            <div class="flex items-center gap-3">
+              <span
+                class="grid size-11 shrink-0 place-items-center rounded-2xl bg-accent-500 text-ink-950"
+                aria-hidden="true"
+              >
+                <TennisBallBold class="size-6" />
+              </span>
+
+              <div>
+                <p class="font-black text-ink-900">Playtime is coming</p>
+
+                <p class="mt-0.5 text-sm text-ink-600">
+                  We’re preparing the first MaxiPawz collection.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <span
+          class="absolute -top-4 -right-3 grid size-20 rotate-12 place-items-center rounded-[2rem] bg-brand-500 text-white shadow-blue"
+          aria-hidden="true"
+        >
+          <BoneBold class="size-9" />
+        </span>
+
+        <span
+          class="absolute -bottom-5 -left-3 grid size-20 -rotate-12 place-items-center rounded-[2rem] bg-accent-500 text-ink-950 shadow-orange"
+          aria-hidden="true"
+        >
+          <PawPrintBold class="size-9" />
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-y border-sand bg-white-warm/65">
+    <div class="site-container-wide grid gap-4 py-8 md:grid-cols-3">
+      {
+        benefits.map(({ icon: Icon, title, description }) => (
+          <article class="flex gap-4 rounded-3xl p-5 transition hover:bg-cream">
+            <span
+              class="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-100 text-brand-700"
+              aria-hidden="true"
+            >
+              <Icon class="size-6" />
+            </span>
+
+            <div>
+              <h2 class="interface-heading text-lg">{title}</h2>
+
+              <p class="mt-2 text-sm leading-6 text-ink-600">{description}</p>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="section-spacing">
+    <div class="site-container text-center">
+      <div class="section-kicker">
+        <HammerBold class="size-4" aria-hidden="true" />
+
+        Storefront under construction
+      </div>
+
+      <h2 class="section-title mx-auto mt-6">The MaxiPawz experience is taking shape.</h2>
+
+      <p class="section-description mx-auto mt-6">
+        The brand foundation, global styles, navigation, and homepage structure are now being
+        prepared. Products, categories, shopping-cart functionality, and secure Stripe checkout are
+        coming next.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

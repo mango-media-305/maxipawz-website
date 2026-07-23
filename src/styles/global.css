@@ -1,0 +1,920 @@
+@import 'tailwindcss';
+
+/*
+ * MaxiPawz primary typeface
+ *
+ * Place the licensed font file at:
+ * public/fonts/skia/Skia.woff2
+ */
+@font-face {
+  font-family: 'Skia';
+  src: url('/fonts/skia/Skia.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+}
+
+/*
+ * MaxiPawz design tokens
+ *
+ * Brand:
+ * Blue:   #008aff
+ * Orange: #ff6600
+ *
+ * Backgrounds:
+ * Cream:  #fff8dc
+ * Sand:   #ecdab7
+ */
+@theme {
+  /*
+        * Typography
+        */
+  --font-sans:
+    'Skia', ui-rounded, 'Arial Rounded MT Bold', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+
+  --font-display:
+    'Skia', ui-rounded, 'Arial Rounded MT Bold', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+
+  /*
+        * MaxiPawz blue
+        *
+        * The exact brand blue is brand-500.
+        */
+  --color-brand-50: #eef8ff;
+  --color-brand-100: #d9efff;
+  --color-brand-200: #bce4ff;
+  --color-brand-300: #8ed3ff;
+  --color-brand-400: #52b8ff;
+  --color-brand-500: #008aff;
+  --color-brand-600: #0075db;
+  --color-brand-700: #005eaf;
+  --color-brand-800: #064f8f;
+  --color-brand-900: #0b4275;
+  --color-brand-950: #072a4d;
+
+  /*
+        * MaxiPawz orange
+        *
+        * The exact brand orange is accent-500.
+        */
+  --color-accent-50: #fff5eb;
+  --color-accent-100: #ffe8d1;
+  --color-accent-200: #ffd0a3;
+  --color-accent-300: #ffae66;
+  --color-accent-400: #ff8433;
+  --color-accent-500: #ff6600;
+  --color-accent-600: #e85a00;
+  --color-accent-700: #bd4500;
+  --color-accent-800: #963800;
+  --color-accent-900: #7a3005;
+  --color-accent-950: #431600;
+
+  /*
+        * Warm backgrounds
+        */
+  --color-cream: #fff8dc;
+  --color-cream-soft: #fffdf4;
+  --color-cream-deep: #f8edc8;
+
+  --color-sand: #ecdab7;
+  --color-sand-light: #f5e8cc;
+  --color-sand-dark: #d8bf90;
+
+  --color-paper: #fffef9;
+  --color-white-warm: #fffdfa;
+
+  /*
+        * Warm neutral text colors
+        */
+  --color-ink-50: #faf7f4;
+  --color-ink-100: #f2ebe5;
+  --color-ink-200: #e3d7ce;
+  --color-ink-300: #cdb9aa;
+  --color-ink-400: #aa8f7d;
+  --color-ink-500: #8c6f5d;
+  --color-ink-600: #715748;
+  --color-ink-700: #5b463a;
+  --color-ink-800: #48382f;
+  --color-ink-900: #35271f;
+  --color-ink-950: #211711;
+
+  /*
+        * Semantic colors
+        */
+  --color-success-50: #effcf5;
+  --color-success-100: #d9f8e7;
+  --color-success-500: #22a968;
+  --color-success-700: #137344;
+
+  --color-warning-50: #fff9e8;
+  --color-warning-100: #fff0bd;
+  --color-warning-500: #e99b0c;
+  --color-warning-700: #9e5e07;
+
+  --color-danger-50: #fff1f1;
+  --color-danger-100: #ffe0e0;
+  --color-danger-500: #dc4545;
+  --color-danger-700: #a62727;
+
+  /*
+        * Border radius
+        */
+  --radius-card: 1.75rem;
+  --radius-card-lg: 2.25rem;
+  --radius-button: 9999px;
+  --radius-control: 1rem;
+
+  /*
+        * Shadows
+        */
+  --shadow-soft: 0 12px 35px -18px rgb(53 39 31 / 22%);
+
+  --shadow-card: 0 2px 4px rgb(53 39 31 / 3%), 0 18px 50px -28px rgb(53 39 31 / 28%);
+
+  --shadow-card-hover: 0 4px 8px rgb(53 39 31 / 5%), 0 28px 65px -30px rgb(53 39 31 / 34%);
+
+  --shadow-blue: 0 16px 35px -18px rgb(0 138 255 / 58%);
+
+  --shadow-orange: 0 16px 35px -18px rgb(255 102 0 / 55%);
+
+  /*
+        * Animation timing
+        */
+  --ease-friendly: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-bounce-soft: cubic-bezier(0.34, 1.35, 0.64, 1);
+}
+
+/*
+    * Base document styles
+    */
+:root {
+  color-scheme: light;
+
+  --page-background: #fff8dc;
+  --surface-background: #fffef9;
+  --surface-muted: #f5e8cc;
+
+  --text-primary: #35271f;
+  --text-secondary: #715748;
+  --text-muted: #8c6f5d;
+
+  --border-soft: rgb(216 191 144 / 55%);
+  --border-blue: rgb(0 138 255 / 24%);
+  --border-orange: rgb(255 102 0 / 24%);
+
+  --brand-gradient: linear-gradient(135deg, #008aff 0%, #37a6ff 48%, #ff6600 100%);
+
+  --warm-gradient: linear-gradient(145deg, #fffef9 0%, #fff8dc 55%, #f5e8cc 100%);
+
+  font-family: var(--font-sans);
+  font-synthesis: weight;
+  text-rendering: optimizeLegibility;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    min-width: 320px;
+    min-height: 100%;
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
+    background-color: var(--page-background);
+  }
+
+  body {
+    min-width: 320px;
+    min-height: 100vh;
+    margin: 0;
+
+    background:
+      radial-gradient(circle at 8% 0%, rgb(0 138 255 / 13%), transparent 27rem),
+      radial-gradient(circle at 94% 6%, rgb(255 102 0 / 13%), transparent 29rem),
+      radial-gradient(circle at 50% 105%, rgb(236 218 183 / 70%), transparent 36rem),
+      linear-gradient(180deg, #fffdf4 0%, #fff8dc 60%, #f8edc8 100%);
+
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  main {
+    isolation: isolate;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 0;
+    color: var(--text-primary);
+    font-family: var(--font-display);
+    font-weight: 750;
+    line-height: 1.08;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+
+  h1 {
+    letter-spacing: -0.045em;
+  }
+
+  p {
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  strong,
+  b {
+    font-weight: 750;
+  }
+
+  small {
+    font-size: 0.875rem;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+    text-underline-offset: 0.2em;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    color: inherit;
+    font: inherit;
+  }
+
+  button,
+  select {
+    cursor: pointer;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea,
+  summary {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button:disabled,
+  input:disabled,
+  select:disabled,
+  textarea:disabled {
+    cursor: not-allowed;
+    opacity: 0.58;
+  }
+
+  img,
+  picture,
+  svg,
+  video,
+  canvas {
+    display: block;
+    max-width: 100%;
+  }
+
+  img {
+    height: auto;
+  }
+
+  fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  legend {
+    padding: 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  hr {
+    height: 1px;
+    margin: 0;
+    border: 0;
+    background: linear-gradient(90deg, transparent, rgb(236 218 183 / 90%), transparent);
+  }
+
+  ::selection {
+    background-color: #ffd0a3;
+    color: #431600;
+  }
+
+  :focus-visible {
+    outline: 3px solid #008aff;
+    outline-offset: 3px;
+  }
+
+  /*
+        * Friendly scrollbars for supporting browsers.
+        */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #8ed3ff #fff8dc;
+  }
+
+  *::-webkit-scrollbar {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: #fff8dc;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    border: 3px solid #fff8dc;
+    border-radius: 9999px;
+    background: #8ed3ff;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: #52b8ff;
+  }
+}
+
+/*
+ * Reusable MaxiPawz components
+ *
+ * These classes provide a consistent visual foundation while still allowing
+ * Tailwind utility classes to be used for page-specific styling.
+ */
+@layer components {
+  /*
+        * Main content containers
+        */
+  .site-container {
+    width: min(100% - 2rem, 80rem);
+    margin-inline: auto;
+  }
+
+  .site-container-wide {
+    width: min(100% - 2rem, 90rem);
+    margin-inline: auto;
+  }
+
+  .section-spacing {
+    padding-block: clamp(4rem, 8vw, 7rem);
+  }
+
+  /*
+        * Cards and surfaces
+        */
+  .surface-card {
+    border: 1px solid rgb(216 191 144 / 48%);
+    border-radius: var(--radius-card);
+    background: rgb(255 254 249 / 88%);
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(14px);
+  }
+
+  .surface-card-interactive {
+    border: 1px solid rgb(216 191 144 / 48%);
+    border-radius: var(--radius-card);
+    background: rgb(255 254 249 / 92%);
+    box-shadow: var(--shadow-card);
+    transition:
+      translate 220ms var(--ease-friendly),
+      box-shadow 220ms var(--ease-friendly),
+      border-color 220ms var(--ease-friendly);
+  }
+
+  .surface-card-interactive:hover {
+    translate: 0 -4px;
+    border-color: rgb(0 138 255 / 32%);
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .surface-blue {
+    border: 1px solid rgb(0 138 255 / 22%);
+    border-radius: var(--radius-card);
+    background:
+      radial-gradient(circle at top right, rgb(82 184 255 / 24%), transparent 16rem),
+      linear-gradient(145deg, #f7fcff 0%, #eaf7ff 100%);
+  }
+
+  .surface-orange {
+    border: 1px solid rgb(255 102 0 / 22%);
+    border-radius: var(--radius-card);
+    background:
+      radial-gradient(circle at top left, rgb(255 174 102 / 28%), transparent 16rem),
+      linear-gradient(145deg, #fffaf5 0%, #fff0df 100%);
+  }
+
+  .surface-sand {
+    border: 1px solid rgb(184 148 91 / 22%);
+    border-radius: var(--radius-card);
+    background: linear-gradient(145deg, #fff8dc 0%, #ecdab7 100%);
+  }
+
+  /*
+        * Buttons
+        */
+  .button-base {
+    display: inline-flex;
+    min-height: 3rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+
+    border: 1px solid transparent;
+    border-radius: var(--radius-button);
+    padding: 0.75rem 1.35rem;
+
+    font-weight: 750;
+    line-height: 1.2;
+    text-align: center;
+
+    transition:
+      translate 180ms var(--ease-bounce-soft),
+      transform 180ms var(--ease-bounce-soft),
+      box-shadow 180ms var(--ease-friendly),
+      background-color 180ms var(--ease-friendly),
+      border-color 180ms var(--ease-friendly),
+      color 180ms var(--ease-friendly);
+  }
+
+  .button-base:hover {
+    translate: 0 -2px;
+  }
+
+  .button-base:active {
+    translate: 0 0;
+    transform: scale(0.98);
+  }
+
+  /*
+        * Orange is used for primary shopping actions.
+        *
+        * Dark text is intentional because it creates stronger contrast than white
+        * on the exact MaxiPawz orange.
+        */
+  .button-primary {
+    display: inline-flex;
+    min-height: 3rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+
+    border: 1px solid #e85a00;
+    border-radius: var(--radius-button);
+    padding: 0.75rem 1.35rem;
+
+    background: linear-gradient(180deg, #ff8433 0%, #ff6600 100%);
+    box-shadow: var(--shadow-orange);
+
+    color: #351805;
+    font-weight: 750;
+    line-height: 1.2;
+    text-align: center;
+
+    transition:
+      translate 180ms var(--ease-bounce-soft),
+      transform 180ms var(--ease-bounce-soft),
+      box-shadow 180ms var(--ease-friendly),
+      background 180ms var(--ease-friendly);
+  }
+
+  .button-primary:hover {
+    translate: 0 -2px;
+    background: linear-gradient(180deg, #ff954f 0%, #ff6f0f 100%);
+    box-shadow: 0 19px 40px -18px rgb(255 102 0 / 68%);
+  }
+
+  .button-primary:active {
+    translate: 0 0;
+    transform: scale(0.98);
+  }
+
+  /*
+        * Blue is used for secondary actions and trust-focused actions.
+        */
+  .button-secondary {
+    display: inline-flex;
+    min-height: 3rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+
+    border: 1px solid #005eaf;
+    border-radius: var(--radius-button);
+    padding: 0.75rem 1.35rem;
+
+    background: linear-gradient(180deg, #168fff 0%, #0075db 100%);
+    box-shadow: var(--shadow-blue);
+
+    color: #ffffff;
+    font-weight: 750;
+    line-height: 1.2;
+    text-align: center;
+
+    transition:
+      translate 180ms var(--ease-bounce-soft),
+      transform 180ms var(--ease-bounce-soft),
+      box-shadow 180ms var(--ease-friendly),
+      background 180ms var(--ease-friendly);
+  }
+
+  .button-secondary:hover {
+    translate: 0 -2px;
+    background: linear-gradient(180deg, #2c9aff 0%, #0069c6 100%);
+    box-shadow: 0 19px 40px -18px rgb(0 138 255 / 68%);
+  }
+
+  .button-secondary:active {
+    translate: 0 0;
+    transform: scale(0.98);
+  }
+
+  .button-outline {
+    display: inline-flex;
+    min-height: 3rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+
+    border: 2px solid rgb(0 138 255 / 48%);
+    border-radius: var(--radius-button);
+    padding: calc(0.75rem - 1px) 1.35rem;
+
+    background: rgb(255 254 249 / 82%);
+    color: #064f8f;
+    font-weight: 750;
+    line-height: 1.2;
+    text-align: center;
+
+    transition:
+      translate 180ms var(--ease-bounce-soft),
+      transform 180ms var(--ease-bounce-soft),
+      border-color 180ms var(--ease-friendly),
+      background-color 180ms var(--ease-friendly),
+      box-shadow 180ms var(--ease-friendly);
+  }
+
+  .button-outline:hover {
+    translate: 0 -2px;
+    border-color: #008aff;
+    background-color: #eef8ff;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .button-outline:active {
+    translate: 0 0;
+    transform: scale(0.98);
+  }
+
+  .button-ghost {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    border-radius: var(--radius-button);
+    padding: 0.625rem 1rem;
+
+    color: #005eaf;
+    font-weight: 700;
+
+    transition:
+      background-color 180ms var(--ease-friendly),
+      color 180ms var(--ease-friendly),
+      transform 180ms var(--ease-bounce-soft);
+  }
+
+  .button-ghost:hover {
+    background-color: #d9efff;
+    color: #064f8f;
+  }
+
+  .button-ghost:active {
+    transform: scale(0.98);
+  }
+
+  /*
+        * Section typography
+        */
+  .section-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    border: 1px solid rgb(255 102 0 / 25%);
+    border-radius: 9999px;
+    padding: 0.45rem 0.85rem;
+
+    background-color: rgb(255 232 209 / 72%);
+    color: #963800;
+
+    font-size: 0.8125rem;
+    font-weight: 750;
+    letter-spacing: 0.08em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .section-title {
+    max-width: 48rem;
+    color: #35271f;
+    font-size: clamp(2.25rem, 5vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
+  }
+
+  .section-description {
+    max-width: 42rem;
+    color: #715748;
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+    line-height: 1.75;
+    text-wrap: pretty;
+  }
+
+  /*
+        * Product and promotional labels
+        */
+  .badge-blue {
+    display: inline-flex;
+    min-height: 1.75rem;
+    align-items: center;
+    gap: 0.35rem;
+
+    border: 1px solid #bce4ff;
+    border-radius: 9999px;
+    padding: 0.25rem 0.65rem;
+
+    background-color: #eef8ff;
+    color: #005eaf;
+
+    font-size: 0.75rem;
+    font-weight: 750;
+    line-height: 1;
+  }
+
+  .badge-orange {
+    display: inline-flex;
+    min-height: 1.75rem;
+    align-items: center;
+    gap: 0.35rem;
+
+    border: 1px solid #ffd0a3;
+    border-radius: 9999px;
+    padding: 0.25rem 0.65rem;
+
+    background-color: #fff5eb;
+    color: #963800;
+
+    font-size: 0.75rem;
+    font-weight: 750;
+    line-height: 1;
+  }
+
+  .badge-sand {
+    display: inline-flex;
+    min-height: 1.75rem;
+    align-items: center;
+    gap: 0.35rem;
+
+    border: 1px solid #d8bf90;
+    border-radius: 9999px;
+    padding: 0.25rem 0.65rem;
+
+    background-color: #f5e8cc;
+    color: #5b463a;
+
+    font-size: 0.75rem;
+    font-weight: 750;
+    line-height: 1;
+  }
+
+  /*
+        * Form controls
+        */
+  .form-label {
+    display: block;
+    margin-bottom: 0.45rem;
+    color: #48382f;
+    font-size: 0.9375rem;
+    font-weight: 700;
+  }
+
+  .form-control {
+    width: 100%;
+    min-height: 3.25rem;
+
+    border: 2px solid rgb(216 191 144 / 70%);
+    border-radius: var(--radius-control);
+    padding: 0.75rem 1rem;
+
+    background-color: rgb(255 254 249 / 92%);
+    color: #35271f;
+    box-shadow: inset 0 1px 2px rgb(53 39 31 / 4%);
+
+    transition:
+      border-color 180ms var(--ease-friendly),
+      box-shadow 180ms var(--ease-friendly),
+      background-color 180ms var(--ease-friendly);
+  }
+
+  textarea.form-control {
+    min-height: 8rem;
+    resize: vertical;
+  }
+
+  .form-control::placeholder {
+    color: #aa8f7d;
+  }
+
+  .form-control:hover {
+    border-color: rgb(0 138 255 / 42%);
+  }
+
+  .form-control:focus {
+    border-color: #008aff;
+    outline: 0;
+    background-color: #ffffff;
+    box-shadow:
+      0 0 0 4px rgb(0 138 255 / 13%),
+      inset 0 1px 2px rgb(53 39 31 / 4%);
+  }
+
+  .form-help {
+    margin-top: 0.4rem;
+    color: #8c6f5d;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+  }
+
+  .form-error {
+    margin-top: 0.4rem;
+    color: #a62727;
+    font-size: 0.8125rem;
+    font-weight: 650;
+    line-height: 1.5;
+  }
+}
+
+/*
+ * Small decorative utilities
+ */
+@layer utilities {
+  .text-brand-gradient {
+    background: linear-gradient(90deg, #008aff 0%, #008aff 46%, #ff6600 100%);
+    background-clip: text;
+    color: transparent;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .text-orange-gradient {
+    background: linear-gradient(90deg, #bd4500 0%, #ff6600 55%, #ff8433 100%);
+    background-clip: text;
+    color: transparent;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .brand-glow {
+    box-shadow:
+      0 18px 45px -24px rgb(0 138 255 / 52%),
+      0 22px 55px -30px rgb(255 102 0 / 48%);
+  }
+
+  .paw-pattern {
+    background-color: #fff8dc;
+    background-image:
+      radial-gradient(circle at 25% 25%, rgb(0 138 255 / 9%) 0 4px, transparent 5px),
+      radial-gradient(circle at 75% 70%, rgb(255 102 0 / 9%) 0 5px, transparent 6px);
+    background-position:
+      0 0,
+      1.75rem 1.75rem;
+    background-size: 3.5rem 3.5rem;
+  }
+
+  .warm-grid {
+    background-image:
+      linear-gradient(rgb(236 218 183 / 18%) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(236 218 183 / 18%) 1px, transparent 1px);
+    background-size: 2.5rem 2.5rem;
+  }
+
+  .border-brand-soft {
+    border-color: rgb(0 138 255 / 24%);
+  }
+
+  .border-accent-soft {
+    border-color: rgb(255 102 0 / 24%);
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/*
+ * Greater contrast preference
+ */
+@media (prefers-contrast: more) {
+  :focus-visible {
+    outline-width: 4px;
+  }
+
+  .surface-card,
+  .surface-card-interactive {
+    border-color: #8c6f5d;
+  }
+
+  .form-control {
+    border-color: #715748;
+  }
+}
+
+/*
+ * Reduced-motion preference
+ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  .surface-card-interactive:hover,
+  .button-base:hover,
+  .button-primary:hover,
+  .button-secondary:hover,
+  .button-outline:hover {
+    translate: 0;
+  }
+}
+
+/*
+ * Mobile adjustments
+ */
+@media (max-width: 39.999rem) {
+  .site-container,
+  .site-container-wide {
+    width: min(100% - 1.25rem, 80rem);
+  }
+
+  .section-spacing {
+    padding-block: 3.75rem;
+  }
+
+  .button-primary,
+  .button-secondary,
+  .button-outline {
+    min-height: 3.25rem;
+  }
+}
+
+/*
+ * Print support
+ */
+@media print {
+  body {
+    background: #ffffff;
+    color: #000000;
+  }
+
+  .button-primary,
+  .button-secondary,
+  .button-outline,
+  .button-ghost {
+    box-shadow: none;
+  }
+}

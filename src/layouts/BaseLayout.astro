@@ -1,0 +1,105 @@
+---
+import '@fontsource-variable/nunito-sans/wght.css';
+
+import '@styles/global.css';
+import '@styles/typography.css';
+
+import AnnouncementBar from '@components/layout/AnnouncementBar.astro';
+import SiteFooter from '@components/layout/SiteFooter.astro';
+import SiteHeader from '@components/layout/SiteHeader.astro';
+
+import { siteConfig } from '../config/site';
+
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  noIndex?: boolean;
+  hideSiteChrome?: boolean;
+}
+
+const { title, description, image, noIndex = false, hideSiteChrome = false } = Astro.props;
+
+const fullTitle = title === siteConfig.name ? title : `${title} | ${siteConfig.name}`;
+
+const canonicalURL = Astro.site
+  ? new URL(Astro.url.pathname, Astro.site)
+  : new URL(Astro.url.pathname, Astro.url);
+---
+
+<!doctype html>
+<html lang={siteConfig.language}>
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{fullTitle}</title>
+
+    <meta name="description" content={description} />
+
+    <meta name="theme-color" content="#008aff" />
+
+    <link rel="canonical" href={canonicalURL} />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <link
+      rel="preload"
+      href="/fonts/skia/Skia.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+
+    {noIndex && <meta name="robots" content="noindex, nofollow" />}
+
+    <meta property="og:type" content="website" />
+
+    <meta property="og:site_name" content={siteConfig.name} />
+
+    <meta property="og:locale" content={siteConfig.locale} />
+
+    <meta property="og:title" content={fullTitle} />
+
+    <meta property="og:description" content={description} />
+
+    <meta property="og:url" content={canonicalURL} />
+
+    {image && <meta property="og:image" content={image} />}
+
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <meta name="twitter:title" content={fullTitle} />
+
+    <meta name="twitter:description" content={description} />
+
+    {image && <meta name="twitter:image" content={image} />}
+  </head>
+
+  <body>
+    <a
+      href="#main-content"
+      class="fixed top-3 left-3 z-[100] -translate-y-24 rounded-full bg-brand-700 px-5 py-3 font-bold text-white shadow-blue transition focus:translate-y-0"
+    >
+      Skip to main content
+    </a>
+
+    {
+      !hideSiteChrome && (
+        <>
+          <AnnouncementBar />
+          <SiteHeader />
+        </>
+      )
+    }
+
+    <main id="main-content">
+      <slot />
+    </main>
+
+    {!hideSiteChrome && <SiteFooter />}
+  </body>
+</html>

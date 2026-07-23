@@ -1,0 +1,222 @@
+---
+import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
+import ListBold from 'phosphor-astro/ListBold.astro';
+import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
+import ShoppingCartBold from 'phosphor-astro/ShoppingCartBold.astro';
+import XBold from 'phosphor-astro/XBold.astro';
+
+interface NavigationItem {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  items: NavigationItem[];
+  currentPath: string;
+}
+
+const { items, currentPath } = Astro.props;
+
+function isCurrentRoute(href: string): boolean {
+  if (href === '/') {
+    return currentPath === '/';
+  }
+
+  return currentPath === href || currentPath.startsWith(`${href}/`);
+}
+---
+
+<div class="lg:hidden" data-mobile-navigation>
+  <button
+    type="button"
+    class="grid size-11 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-800 shadow-sm transition hover:border-brand-400 hover:bg-brand-50"
+    aria-label="Open navigation menu"
+    aria-expanded="false"
+    data-mobile-navigation-open
+  >
+    <ListBold class="size-5" aria-hidden="true" />
+  </button>
+
+  <div
+    class="fixed inset-0 z-50"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Main navigation"
+    data-mobile-navigation-panel
+    hidden
+  >
+    <button
+      type="button"
+      class="absolute inset-0 cursor-default bg-ink-950/45 backdrop-blur-sm"
+      aria-label="Close navigation menu"
+      data-mobile-navigation-backdrop
+    >
+    </button>
+
+    <div
+      class="absolute inset-y-0 right-0 flex w-[min(88vw,24rem)] flex-col border-l border-brand-100 bg-cream-soft shadow-2xl"
+    >
+      <div class="flex items-center justify-between border-b border-sand px-5 py-4">
+        <div>
+          <p class="text-lg font-black tracking-tight text-ink-900">
+            Maxi<span class="text-brand-500">Pawz</span>
+          </p>
+
+          <p class="text-xs font-semibold text-ink-500">Toys for happy pets</p>
+        </div>
+
+        <button
+          type="button"
+          class="grid size-11 place-items-center rounded-full border border-sand bg-white-warm text-ink-800 transition hover:border-accent-300 hover:bg-accent-50"
+          aria-label="Close navigation menu"
+          data-mobile-navigation-close
+        >
+          <XBold class="size-5" aria-hidden="true" />
+        </button>
+      </div>
+
+      <nav class="flex flex-1 flex-col gap-2 overflow-y-auto p-5" aria-label="Mobile navigation">
+        {
+          items.map((item) => {
+            const isCurrent = isCurrentRoute(item.href);
+
+            return (
+              <a
+                href={item.href}
+                class:list={[
+                  'flex min-h-13 items-center justify-between rounded-2xl px-4 py-3 font-bold transition',
+                  isCurrent
+                    ? 'bg-brand-500 text-white shadow-blue'
+                    : 'text-ink-800 hover:bg-brand-50 hover:text-brand-800',
+                ]}
+                aria-current={isCurrent ? 'page' : undefined}
+                data-mobile-navigation-link
+              >
+                <span>{item.label}</span>
+
+                {isCurrent ? (
+                  <PawPrintBold class="size-5" aria-hidden="true" />
+                ) : (
+                  <ArrowRightBold class="size-5" aria-hidden="true" />
+                )}
+              </a>
+            );
+          })
+        }
+      </nav>
+
+      <div class="border-t border-sand p-5">
+        <a href="/cart" class="button-primary w-full" data-mobile-navigation-link>
+          <ShoppingCartBold class="size-5" aria-hidden="true" />
+
+          View cart
+
+          <span class="rounded-full bg-white/70 px-2 py-1 text-xs"> 0 </span>
+        </a>
+
+        <p class="mt-4 text-center text-xs leading-5 text-ink-500">
+          Secure checkout will be powered by Stripe.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const navigationElements = document.querySelectorAll<HTMLElement>('[data-mobile-navigation]');
+
+  navigationElements.forEach((navigation) => {
+    const openButton = navigation.querySelector<HTMLButtonElement>('[data-mobile-navigation-open]');
+
+    const closeButton = navigation.querySelector<HTMLButtonElement>(
+      '[data-mobile-navigation-close]',
+    );
+
+    const backdropButton = navigation.querySelector<HTMLButtonElement>(
+      '[data-mobile-navigation-backdrop]',
+    );
+
+    const panel = navigation.querySelector<HTMLElement>('[data-mobile-navigation-panel]');
+
+    const navigationLinks = navigation.querySelectorAll<HTMLAnchorElement>(
+      '[data-mobile-navigation-link]',
+    );
+
+    if (!openButton || !closeButton || !backdropButton || !panel) {
+      return;
+    }
+
+    function getFocusableElements(): HTMLElement[] {
+      return Array.from(
+        panel.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => !element.hasAttribute('hidden'));
+    }
+
+    function openMenu(): void {
+      panel.hidden = false;
+      openButton.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+
+      window.requestAnimationFrame(() => {
+        closeButton.focus();
+      });
+    }
+
+    function closeMenu(restoreFocus = true): void {
+      panel.hidden = true;
+      openButton.setAttribute('aria-expanded', 'false');
+      document.body.style.removeProperty('overflow');
+
+      if (restoreFocus) {
+        openButton.focus();
+      }
+    }
+
+    openButton.addEventListener('click', openMenu);
+    closeButton.addEventListener('click', () => closeMenu());
+    backdropButton.addEventListener('click', () => closeMenu());
+
+    navigationLinks.forEach((link) => {
+      link.addEventListener('click', () => closeMenu(false));
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (panel.hidden) {
+        return;
+      }
+
+      if (event.key === 'Escape') {
+        closeMenu();
+        return;
+      }
+
+      if (event.key !== 'Tab') {
+        return;
+      }
+
+      const focusableElements = getFocusableElements();
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements.at(-1);
+
+      if (!firstElement || !lastElement) {
+        return;
+      }
+
+      if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      } else if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 1024 && !panel.hidden) {
+        closeMenu(false);
+      }
+    });
+  });
+</script>

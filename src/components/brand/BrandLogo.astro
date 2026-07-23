@@ -1,0 +1,41 @@
+---
+import { Image } from 'astro:assets';
+
+import logoImage from '../../assets/brand/maxipawz-logo.webp';
+import markImage from '../../assets/brand/maxipawz-mark.webp';
+import mascotImage from '../../assets/brand/maxipawz-mascot.webp';
+
+interface Props {
+  variant?: 'logo' | 'mark' | 'mascot';
+  class?: string;
+  eager?: boolean;
+}
+
+const { variant = 'logo', class: className = '', eager = false } = Astro.props;
+
+const imageByVariant = {
+  logo: {
+    src: logoImage,
+    alt: 'MaxiPawz Store',
+  },
+  mark: {
+    src: markImage,
+    alt: 'MaxiPawz',
+  },
+  mascot: {
+    src: mascotImage,
+    alt: 'MaxiPawz dog mascot',
+  },
+};
+
+const selectedImage = imageByVariant[variant];
+---
+
+<Image
+  src={selectedImage.src}
+  alt={selectedImage.alt}
+  class={className}
+  loading={eager ? 'eager' : 'lazy'}
+  fetchpriority={eager ? 'high' : 'auto'}
+  quality={90}
+/>
