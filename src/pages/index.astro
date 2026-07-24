@@ -6,9 +6,9 @@ import HeartBold from 'phosphor-astro/HeartBold.astro';
 import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
 import ShieldCheckBold from 'phosphor-astro/ShieldCheckBold.astro';
 import ShoppingBagOpenBold from 'phosphor-astro/ShoppingBagOpenBold.astro';
-import SuitcaseRollingBold from 'phosphor-astro/SuitcaseRollingBold.astro';
 
 import HeroSlider from '@components/home/HeroSlider.astro';
+import ShopByLifestyle from '@components/home/ShopByLifestyle.astro';
 import Badge from '@components/ui/Badge.astro';
 import Button from '@components/ui/Button.astro';
 import BaseLayout from '@layouts/BaseLayout.astro';
@@ -81,35 +81,6 @@ const benefits = [
       'A warm shopping experience created for pets and the people who care for them.',
   },
 ];
-
-const futureCategories = [
-  {
-    title: 'Play & Enrichment',
-
-    description:
-      'Toys, puzzles, interactive products, and engaging activities that help make playtime more rewarding.',
-
-    icon: PawPrintBold,
-  },
-
-  {
-    title: 'Walk & Travel',
-
-    description:
-      'Portable water bottles, walking accessories, travel products, and useful essentials for adventures together.',
-
-    icon: SuitcaseRollingBold,
-  },
-
-  {
-    title: 'Everyday Essentials',
-
-    description:
-      'Accessories, feeding supplies, comfort products, grooming items, and practical solutions for daily routines.',
-
-    icon: HeartBold,
-  },
-];
 ---
 
 <BaseLayout
@@ -157,7 +128,7 @@ const futureCategories = [
         </Badge>
 
         <h1
-          class="mt-7 max-w-3xl text-5xl font-regular text-ink-900 sm:text-6xl lg:text-7xl"
+          class="mt-7 max-w-3xl text-5xl leading-[0.98] font-black tracking-[-0.05em] text-ink-900 sm:text-6xl lg:text-7xl"
         >
           {
             showLiveProductHero ? (
@@ -332,66 +303,8 @@ const futureCategories = [
     </div>
   </section>
 
-  <!-- Future collection overview -->
-  <section class="section-spacing">
-    <div class="site-container-wide">
-      <div class="mx-auto max-w-3xl text-center">
-        <Badge
-          variant="brand"
-          size="md"
-          class="mx-auto"
-        >
-          <PawPrintBold
-            slot="icon"
-            aria-hidden="true"
-          />
-
-          More than playtime
-        </Badge>
-
-        <h2 class="section-title mt-6 text-4xl sm:text-5xl">
-          Helpful products for the moments you share.
-        </h2>
-
-        <p class="section-description mx-auto mt-5">
-          MaxiPawz is being built around the many ways pets and
-          their people live, play, travel, relax, and care for one
-          another.
-        </p>
-      </div>
-
-      <div class="mt-10 grid gap-5 md:grid-cols-3">
-        {
-          futureCategories.map(
-            ({
-              title,
-              description,
-              icon: Icon,
-            }) => (
-              <article
-                class="surface-card group p-6 transition duration-200 hover:-translate-y-1 hover:shadow-xl"
-              >
-                <span
-                  class="grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-brand-100 to-accent-100 text-brand-700 transition group-hover:scale-105"
-                  aria-hidden="true"
-                >
-                  <Icon class="size-7" />
-                </span>
-
-                <h3 class="mt-5 text-2xl text-ink-900">
-                  {title}
-                </h3>
-
-                <p class="mt-3 text-sm leading-6 text-ink-600">
-                  {description}
-                </p>
-              </article>
-            ),
-          )
-        }
-      </div>
-    </div>
-  </section>
+  <!-- Shop by lifestyle -->
+  <ShopByLifestyle />
 
   <!-- Launch signup -->
   <section

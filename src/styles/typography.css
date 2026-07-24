@@ -2,45 +2,76 @@
  * MaxiPawz typography system
  *
  * Display typography:
- * MaxiPawz Skia
+ * Skia Black at normal width.
  *
- * Secondary and interface typography:
- * Nunito Sans Variable
+ * Body and interface typography:
+ * Nunito Sans Variable.
  */
 
 /*
- * Skia is reserved for headings and major brand statements.
+ * The supplied Skia WOFF2 is a variable font with legacy GX-style
+ * coordinates rather than the modern 100–900 weight scale.
  *
- * The weight range assumes that the supplied WOFF2 preserves Skia's
- * variable weight information. Browsers that cannot access a heavier
- * variation are permitted to synthesize the requested bold weight.
+ * Skia variation coordinates:
+ *
+ * Weight:
+ *   Minimum: 0.48
+ *   Default: 1
+ *   Maximum: 3.2
+ *
+ * Width:
+ *   Condensed: 0.62
+ *   Normal:    1
+ *   Extended:  1.3
+ *
+ * MaxiPawz headings use:
+ *
+ *   Weight: 3.2 — Black
+ *   Width:  1   — Normal width
  */
 @font-face {
-  font-family: 'MaxiPawz Skia';
+  font-family: 'MaxiPawz Skia Black';
   src: url('/fonts/skia/Skia.woff2') format('woff2');
   font-style: normal;
-  font-weight: 100 900;
+  font-weight: 900;
+  font-stretch: normal;
   font-display: swap;
 }
 
 /*
- * These variables override the provisional typography tokens defined
- * in global.css.
+ * Typography tokens.
  */
 :root {
-  --font-display: 'MaxiPawz Skia', 'Arial Rounded MT Bold', ui-rounded, system-ui, sans-serif;
+  --font-display:
+    'MaxiPawz Skia Black',
+    'Arial Rounded MT Bold',
+    ui-rounded,
+    system-ui,
+    sans-serif;
 
   --font-body:
-    'Nunito Sans Variable', 'Nunito Sans', ui-rounded, system-ui, -apple-system, BlinkMacSystemFont,
-    'Segoe UI', sans-serif;
+    'Nunito Sans Variable',
+    'Nunito Sans',
+    ui-rounded,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
 
   --font-sans: var(--font-body);
   --font-secondary: var(--font-body);
+
+  /*
+   * Original Skia variation coordinates.
+   */
+  --skia-weight-black: 3.2;
+  --skia-width-normal: 1;
 }
 
 @layer base {
   /*
-   * Nunito Sans is the default website typeface.
+   * Nunito Sans remains the default website font.
    */
   html,
   body {
@@ -54,7 +85,10 @@
   }
 
   /*
-   * Skia headings use the strongest standard display weight.
+   * Semantic headings use Skia Black at normal width.
+   *
+   * The explicit variation settings prevent Skia Extended from
+   * being selected and override incidental font-weight utilities.
    */
   h1,
   h2,
@@ -65,30 +99,35 @@
     font-family: var(--font-display);
     font-style: normal;
     font-weight: 900;
-    font-synthesis: weight;
-    font-variation-settings: 'wght' 900;
+    font-stretch: normal;
+    font-synthesis: none;
+    font-kerning: normal;
+
+    font-variation-settings:
+      'wght' var(--skia-weight-black),
+      'wdth' var(--skia-width-normal);
   }
 
   h1 {
-    line-height: 0.96;
-    letter-spacing: -0.055em;
+    line-height: 0.98;
+    letter-spacing: -0.045em;
   }
 
   h2 {
     line-height: 1;
-    letter-spacing: -0.045em;
+    letter-spacing: -0.04em;
   }
 
   h3 {
     line-height: 1.05;
-    letter-spacing: -0.035em;
+    letter-spacing: -0.03em;
   }
 
   h4,
   h5,
   h6 {
     line-height: 1.1;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.02em;
   }
 
   /*
@@ -112,7 +151,7 @@
   }
 
   /*
-   * Interface typography should remain highly readable.
+   * Interface typography remains in Nunito Sans.
    */
   a,
   button,
@@ -149,19 +188,27 @@
 
 @layer components {
   /*
-   * Major section headings use the strongest Skia treatment.
+   * Primary section headings.
    */
   .section-title {
     font-family: var(--font-display);
+    font-style: normal;
     font-weight: 900;
-    font-synthesis: weight;
-    font-variation-settings: 'wght' 900;
-    letter-spacing: -0.05em;
+    font-stretch: normal;
+    font-synthesis: none;
+    font-kerning: normal;
+
+    font-variation-settings:
+      'wght' var(--skia-weight-black),
+      'wdth' var(--skia-width-normal);
+
+    line-height: 1;
+    letter-spacing: -0.04em;
   }
 
   /*
-   * Kicker labels use the secondary typeface to create contrast
-   * beneath the expressive Skia headings.
+   * Kicker labels remain in Nunito Sans to contrast with
+   * the heavier Skia Black headings.
    */
   .section-kicker {
     font-family: var(--font-body);
@@ -177,7 +224,7 @@
   }
 
   /*
-   * Buttons and controls stay in Nunito Sans.
+   * Buttons and controls remain in Nunito Sans.
    */
   .button-base,
   .button-primary,
@@ -197,6 +244,9 @@
     letter-spacing: 0.01em;
   }
 
+  /*
+   * Forms.
+   */
   .form-label {
     font-family: var(--font-body);
     font-weight: 750;
@@ -214,7 +264,7 @@
   }
 
   /*
-   * Reusable secondary text treatment.
+   * Reusable secondary text.
    */
   .secondary-text {
     color: var(--text-secondary);
@@ -225,8 +275,8 @@
   }
 
   /*
-   * Small supporting information such as product metadata,
-   * shipping notes, and card captions.
+   * Product metadata, shipping notes, captions, and other
+   * supporting details.
    */
   .supporting-text {
     color: var(--text-muted);
@@ -237,31 +287,48 @@
   }
 
   /*
-   * Strong secondary heading for product cards and interface areas
-   * where Skia would be too visually dominant.
+   * Card titles, slider titles, and other secondary headings.
    */
   .interface-heading {
     color: var(--text-primary);
-    font-family: var(--font-body);
-    font-weight: 850;
-    line-height: 1.2;
+    font-family: var(--font-display);
+    font-style: normal;
+    font-weight: 900;
+    font-stretch: normal;
+    font-synthesis: none;
+    font-kerning: normal;
+
+    font-variation-settings:
+      'wght' var(--skia-weight-black),
+      'wdth' var(--skia-width-normal);
+
+    line-height: 1.12;
     letter-spacing: -0.025em;
   }
 }
 
 @layer utilities {
   /*
-   * Explicit display-font utility.
+   * Explicit Skia Black utility.
+   *
+   * Use this for non-heading elements that need display typography,
+   * including the hero-slider titles.
    */
   .font-display {
     font-family: var(--font-display);
+    font-style: normal;
     font-weight: 900;
-    font-synthesis: weight;
-    font-variation-settings: 'wght' 900;
+    font-stretch: normal;
+    font-synthesis: none;
+    font-kerning: normal;
+
+    font-variation-settings:
+      'wght' var(--skia-weight-black),
+      'wdth' var(--skia-width-normal);
   }
 
   /*
-   * Explicit secondary-font utility.
+   * Explicit body-font utilities.
    */
   .font-body,
   .font-secondary {
@@ -269,14 +336,21 @@
   }
 
   /*
-   * Strongest Skia treatment for hero statements.
+   * Strongest hero-heading treatment.
    */
   .heading-heavy {
     font-family: var(--font-display);
+    font-style: normal;
     font-weight: 900;
-    font-synthesis: weight;
-    font-variation-settings: 'wght' 900;
-    line-height: 0.96;
-    letter-spacing: -0.055em;
+    font-stretch: normal;
+    font-synthesis: none;
+    font-kerning: normal;
+
+    font-variation-settings:
+      'wght' var(--skia-weight-black),
+      'wdth' var(--skia-width-normal);
+
+    line-height: 0.98;
+    letter-spacing: -0.045em;
   }
 }

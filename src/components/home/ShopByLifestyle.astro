@@ -1,0 +1,106 @@
+---
+import ConfettiBold from 'phosphor-astro/ConfettiBold.astro';
+import HeartBold from 'phosphor-astro/HeartBold.astro';
+import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
+import ShieldCheckBold from 'phosphor-astro/ShieldCheckBold.astro';
+import ShoppingBagOpenBold from 'phosphor-astro/ShoppingBagOpenBold.astro';
+import SuitcaseRollingBold from 'phosphor-astro/SuitcaseRollingBold.astro';
+
+import CategoryCard from './CategoryCard.astro';
+
+import Badge from '../ui/Badge.astro';
+import Button from '../ui/Button.astro';
+
+import { isStoreLive } from '../../config/storefront';
+
+import { lifestyleCategories, type LifestyleCategoryIcon } from '../../data/homepage';
+
+const iconByCategory: Record<LifestyleCategoryIcon, typeof PawPrintBold> = {
+  play: ConfettiBold,
+  travel: SuitcaseRollingBold,
+  hydration: HeartBold,
+  comfort: PawPrintBold,
+  care: ShieldCheckBold,
+  accessories: ShoppingBagOpenBold,
+};
+
+function getCategoryHref(slug: string): string {
+  if (!isStoreLive) {
+    return '/#join-the-pack';
+  }
+
+  return `/shop?category=${encodeURIComponent(slug)}`;
+}
+
+const categoryLinkLabel = isStoreLive ? 'Explore category' : 'Get launch updates';
+---
+
+<section
+  id="shop-by-lifestyle"
+  class="section-spacing relative overflow-hidden"
+  aria-labelledby="shop-by-lifestyle-title"
+>
+  <div
+    class="pointer-events-none absolute top-0 left-1/2 size-[34rem] -translate-x-1/2 rounded-full bg-brand-200/20 blur-3xl"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div class="site-container-wide relative">
+    <div class="mx-auto max-w-3xl text-center">
+      <Badge variant="brand" size="md" class="mx-auto">
+        <PawPrintBold slot="icon" aria-hidden="true" />
+
+        {isStoreLive ? 'Shop by lifestyle' : 'What you will find'}
+      </Badge>
+
+      <h2 id="shop-by-lifestyle-title" class="section-title mt-6 text-4xl sm:text-5xl">
+        Products for play, care, comfort, and everyday adventures.
+      </h2>
+
+      <p class="section-description mx-auto mt-5">
+        {
+          isStoreLive
+            ? 'Explore MaxiPawz products based on the moments, routines, and experiences you share with your pet.'
+            : 'MaxiPawz is preparing a varied collection that supports playtime, walks, travel, feeding, hydration, comfort, care, and personal style.'
+        }
+      </p>
+    </div>
+
+    <div class="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      {
+        lifestyleCategories.map((category) => {
+          const Icon = iconByCategory[category.icon];
+
+          return (
+            <CategoryCard
+              title={category.title}
+              description={category.description}
+              href={getCategoryHref(category.slug)}
+              linkLabel={categoryLinkLabel}
+              tone={category.tone}
+            >
+              <Icon slot="icon" aria-hidden="true" />
+            </CategoryCard>
+          );
+        })
+      }
+    </div>
+
+    <div class="mt-10 flex justify-center">
+      {
+        isStoreLive ? (
+          <Button href="/shop" variant="secondary" size="lg" iconPosition="right">
+            <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
+            Shop All Products
+          </Button>
+        ) : (
+          <Button href="/#join-the-pack" variant="secondary" size="lg" iconPosition="right">
+            <HeartBold slot="icon" aria-hidden="true" />
+            Join the Pack
+          </Button>
+        )
+      }
+    </div>
+  </div>
+</section>
