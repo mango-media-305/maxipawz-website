@@ -15,9 +15,20 @@ interface NavigationItem {
 interface Props {
   items: NavigationItem[];
   currentPath: string;
+  storeLive?: boolean;
+  actionLabel?: string;
+  actionHref?: string;
+  note?: string;
 }
 
-const { items, currentPath: initialCurrentPath } = Astro.props;
+const {
+  items,
+  currentPath: initialCurrentPath,
+  storeLive = false,
+  actionLabel,
+  actionHref,
+  note = '',
+} = Astro.props;
 
 function normalizePath(path: string): string {
   if (path === '/') {
@@ -37,9 +48,15 @@ const activeNavigationHref = items
       return currentPath === '/';
     }
 
-    return currentPath === itemPath || currentPath.startsWith(`${itemPath}/`);
+    return (
+      currentPath === itemPath ||
+      currentPath.startsWith(`${itemPath}/`)
+    );
   })
-  .sort((firstItem, secondItem) => secondItem.href.length - firstItem.href.length)[0]?.href;
+  .sort(
+    (firstItem, secondItem) =>
+      secondItem.href.length - firstItem.href.length,
+  )[0]?.href;
 
 function isCurrentRoute(href: string): boolean {
   if (!activeNavigationHref) {
@@ -68,7 +85,6 @@ function isCurrentRoute(href: string): boolean {
     />
   </button>
 
-  <!-- Full viewport dialog -->
   <div
     id="mobile-navigation-panel"
     class="fixed inset-0 z-[100] overflow-hidden"
@@ -167,32 +183,57 @@ function isCurrentRoute(href: string): boolean {
         </ul>
       </nav>
 
-      <!-- Drawer footer -->
+      <!-- Conditional drawer action -->
       <div class="shrink-0 border-t border-sand bg-cream-soft p-5">
-        <a
-          href="/cart"
-          class="flex min-h-12 w-full items-center justify-center gap-2.5 rounded-full border border-accent-600 bg-accent-500 px-5 py-3 font-extrabold text-ink-950 shadow-orange transition duration-200 hover:-translate-y-0.5 hover:bg-accent-400"
-          aria-label="View shopping cart, 0 items"
-          data-mobile-navigation-link
-        >
-          <ShoppingCartBold
-            class="size-5"
-            aria-hidden="true"
-          />
+        {
+          storeLive ? (
+            <a
+              href="/cart"
+              class="flex min-h-12 w-full items-center justify-center gap-2.5 rounded-full border border-accent-600 bg-accent-500 px-5 py-3 font-extrabold text-ink-950 shadow-orange transition duration-200 hover:-translate-y-0.5 hover:bg-accent-400"
+              aria-label="View shopping cart, 0 items"
+              data-mobile-navigation-link
+            >
+              <ShoppingCartBold
+                class="size-5"
+                aria-hidden="true"
+              />
 
-          <span>View cart</span>
+              <span>View cart</span>
 
-          <span
-            class="grid min-w-7 place-items-center rounded-full bg-white/75 px-2 py-1 text-xs leading-none font-black"
-            aria-hidden="true"
-          >
-            0
-          </span>
-        </a>
+              <span
+                class="grid min-w-7 place-items-center rounded-full bg-white/75 px-2 py-1 text-xs leading-none font-black"
+                aria-hidden="true"
+              >
+                0
+              </span>
+            </a>
+          ) : (
+            actionLabel &&
+            actionHref && (
+              <a
+                href={actionHref}
+                class="flex min-h-12 w-full items-center justify-center gap-2.5 rounded-full border border-accent-600 bg-accent-500 px-5 py-3 font-extrabold text-ink-950 shadow-orange transition duration-200 hover:-translate-y-0.5 hover:bg-accent-400"
+                aria-label={actionLabel}
+                data-mobile-navigation-link
+              >
+                <span>{actionLabel}</span>
 
-        <p class="mt-4 text-center text-xs leading-5 text-ink-500">
-          Secure checkout will be powered by Stripe.
-        </p>
+                <ArrowRightBold
+                  class="size-5"
+                  aria-hidden="true"
+                />
+              </a>
+            )
+          )
+        }
+
+        {
+          note && (
+            <p class="mt-4 text-center text-xs leading-5 text-ink-500">
+              {note}
+            </p>
+          )
+        }
       </div>
     </aside>
   </div>
@@ -298,13 +339,19 @@ function isCurrentRoute(href: string): boolean {
         return;
       }
 
-      if (event.shiftKey && document.activeElement === firstElement) {
+      if (
+        event.shiftKey &&
+        document.activeElement === firstElement
+      ) {
         event.preventDefault();
         lastElement.focus();
         return;
       }
 
-      if (!event.shiftKey && document.activeElement === lastElement) {
+      if (
+        !event.shiftKey &&
+        document.activeElement === lastElement
+      ) {
         event.preventDefault();
         firstElement.focus();
       }
@@ -331,7 +378,10 @@ function isCurrentRoute(href: string): boolean {
     window.addEventListener(
       'resize',
       () => {
-        if (window.innerWidth >= 1024 && !panel.hidden) {
+        if (
+          window.innerWidth >= 1024 &&
+          !panel.hidden
+        ) {
           closeMenu(false);
         }
       },

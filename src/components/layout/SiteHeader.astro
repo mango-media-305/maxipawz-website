@@ -1,11 +1,21 @@
 ---
+import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
 import MagnifyingGlassBold from 'phosphor-astro/MagnifyingGlassBold.astro';
 import ShoppingCartBold from 'phosphor-astro/ShoppingCartBold.astro';
 
 import BrandLogo from '../brand/BrandLogo.astro';
 import MobileNavigation from './MobileNavigation.astro';
+import Button from '../ui/Button.astro';
 
-import { primaryNavigation } from '../../data/navigation';
+import {
+  isStoreLive,
+  storefrontState,
+} from '../../config/storefront';
+
+import {
+  mobileNavigation,
+  primaryNavigation,
+} from '../../data/navigation';
 
 function normalizePath(path: string): string {
   if (path === '/') {
@@ -21,13 +31,15 @@ const activeNavigationHref = primaryNavigation
   .filter((item) => {
     const itemPath = normalizePath(item.href);
 
-    if (itemPath === '/') {
-      return currentPath === '/';
-    }
-
-    return currentPath === itemPath || currentPath.startsWith(`${itemPath}/`);
+    return (
+      currentPath === itemPath ||
+      currentPath.startsWith(`${itemPath}/`)
+    );
   })
-  .sort((firstItem, secondItem) => secondItem.href.length - firstItem.href.length)[0]?.href;
+  .sort(
+    (firstItem, secondItem) =>
+      secondItem.href.length - firstItem.href.length,
+  )[0]?.href;
 
 function isCurrentRoute(href: string): boolean {
   if (!activeNavigationHref) {
@@ -36,6 +48,8 @@ function isCurrentRoute(href: string): boolean {
 
   return normalizePath(href) === normalizePath(activeNavigationHref);
 }
+
+const headerAction = storefrontState.headerAction;
 ---
 
 <header
@@ -43,10 +57,8 @@ function isCurrentRoute(href: string): boolean {
   data-site-header
 >
   <!--
-    The blur lives in a separate sibling layer.
-
-    Do not place backdrop-blur directly on the header because the mobile
-    fixed-position drawer is rendered inside this component.
+    The backdrop filter stays in its own layer so it does not become
+    a positioning ancestor for the fixed mobile-navigation drawer.
   -->
   <div
     class="pointer-events-none absolute inset-0 z-0 bg-cream-soft/95 backdrop-blur-xl"
@@ -70,7 +82,7 @@ function isCurrentRoute(href: string): boolean {
         eager={true}
       />
 
-      <!-- Tablet and desktop logo -->
+      <!-- Tablet and desktop horizontal logo -->
       <BrandLogo
         variant="logo"
         class="hidden h-10 w-auto object-contain transition duration-200 group-hover:-translate-y-0.5 md:block lg:h-11"
@@ -117,40 +129,69 @@ function isCurrentRoute(href: string): boolean {
 
     <!-- Header actions -->
     <div class="flex shrink-0 items-center gap-1.5 sm:gap-2">
-      <a
-        href="/search"
-        class="hidden size-10 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-800 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-brand-400 hover:bg-brand-50 sm:grid"
-        aria-label="Search MaxiPawz Store"
-      >
-        <MagnifyingGlassBold
-          class="size-[1.125rem]"
-          aria-hidden="true"
-        />
-      </a>
+      {
+        isStoreLive ? (
+          <>
+            <a
+              href="/search"
+              class="hidden size-10 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-800 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-brand-400 hover:bg-brand-50 sm:grid"
+              aria-label="Search MaxiPawz Store"
+            >
+              <MagnifyingGlassBold
+                class="size-[1.125rem]"
+                aria-hidden="true"
+              />
+            </a>
 
-      <a
-        href="/cart"
-        class="relative hidden min-h-10 items-center gap-1.5 rounded-full border border-accent-300 bg-accent-50 px-3 py-1.5 text-sm font-extrabold text-accent-800 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-accent-500 hover:bg-accent-100 sm:flex"
-        aria-label="View shopping cart, 0 items"
-      >
-        <ShoppingCartBold
-          class="size-[1.125rem]"
-          aria-hidden="true"
-        />
+            <a
+              href="/cart"
+              class="relative hidden min-h-10 items-center gap-1.5 rounded-full border border-accent-300 bg-accent-50 px-3 py-1.5 text-sm font-extrabold text-accent-800 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-accent-500 hover:bg-accent-100 sm:flex"
+              aria-label="View shopping cart, 0 items"
+            >
+              <ShoppingCartBold
+                class="size-[1.125rem]"
+                aria-hidden="true"
+              />
 
-        <span class="hidden xl:inline">Cart</span>
+              <span class="hidden xl:inline">Cart</span>
 
-        <span
-          class="grid min-w-5 place-items-center rounded-full bg-accent-500 px-1.5 py-0.5 text-[0.6875rem] leading-none font-black text-ink-950"
-          aria-hidden="true"
-        >
-          0
-        </span>
-      </a>
+              <span
+                class="grid min-w-5 place-items-center rounded-full bg-accent-500 px-1.5 py-0.5 text-[0.6875rem] leading-none font-black text-ink-950"
+                aria-hidden="true"
+              >
+                0
+              </span>
+            </a>
+          </>
+        ) : (
+          headerAction && (
+            <div class="hidden sm:block">
+              <Button
+                href={headerAction.href}
+                variant="primary"
+                size="sm"
+                iconPosition="right"
+                ariaLabel={headerAction.label}
+              >
+                <ArrowRightBold
+                  slot="icon"
+                  aria-hidden="true"
+                />
+
+                {headerAction.label}
+              </Button>
+            </div>
+          )
+        )
+      }
 
       <MobileNavigation
-        items={primaryNavigation}
+        items={mobileNavigation}
         currentPath={currentPath}
+        storeLive={isStoreLive}
+        actionLabel={headerAction?.label}
+        actionHref={headerAction?.href}
+        note={storefrontState.mobileNote}
       />
     </div>
   </div>

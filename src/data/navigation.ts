@@ -8,90 +8,92 @@ export interface FooterNavigationGroup {
   links: NavigationItem[];
 }
 
+/*
+ * Desktop navigation.
+ *
+ * Home is intentionally omitted because the MaxiPawz logo already links
+ * to the homepage.
+ */
 export const primaryNavigation: NavigationItem[] = [
-  {
-    label: 'Home',
-    href: '/',
-  },
   {
     label: 'Shop',
     href: '/shop',
   },
   {
-    label: 'Dog Toys',
-    href: '/shop/dog-toys',
+    label: 'Play Guides',
+    href: '/play-guides',
   },
   {
-    label: 'Cat Toys',
-    href: '/shop/cat-toys',
-  },
-  {
-    label: 'About',
+    label: 'Our Story',
     href: '/about',
   },
+  {
+    label: 'Contact',
+    href: '/contact',
+  },
+];
+
+/*
+ * Mobile navigation includes an explicit Home link because the drawer
+ * works as a complete site-navigation experience.
+ */
+export const mobileNavigation: NavigationItem[] = [
+  {
+    label: 'Home',
+    href: '/',
+  },
+  ...primaryNavigation,
 ];
 
 export const footerNavigation: FooterNavigationGroup[] = [
   {
-    title: 'Shop',
+    title: 'Explore',
     links: [
       {
-        label: 'Shop All',
+        label: 'Shop',
         href: '/shop',
       },
       {
-        label: 'Dog Toys',
-        href: '/shop/dog-toys',
+        label: 'Play Guides',
+        href: '/play-guides',
       },
       {
-        label: 'Cat Toys',
-        href: '/shop/cat-toys',
-      },
-      {
-        label: 'New Arrivals',
-        href: '/shop/new-arrivals',
-      },
-    ],
-  },
-  {
-    title: 'MaxiPawz',
-    links: [
-      {
-        label: 'About Us',
+        label: 'Our Story',
         href: '/about',
       },
+    ],
+  },
+  {
+    title: 'Play Better',
+    links: [
       {
         label: 'Pet Toy Safety',
-        href: '/pet-toy-safety',
+        href: '/toy-safety',
       },
       {
-        label: 'Custom Orders',
-        href: '/custom-orders',
+        label: 'Choosing the Right Toy',
+        href: '/play-guides/choosing-the-right-toy',
       },
       {
-        label: 'Contact',
-        href: '/contact',
+        label: 'Enrichment Basics',
+        href: '/play-guides/enrichment-basics',
       },
     ],
   },
   {
-    title: 'Customer Care',
+    title: 'Help & Updates',
     links: [
       {
         label: 'Frequently Asked Questions',
         href: '/faq',
       },
       {
-        label: 'Shipping Policy',
-        href: '/shipping-policy',
+        label: 'Contact Us',
+        href: '/contact',
       },
       {
-        label: 'Returns and Refunds',
-        href: '/returns',
-      },
-      {
-        label: 'Order Support',
-        href: '/order-support',
+        label: 'Join the Pack',
+        href: '/#join-the-pack',
       },
     ],
   },

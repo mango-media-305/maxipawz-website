@@ -2,31 +2,42 @@
 import HeartBold from 'phosphor-astro/HeartBold.astro';
 import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
 
-import { siteConfig } from '../../config/site';
+import { storefrontState } from '../../config/storefront';
 
-const { announcement } = siteConfig;
+const { announcement } = storefrontState;
 ---
 
-{
-  announcement.enabled && (
-    <aside class="relative overflow-hidden bg-brand-500 text-white" aria-label="Store announcement">
-      <div
-        class="absolute inset-y-0 left-0 w-40 bg-gradient-to-r from-brand-700/45 to-transparent"
-        aria-hidden="true"
-      ></div>
+<aside
+  class="relative overflow-hidden bg-brand-500 text-white"
+  aria-label="Store announcement"
+>
+  <div
+    class="pointer-events-none absolute inset-y-0 left-0 w-40 bg-linear-to-r from-brand-700/45 to-transparent"
+    aria-hidden="true"
+  >
+  </div>
 
-      <div
-        class="absolute inset-y-0 right-0 w-40 bg-gradient-to-l from-accent-500/55 to-transparent"
-        aria-hidden="true"
-      ></div>
+  <div
+    class="pointer-events-none absolute inset-y-0 right-0 w-40 bg-linear-to-l from-accent-500/55 to-transparent"
+    aria-hidden="true"
+  >
+  </div>
 
-      <div class="site-container relative flex min-h-10 items-center justify-center gap-2 py-2 text-center text-sm font-bold tracking-wide">
-        <PawPrintBold class="hidden size-4 shrink-0 text-accent-200 sm:block" aria-hidden="true" />
+  <a
+    href={announcement.href}
+    class="site-container relative flex min-h-10 items-center justify-center gap-2 py-2 text-center text-sm font-bold tracking-wide transition hover:bg-white/5"
+    aria-label={announcement.ariaLabel}
+  >
+    <PawPrintBold
+      class="hidden size-4 shrink-0 text-accent-200 sm:block"
+      aria-hidden="true"
+    />
 
-        <p>{announcement.message}</p>
+    <span>{announcement.message}</span>
 
-        <HeartBold class="hidden size-4 shrink-0 text-accent-200 sm:block" aria-hidden="true" />
-      </div>
-    </aside>
-  )
-}
+    <HeartBold
+      class="hidden size-4 shrink-0 text-accent-200 sm:block"
+      aria-hidden="true"
+    />
+  </a>
+</aside>
