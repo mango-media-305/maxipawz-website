@@ -1,69 +1,147 @@
 ---
-import { Image } from 'astro:assets';
-
 import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
-import BoneBold from 'phosphor-astro/BoneBold.astro';
 import CheckCircleFill from 'phosphor-astro/CheckCircleFill.astro';
 import ConfettiBold from 'phosphor-astro/ConfettiBold.astro';
-import HammerBold from 'phosphor-astro/HammerBold.astro';
 import HeartBold from 'phosphor-astro/HeartBold.astro';
 import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
 import ShieldCheckBold from 'phosphor-astro/ShieldCheckBold.astro';
 import ShoppingBagOpenBold from 'phosphor-astro/ShoppingBagOpenBold.astro';
-import TennisBallBold from 'phosphor-astro/TennisBallBold.astro';
+import SuitcaseRollingBold from 'phosphor-astro/SuitcaseRollingBold.astro';
 
-import mascotImage from '../assets/brand/maxipawz-mascot.webp';
-
+import HeroSlider from '@components/home/HeroSlider.astro';
 import Badge from '@components/ui/Badge.astro';
 import Button from '@components/ui/Button.astro';
 import BaseLayout from '@layouts/BaseLayout.astro';
 
+import {
+  createProductHeroSlides,
+  prelaunchHeroSlides,
+  type HeroProductPreview,
+} from '../data/hero-slides';
+
+import { isStoreLive } from '../config/storefront';
+
+/*
+ * This remains empty until the product content collection is created.
+ *
+ * Later, published and featured products will be mapped into this array.
+ * It can contain any MaxiPawz product category—not only toys.
+ */
+const liveProductPreviews: HeroProductPreview[] = [];
+
+const productHeroSlides = createProductHeroSlides(
+  liveProductPreviews,
+);
+
+const showLiveProductHero =
+  isStoreLive &&
+  productHeroSlides.length > 0;
+
+const heroSlides = showLiveProductHero
+  ? productHeroSlides
+  : prelaunchHeroSlides;
+
+const heroHighlights = showLiveProductHero
+  ? [
+      'Toys, supplies, and accessories',
+      'Helpful product guidance',
+      'Secure checkout',
+    ]
+  : [
+      'Playful and practical finds',
+      'Thoughtfully selected',
+      'Made for everyday pet life',
+    ];
+
 const benefits = [
   {
     icon: ShieldCheckBold,
+
     title: 'Thoughtfully selected',
+
     description:
-      'Products chosen with play, enrichment, and pet-owner confidence in mind.',
+      'Products considered for their usefulness, purpose, quality, and place in everyday pet life.',
   },
+
   {
     icon: PawPrintBold,
-    title: 'Made for happy play',
+
+    title: 'For play and daily routines',
+
     description:
-      'Fun options for chewing, chasing, fetching, exploring, and bonding.',
+      'Future options for enrichment, walking, travel, hydration, feeding, comfort, grooming, and care.',
   },
+
   {
     icon: HeartBold,
+
     title: 'A store that loves pets',
+
     description:
-      'A warm shopping experience created for pets and the people who adore them.',
+      'A warm shopping experience created for pets and the people who care for them.',
+  },
+];
+
+const futureCategories = [
+  {
+    title: 'Play & Enrichment',
+
+    description:
+      'Toys, puzzles, interactive products, and engaging activities that help make playtime more rewarding.',
+
+    icon: PawPrintBold,
+  },
+
+  {
+    title: 'Walk & Travel',
+
+    description:
+      'Portable water bottles, walking accessories, travel products, and useful essentials for adventures together.',
+
+    icon: SuitcaseRollingBold,
+  },
+
+  {
+    title: 'Everyday Essentials',
+
+    description:
+      'Accessories, feeding supplies, comfort products, grooming items, and practical solutions for daily routines.',
+
+    icon: HeartBold,
   },
 ];
 ---
 
 <BaseLayout
   title="MaxiPawz Store"
-  description="Discover joyful pet toys selected for playful pets and the people who love them."
+  description="Discover pet toys, accessories, travel gear, hydration products, and everyday supplies selected for happier moments with your pet."
   noIndex={true}
 >
+  <!-- Hero -->
   <section class="relative overflow-hidden">
     <div
-      class="pointer-events-none absolute -top-40 -left-40 size-[32rem] rounded-full bg-brand-300/25 blur-3xl"
+      class="pointer-events-none absolute -top-40 -left-40 size-128 rounded-full bg-brand-300/25 blur-3xl"
       aria-hidden="true"
     >
     </div>
 
     <div
-      class="pointer-events-none absolute top-16 -right-48 size-[34rem] rounded-full bg-accent-300/25 blur-3xl"
+      class="pointer-events-none absolute top-16 -right-48 size-136 rounded-full bg-accent-300/25 blur-3xl"
       aria-hidden="true"
     >
     </div>
 
     <div
-      class="site-container-wide grid min-h-[calc(100vh-7.5rem)] items-center gap-12 py-16 lg:grid-cols-[1.08fr_0.92fr] lg:py-20"
+      class="site-container-wide grid items-center gap-14 py-14 lg:grid-cols-[1.02fr_0.98fr] lg:py-18"
     >
+      <!-- Hero content -->
       <div class="relative z-10">
         <Badge
-          variant="accent"
+          variant={
+            showLiveProductHero
+              ? 'brand'
+              : 'accent'
+          }
           size="md"
         >
           <ConfettiBold
@@ -71,189 +149,385 @@ const benefits = [
             aria-hidden="true"
           />
 
-          A joyful pet store is coming
+          {
+            showLiveProductHero
+              ? 'Find their next MaxiPawz favorite'
+              : 'A joyful pet store is coming'
+          }
         </Badge>
 
         <h1
-          class="mt-7 max-w-4xl text-4xl font-bold tracking-tight text-ink-900 sm:text-5xl lg:text-6xl xl:text-7xl"
+          class="mt-7 max-w-3xl text-5xl font-regular text-ink-900 sm:text-6xl lg:text-7xl"
         >
-          Toys for more{' '}
-          <span class="text-brand-gradient">happy paws</span>{' '}
-          and wagging tails.
+          {
+            showLiveProductHero ? (
+              <>
+                Find something special for{' '}
+                <span class="text-brand-gradient">
+                  every pet moment.
+                </span>
+              </>
+            ) : (
+              <>
+                More joy for{' '}
+                <span class="text-brand-gradient">
+                  every pet moment.
+                </span>
+              </>
+            )
+          }
         </h1>
 
-        <p class="mt-7 max-w-2xl text-lg leading-8 text-ink-600 sm:text-xl">
-          MaxiPawz is building a warm, playful place to discover toys that keep
-          pets active, curious, entertained, and close to the people they love.
+        <p
+          class="mt-7 max-w-2xl text-lg leading-8 text-ink-600 sm:text-xl"
+        >
+          {
+            showLiveProductHero
+              ? 'Discover thoughtfully selected products for play, walks, travel, feeding, hydration, comfort, care, and everyday life together.'
+              : 'MaxiPawz is creating a friendly destination for pet toys, accessories, travel gear, hydration essentials, and useful everyday supplies.'
+          }
         </p>
 
-        <div class="mt-9 flex flex-col gap-3 sm:flex-row">
-          <Button
-            href="/shop"
-            variant="primary"
-            size="lg"
-            iconPosition="left"
-          >
-            <ShoppingBagOpenBold
-              slot="icon"
-              aria-hidden="true"
-            />
+        <div
+          class="mt-9 flex flex-col gap-3 sm:flex-row"
+        >
+          {
+            showLiveProductHero ? (
+              <>
+                <Button
+                  href="/shop"
+                  variant="primary"
+                  size="lg"
+                  iconPosition="left"
+                >
+                  <ShoppingBagOpenBold
+                    slot="icon"
+                    aria-hidden="true"
+                  />
 
-            Explore the shop
-          </Button>
+                  Shop the Collection
+                </Button>
 
-          <Button
-            href="/about"
-            variant="secondary"
-            size="lg"
-            iconPosition="right"
-          >
-            <ArrowRightBold
-              slot="icon"
-              aria-hidden="true"
-            />
+                <Button
+                  href="/pet-guides"
+                  variant="secondary"
+                  size="lg"
+                  iconPosition="right"
+                >
+                  <ArrowRightBold
+                    slot="icon"
+                    aria-hidden="true"
+                  />
 
-            Meet MaxiPawz
-          </Button>
+                  Explore Pet Guides
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  href="/#join-the-pack"
+                  variant="primary"
+                  size="lg"
+                  iconPosition="left"
+                >
+                  <HeartBold
+                    slot="icon"
+                    aria-hidden="true"
+                  />
+
+                  Join the Pack
+                </Button>
+
+                <Button
+                  href="/about"
+                  variant="secondary"
+                  size="lg"
+                  iconPosition="right"
+                >
+                  <ArrowRightBold
+                    slot="icon"
+                    aria-hidden="true"
+                  />
+
+                  Discover MaxiPawz
+                </Button>
+              </>
+            )
+          }
         </div>
 
         <div
           class="mt-10 flex flex-wrap gap-x-7 gap-y-3 text-sm font-bold text-ink-600"
         >
-          <span class="inline-flex items-center gap-2">
-            <CheckCircleFill
-              class="size-5 text-brand-500"
-              aria-hidden="true"
-            />
+          {
+            heroHighlights.map((highlight) => (
+              <span class="inline-flex items-center gap-2">
+                <CheckCircleFill
+                  class="size-5 shrink-0 text-brand-500"
+                  aria-hidden="true"
+                />
 
-            Secure checkout
-          </span>
-
-          <span class="inline-flex items-center gap-2">
-            <CheckCircleFill
-              class="size-5 text-brand-500"
-              aria-hidden="true"
-            />
-
-            Pet-friendly shopping
-          </span>
-
-          <span class="inline-flex items-center gap-2">
-            <CheckCircleFill
-              class="size-5 text-brand-500"
-              aria-hidden="true"
-            />
-
-            Helpful support
-          </span>
-        </div>
-      </div>
-
-      <div class="relative mx-auto w-full max-w-xl">
-        <div
-          class="absolute inset-6 -z-10 rounded-full bg-gradient-to-br from-brand-300/60 via-cream to-accent-300/60 blur-2xl"
-          aria-hidden="true"
-        >
-        </div>
-
-        <div
-          class="relative overflow-hidden rounded-[3rem] border-4 border-white-warm bg-white-warm p-3 shadow-2xl shadow-ink-950/15"
-        >
-          <Image
-            src={mascotImage}
-            alt="Happy brown MaxiPawz dog mascot"
-            class="aspect-square w-full rounded-[2.4rem] object-cover"
-            loading="eager"
-            fetchpriority="high"
-            quality={92}
-          />
-
-          <div
-            class="absolute right-7 bottom-7 left-7 rounded-3xl border border-white/80 bg-white/90 p-4 shadow-card backdrop-blur"
-          >
-            <div class="flex items-center gap-3">
-              <span
-                class="grid size-11 shrink-0 place-items-center rounded-2xl bg-accent-500 text-ink-950"
-                aria-hidden="true"
-              >
-                <TennisBallBold class="size-6" />
+                {highlight}
               </span>
-
-              <div>
-                <p class="interface-heading">Playtime is coming</p>
-
-                <p class="mt-0.5 text-sm text-ink-600">
-                  We’re preparing the first MaxiPawz collection.
-                </p>
-              </div>
-            </div>
-          </div>
+            ))
+          }
         </div>
-
-        <span
-          class="absolute -top-4 -right-3 grid size-20 rotate-12 place-items-center rounded-[2rem] bg-brand-500 text-white shadow-blue"
-          aria-hidden="true"
-        >
-          <BoneBold class="size-9" />
-        </span>
-
-        <span
-          class="absolute -bottom-5 -left-3 grid size-20 -rotate-12 place-items-center rounded-[2rem] bg-accent-500 text-ink-950 shadow-orange"
-          aria-hidden="true"
-        >
-          <PawPrintBold class="size-9" />
-        </span>
       </div>
+
+      <!-- Hero slider -->
+      <HeroSlider
+        slides={heroSlides}
+        id="maxipawz-homepage-hero"
+        label={
+          showLiveProductHero
+            ? 'Featured MaxiPawz products'
+            : 'Discover the MaxiPawz brand'
+        }
+        autoplay={true}
+        interval={6500}
+      />
     </div>
   </section>
 
-  <section class="border-y border-sand bg-white-warm/65">
-    <div class="site-container-wide grid gap-4 py-8 md:grid-cols-3">
+  <!-- Brand promises -->
+  <section
+    class="border-y border-sand bg-white-warm/65"
+    aria-label="Why MaxiPawz"
+  >
+    <div
+      class="site-container-wide grid gap-4 py-8 md:grid-cols-3"
+    >
       {
-        benefits.map(({ icon: Icon, title, description }) => (
-          <article class="flex gap-4 rounded-3xl p-5 transition hover:bg-cream">
-            <span
-              class="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-100 text-brand-700"
-              aria-hidden="true"
+        benefits.map(
+          ({
+            icon: Icon,
+            title,
+            description,
+          }) => (
+            <article
+              class="flex gap-4 rounded-3xl p-5 transition hover:bg-cream"
             >
-              <Icon class="size-6" />
-            </span>
+              <span
+                class="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-100 text-brand-700"
+                aria-hidden="true"
+              >
+                <Icon class="size-6" />
+              </span>
 
-            <div>
-              <h2 class="interface-heading text-lg">{title}</h2>
+              <div>
+                <h2 class="interface-heading text-lg">
+                  {title}
+                </h2>
 
-              <p class="mt-2 text-sm leading-6 text-ink-600">{description}</p>
-            </div>
-          </article>
-        ))
+                <p
+                  class="mt-2 text-sm leading-6 text-ink-600"
+                >
+                  {description}
+                </p>
+              </div>
+            </article>
+          ),
+        )
       }
     </div>
   </section>
 
+  <!-- Future collection overview -->
   <section class="section-spacing">
-    <div class="site-container text-center">
-      <Badge
-        variant="brand"
-        size="md"
-        class="mx-auto"
+    <div class="site-container-wide">
+      <div class="mx-auto max-w-3xl text-center">
+        <Badge
+          variant="brand"
+          size="md"
+          class="mx-auto"
+        >
+          <PawPrintBold
+            slot="icon"
+            aria-hidden="true"
+          />
+
+          More than playtime
+        </Badge>
+
+        <h2 class="section-title mt-6 text-4xl sm:text-5xl">
+          Helpful products for the moments you share.
+        </h2>
+
+        <p class="section-description mx-auto mt-5">
+          MaxiPawz is being built around the many ways pets and
+          their people live, play, travel, relax, and care for one
+          another.
+        </p>
+      </div>
+
+      <div class="mt-10 grid gap-5 md:grid-cols-3">
+        {
+          futureCategories.map(
+            ({
+              title,
+              description,
+              icon: Icon,
+            }) => (
+              <article
+                class="surface-card group p-6 transition duration-200 hover:-translate-y-1 hover:shadow-xl"
+              >
+                <span
+                  class="grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-brand-100 to-accent-100 text-brand-700 transition group-hover:scale-105"
+                  aria-hidden="true"
+                >
+                  <Icon class="size-7" />
+                </span>
+
+                <h3 class="mt-5 text-2xl text-ink-900">
+                  {title}
+                </h3>
+
+                <p class="mt-3 text-sm leading-6 text-ink-600">
+                  {description}
+                </p>
+              </article>
+            ),
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Launch signup -->
+  <section
+    id="join-the-pack"
+    class="section-spacing scroll-mt-28"
+  >
+    <div class="site-container">
+      <div
+        class="relative overflow-hidden rounded-[2.5rem] border border-brand-200 bg-gradient-to-br from-brand-50 via-white-warm to-accent-50 px-6 py-10 shadow-card sm:px-10 lg:px-14 lg:py-14"
       >
-        <HammerBold
-          slot="icon"
+        <div
+          class="pointer-events-none absolute -top-24 -right-20 size-64 rounded-full bg-brand-300/25 blur-3xl"
           aria-hidden="true"
-        />
+        >
+        </div>
 
-        Storefront under construction
-      </Badge>
+        <div
+          class="pointer-events-none absolute -bottom-28 -left-20 size-72 rounded-full bg-accent-300/25 blur-3xl"
+          aria-hidden="true"
+        >
+        </div>
 
-      <h2 class="section-title mx-auto mt-6">
-        The MaxiPawz experience is taking shape.
-      </h2>
+        <div
+          class="relative grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr]"
+        >
+          <div>
+            <Badge
+              variant="brand"
+              size="md"
+            >
+              <HeartBold
+                slot="icon"
+                aria-hidden="true"
+              />
 
-      <p class="section-description mx-auto mt-6">
-        The brand foundation, global styles, navigation, and homepage structure
-        are now being prepared. Products, categories, shopping-cart
-        functionality, and secure Stripe checkout are coming next.
-      </p>
+              Join the Pack
+            </Badge>
+
+            <h2
+              class="section-title mt-6 text-4xl sm:text-5xl"
+            >
+              Be first to discover what is coming.
+            </h2>
+
+            <p class="section-description mt-5">
+              Join the MaxiPawz pack for launch updates, new
+              products, helpful pet guides, and occasional
+              subscriber-only offers.
+            </p>
+          </div>
+
+          <form
+            name="maxipawz-launch-list"
+            method="POST"
+            data-netlify="true"
+            netlify-honeypot="bot-field"
+            class="surface-card p-5 sm:p-6"
+          >
+            <input
+              type="hidden"
+              name="form-name"
+              value="maxipawz-launch-list"
+            />
+
+            <p hidden>
+              <label>
+                Do not fill out this field:
+                <input name="bot-field" />
+              </label>
+            </p>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label
+                  for="launch-first-name"
+                  class="form-label"
+                >
+                  First name
+                </label>
+
+                <input
+                  id="launch-first-name"
+                  name="first-name"
+                  type="text"
+                  autocomplete="given-name"
+                  class="form-control"
+                  placeholder="Your first name"
+                />
+              </div>
+
+              <div>
+                <label
+                  for="launch-email"
+                  class="form-label"
+                >
+                  Email address
+                </label>
+
+                <input
+                  id="launch-email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  class="form-control"
+                  placeholder="you@example.com"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="mt-5">
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                fullWidth={true}
+                iconPosition="right"
+              >
+                <ArrowRightBold
+                  slot="icon"
+                  aria-hidden="true"
+                />
+
+                Join the Pack
+              </Button>
+            </div>
+
+            <p
+              class="mt-4 text-center text-xs leading-5 text-ink-500"
+            >
+              Friendly updates only. You can unsubscribe at any
+              time.
+            </p>
+          </form>
+        </div>
+      </div>
     </div>
   </section>
 </BaseLayout>

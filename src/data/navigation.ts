@@ -9,10 +9,8 @@ export interface FooterNavigationGroup {
 }
 
 /*
- * Desktop navigation.
- *
- * Home is intentionally omitted because the MaxiPawz logo already links
- * to the homepage.
+ * The logo provides the homepage link, so Home is intentionally omitted
+ * from the desktop navigation.
  */
 export const primaryNavigation: NavigationItem[] = [
   {
@@ -20,8 +18,8 @@ export const primaryNavigation: NavigationItem[] = [
     href: '/shop',
   },
   {
-    label: 'Play Guides',
-    href: '/play-guides',
+    label: 'Pet Guides',
+    href: '/pet-guides',
   },
   {
     label: 'Our Story',
@@ -34,8 +32,8 @@ export const primaryNavigation: NavigationItem[] = [
 ];
 
 /*
- * Mobile navigation includes an explicit Home link because the drawer
- * works as a complete site-navigation experience.
+ * The mobile drawer provides a complete navigation experience, so Home
+ * is included explicitly.
  */
 export const mobileNavigation: NavigationItem[] = [
   {
@@ -54,8 +52,8 @@ export const footerNavigation: FooterNavigationGroup[] = [
         href: '/shop',
       },
       {
-        label: 'Play Guides',
-        href: '/play-guides',
+        label: 'Pet Guides',
+        href: '/pet-guides',
       },
       {
         label: 'Our Story',
@@ -64,19 +62,19 @@ export const footerNavigation: FooterNavigationGroup[] = [
     ],
   },
   {
-    title: 'Play Better',
+    title: 'Helpful Resources',
     links: [
       {
-        label: 'Pet Toy Safety',
-        href: '/toy-safety',
+        label: 'Pet Product Safety',
+        href: '/product-safety',
       },
       {
-        label: 'Choosing the Right Toy',
-        href: '/play-guides/choosing-the-right-toy',
+        label: 'Choosing the Right Product',
+        href: '/pet-guides/choosing-the-right-product',
       },
       {
-        label: 'Enrichment Basics',
-        href: '/play-guides/enrichment-basics',
+        label: 'Travel and Hydration',
+        href: '/pet-guides/travel-and-hydration',
       },
     ],
   },

@@ -1,0 +1,774 @@
+---
+import { Image } from 'astro:assets';
+
+import ArrowLeftBold from 'phosphor-astro/ArrowLeftBold.astro';
+import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
+
+import type {
+  HeroImageFit,
+  HeroSlide,
+  HeroSlideTone,
+} from '../../data/hero-slides';
+
+interface Props {
+  slides: HeroSlide[];
+  id?: string;
+  label?: string;
+  autoplay?: boolean;
+  interval?: number;
+  class?: string;
+}
+
+const {
+  slides,
+  id = 'homepage-hero-slider',
+  label = 'Featured MaxiPawz highlights',
+  autoplay = true,
+  interval = 6500,
+  class: className = '',
+} = Astro.props;
+
+if (slides.length === 0) {
+  throw new Error('HeroSlider requires at least one slide.');
+}
+
+const toneClasses: Record<HeroSlideTone, string> = {
+  brand:
+    'bg-gradient-to-br from-brand-50 via-white-warm to-brand-200',
+
+  accent:
+    'bg-gradient-to-br from-accent-50 via-white-warm to-accent-200',
+
+  sand:
+    'bg-gradient-to-br from-cream-soft via-cream to-sand',
+};
+
+const imageFitClasses: Record<HeroImageFit, string> = {
+  cover: 'object-cover',
+  contain: 'object-contain p-9 sm:p-12 lg:p-14',
+};
+
+const kenBurnsDirections = [
+  'zoom-right',
+  'zoom-left',
+  'zoom-up',
+  'zoom-down',
+] as const;
+
+const hasMultipleSlides = slides.length > 1;
+
+/*
+ * Give the image animation a little more time than the autoplay interval.
+ * That keeps the motion continuous until the next slide begins.
+ */
+const kenBurnsDuration = Math.max(interval + 1000, 7500);
+---
+
+<div
+  class:list={[
+    'relative mx-auto w-full max-w-xl',
+    className,
+  ]}
+  style={`--hero-ken-burns-duration: ${kenBurnsDuration}ms;`}
+  data-hero-slider
+  data-autoplay={autoplay ? 'true' : 'false'}
+  data-interval={interval}
+>
+  <!-- Decorative glow -->
+  <div
+    class="pointer-events-none absolute inset-8 -z-10 rounded-full bg-linear-to-br from-brand-300/55 via-cream to-accent-300/55 blur-3xl"
+    aria-hidden="true"
+  >
+  </div>
+
+  <section
+    class="relative aspect-4/5 overflow-hidden rounded-[2.5rem] border-4 border-white-warm bg-white-warm shadow-2xl shadow-ink-950/15 sm:aspect-square"
+    role="region"
+    aria-roledescription="carousel"
+    aria-label={label}
+  >
+    {
+      slides.map((slide, index) => {
+        const imageFit = slide.imageFit ?? 'cover';
+        const tone = slide.tone ?? 'sand';
+        const isInitialSlide = index === 0;
+
+        const kenBurnsDirection =
+          kenBurnsDirections[index % kenBurnsDirections.length] ??
+          'zoom-right';
+
+        return (
+          <article
+            id={`${id}-slide-${index + 1}`}
+            class:list={[
+              'absolute inset-0 transition duration-500 ease-out',
+              isInitialSlide
+                ? 'scale-100 opacity-100'
+                : 'pointer-events-none scale-[0.985] opacity-0',
+            ]}
+            role="group"
+            aria-roledescription="slide"
+            aria-label={`${index + 1} of ${slides.length}`}
+            aria-hidden={isInitialSlide ? 'false' : 'true'}
+            inert={!isInitialSlide}
+            data-hero-slide
+            data-slide-title={slide.title}
+          >
+            <div
+              class:list={[
+                'absolute inset-0',
+                toneClasses[tone],
+              ]}
+              aria-hidden="true"
+            >
+            </div>
+
+            <!-- Decorative background shapes -->
+            <div
+              class="pointer-events-none absolute -top-16 -right-14 size-52 rounded-full bg-brand-300/25 blur-2xl"
+              aria-hidden="true"
+            >
+            </div>
+
+            <div
+              class="pointer-events-none absolute -bottom-20 -left-16 size-56 rounded-full bg-accent-300/30 blur-2xl"
+              aria-hidden="true"
+            >
+            </div>
+
+            <div class="relative grid h-full grid-rows-[minmax(0,1fr)_auto] p-3 sm:p-4">
+              <!-- Slide image -->
+              <div
+                class="relative min-h-0 overflow-hidden rounded-4xl border border-white/70 bg-white/45 shadow-inner"
+              >
+                <Image
+                  src={slide.image}
+                  alt={slide.imageAlt}
+                  width="1000"
+                  height="1000"
+                  class:list={[
+                    'hero-slide-image size-full will-change-transform',
+                    imageFitClasses[imageFit],
+                  ]}
+                  style={`object-position: ${
+                    slide.objectPosition ?? 'center'
+                  };`}
+                  loading={isInitialSlide ? 'eager' : 'lazy'}
+                  fetchpriority={isInitialSlide ? 'high' : 'auto'}
+                  quality={92}
+                  data-ken-burns={kenBurnsDirection}
+                />
+
+                <span
+                  class="absolute top-4 left-4 z-10 rounded-full border border-white/80 bg-white/85 px-3 py-1.5 text-xs font-extrabold tracking-[0.07em] text-ink-700 uppercase shadow-sm backdrop-blur"
+                >
+                  {slide.eyebrow}
+                </span>
+              </div>
+
+              <!-- Slide caption -->
+              <div
+                class="relative z-10 mt-3 rounded-[1.75rem] border border-white/80 bg-white/88 p-5 shadow-card backdrop-blur-md sm:p-6"
+              >
+                {
+                  slide.meta && (
+                    <p class="mb-2 text-sm font-extrabold text-accent-700">
+                      {slide.meta}
+                    </p>
+                  )
+                }
+
+                <p class="font-display text-2xl leading-[1.05] tracking-[-0.04em] text-ink-900 sm:text-3xl">
+                  {slide.title}
+                </p>
+
+                <p class="mt-3 text-sm leading-6 text-ink-600 sm:text-base">
+                  {slide.description}
+                </p>
+
+                {
+                  slide.href &&
+                  slide.linkLabel && (
+                    <a
+                      href={slide.href}
+                      class="mt-4 inline-flex items-center gap-2 rounded-full font-extrabold text-brand-700 transition hover:gap-3 hover:text-brand-800"
+                    >
+                      <span>{slide.linkLabel}</span>
+
+                      <ArrowRightBold
+                        class="size-4"
+                        aria-hidden="true"
+                      />
+                    </a>
+                  )
+                }
+              </div>
+            </div>
+          </article>
+        );
+      })
+    }
+  </section>
+
+  {
+    hasMultipleSlides && (
+      <div class="mt-4 flex items-center justify-center gap-3">
+        <div
+          class="flex items-center gap-2"
+          aria-label="Choose a hero slide"
+        >
+          {slides.map((slide, index) => (
+            <button
+              type="button"
+              class:list={[
+                'h-2.5 rounded-full transition-all duration-300',
+                index === 0
+                  ? 'w-8 bg-brand-500'
+                  : 'w-2.5 bg-ink-300 hover:bg-brand-300',
+              ]}
+              aria-label={`Show slide ${index + 1}: ${slide.title}`}
+              aria-controls={`${id}-slide-${index + 1}`}
+              aria-current={index === 0 ? 'true' : undefined}
+              data-hero-dot
+              data-slide-index={index}
+            >
+            </button>
+          ))}
+        </div>
+
+        {
+          autoplay && (
+            <button
+              type="button"
+              class="grid size-9 place-items-center rounded-full border border-sand bg-white-warm text-sm font-black text-ink-700 transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
+              aria-label="Pause slideshow"
+              data-hero-toggle
+            >
+              <span
+                aria-hidden="true"
+                data-hero-pause-icon
+              >
+                Ⅱ
+              </span>
+
+              <span
+                aria-hidden="true"
+                data-hero-play-icon
+                hidden
+              >
+                ▶
+              </span>
+            </button>
+          )
+        }
+      </div>
+    )
+  }
+
+  <p
+    class="sr-only"
+    aria-live="polite"
+    aria-atomic="true"
+    data-hero-live-region
+  >
+  </p>
+</div>
+
+<script>
+  const sliderElements = document.querySelectorAll<HTMLElement>(
+    '[data-hero-slider]',
+  );
+
+  sliderElements.forEach((slider) => {
+    if (slider.dataset.heroSliderReady === 'true') {
+      return;
+    }
+
+    slider.dataset.heroSliderReady = 'true';
+
+    const slides = Array.from(
+      slider.querySelectorAll<HTMLElement>('[data-hero-slide]'),
+    );
+
+    const dots = Array.from(
+      slider.querySelectorAll<HTMLButtonElement>('[data-hero-dot]'),
+    );
+
+    const previousButton =
+      slider.querySelector<HTMLButtonElement>(
+        '[data-hero-previous]',
+      );
+
+    const nextButton =
+      slider.querySelector<HTMLButtonElement>(
+        '[data-hero-next]',
+      );
+
+    const toggleButton =
+      slider.querySelector<HTMLButtonElement>(
+        '[data-hero-toggle]',
+      );
+
+    const pauseIcon =
+      slider.querySelector<HTMLElement>(
+        '[data-hero-pause-icon]',
+      );
+
+    const playIcon =
+      slider.querySelector<HTMLElement>(
+        '[data-hero-play-icon]',
+      );
+
+    const liveRegion =
+      slider.querySelector<HTMLElement>(
+        '[data-hero-live-region]',
+      );
+
+    if (slides.length <= 1) {
+      return;
+    }
+
+    const autoplayRequested =
+      slider.dataset.autoplay === 'true';
+
+    const configuredInterval = Number(
+      slider.dataset.interval,
+    );
+
+    const autoplayInterval =
+      Number.isFinite(configuredInterval) &&
+      configuredInterval >= 3000
+        ? configuredInterval
+        : 6500;
+
+    const reducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    );
+
+    let currentIndex = 0;
+    let timerId: number | undefined;
+
+    let userPaused = false;
+    let pointerPaused = false;
+    let focusPaused = false;
+
+    let touchStartX = 0;
+
+    function normalizeIndex(index: number): number {
+      return (
+        (index + slides.length) %
+        slides.length
+      );
+    }
+
+    function stopTimer(): void {
+      if (timerId !== undefined) {
+        window.clearInterval(timerId);
+        timerId = undefined;
+      }
+    }
+
+    function canAutoplay(): boolean {
+      return (
+        autoplayRequested &&
+        !reducedMotion.matches &&
+        !userPaused &&
+        !pointerPaused &&
+        !focusPaused &&
+        !document.hidden
+      );
+    }
+
+    function startTimer(): void {
+      stopTimer();
+
+      if (!canAutoplay()) {
+        return;
+      }
+
+      timerId = window.setInterval(() => {
+        showSlide(currentIndex + 1, false);
+      }, autoplayInterval);
+    }
+
+    function restartKenBurns(
+      activeSlide: HTMLElement,
+    ): void {
+      const activeImage =
+        activeSlide.querySelector<HTMLElement>(
+          '.hero-slide-image',
+        );
+
+      if (!activeImage || reducedMotion.matches) {
+        return;
+      }
+
+      /*
+       * Removing and restoring the animation forces the Ken Burns
+       * sequence to restart whenever a slide becomes active again.
+       */
+      activeImage.style.animation = 'none';
+
+      void activeImage.offsetWidth;
+
+      activeImage.style.removeProperty('animation');
+    }
+
+    function updateToggleButton(): void {
+      if (!toggleButton) {
+        return;
+      }
+
+      if (reducedMotion.matches) {
+        toggleButton.hidden = true;
+        return;
+      }
+
+      toggleButton.hidden = false;
+
+      const isPaused = userPaused;
+
+      toggleButton.setAttribute(
+        'aria-label',
+        isPaused
+          ? 'Play slideshow'
+          : 'Pause slideshow',
+      );
+
+      if (pauseIcon) {
+        pauseIcon.hidden = isPaused;
+      }
+
+      if (playIcon) {
+        playIcon.hidden = !isPaused;
+      }
+    }
+
+    function showSlide(
+      requestedIndex: number,
+      announce = true,
+    ): void {
+      const nextIndex = normalizeIndex(
+        requestedIndex,
+      );
+
+      slides.forEach((slide, index) => {
+        const isActive = index === nextIndex;
+
+        slide.classList.toggle(
+          'opacity-100',
+          isActive,
+        );
+
+        slide.classList.toggle(
+          'scale-100',
+          isActive,
+        );
+
+        slide.classList.toggle(
+          'opacity-0',
+          !isActive,
+        );
+
+        slide.classList.toggle(
+          'scale-[0.985]',
+          !isActive,
+        );
+
+        slide.classList.toggle(
+          'pointer-events-none',
+          !isActive,
+        );
+
+        slide.setAttribute(
+          'aria-hidden',
+          isActive ? 'false' : 'true',
+        );
+
+        if (isActive) {
+          slide.removeAttribute('inert');
+          restartKenBurns(slide);
+        } else {
+          slide.setAttribute('inert', '');
+        }
+      });
+
+      dots.forEach((dot, index) => {
+        const isActive = index === nextIndex;
+
+        dot.classList.toggle('w-8', isActive);
+        dot.classList.toggle(
+          'bg-brand-500',
+          isActive,
+        );
+
+        dot.classList.toggle(
+          'w-2.5',
+          !isActive,
+        );
+
+        dot.classList.toggle(
+          'bg-ink-300',
+          !isActive,
+        );
+
+        if (isActive) {
+          dot.setAttribute(
+            'aria-current',
+            'true',
+          );
+        } else {
+          dot.removeAttribute('aria-current');
+        }
+      });
+
+      currentIndex = nextIndex;
+
+      if (announce && liveRegion) {
+        const activeSlide =
+          slides[currentIndex];
+
+        const slideTitle =
+          activeSlide?.dataset.slideTitle ??
+          `Slide ${currentIndex + 1}`;
+
+        liveRegion.textContent = `Showing slide ${
+          currentIndex + 1
+        } of ${slides.length}: ${slideTitle}`;
+      }
+
+      startTimer();
+    }
+
+    previousButton?.addEventListener(
+      'click',
+      () => {
+        showSlide(currentIndex - 1);
+      },
+    );
+
+    nextButton?.addEventListener(
+      'click',
+      () => {
+        showSlide(currentIndex + 1);
+      },
+    );
+
+    dots.forEach((dot) => {
+      dot.addEventListener('click', () => {
+        const requestedIndex = Number(
+          dot.dataset.slideIndex,
+        );
+
+        if (Number.isInteger(requestedIndex)) {
+          showSlide(requestedIndex);
+        }
+      });
+    });
+
+    toggleButton?.addEventListener(
+      'click',
+      () => {
+        userPaused = !userPaused;
+
+        updateToggleButton();
+
+        if (userPaused) {
+          stopTimer();
+        } else {
+          startTimer();
+        }
+      },
+    );
+
+    slider.addEventListener(
+      'mouseenter',
+      () => {
+        pointerPaused = true;
+        stopTimer();
+      },
+    );
+
+    slider.addEventListener(
+      'mouseleave',
+      () => {
+        pointerPaused = false;
+        startTimer();
+      },
+    );
+
+    slider.addEventListener(
+      'focusin',
+      () => {
+        focusPaused = true;
+        stopTimer();
+      },
+    );
+
+    slider.addEventListener(
+      'focusout',
+      () => {
+        window.setTimeout(() => {
+          focusPaused = slider.contains(
+            document.activeElement,
+          );
+
+          startTimer();
+        });
+      },
+    );
+
+    slider.addEventListener(
+      'touchstart',
+      (event) => {
+        touchStartX =
+          event.changedTouches[0]?.clientX ??
+          0;
+      },
+      {
+        passive: true,
+      },
+    );
+
+    slider.addEventListener(
+      'touchend',
+      (event) => {
+        const touchEndX =
+          event.changedTouches[0]?.clientX ??
+          touchStartX;
+
+        const horizontalDistance =
+          touchEndX - touchStartX;
+
+        if (Math.abs(horizontalDistance) < 50) {
+          return;
+        }
+
+        if (horizontalDistance > 0) {
+          showSlide(currentIndex - 1);
+        } else {
+          showSlide(currentIndex + 1);
+        }
+      },
+      {
+        passive: true,
+      },
+    );
+
+    document.addEventListener(
+      'visibilitychange',
+      () => {
+        if (document.hidden) {
+          stopTimer();
+        } else {
+          startTimer();
+        }
+      },
+    );
+
+    reducedMotion.addEventListener(
+      'change',
+      () => {
+        updateToggleButton();
+        startTimer();
+      },
+    );
+
+    updateToggleButton();
+    startTimer();
+  });
+</script>
+
+<style>
+  /*
+   * Ken Burns motion is applied only to the currently visible slide.
+   * Every direction combines a subtle zoom with a gentle pan.
+   */
+
+  [data-hero-slide][aria-hidden='false']
+    .hero-slide-image[data-ken-burns='zoom-right'] {
+    animation: hero-ken-burns-right
+      var(--hero-ken-burns-duration, 7500ms)
+      cubic-bezier(0.2, 0.65, 0.3, 1)
+      both;
+  }
+
+  [data-hero-slide][aria-hidden='false']
+    .hero-slide-image[data-ken-burns='zoom-left'] {
+    animation: hero-ken-burns-left
+      var(--hero-ken-burns-duration, 7500ms)
+      cubic-bezier(0.2, 0.65, 0.3, 1)
+      both;
+  }
+
+  [data-hero-slide][aria-hidden='false']
+    .hero-slide-image[data-ken-burns='zoom-up'] {
+    animation: hero-ken-burns-up
+      var(--hero-ken-burns-duration, 7500ms)
+      cubic-bezier(0.2, 0.65, 0.3, 1)
+      both;
+  }
+
+  [data-hero-slide][aria-hidden='false']
+    .hero-slide-image[data-ken-burns='zoom-down'] {
+    animation: hero-ken-burns-down
+      var(--hero-ken-burns-duration, 7500ms)
+      cubic-bezier(0.2, 0.65, 0.3, 1)
+      both;
+  }
+
+  @keyframes hero-ken-burns-right {
+    from {
+      transform: scale(1.015)
+        translate3d(-1.5%, -0.5%, 0);
+    }
+
+    to {
+      transform: scale(1.12)
+        translate3d(1.5%, 0.75%, 0);
+    }
+  }
+
+  @keyframes hero-ken-burns-left {
+    from {
+      transform: scale(1.015)
+        translate3d(1.5%, -0.5%, 0);
+    }
+
+    to {
+      transform: scale(1.12)
+        translate3d(-1.5%, 0.75%, 0);
+    }
+  }
+
+  @keyframes hero-ken-burns-up {
+    from {
+      transform: scale(1.015)
+        translate3d(0, 1.5%, 0);
+    }
+
+    to {
+      transform: scale(1.12)
+        translate3d(0.75%, -1.5%, 0);
+    }
+  }
+
+  @keyframes hero-ken-burns-down {
+    from {
+      transform: scale(1.015)
+        translate3d(-0.5%, -1.5%, 0);
+    }
+
+    to {
+      transform: scale(1.12)
+        translate3d(0.75%, 1.5%, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-slide-image {
+      animation: none !important;
+      transform: none !important;
+    }
+  }
+</style>

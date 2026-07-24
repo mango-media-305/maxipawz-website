@@ -25,7 +25,7 @@ export const storefrontMode: StorefrontMode =
 const storefrontStates: Record<StorefrontMode, StorefrontState> = {
     prelaunch: {
         announcement: {
-            message: 'Join the MaxiPawz pack—playtime is coming.',
+            message: 'Join the MaxiPawz pack—new pet favorites are coming.',
             href: '/#join-the-pack',
             ariaLabel: 'Join the MaxiPawz launch list',
         },
@@ -36,19 +36,21 @@ const storefrontStates: Record<StorefrontMode, StorefrontState> = {
         },
 
         mobileNote:
-            'Be first to hear about our launch, new collections, and playful ideas.',
+            'Be first to hear about our launch, new products, useful pet tips, and special offers.',
     },
 
     live: {
         announcement: {
-            message: 'Play more. Wag more. Love more.',
+            message:
+                'Toys, accessories, and everyday essentials for happier pet moments.',
             href: '/shop',
-            ariaLabel: 'Shop MaxiPawz pet toys',
+            ariaLabel: 'Shop MaxiPawz pet products',
         },
 
         headerAction: null,
 
-        mobileNote: 'Secure checkout powered by Stripe.',
+        mobileNote:
+            'Shop toys, accessories, supplies, and everyday pet essentials with secure checkout.',
     },
 };
 

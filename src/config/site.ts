@@ -3,7 +3,7 @@ export const siteConfig = {
   shortName: 'MaxiPawz',
 
   description:
-    'A joyful pet-toy store created for playful pets and the people who love them.',
+    'A joyful pet store for toys, accessories, travel gear, hydration essentials, and everyday supplies.',
 
   language: 'en',
   locale: 'en_US',

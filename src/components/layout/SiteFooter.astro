@@ -29,7 +29,9 @@ const socialLinks = [
 ].filter((socialLink) => socialLink.href);
 ---
 
-<footer class="relative overflow-hidden border-t border-sand bg-cream-deep">
+<footer
+  class="relative overflow-hidden border-t border-sand bg-cream-deep"
+>
   <div
     class="pointer-events-none absolute -top-28 -left-28 size-72 rounded-full bg-brand-300/20 blur-3xl"
     aria-hidden="true"
@@ -45,29 +47,48 @@ const socialLinks = [
   <div class="site-container-wide relative py-14 lg:py-18">
     <div class="grid gap-12 lg:grid-cols-[1.1fr_2fr]">
       <div>
-        <a href="/" class="inline-flex rounded-2xl" aria-label="MaxiPawz Store home">
-          <BrandLogo variant="logo" class="h-auto w-44 object-contain" />
+        <a
+          href="/"
+          class="inline-flex rounded-2xl"
+          aria-label="MaxiPawz Store home"
+        >
+          <BrandLogo
+            variant="logo"
+            class="h-auto w-44 object-contain"
+          />
         </a>
 
-        <p class="mt-5 max-w-sm text-base leading-7 text-ink-600">
-          Thoughtfully selected toys that help pets play, explore, stay active, and share more
-          joyful moments with their people.
+        <p
+          class="mt-5 max-w-sm text-base leading-7 text-ink-600"
+        >
+          Thoughtfully selected toys, accessories, and everyday
+          essentials that support play, travel, comfort, care, and
+          joyful moments between pets and their people.
         </p>
 
         {
           socialLinks.length > 0 && (
             <div class="mt-6 flex items-center gap-3">
-              {socialLinks.map(({ label, href, icon: Icon }) => (
-                <a
-                  href={href}
-                  class="grid size-11 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-800 transition hover:-translate-y-1 hover:border-brand-500 hover:bg-brand-50"
-                  aria-label={`MaxiPawz on ${label}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <Icon class="size-5" aria-hidden="true" />
-                </a>
-              ))}
+              {socialLinks.map(
+                ({
+                  label,
+                  href,
+                  icon: Icon,
+                }) => (
+                  <a
+                    href={href}
+                    class="grid size-11 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-800 transition hover:-translate-y-1 hover:border-brand-500 hover:bg-brand-50"
+                    aria-label={`MaxiPawz on ${label}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <Icon
+                      class="size-5"
+                      aria-hidden="true"
+                    />
+                  </a>
+                ),
+              )}
             </div>
           )
         }
@@ -77,7 +98,9 @@ const socialLinks = [
         {
           footerNavigation.map((group) => (
             <section>
-              <h2 class="text-base font-black text-ink-900">{group.title}</h2>
+              <h2 class="text-base font-black text-ink-900">
+                {group.title}
+              </h2>
 
               <ul class="mt-5 space-y-3">
                 {group.links.map((link) => (
@@ -86,7 +109,11 @@ const socialLinks = [
                       href={link.href}
                       class="inline-flex items-center gap-2 text-sm font-semibold text-ink-600 transition hover:translate-x-1 hover:text-brand-700"
                     >
-                      <span class="size-1.5 rounded-full bg-accent-400" aria-hidden="true"></span>
+                      <span
+                        class="size-1.5 rounded-full bg-accent-400"
+                        aria-hidden="true"
+                      >
+                      </span>
 
                       {link.label}
                     </a>
@@ -102,14 +129,31 @@ const socialLinks = [
     <div
       class="mt-12 flex flex-col gap-4 border-t border-sand-dark/55 pt-6 text-sm text-ink-500 sm:flex-row sm:items-center sm:justify-between"
     >
-      <p>© {currentYear} MaxiPawz Store. All rights reserved.</p>
+      <p>
+        © {currentYear} MaxiPawz Store. All rights reserved.
+      </p>
 
       <div class="flex flex-wrap gap-x-5 gap-y-2">
-        <a href="/privacy-policy" class="transition hover:text-brand-700"> Privacy </a>
+        <a
+          href="/privacy-policy"
+          class="transition hover:text-brand-700"
+        >
+          Privacy
+        </a>
 
-        <a href="/terms" class="transition hover:text-brand-700"> Terms </a>
+        <a
+          href="/terms"
+          class="transition hover:text-brand-700"
+        >
+          Terms
+        </a>
 
-        <a href="/accessibility" class="transition hover:text-brand-700"> Accessibility </a>
+        <a
+          href="/accessibility"
+          class="transition hover:text-brand-700"
+        >
+          Accessibility
+        </a>
       </div>
     </div>
   </div>
