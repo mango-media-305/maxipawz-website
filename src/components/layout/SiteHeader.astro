@@ -7,30 +7,82 @@ import MobileNavigation from './MobileNavigation.astro';
 
 import { primaryNavigation } from '../../data/navigation';
 
-const currentPath = Astro.url.pathname;
-
-function isCurrentRoute(href: string): boolean {
-  if (href === '/') {
-    return currentPath === '/';
+function normalizePath(path: string): string {
+  if (path === '/') {
+    return '/';
   }
 
-  return currentPath === href || currentPath.startsWith(`${href}/`);
+  return path.replace(/\/+$/, '') || '/';
+}
+
+const currentPath = normalizePath(Astro.url.pathname);
+
+const activeNavigationHref = primaryNavigation
+  .filter((item) => {
+    const itemPath = normalizePath(item.href);
+
+    if (itemPath === '/') {
+      return currentPath === '/';
+    }
+
+    return currentPath === itemPath || currentPath.startsWith(`${itemPath}/`);
+  })
+  .sort((firstItem, secondItem) => secondItem.href.length - firstItem.href.length)[0]?.href;
+
+function isCurrentRoute(href: string): boolean {
+  if (!activeNavigationHref) {
+    return false;
+  }
+
+  return normalizePath(href) === normalizePath(activeNavigationHref);
 }
 ---
 
 <header
-  class="sticky top-0 z-40 border-b border-sand/70 bg-cream-soft/90 shadow-[0_8px_30px_-24px_rgba(53,39,31,0.35)] backdrop-blur-xl"
+  class="sticky top-0 z-40 isolate w-full border-b border-sand/60 shadow-[0_8px_28px_-24px_rgba(53,39,31,0.35)]"
+  data-site-header
 >
-  <div class="site-container-wide flex min-h-20 items-center justify-between gap-6 py-3">
+  <!--
+    The blur lives in a separate sibling layer.
+
+    Do not place backdrop-blur directly on the header because the mobile
+    fixed-position drawer is rendered inside this component.
+  -->
+  <div
+    class="pointer-events-none absolute inset-0 z-0 bg-cream-soft/95 backdrop-blur-xl"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div
+    class="site-container-wide relative z-10 flex min-h-16 items-center justify-between gap-3 py-1.5 sm:min-h-[4.25rem]"
+  >
+    <!-- Responsive brand -->
     <a
       href="/"
-      class="flex shrink-0 items-center rounded-2xl focus-visible:outline-offset-4"
+      class="group relative z-10 inline-flex shrink-0 items-center rounded-full focus-visible:outline-offset-4 md:rounded-2xl"
       aria-label="MaxiPawz Store home"
     >
-      <BrandLogo variant="logo" class="h-auto w-24 object-contain sm:w-40" eager={true} />
+      <!-- Mobile mascot -->
+      <BrandLogo
+        variant="mascot"
+        class="size-11 rounded-full border border-brand-100 bg-white-warm object-cover shadow-sm transition duration-200 group-hover:-translate-y-0.5 group-hover:shadow-blue md:hidden"
+        eager={true}
+      />
+
+      <!-- Tablet and desktop logo -->
+      <BrandLogo
+        variant="logo"
+        class="hidden h-10 w-auto object-contain transition duration-200 group-hover:-translate-y-0.5 md:block lg:h-11"
+        eager={true}
+      />
     </a>
 
-    <nav class="hidden items-center gap-1 lg:flex" aria-label="Primary navigation">
+    <!-- Desktop navigation -->
+    <nav
+      class="hidden items-center gap-0.5 lg:flex"
+      aria-label="Primary navigation"
+    >
       {
         primaryNavigation.map((item) => {
           const isCurrent = isCurrentRoute(item.href);
@@ -39,7 +91,7 @@ function isCurrentRoute(href: string): boolean {
             <a
               href={item.href}
               class:list={[
-                'relative rounded-full px-4 py-2.5 text-sm font-bold transition',
+                'relative inline-flex min-h-10 items-center rounded-full px-3 py-2 text-sm font-extrabold transition duration-200',
                 isCurrent
                   ? 'bg-brand-100 text-brand-800'
                   : 'text-ink-700 hover:bg-white-warm hover:text-brand-700',
@@ -48,44 +100,58 @@ function isCurrentRoute(href: string): boolean {
             >
               {item.label}
 
-              {isCurrent && (
-                <span
-                  class="absolute inset-x-5 -bottom-1 h-1 rounded-full bg-accent-500"
-                  aria-hidden="true"
-                ></span>
-              )}
+              {
+                isCurrent && (
+                  <span
+                    class="absolute inset-x-4 -bottom-0.5 h-0.5 rounded-full bg-accent-500"
+                    aria-hidden="true"
+                  >
+                  </span>
+                )
+              }
             </a>
           );
         })
       }
     </nav>
 
-    <div class="flex items-center gap-2">
+    <!-- Header actions -->
+    <div class="flex shrink-0 items-center gap-1.5 sm:gap-2">
       <a
         href="/search"
-        class="hidden size-11 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-800 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-400 hover:bg-brand-50 sm:grid"
+        class="hidden size-10 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-800 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-brand-400 hover:bg-brand-50 sm:grid"
         aria-label="Search MaxiPawz Store"
       >
-        <MagnifyingGlassBold class="size-5" aria-hidden="true" />
+        <MagnifyingGlassBold
+          class="size-[1.125rem]"
+          aria-hidden="true"
+        />
       </a>
 
       <a
         href="/cart"
-        class="relative hidden min-h-11 items-center gap-2 rounded-full border border-accent-300 bg-accent-50 px-4 py-2 font-bold text-accent-800 shadow-sm transition hover:-translate-y-0.5 hover:border-accent-500 hover:bg-accent-100 sm:flex"
+        class="relative hidden min-h-10 items-center gap-1.5 rounded-full border border-accent-300 bg-accent-50 px-3 py-1.5 text-sm font-extrabold text-accent-800 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-accent-500 hover:bg-accent-100 sm:flex"
         aria-label="View shopping cart, 0 items"
       >
-        <ShoppingCartBold class="size-5" aria-hidden="true" />
+        <ShoppingCartBold
+          class="size-[1.125rem]"
+          aria-hidden="true"
+        />
 
         <span class="hidden xl:inline">Cart</span>
 
         <span
-          class="grid min-w-6 place-items-center rounded-full bg-accent-500 px-1.5 py-1 text-xs leading-none text-ink-950"
+          class="grid min-w-5 place-items-center rounded-full bg-accent-500 px-1.5 py-0.5 text-[0.6875rem] leading-none font-black text-ink-950"
+          aria-hidden="true"
         >
           0
         </span>
       </a>
 
-      <MobileNavigation items={primaryNavigation} currentPath={currentPath} />
+      <MobileNavigation
+        items={primaryNavigation}
+        currentPath={currentPath}
+      />
     </div>
   </div>
 </header>

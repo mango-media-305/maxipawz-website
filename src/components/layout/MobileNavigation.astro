@@ -5,6 +5,8 @@ import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
 import ShoppingCartBold from 'phosphor-astro/ShoppingCartBold.astro';
 import XBold from 'phosphor-astro/XBold.astro';
 
+import BrandLogo from '../brand/BrandLogo.astro';
+
 interface NavigationItem {
   label: string;
   href: string;
@@ -15,118 +17,202 @@ interface Props {
   currentPath: string;
 }
 
-const { items, currentPath } = Astro.props;
+const { items, currentPath: initialCurrentPath } = Astro.props;
 
-function isCurrentRoute(href: string): boolean {
-  if (href === '/') {
-    return currentPath === '/';
+function normalizePath(path: string): string {
+  if (path === '/') {
+    return '/';
   }
 
-  return currentPath === href || currentPath.startsWith(`${href}/`);
+  return path.replace(/\/+$/, '') || '/';
+}
+
+const currentPath = normalizePath(initialCurrentPath);
+
+const activeNavigationHref = items
+  .filter((item) => {
+    const itemPath = normalizePath(item.href);
+
+    if (itemPath === '/') {
+      return currentPath === '/';
+    }
+
+    return currentPath === itemPath || currentPath.startsWith(`${itemPath}/`);
+  })
+  .sort((firstItem, secondItem) => secondItem.href.length - firstItem.href.length)[0]?.href;
+
+function isCurrentRoute(href: string): boolean {
+  if (!activeNavigationHref) {
+    return false;
+  }
+
+  return normalizePath(href) === normalizePath(activeNavigationHref);
 }
 ---
 
-<div class="lg:hidden" data-mobile-navigation>
+<div
+  class="lg:hidden"
+  data-mobile-navigation
+>
   <button
     type="button"
-    class="grid size-11 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-800 shadow-sm transition hover:border-brand-400 hover:bg-brand-50"
+    class="grid size-10 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-800 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-brand-400 hover:bg-brand-50"
     aria-label="Open navigation menu"
     aria-expanded="false"
+    aria-controls="mobile-navigation-panel"
     data-mobile-navigation-open
   >
-    <ListBold class="size-5" aria-hidden="true" />
+    <ListBold
+      class="size-[1.125rem]"
+      aria-hidden="true"
+    />
   </button>
 
+  <!-- Full viewport dialog -->
   <div
-    class="fixed inset-0 z-50"
+    id="mobile-navigation-panel"
+    class="fixed inset-0 z-[100] overflow-hidden"
     role="dialog"
     aria-modal="true"
     aria-label="Main navigation"
+    aria-hidden="true"
     data-mobile-navigation-panel
     hidden
   >
+    <!-- Backdrop -->
     <button
       type="button"
-      class="absolute inset-0 cursor-default bg-ink-950/45 backdrop-blur-sm"
+      class="absolute inset-0 block size-full cursor-default border-0 bg-ink-950/45 p-0 backdrop-blur-sm"
       aria-label="Close navigation menu"
       data-mobile-navigation-backdrop
     >
     </button>
 
-    <div
-      class="absolute inset-y-0 right-0 flex w-[min(88vw,24rem)] flex-col border-l border-brand-100 bg-cream-soft shadow-2xl"
+    <!-- Drawer -->
+    <aside
+      class="absolute inset-y-0 right-0 flex h-full w-[min(92vw,24rem)] flex-col overflow-hidden border-l border-brand-100 bg-cream-soft shadow-2xl"
     >
-      <div class="flex items-center justify-between border-b border-sand px-5 py-4">
-        <div>
-          <p class="text-lg font-black tracking-tight text-ink-900">
-            Maxi<span class="text-brand-500">Pawz</span>
-          </p>
-
-          <p class="text-xs font-semibold text-ink-500">Toys for happy pets</p>
-        </div>
+      <!-- Drawer header -->
+      <div
+        class="flex shrink-0 items-center justify-between gap-4 border-b border-sand px-5 py-4"
+      >
+        <a
+          href="/"
+          class="inline-flex min-w-0 items-center rounded-2xl"
+          aria-label="MaxiPawz Store home"
+          data-mobile-navigation-link
+        >
+          <BrandLogo
+            variant="logo"
+            class="h-12 w-auto max-w-[13rem] object-contain"
+          />
+        </a>
 
         <button
           type="button"
-          class="grid size-11 place-items-center rounded-full border border-sand bg-white-warm text-ink-800 transition hover:border-accent-300 hover:bg-accent-50"
+          class="grid size-10 shrink-0 place-items-center rounded-full border border-sand bg-white-warm text-ink-800 transition duration-200 hover:border-accent-300 hover:bg-accent-50"
           aria-label="Close navigation menu"
           data-mobile-navigation-close
         >
-          <XBold class="size-5" aria-hidden="true" />
+          <XBold
+            class="size-[1.125rem]"
+            aria-hidden="true"
+          />
         </button>
       </div>
 
-      <nav class="flex flex-1 flex-col gap-2 overflow-y-auto p-5" aria-label="Mobile navigation">
-        {
-          items.map((item) => {
-            const isCurrent = isCurrentRoute(item.href);
+      <!-- Navigation links -->
+      <nav
+        class="flex-1 overflow-y-auto overscroll-contain px-4 py-5"
+        aria-label="Mobile navigation"
+      >
+        <ul class="grid gap-2">
+          {
+            items.map((item) => {
+              const isCurrent = isCurrentRoute(item.href);
 
-            return (
-              <a
-                href={item.href}
-                class:list={[
-                  'flex min-h-13 items-center justify-between rounded-2xl px-4 py-3 font-bold transition',
-                  isCurrent
-                    ? 'bg-brand-500 text-white shadow-blue'
-                    : 'text-ink-800 hover:bg-brand-50 hover:text-brand-800',
-                ]}
-                aria-current={isCurrent ? 'page' : undefined}
-                data-mobile-navigation-link
-              >
-                <span>{item.label}</span>
+              return (
+                <li>
+                  <a
+                    href={item.href}
+                    class:list={[
+                      'flex min-h-[3.25rem] w-full items-center justify-between gap-4 rounded-2xl px-4 py-3 font-extrabold transition duration-200',
+                      isCurrent
+                        ? 'bg-brand-500 text-white shadow-blue'
+                        : 'border border-transparent text-ink-800 hover:border-brand-100 hover:bg-brand-50 hover:text-brand-800',
+                    ]}
+                    aria-current={isCurrent ? 'page' : undefined}
+                    data-mobile-navigation-link
+                  >
+                    <span>{item.label}</span>
 
-                {isCurrent ? (
-                  <PawPrintBold class="size-5" aria-hidden="true" />
-                ) : (
-                  <ArrowRightBold class="size-5" aria-hidden="true" />
-                )}
-              </a>
-            );
-          })
-        }
+                    {
+                      isCurrent ? (
+                        <PawPrintBold
+                          class="size-5 shrink-0"
+                          aria-hidden="true"
+                        />
+                      ) : (
+                        <ArrowRightBold
+                          class="size-5 shrink-0"
+                          aria-hidden="true"
+                        />
+                      )
+                    }
+                  </a>
+                </li>
+              );
+            })
+          }
+        </ul>
       </nav>
 
-      <div class="border-t border-sand p-5">
-        <a href="/cart" class="button-primary w-full" data-mobile-navigation-link>
-          <ShoppingCartBold class="size-5" aria-hidden="true" />
+      <!-- Drawer footer -->
+      <div class="shrink-0 border-t border-sand bg-cream-soft p-5">
+        <a
+          href="/cart"
+          class="flex min-h-12 w-full items-center justify-center gap-2.5 rounded-full border border-accent-600 bg-accent-500 px-5 py-3 font-extrabold text-ink-950 shadow-orange transition duration-200 hover:-translate-y-0.5 hover:bg-accent-400"
+          aria-label="View shopping cart, 0 items"
+          data-mobile-navigation-link
+        >
+          <ShoppingCartBold
+            class="size-5"
+            aria-hidden="true"
+          />
 
-          View cart
+          <span>View cart</span>
 
-          <span class="rounded-full bg-white/70 px-2 py-1 text-xs"> 0 </span>
+          <span
+            class="grid min-w-7 place-items-center rounded-full bg-white/75 px-2 py-1 text-xs leading-none font-black"
+            aria-hidden="true"
+          >
+            0
+          </span>
         </a>
 
         <p class="mt-4 text-center text-xs leading-5 text-ink-500">
           Secure checkout will be powered by Stripe.
         </p>
       </div>
-    </div>
+    </aside>
   </div>
 </div>
 
 <script>
-  const navigationElements = document.querySelectorAll<HTMLElement>('[data-mobile-navigation]');
+  const navigationElements = document.querySelectorAll<HTMLElement>(
+    '[data-mobile-navigation]',
+  );
 
   navigationElements.forEach((navigation) => {
-    const openButton = navigation.querySelector<HTMLButtonElement>('[data-mobile-navigation-open]');
+    if (navigation.dataset.mobileNavigationReady === 'true') {
+      return;
+    }
+
+    navigation.dataset.mobileNavigationReady = 'true';
+
+    const openButton = navigation.querySelector<HTMLButtonElement>(
+      '[data-mobile-navigation-open]',
+    );
 
     const closeButton = navigation.querySelector<HTMLButtonElement>(
       '[data-mobile-navigation-close]',
@@ -136,7 +222,9 @@ function isCurrentRoute(href: string): boolean {
       '[data-mobile-navigation-backdrop]',
     );
 
-    const panel = navigation.querySelector<HTMLElement>('[data-mobile-navigation-panel]');
+    const panel = navigation.querySelector<HTMLElement>(
+      '[data-mobile-navigation-panel]',
+    );
 
     const navigationLinks = navigation.querySelectorAll<HTMLAnchorElement>(
       '[data-mobile-navigation-link]',
@@ -154,10 +242,22 @@ function isCurrentRoute(href: string): boolean {
       ).filter((element) => !element.hasAttribute('hidden'));
     }
 
+    function lockDocumentScroll(): void {
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function unlockDocumentScroll(): void {
+      document.documentElement.style.removeProperty('overflow');
+      document.body.style.removeProperty('overflow');
+    }
+
     function openMenu(): void {
       panel.hidden = false;
+      panel.setAttribute('aria-hidden', 'false');
       openButton.setAttribute('aria-expanded', 'true');
-      document.body.style.overflow = 'hidden';
+
+      lockDocumentScroll();
 
       window.requestAnimationFrame(() => {
         closeButton.focus();
@@ -166,23 +266,17 @@ function isCurrentRoute(href: string): boolean {
 
     function closeMenu(restoreFocus = true): void {
       panel.hidden = true;
+      panel.setAttribute('aria-hidden', 'true');
       openButton.setAttribute('aria-expanded', 'false');
-      document.body.style.removeProperty('overflow');
+
+      unlockDocumentScroll();
 
       if (restoreFocus) {
         openButton.focus();
       }
     }
 
-    openButton.addEventListener('click', openMenu);
-    closeButton.addEventListener('click', () => closeMenu());
-    backdropButton.addEventListener('click', () => closeMenu());
-
-    navigationLinks.forEach((link) => {
-      link.addEventListener('click', () => closeMenu(false));
-    });
-
-    document.addEventListener('keydown', (event) => {
+    function handleKeydown(event: KeyboardEvent): void {
       if (panel.hidden) {
         return;
       }
@@ -207,16 +301,43 @@ function isCurrentRoute(href: string): boolean {
       if (event.shiftKey && document.activeElement === firstElement) {
         event.preventDefault();
         lastElement.focus();
-      } else if (!event.shiftKey && document.activeElement === lastElement) {
+        return;
+      }
+
+      if (!event.shiftKey && document.activeElement === lastElement) {
         event.preventDefault();
         firstElement.focus();
       }
+    }
+
+    openButton.addEventListener('click', openMenu);
+
+    closeButton.addEventListener('click', () => {
+      closeMenu();
     });
 
-    window.addEventListener('resize', () => {
-      if (window.innerWidth >= 1024 && !panel.hidden) {
-        closeMenu(false);
-      }
+    backdropButton.addEventListener('click', () => {
+      closeMenu();
     });
+
+    navigationLinks.forEach((link) => {
+      link.addEventListener('click', () => {
+        closeMenu(false);
+      });
+    });
+
+    document.addEventListener('keydown', handleKeydown);
+
+    window.addEventListener(
+      'resize',
+      () => {
+        if (window.innerWidth >= 1024 && !panel.hidden) {
+          closeMenu(false);
+        }
+      },
+      {
+        passive: true,
+      },
+    );
   });
 </script>
