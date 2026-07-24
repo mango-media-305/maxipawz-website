@@ -1,0 +1,78 @@
+---
+type Variant = 'brand' | 'accent' | 'neutral';
+type Size = 'sm' | 'md' | 'lg';
+
+interface Props {
+  variant?: Variant;
+  size?: Size;
+  uppercase?: boolean;
+  class?: string;
+  innerClass?: string;
+  ariaLabel?: string;
+}
+
+const {
+  variant = 'accent',
+  size = 'md',
+  uppercase = true,
+  class: className = '',
+  innerClass = '',
+  ariaLabel,
+} = Astro.props;
+
+const hasIcon = Astro.slots.has('icon');
+
+const sizeClasses: Record<Size, string> = {
+  sm: 'min-h-7 gap-1.5 px-3 py-1.5 text-[0.6875rem]',
+  md: 'min-h-8 gap-2 px-3.5 py-2 text-xs',
+  lg: 'min-h-10 gap-2.5 px-5 py-2.5 text-sm',
+};
+
+const ringClasses: Record<Variant, string> = {
+  brand:
+    'bg-gradient-to-r from-brand-300 via-brand-500 to-accent-300 shadow-[0_10px_30px_-20px_rgba(0,138,255,0.65)]',
+
+  accent:
+    'bg-gradient-to-r from-accent-300 via-accent-500 to-brand-300 shadow-[0_10px_30px_-20px_rgba(255,102,0,0.65)]',
+
+  neutral:
+    'bg-gradient-to-r from-sand-dark via-sand to-brand-200 shadow-[0_10px_30px_-22px_rgba(53,39,31,0.4)]',
+};
+
+const surfaceClasses: Record<Variant, string> = {
+  brand: 'bg-brand-50/95 text-brand-800',
+  accent: 'bg-accent-50/95 text-accent-800',
+  neutral: 'bg-cream-soft/95 text-ink-700',
+};
+---
+
+<span
+  class:list={[
+    'relative inline-flex w-fit overflow-hidden rounded-full p-px',
+    ringClasses[variant],
+    className,
+  ]}
+  aria-label={ariaLabel}
+>
+  <span
+    class:list={[
+      'relative inline-flex w-full items-center justify-center whitespace-nowrap rounded-full font-extrabold leading-none backdrop-blur-md',
+      sizeClasses[size],
+      surfaceClasses[variant],
+      uppercase && 'tracking-[0.09em] uppercase',
+      innerClass,
+    ]}
+  >
+    {
+      hasIcon && (
+        <span class="grid shrink-0 place-items-center [&>svg]:size-4" aria-hidden="true">
+          <slot name="icon" />
+        </span>
+      )
+    }
+
+    <span>
+      <slot />
+    </span>
+  </span>
+</span>

@@ -13,23 +13,29 @@ import ShoppingBagOpenBold from 'phosphor-astro/ShoppingBagOpenBold.astro';
 import TennisBallBold from 'phosphor-astro/TennisBallBold.astro';
 
 import mascotImage from '../assets/brand/maxipawz-mascot.webp';
-import BaseLayout from '../layouts/BaseLayout.astro';
+
+import Badge from '@components/ui/Badge.astro';
+import Button from '@components/ui/Button.astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
 
 const benefits = [
   {
     icon: ShieldCheckBold,
     title: 'Thoughtfully selected',
-    description: 'Products chosen with play, enrichment, and pet-owner confidence in mind.',
+    description:
+      'Products chosen with play, enrichment, and pet-owner confidence in mind.',
   },
   {
     icon: PawPrintBold,
     title: 'Made for happy play',
-    description: 'Fun options for chewing, chasing, fetching, exploring, and bonding.',
+    description:
+      'Fun options for chewing, chasing, fetching, exploring, and bonding.',
   },
   {
     icon: HeartBold,
     title: 'A store that loves pets',
-    description: 'A warm shopping experience created for pets and the people who adore them.',
+    description:
+      'A warm shopping experience created for pets and the people who adore them.',
   },
 ];
 ---
@@ -56,54 +62,87 @@ const benefits = [
       class="site-container-wide grid min-h-[calc(100vh-7.5rem)] items-center gap-12 py-16 lg:grid-cols-[1.08fr_0.92fr] lg:py-20"
     >
       <div class="relative z-10">
-        <div class="section-kicker">
-          <ConfettiBold class="size-4" aria-hidden="true" />
+        <Badge
+          variant="accent"
+          size="md"
+        >
+          <ConfettiBold
+            slot="icon"
+            aria-hidden="true"
+          />
 
           A joyful pet store is coming
-        </div>
+        </Badge>
 
         <h1
           class="mt-7 max-w-4xl text-5xl leading-[0.98] font-black tracking-[-0.055em] text-ink-900 sm:text-6xl lg:text-7xl xl:text-8xl"
         >
-          Toys for more
-          <span class="text-brand-gradient">happy paws</span>
+          Toys for more{' '}
+          <span class="text-brand-gradient">happy paws</span>{' '}
           and wagging tails.
         </h1>
 
         <p class="mt-7 max-w-2xl text-lg leading-8 text-ink-600 sm:text-xl">
-          MaxiPawz is building a warm, playful place to discover toys that keep pets active,
-          curious, entertained, and close to the people they love.
+          MaxiPawz is building a warm, playful place to discover toys that keep
+          pets active, curious, entertained, and close to the people they love.
         </p>
 
         <div class="mt-9 flex flex-col gap-3 sm:flex-row">
-          <a href="/shop" class="button-primary">
-            <ShoppingBagOpenBold class="size-5" aria-hidden="true" />
+          <Button
+            href="/shop"
+            variant="primary"
+            size="lg"
+            iconPosition="left"
+          >
+            <ShoppingBagOpenBold
+              slot="icon"
+              aria-hidden="true"
+            />
 
             Explore the shop
-          </a>
+          </Button>
 
-          <a href="/about" class="button-outline">
+          <Button
+            href="/about"
+            variant="secondary"
+            size="lg"
+            iconPosition="right"
+          >
+            <ArrowRightBold
+              slot="icon"
+              aria-hidden="true"
+            />
+
             Meet MaxiPawz
-
-            <ArrowRightBold class="size-5" aria-hidden="true" />
-          </a>
+          </Button>
         </div>
 
-        <div class="mt-10 flex flex-wrap gap-x-7 gap-y-3 text-sm font-bold text-ink-600">
+        <div
+          class="mt-10 flex flex-wrap gap-x-7 gap-y-3 text-sm font-bold text-ink-600"
+        >
           <span class="inline-flex items-center gap-2">
-            <CheckCircleFill class="size-5 text-brand-500" aria-hidden="true" />
+            <CheckCircleFill
+              class="size-5 text-brand-500"
+              aria-hidden="true"
+            />
 
             Secure checkout
           </span>
 
           <span class="inline-flex items-center gap-2">
-            <CheckCircleFill class="size-5 text-brand-500" aria-hidden="true" />
+            <CheckCircleFill
+              class="size-5 text-brand-500"
+              aria-hidden="true"
+            />
 
             Pet-friendly shopping
           </span>
 
           <span class="inline-flex items-center gap-2">
-            <CheckCircleFill class="size-5 text-brand-500" aria-hidden="true" />
+            <CheckCircleFill
+              class="size-5 text-brand-500"
+              aria-hidden="true"
+            />
 
             Helpful support
           </span>
@@ -141,7 +180,7 @@ const benefits = [
               </span>
 
               <div>
-                <p class="font-black text-ink-900">Playtime is coming</p>
+                <p class="interface-heading">Playtime is coming</p>
 
                 <p class="mt-0.5 text-sm text-ink-600">
                   We’re preparing the first MaxiPawz collection.
@@ -193,18 +232,27 @@ const benefits = [
 
   <section class="section-spacing">
     <div class="site-container text-center">
-      <div class="section-kicker">
-        <HammerBold class="size-4" aria-hidden="true" />
+      <Badge
+        variant="brand"
+        size="md"
+        class="mx-auto"
+      >
+        <HammerBold
+          slot="icon"
+          aria-hidden="true"
+        />
 
         Storefront under construction
-      </div>
+      </Badge>
 
-      <h2 class="section-title mx-auto mt-6">The MaxiPawz experience is taking shape.</h2>
+      <h2 class="section-title mx-auto mt-6">
+        The MaxiPawz experience is taking shape.
+      </h2>
 
       <p class="section-description mx-auto mt-6">
-        The brand foundation, global styles, navigation, and homepage structure are now being
-        prepared. Products, categories, shopping-cart functionality, and secure Stripe checkout are
-        coming next.
+        The brand foundation, global styles, navigation, and homepage structure
+        are now being prepared. Products, categories, shopping-cart
+        functionality, and secure Stripe checkout are coming next.
       </p>
     </div>
   </section>
