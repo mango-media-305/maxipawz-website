@@ -1,0 +1,190 @@
+---
+import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
+import CheckCircleBold from 'phosphor-astro/CheckCircleBold.astro';
+import HeartBold from 'phosphor-astro/HeartBold.astro';
+import ShoppingBagOpenBold from 'phosphor-astro/ShoppingBagOpenBold.astro';
+import SparkleBold from 'phosphor-astro/SparkleBold.astro';
+import UsersThreeBold from 'phosphor-astro/UsersThreeBold.astro';
+
+import BrandLogo from '../brand/BrandLogo.astro';
+import Badge from '../ui/Badge.astro';
+import Button from '../ui/Button.astro';
+
+import { isStoreLive } from '../../config/storefront';
+
+import {
+  brandStory,
+  brandStoryPrinciples,
+  type BrandStoryPrincipleIcon,
+} from '../../data/homepage';
+
+const iconByPrinciple: Record<BrandStoryPrincipleIcon, typeof SparkleBold> = {
+  joy: SparkleBold,
+  usefulness: CheckCircleBold,
+  care: HeartBold,
+};
+---
+
+<section
+  id="our-story"
+  class="section-spacing relative overflow-hidden bg-ink-950 text-white"
+  aria-labelledby="brand-story-title"
+>
+  <!-- Decorative background -->
+  <div
+    class="pointer-events-none absolute -top-36 -left-28 size-96 rounded-full bg-brand-500/20 blur-3xl"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div
+    class="pointer-events-none absolute -right-28 -bottom-40 size-[30rem] rounded-full bg-accent-500/20 blur-3xl"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div
+    class="pointer-events-none absolute top-1/2 left-1/2 size-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/5 blur-3xl"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div class="site-container-wide relative grid items-center gap-14 lg:grid-cols-[0.92fr_1.08fr]">
+    <!-- Story visual -->
+    <div class="relative mx-auto w-full max-w-xl">
+      <div
+        class="pointer-events-none absolute inset-8 -z-10 rounded-full bg-gradient-to-br from-brand-400/45 via-white/10 to-accent-400/45 blur-3xl"
+        aria-hidden="true"
+      >
+      </div>
+
+      <div
+        class="relative overflow-hidden rounded-[3rem] border border-white/15 bg-gradient-to-br from-brand-500/30 via-white/10 to-accent-500/25 p-3 shadow-2xl shadow-black/30 backdrop-blur"
+      >
+        <div class="relative aspect-square overflow-hidden rounded-[2.4rem] bg-cream-soft">
+          <BrandLogo variant="mascot" class="size-full object-cover" />
+
+          <div
+            class="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink-950/65 to-transparent"
+            aria-hidden="true"
+          >
+          </div>
+        </div>
+
+        <!-- Founders message -->
+        <div
+          class="absolute right-7 bottom-7 left-7 rounded-3xl border border-white/20 bg-ink-950/82 p-4 shadow-xl backdrop-blur-md sm:p-5"
+        >
+          <div class="flex items-center gap-4">
+            <span
+              class="grid size-12 shrink-0 place-items-center rounded-2xl bg-accent-500 text-ink-950 shadow-orange"
+              aria-hidden="true"
+            >
+              <UsersThreeBold class="size-6" />
+            </span>
+
+            <div>
+              <p class="font-display text-xl leading-tight text-white sm:text-2xl">
+                Two friends. One shared vision.
+              </p>
+
+              <p class="mt-1 text-sm leading-5 text-white/70">
+                Joined by friendship, a love for pets, and a desire to create something meaningful.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Decorative brand mark -->
+      <span
+        class="absolute -top-5 -right-3 grid size-20 rotate-8 place-items-center rounded-[2rem] border-4 border-ink-950 bg-white-warm shadow-blue sm:size-24"
+        aria-hidden="true"
+      >
+        <BrandLogo variant="mark" class="size-12 object-contain sm:size-14" />
+      </span>
+
+      <span
+        class="absolute -bottom-5 -left-3 grid size-16 -rotate-8 place-items-center rounded-[1.6rem] border-4 border-ink-950 bg-accent-500 text-ink-950 shadow-orange sm:size-20"
+        aria-hidden="true"
+      >
+        <HeartBold class="size-8 sm:size-9" />
+      </span>
+    </div>
+
+    <!-- Story content -->
+    <div>
+      <Badge variant="accent" size="md">
+        <HeartBold slot="icon" aria-hidden="true" />
+
+        {brandStory.eyebrow}
+      </Badge>
+
+      <h2
+        id="brand-story-title"
+        class="section-title mt-6 max-w-3xl text-4xl text-white sm:text-5xl lg:text-6xl"
+      >
+        Made for pets. Built by{' '}
+        <span class="text-accent-300"> two friends </span>{' '}
+        who love them.
+      </h2>
+
+      <div class="mt-7 max-w-3xl space-y-5 text-base leading-8 text-white/75 sm:text-lg">
+        <p>{brandStory.introduction}</p>
+
+        <p>{brandStory.description}</p>
+
+        <p>{brandStory.closing}</p>
+      </div>
+
+      <!-- Brand principles -->
+      <div class="mt-9 grid gap-3">
+        {
+          brandStoryPrinciples.map((principle) => {
+            const Icon = iconByPrinciple[principle.icon];
+
+            return (
+              <article class="group flex gap-4 rounded-3xl border border-white/10 bg-white/5 p-4 transition duration-200 hover:border-white/20 hover:bg-white/10 sm:p-5">
+                <span
+                  class="grid size-11 shrink-0 place-items-center rounded-2xl bg-brand-500 text-white shadow-blue transition duration-200 group-hover:scale-105"
+                  aria-hidden="true"
+                >
+                  <Icon class="size-5" />
+                </span>
+
+                <div>
+                  <h3 class="text-xl text-white">{principle.title}</h3>
+
+                  <p class="mt-1.5 text-sm leading-6 text-white/65">{principle.description}</p>
+                </div>
+              </article>
+            );
+          })
+        }
+      </div>
+
+      <!-- Conditional actions -->
+      <div class="mt-9 flex flex-col gap-3 sm:flex-row">
+        <Button href="/about" variant="primary" size="lg" iconPosition="right">
+          <ArrowRightBold slot="icon" aria-hidden="true" />
+
+          Read Our Story
+        </Button>
+
+        {
+          isStoreLive ? (
+            <Button href="/shop" variant="secondary" size="lg" iconPosition="right">
+              <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
+              Explore the Shop
+            </Button>
+          ) : (
+            <Button href="/#join-the-pack" variant="secondary" size="lg" iconPosition="right">
+              <HeartBold slot="icon" aria-hidden="true" />
+              Join the Pack
+            </Button>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</section>
