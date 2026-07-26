@@ -19,7 +19,7 @@ const {
     href,
     tone = 'brand',
     eyebrow = 'Pet Guide',
-    linkLabel = 'Explore guide',
+    linkLabel = 'Read guide',
     class: className = '',
 } = Astro.props;
 
@@ -28,18 +28,21 @@ const toneClasses: Record<PetGuideTone, string> = {
         'border-brand-200',
         'bg-linear-to-br from-brand-50 via-white-warm to-brand-100/70',
         'hover:border-brand-300',
+        'focus-visible:border-brand-400',
     ].join(' '),
 
     accent: [
         'border-accent-200',
         'bg-linear-to-br from-accent-50 via-white-warm to-accent-100/70',
         'hover:border-accent-300',
+        'focus-visible:border-accent-400',
     ].join(' '),
 
     sand: [
         'border-sand-dark/70',
         'bg-linear-to-br from-cream-soft via-white-warm to-sand/65',
         'hover:border-sand-dark',
+        'focus-visible:border-sand-dark',
     ].join(' '),
 };
 

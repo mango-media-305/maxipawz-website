@@ -9,22 +9,25 @@ export interface FooterNavigationGroup {
 }
 
 /*
- * The logo provides the homepage link, so Home is intentionally omitted
- * from the desktop navigation.
+ * The logo provides the homepage link, so Home is intentionally
+ * omitted from the desktop navigation.
  */
 export const primaryNavigation: NavigationItem[] = [
   {
     label: 'Shop',
     href: '/shop',
   },
+
   {
     label: 'Pet Guides',
     href: '/pet-guides',
   },
+
   {
     label: 'Our Story',
     href: '/about',
   },
+
   {
     label: 'Contact',
     href: '/contact',
@@ -32,63 +35,75 @@ export const primaryNavigation: NavigationItem[] = [
 ];
 
 /*
- * The mobile drawer provides a complete navigation experience, so Home
- * is included explicitly.
+ * The mobile drawer provides a complete navigation experience,
+ * so Home is included explicitly.
  */
 export const mobileNavigation: NavigationItem[] = [
   {
     label: 'Home',
     href: '/',
   },
+
   ...primaryNavigation,
 ];
 
 export const footerNavigation: FooterNavigationGroup[] = [
   {
     title: 'Explore',
+
     links: [
       {
         label: 'Shop',
         href: '/shop',
       },
+
       {
         label: 'Pet Guides',
         href: '/pet-guides',
       },
+
       {
         label: 'Our Story',
         href: '/about',
       },
     ],
   },
+
   {
     title: 'Helpful Resources',
+
     links: [
       {
         label: 'Pet Product Safety',
         href: '/product-safety',
       },
+
       {
         label: 'Choosing the Right Product',
-        href: '/pet-guides#choosing-the-right-product',
+        href: '/pet-guides/choosing-the-right-product',
       },
+
       {
         label: 'Walk & Travel Essentials',
-        href: '/pet-guides#walk-and-travel',
+        href: '/pet-guides/walk-and-travel',
       },
     ],
   },
+
   {
     title: 'Help & Updates',
+
     links: [
       {
         label: 'Frequently Asked Questions',
         href: '/faq',
       },
+
       {
         label: 'Contact Us',
         href: '/contact',
       },
+
       {
         label: 'Join the Pack',
         href: '/#join-the-pack',

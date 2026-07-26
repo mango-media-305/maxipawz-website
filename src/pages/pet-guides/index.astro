@@ -25,6 +25,7 @@ import {
 } from '../../data/pet-guides';
 
 const iconByGuide: Record<PetGuideIcon, typeof PawPrintBold> = {
+    choosing: CheckCircleBold,
     play: ConfettiBold,
     travel: SuitcaseRollingBold,
     hydration: HeartBold,
@@ -33,23 +34,31 @@ const iconByGuide: Record<PetGuideIcon, typeof PawPrintBold> = {
     accessories: ShoppingBagOpenBold,
 };
 
+const FeaturedGuideIcon = iconByGuide[featuredGuide.icon];
+
 const guidePrinciples = [
     {
         icon: PawPrintBold,
+
         title: 'Inspired by Maxi',
+
         description:
         'Our guides begin with the lessons we have learned through everyday life with our own dog.',
     },
 
     {
         icon: CheckCircleBold,
+
         title: 'Practical first',
+
         description: 'We focus on comfort, usefulness, purpose, maintenance, and real daily routines.',
     },
 
     {
         icon: ShieldCheckBold,
+
         title: 'Clear and responsible',
+
         description:
         'Our guidance supports informed choices without replacing professional veterinary advice.',
     },
@@ -201,10 +210,11 @@ const guidePrinciples = [
 
                 return (
                 <GuideCard
-                    title={guide.title}
+                    title={guide.cardTitle}
                     description={guide.description}
-                    href={`#${guide.slug}`}
+                    href={guide.href}
                     tone={guide.tone}
+                    eyebrow={guide.eyebrow}
                 >
                     <Icon slot="icon" aria-hidden="true" />
                 </GuideCard>
@@ -217,8 +227,7 @@ const guidePrinciples = [
 
     <!-- Featured guide -->
     <section
-        id={featuredGuide.slug}
-        class="section-spacing scroll-mt-28 relative overflow-hidden bg-ink-950 text-white"
+        class="section-spacing relative overflow-hidden bg-ink-950 text-white"
         aria-labelledby="featured-guide-title"
     >
         <div
@@ -238,7 +247,7 @@ const guidePrinciples = [
         >
         <div class="max-w-xl">
             <Badge variant="accent" size="md">
-            <CheckCircleBold slot="icon" aria-hidden="true" />
+            <FeaturedGuideIcon slot="icon" aria-hidden="true" />
 
             {featuredGuide.eyebrow}
             </Badge>
@@ -254,6 +263,14 @@ const guidePrinciples = [
             <p class="mt-4 text-base leading-7 text-white/65">
             {featuredGuide.introduction}
             </p>
+
+            <div class="mt-7">
+            <Button href={featuredGuide.href} variant="primary" size="lg" iconPosition="right">
+                <ArrowRightBold slot="icon" aria-hidden="true" />
+
+                Read the Full Guide
+            </Button>
+            </div>
         </div>
 
         <div class="grid gap-3">
@@ -265,70 +282,6 @@ const guidePrinciples = [
                 <p class="text-sm font-bold leading-6 text-white/80">{point}</p>
                 </div>
             ))
-            }
-        </div>
-        </div>
-    </section>
-
-    <!-- Detailed topic introductions -->
-    <section class="section-spacing">
-        <div class="site-container">
-        <div class="mx-auto max-w-4xl text-center">
-            <Badge variant="neutral" size="md" class="mx-auto">
-            <SparkleBold slot="icon" aria-hidden="true" />
-
-            Guide Introductions
-            </Badge>
-
-            <h2 class="section-title mx-auto mt-5 text-4xl sm:text-5xl">
-            Explore what each guide will help you consider.
-            </h2>
-        </div>
-
-        <div class="mt-10 grid gap-5 lg:mt-12">
-            {
-            petGuideTopics.map((guide) => {
-                const Icon = iconByGuide[guide.icon];
-
-                return (
-                <article
-                    id={guide.slug}
-                    class="scroll-mt-28 grid gap-6 rounded-[2.25rem] border border-sand bg-white-warm p-5 shadow-sm sm:p-6 lg:grid-cols-[0.78fr_1.22fr] lg:gap-10 lg:p-8"
-                >
-                    <div>
-                    <span
-                        class="grid size-14 place-items-center rounded-2xl bg-brand-500 text-white shadow-blue"
-                        aria-hidden="true"
-                    >
-                        <Icon class="size-7" />
-                    </span>
-
-                    <h3 class="mt-5 text-3xl text-ink-900">{guide.title}</h3>
-
-                    <p class="mt-4 text-base leading-7 text-ink-600">{guide.introduction}</p>
-                    </div>
-
-                    <div>
-                    <p class="text-xs font-extrabold tracking-[0.09em] text-ink-500 uppercase">
-                        What this guide will cover
-                    </p>
-
-                    <ul class="mt-4 grid gap-3">
-                        {guide.learningPoints.map((point) => (
-                        <li class="flex items-start gap-3 rounded-2xl border border-sand/80 bg-cream-soft p-4 text-sm font-bold leading-6 text-ink-700">
-                            <CheckCircleFill
-                            class="mt-0.5 size-5 shrink-0 text-brand-500"
-                            aria-hidden="true"
-                            />
-
-                            <span>{point}</span>
-                        </li>
-                        ))}
-                    </ul>
-                    </div>
-                </article>
-                );
-            })
             }
         </div>
         </div>
@@ -368,7 +321,7 @@ const guidePrinciples = [
 
         <p class="mx-auto mt-8 max-w-3xl text-center text-sm leading-6 text-ink-500">
             These guides provide general educational information. Contact a qualified veterinarian or
-            other appropriate professional for medical, nutritional, behavioral, or safety concerns
+            another appropriate professional for medical, nutritional, behavioral, or safety concerns
             specific to your dog.
         </p>
         </div>

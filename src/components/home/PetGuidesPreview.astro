@@ -1,8 +1,11 @@
 ---
 import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
+import CheckCircleBold from 'phosphor-astro/CheckCircleBold.astro';
 import ConfettiBold from 'phosphor-astro/ConfettiBold.astro';
 import HeartBold from 'phosphor-astro/HeartBold.astro';
 import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
+import ShieldCheckBold from 'phosphor-astro/ShieldCheckBold.astro';
+import ShoppingBagOpenBold from 'phosphor-astro/ShoppingBagOpenBold.astro';
 import SparkleBold from 'phosphor-astro/SparkleBold.astro';
 import SuitcaseRollingBold from 'phosphor-astro/SuitcaseRollingBold.astro';
 
@@ -13,12 +16,13 @@ import Button from '../ui/Button.astro';
 import { homepagePetGuides, type PetGuideIcon } from '../../data/pet-guides';
 
 const iconByGuide: Record<PetGuideIcon, typeof PawPrintBold> = {
+    choosing: CheckCircleBold,
     play: ConfettiBold,
     travel: SuitcaseRollingBold,
     hydration: HeartBold,
     comfort: PawPrintBold,
-    care: SparkleBold,
-    accessories: PawPrintBold,
+    care: ShieldCheckBold,
+    accessories: ShoppingBagOpenBold,
 };
 ---
 
@@ -57,10 +61,11 @@ const iconByGuide: Record<PetGuideIcon, typeof PawPrintBold> = {
 
             return (
                 <GuideCard
-                title={guide.title}
+                title={guide.cardTitle}
                 description={guide.description}
-                href={`/pet-guides#${guide.slug}`}
+                href={guide.href}
                 tone={guide.tone}
+                eyebrow={guide.eyebrow}
                 >
                 <Icon slot="icon" aria-hidden="true" />
                 </GuideCard>
