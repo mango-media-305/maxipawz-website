@@ -1,0 +1,135 @@
+---
+import CheckCircleBold from 'phosphor-astro/CheckCircleBold.astro';
+import ConfettiBold from 'phosphor-astro/ConfettiBold.astro';
+import HeartBold from 'phosphor-astro/HeartBold.astro';
+import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
+import UsersThreeBold from 'phosphor-astro/UsersThreeBold.astro';
+
+import Badge from '../ui/Badge.astro';
+
+import { maxiLessons, maxiStory, type MaxiLessonIcon } from '../../data/about';
+
+const iconByLesson: Record<MaxiLessonIcon, typeof PawPrintBold> = {
+    play: ConfettiBold,
+    practical: CheckCircleBold,
+    personal: HeartBold,
+    community: UsersThreeBold,
+};
+---
+
+<section
+    id="maxis-story"
+    class="section-spacing scroll-mt-28 border-y border-sand bg-white-warm/70"
+    aria-labelledby="maxi-story-title"
+>
+    <div class="site-container-wide">
+        <div class="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+        <!-- Main story -->
+        <div>
+            <Badge variant="brand" size="md">
+            <PawPrintBold slot="icon" aria-hidden="true" />
+
+            {maxiStory.eyebrow}
+            </Badge>
+
+            <h2
+            id="maxi-story-title"
+            class="section-title mt-6 max-w-3xl text-4xl text-ink-900 sm:text-5xl"
+            >
+            {maxiStory.title}
+            </h2>
+
+            <div class="mt-7 max-w-3xl space-y-5 text-base leading-8 text-ink-600 sm:text-lg">
+            {maxiStory.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+            </div>
+
+            <div
+            class="mt-8 inline-flex items-center gap-3 rounded-2xl border border-brand-200 bg-brand-50 px-5 py-4 text-sm font-bold text-brand-800"
+            >
+            <HeartBold class="size-5 shrink-0" aria-hidden="true" />
+
+            <span> Inspired by Maxi. Supported by friends. Made for pets and their people. </span>
+            </div>
+        </div>
+
+        <!-- Story milestones -->
+        <div class="relative">
+            <div
+            class="pointer-events-none absolute top-8 bottom-8 left-7 hidden w-px bg-linear-to-b from-brand-400 via-accent-400 to-brand-400 sm:block"
+            aria-hidden="true"
+            >
+            </div>
+
+            <div class="space-y-5">
+            {
+                maxiStory.milestones.map((milestone) => (
+                <article class="relative rounded-4xl border border-sand bg-cream-soft p-6 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-card sm:pl-20">
+                    <span
+                    class="mb-4 grid size-14 place-items-center rounded-2xl bg-ink-950 font-black text-white shadow-sm sm:absolute sm:top-6 sm:left-0 sm:mb-0"
+                    aria-hidden="true"
+                    >
+                    {milestone.number}
+                    </span>
+
+                    <h3 class="text-2xl text-ink-900">{milestone.title}</h3>
+
+                    <p class="mt-3 text-sm leading-6 text-ink-600">{milestone.description}</p>
+                </article>
+                ))
+            }
+            </div>
+        </div>
+        </div>
+
+        <!-- Lessons from Maxi -->
+        <div class="mt-16">
+        <div class="mx-auto max-w-3xl text-center">
+            <Badge variant="accent" size="md" class="mx-auto">
+            <HeartBold slot="icon" aria-hidden="true" />
+
+            What Maxi Taught Us
+            </Badge>
+
+            <h2 class="section-title mt-6 text-4xl text-ink-900 sm:text-5xl">
+            Real experience shapes every part of the vision.
+            </h2>
+
+            <p class="section-description mx-auto mt-5">
+            Living with Maxi helped us understand that the best pet products combine happiness,
+            usefulness, comfort, and a clear purpose.
+            </p>
+        </div>
+
+        <div class="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+            {
+            maxiLessons.map((lesson, index) => {
+                const Icon = iconByLesson[lesson.icon];
+
+                const iconClass =
+                index % 2 === 0
+                    ? 'bg-brand-500 text-white shadow-blue'
+                    : 'bg-accent-500 text-ink-950 shadow-orange';
+
+                return (
+                <article class="group rounded-4xl border border-sand bg-white-warm p-6 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-card">
+                    <span
+                    class:list={[
+                        'grid size-14 place-items-center rounded-2xl transition duration-200 group-hover:rotate-3 group-hover:scale-105',
+                        iconClass,
+                    ]}
+                    aria-hidden="true"
+                    >
+                    <Icon class="size-7" />
+                    </span>
+
+                    <h3 class="mt-6 text-2xl text-ink-900">{lesson.title}</h3>
+
+                    <p class="mt-3 text-sm leading-6 text-ink-600">{lesson.description}</p>
+                </article>
+                );
+            })
+            }
+        </div>
+        </div>
+    </div>
+</section>

@@ -9,6 +9,7 @@ import ShoppingBagOpenBold from 'phosphor-astro/ShoppingBagOpenBold.astro';
 
 import BrandStorySection from '@components/home/BrandStorySection.astro';
 import HeroSlider from '@components/home/HeroSlider.astro';
+import LaunchSignup from '@components/home/LaunchSignup.astro';
 import ShopByLifestyle from '@components/home/ShopByLifestyle.astro';
 import Badge from '@components/ui/Badge.astro';
 import Button from '@components/ui/Button.astro';
@@ -30,29 +31,15 @@ import { isStoreLive } from '../config/storefront';
  */
 const liveProductPreviews: HeroProductPreview[] = [];
 
-const productHeroSlides = createProductHeroSlides(
-  liveProductPreviews,
-);
+const productHeroSlides = createProductHeroSlides(liveProductPreviews);
 
-const showLiveProductHero =
-  isStoreLive &&
-  productHeroSlides.length > 0;
+const showLiveProductHero = isStoreLive && productHeroSlides.length > 0;
 
-const heroSlides = showLiveProductHero
-  ? productHeroSlides
-  : prelaunchHeroSlides;
+const heroSlides = showLiveProductHero ? productHeroSlides : prelaunchHeroSlides;
 
 const heroHighlights = showLiveProductHero
-  ? [
-      'Toys, supplies, and accessories',
-      'Helpful product guidance',
-      'Secure checkout',
-    ]
-  : [
-      'Playful and practical finds',
-      'Thoughtfully selected',
-      'Made for everyday pet life',
-    ];
+  ? ['Toys, supplies, and accessories', 'Helpful product guidance', 'Secure checkout']
+  : ['Playful and practical finds', 'Thoughtfully selected', 'Made for everyday pet life'];
 
 const benefits = [
   {
@@ -76,10 +63,10 @@ const benefits = [
   {
     icon: HeartBold,
 
-    title: 'A store that loves pets',
+    title: 'Inspired by real pet life',
 
     description:
-      'A warm shopping experience created for pets and the people who care for them.',
+      'A warm shopping experience shaped by the lessons we have learned while caring for Maxi.',
   },
 ];
 ---
@@ -104,22 +91,12 @@ const benefits = [
     </div>
 
     <div
-      class="site-container-wide grid items-center gap-14 py-14 lg:grid-cols-[1.02fr_0.98fr] lg:py-18"
+      class="site-container-wide grid items-center gap-10 py-12 sm:py-14 lg:grid-cols-[1.02fr_0.98fr] lg:gap-14 lg:py-16"
     >
       <!-- Hero content -->
-      <div class="relative z-10">
-        <Badge
-          variant={
-            showLiveProductHero
-              ? 'brand'
-              : 'accent'
-          }
-          size="md"
-        >
-          <ConfettiBold
-            slot="icon"
-            aria-hidden="true"
-          />
+      <div class="relative z-10 max-w-2xl">
+        <Badge variant={showLiveProductHero ? 'brand' : 'accent'} size="md">
+          <ConfettiBold slot="icon" aria-hidden="true" />
 
           {
             showLiveProductHero
@@ -128,31 +105,22 @@ const benefits = [
           }
         </Badge>
 
-        <h1
-          class="mt-7 max-w-3xl text-5xl leading-[0.98] font-black tracking-[-0.05em] text-ink-900 sm:text-6xl lg:text-7xl"
-        >
+        <h1 class="mt-6 max-w-2xl text-5xl text-ink-900 sm:text-6xl lg:text-7xl">
           {
             showLiveProductHero ? (
               <>
                 Find something special for{' '}
-                <span class="text-brand-gradient">
-                  every pet moment.
-                </span>
+                <span class="text-brand-gradient">every pet moment.</span>
               </>
             ) : (
               <>
-                More joy for{' '}
-                <span class="text-brand-gradient">
-                  every pet moment.
-                </span>
+                More joy for <span class="text-brand-gradient">every pet moment.</span>
               </>
             )
           }
         </h1>
 
-        <p
-          class="mt-7 max-w-2xl text-lg leading-8 text-ink-600 sm:text-xl"
-        >
+        <p class="mt-6 max-w-xl text-lg leading-8 text-ink-600 sm:text-xl">
           {
             showLiveProductHero
               ? 'Discover thoughtfully selected products for play, walks, travel, feeding, hydration, comfort, care, and everyday life together.'
@@ -160,9 +128,7 @@ const benefits = [
           }
         </p>
 
-        <div
-          class="mt-9 flex flex-col gap-3 sm:flex-row"
-        >
+        <div class="mt-8 flex flex-col gap-3 sm:flex-row">
           {
             showLiveProductHero ? (
               <>
@@ -171,12 +137,9 @@ const benefits = [
                   variant="primary"
                   size="lg"
                   iconPosition="left"
+                  class="w-full sm:w-auto"
                 >
-                  <ShoppingBagOpenBold
-                    slot="icon"
-                    aria-hidden="true"
-                  />
-
+                  <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
                   Shop the Collection
                 </Button>
 
@@ -185,12 +148,9 @@ const benefits = [
                   variant="secondary"
                   size="lg"
                   iconPosition="right"
+                  class="w-full sm:w-auto"
                 >
-                  <ArrowRightBold
-                    slot="icon"
-                    aria-hidden="true"
-                  />
-
+                  <ArrowRightBold slot="icon" aria-hidden="true" />
                   Explore Pet Guides
                 </Button>
               </>
@@ -201,12 +161,9 @@ const benefits = [
                   variant="primary"
                   size="lg"
                   iconPosition="left"
+                  class="w-full sm:w-auto"
                 >
-                  <HeartBold
-                    slot="icon"
-                    aria-hidden="true"
-                  />
-
+                  <HeartBold slot="icon" aria-hidden="true" />
                   Join the Pack
                 </Button>
 
@@ -215,29 +172,21 @@ const benefits = [
                   variant="secondary"
                   size="lg"
                   iconPosition="right"
+                  class="w-full sm:w-auto"
                 >
-                  <ArrowRightBold
-                    slot="icon"
-                    aria-hidden="true"
-                  />
-
-                  Discover MaxiPawz
+                  <ArrowRightBold slot="icon" aria-hidden="true" />
+                  Meet Maxi
                 </Button>
               </>
             )
           }
         </div>
 
-        <div
-          class="mt-10 flex flex-wrap gap-x-7 gap-y-3 text-sm font-bold text-ink-600"
-        >
+        <div class="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold text-ink-600">
           {
             heroHighlights.map((highlight) => (
               <span class="inline-flex items-center gap-2">
-                <CheckCircleFill
-                  class="size-5 shrink-0 text-brand-500"
-                  aria-hidden="true"
-                />
+                <CheckCircleFill class="size-5 shrink-0 text-brand-500" aria-hidden="true" />
 
                 {highlight}
               </span>
@@ -246,15 +195,10 @@ const benefits = [
         </div>
       </div>
 
-      <!-- Hero slider -->
       <HeroSlider
         slides={heroSlides}
         id="maxipawz-homepage-hero"
-        label={
-          showLiveProductHero
-            ? 'Featured MaxiPawz products'
-            : 'Discover the MaxiPawz brand'
-        }
+        label={showLiveProductHero ? 'Featured MaxiPawz products' : 'Discover the MaxiPawz brand'}
         autoplay={true}
         interval={6500}
       />
@@ -262,189 +206,32 @@ const benefits = [
   </section>
 
   <!-- Brand promises -->
-  <section
-    class="border-y border-sand bg-white-warm/65"
-    aria-label="Why MaxiPawz"
-  >
-    <div
-      class="site-container-wide grid gap-4 py-8 md:grid-cols-3"
-    >
+  <section class="border-y border-sand bg-white-warm/65" aria-label="Why MaxiPawz">
+    <div class="site-container grid gap-2 py-6 md:grid-cols-3 md:gap-4 sm:py-8">
       {
-        benefits.map(
-          ({
-            icon: Icon,
-            title,
-            description,
-          }) => (
-            <article
-              class="flex gap-4 rounded-3xl p-5 transition hover:bg-cream"
+        benefits.map(({ icon: Icon, title, description }) => (
+          <article class="flex gap-4 rounded-3xl p-4 transition hover:bg-cream sm:p-5">
+            <span
+              class="grid size-11 shrink-0 place-items-center rounded-2xl bg-brand-100 text-brand-700 sm:size-12"
+              aria-hidden="true"
             >
-              <span
-                class="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-100 text-brand-700"
-                aria-hidden="true"
-              >
-                <Icon class="size-6" />
-              </span>
+              <Icon class="size-5 sm:size-6" />
+            </span>
 
-              <div>
-                <h2 class="interface-heading text-lg">
-                  {title}
-                </h2>
+            <div class="min-w-0">
+              <h2 class="interface-heading text-lg">{title}</h2>
 
-                <p
-                  class="mt-2 text-sm leading-6 text-ink-600"
-                >
-                  {description}
-                </p>
-              </div>
-            </article>
-          ),
-        )
+              <p class="mt-2 text-sm leading-6 text-ink-600">{description}</p>
+            </div>
+          </article>
+        ))
       }
     </div>
   </section>
 
-  <!-- Shop by lifestyle -->
   <ShopByLifestyle />
 
-  <!-- MaxiPawz story -->
   <BrandStorySection />
 
-  <!-- Launch signup -->
-  <section
-    id="join-the-pack"
-    class="section-spacing scroll-mt-28"
-  >
-    <div class="site-container">
-      <div
-        class="relative overflow-hidden rounded-[2.5rem] border border-brand-200 bg-gradient-to-br from-brand-50 via-white-warm to-accent-50 px-6 py-10 shadow-card sm:px-10 lg:px-14 lg:py-14"
-      >
-        <div
-          class="pointer-events-none absolute -top-24 -right-20 size-64 rounded-full bg-brand-300/25 blur-3xl"
-          aria-hidden="true"
-        >
-        </div>
-
-        <div
-          class="pointer-events-none absolute -bottom-28 -left-20 size-72 rounded-full bg-accent-300/25 blur-3xl"
-          aria-hidden="true"
-        >
-        </div>
-
-        <div
-          class="relative grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr]"
-        >
-          <div>
-            <Badge
-              variant="brand"
-              size="md"
-            >
-              <HeartBold
-                slot="icon"
-                aria-hidden="true"
-              />
-
-              Join the Pack
-            </Badge>
-
-            <h2
-              class="section-title mt-6 text-4xl sm:text-5xl"
-            >
-              Be first to discover what is coming.
-            </h2>
-
-            <p class="section-description mt-5">
-              Join the MaxiPawz pack for launch updates, new
-              products, helpful pet guides, and occasional
-              subscriber-only offers.
-            </p>
-          </div>
-
-          <form
-            name="maxipawz-launch-list"
-            method="POST"
-            data-netlify="true"
-            netlify-honeypot="bot-field"
-            class="surface-card p-5 sm:p-6"
-          >
-            <input
-              type="hidden"
-              name="form-name"
-              value="maxipawz-launch-list"
-            />
-
-            <p hidden>
-              <label>
-                Do not fill out this field:
-                <input name="bot-field" />
-              </label>
-            </p>
-
-            <div class="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label
-                  for="launch-first-name"
-                  class="form-label"
-                >
-                  First name
-                </label>
-
-                <input
-                  id="launch-first-name"
-                  name="first-name"
-                  type="text"
-                  autocomplete="given-name"
-                  class="form-control"
-                  placeholder="Your first name"
-                />
-              </div>
-
-              <div>
-                <label
-                  for="launch-email"
-                  class="form-label"
-                >
-                  Email address
-                </label>
-
-                <input
-                  id="launch-email"
-                  name="email"
-                  type="email"
-                  autocomplete="email"
-                  class="form-control"
-                  placeholder="you@example.com"
-                  required
-                />
-              </div>
-            </div>
-
-            <div class="mt-5">
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                fullWidth={true}
-                iconPosition="right"
-              >
-                <ArrowRightBold
-                  slot="icon"
-                  aria-hidden="true"
-                />
-
-                Join the Pack
-              </Button>
-            </div>
-
-            <p
-              class="mt-4 text-center text-xs leading-5 text-ink-500"
-            >
-              Friendly updates only. You can unsubscribe at any
-              time.
-            </p>
-          </form>
-        </div>
-      </div>
-    </div>
-  </section>
+  <LaunchSignup />
 </BaseLayout>

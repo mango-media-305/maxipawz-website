@@ -1,0 +1,108 @@
+---
+import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
+import HeartBold from 'phosphor-astro/HeartBold.astro';
+
+import Badge from '../ui/Badge.astro';
+import Button from '../ui/Button.astro';
+---
+
+<section
+    id="join-the-pack"
+    class="section-spacing scroll-mt-28"
+    aria-labelledby="join-the-pack-title"
+>
+    <div class="site-container">
+        <div
+        class="relative overflow-hidden rounded-card-lg border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 shadow-card sm:p-8 lg:p-10"
+        >
+        <div
+            class="pointer-events-none absolute -top-24 -right-20 size-64 rounded-full bg-brand-300/25 blur-3xl"
+            aria-hidden="true"
+        >
+        </div>
+
+        <div
+            class="pointer-events-none absolute -bottom-28 -left-20 size-72 rounded-full bg-accent-300/25 blur-3xl"
+            aria-hidden="true"
+        >
+        </div>
+
+        <div class="relative grid items-center gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12">
+            <div class="max-w-lg">
+            <Badge variant="brand" size="md">
+                <HeartBold slot="icon" aria-hidden="true" />
+
+                Join the Pack
+            </Badge>
+
+            <h2 id="join-the-pack-title" class="section-title mt-5 text-4xl sm:text-5xl">
+                Be first to discover what is coming.
+            </h2>
+
+            <p class="section-description mt-4">
+                Join the MaxiPawz pack for launch updates, new products, helpful pet guides, and
+                occasional subscriber-only offers.
+            </p>
+            </div>
+
+            <form
+            name="maxipawz-launch-list"
+            method="POST"
+            data-netlify="true"
+            netlify-honeypot="bot-field"
+            class="surface-card p-5 sm:p-6"
+            >
+            <input type="hidden" name="form-name" value="maxipawz-launch-list" />
+
+            <p hidden>
+                <label>
+                Do not fill out this field:
+                <input name="bot-field" />
+                </label>
+            </p>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                <label for="launch-first-name" class="form-label"> First name </label>
+
+                <input
+                    id="launch-first-name"
+                    name="first-name"
+                    type="text"
+                    autocomplete="given-name"
+                    class="form-control"
+                    placeholder="Your first name"
+                />
+                </div>
+
+                <div>
+                <label for="launch-email" class="form-label"> Email address </label>
+
+                <input
+                    id="launch-email"
+                    name="email"
+                    type="email"
+                    autocomplete="email"
+                    class="form-control"
+                    placeholder="you@example.com"
+                    required
+                />
+                </div>
+            </div>
+
+            <div class="mt-5">
+                <Button type="submit" variant="primary" size="lg" fullWidth={true} iconPosition="right">
+                <ArrowRightBold slot="icon" aria-hidden="true" />
+
+                Join the Pack
+                </Button>
+            </div>
+
+            <p class="mt-4 text-center text-xs leading-5 text-ink-500">
+                Friendly updates only. You can unsubscribe at any time.
+            </p>
+            </form>
+        </div>
+        </div>
+    </div>
+</section>

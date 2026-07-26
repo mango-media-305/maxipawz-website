@@ -13,9 +13,15 @@ import Button from '../ui/Button.astro';
 
 import { isStoreLive } from '../../config/storefront';
 
-import { lifestyleCategories, type LifestyleCategoryIcon } from '../../data/homepage';
+import {
+  lifestyleCategories,
+  type LifestyleCategoryIcon,
+} from '../../data/homepage';
 
-const iconByCategory: Record<LifestyleCategoryIcon, typeof PawPrintBold> = {
+const iconByCategory: Record<
+  LifestyleCategoryIcon,
+  typeof PawPrintBold
+> = {
   play: ConfettiBold,
   travel: SuitcaseRollingBold,
   hydration: HeartBold,
@@ -32,7 +38,9 @@ function getCategoryHref(slug: string): string {
   return `/shop?category=${encodeURIComponent(slug)}`;
 }
 
-const categoryLinkLabel = isStoreLive ? 'Explore category' : 'Get launch updates';
+const categoryLinkLabel = isStoreLive
+  ? 'Explore category'
+  : 'Get launch updates';
 ---
 
 <section
@@ -41,24 +49,40 @@ const categoryLinkLabel = isStoreLive ? 'Explore category' : 'Get launch updates
   aria-labelledby="shop-by-lifestyle-title"
 >
   <div
-    class="pointer-events-none absolute top-0 left-1/2 size-[34rem] -translate-x-1/2 rounded-full bg-brand-200/20 blur-3xl"
+    class="pointer-events-none absolute top-8 left-1/2 size-96 -translate-x-1/2 rounded-full bg-brand-200/20 blur-3xl"
     aria-hidden="true"
   >
   </div>
 
-  <div class="site-container-wide relative">
-    <div class="mx-auto max-w-3xl text-center">
-      <Badge variant="brand" size="md" class="mx-auto">
-        <PawPrintBold slot="icon" aria-hidden="true" />
+  <div class="site-container relative">
+    <div class="mx-auto max-w-4xl text-center">
+      <Badge
+        variant="brand"
+        size="md"
+        class="mx-auto"
+      >
+        <PawPrintBold
+          slot="icon"
+          aria-hidden="true"
+        />
 
-        {isStoreLive ? 'Shop by lifestyle' : 'What you will find'}
+        {
+          isStoreLive
+            ? 'Shop by lifestyle'
+            : 'What you will find'
+        }
       </Badge>
 
-      <h2 id="shop-by-lifestyle-title" class="section-title mt-6 text-4xl sm:text-5xl">
+      <h2
+        id="shop-by-lifestyle-title"
+        class="section-title mx-auto mt-5 text-4xl sm:text-5xl"
+      >
         Products for play, care, comfort, and everyday adventures.
       </h2>
 
-      <p class="section-description mx-auto mt-5">
+      <p
+        class="section-description mx-auto mt-4"
+      >
         {
           isStoreLive
             ? 'Explore MaxiPawz products based on the moments, routines, and experiences you share with your pet.'
@@ -67,7 +91,9 @@ const categoryLinkLabel = isStoreLive ? 'Explore category' : 'Get launch updates
       </p>
     </div>
 
-    <div class="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+    <div
+      class="mt-10 grid gap-4 sm:grid-cols-2 sm:gap-5 lg:mt-12 lg:grid-cols-3 lg:gap-6"
+    >
       {
         lifestyleCategories.map((category) => {
           const Icon = iconByCategory[category.icon];
@@ -80,7 +106,10 @@ const categoryLinkLabel = isStoreLive ? 'Explore category' : 'Get launch updates
               linkLabel={categoryLinkLabel}
               tone={category.tone}
             >
-              <Icon slot="icon" aria-hidden="true" />
+              <Icon
+                slot="icon"
+                aria-hidden="true"
+              />
             </CategoryCard>
           );
         })
@@ -90,13 +119,31 @@ const categoryLinkLabel = isStoreLive ? 'Explore category' : 'Get launch updates
     <div class="mt-10 flex justify-center">
       {
         isStoreLive ? (
-          <Button href="/shop" variant="secondary" size="lg" iconPosition="right">
-            <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
+          <Button
+            href="/shop"
+            variant="secondary"
+            size="lg"
+            iconPosition="right"
+          >
+            <ShoppingBagOpenBold
+              slot="icon"
+              aria-hidden="true"
+            />
+
             Shop All Products
           </Button>
         ) : (
-          <Button href="/#join-the-pack" variant="secondary" size="lg" iconPosition="right">
-            <HeartBold slot="icon" aria-hidden="true" />
+          <Button
+            href="/#join-the-pack"
+            variant="secondary"
+            size="lg"
+            iconPosition="right"
+          >
+            <HeartBold
+              slot="icon"
+              aria-hidden="true"
+            />
+
             Join the Pack
           </Button>
         )

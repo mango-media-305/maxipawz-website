@@ -2,8 +2,8 @@
 import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
 import CheckCircleBold from 'phosphor-astro/CheckCircleBold.astro';
 import HeartBold from 'phosphor-astro/HeartBold.astro';
+import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
 import ShoppingBagOpenBold from 'phosphor-astro/ShoppingBagOpenBold.astro';
-import SparkleBold from 'phosphor-astro/SparkleBold.astro';
 import UsersThreeBold from 'phosphor-astro/UsersThreeBold.astro';
 
 import BrandLogo from '../brand/BrandLogo.astro';
@@ -18,10 +18,13 @@ import {
   type BrandStoryPrincipleIcon,
 } from '../../data/homepage';
 
-const iconByPrinciple: Record<BrandStoryPrincipleIcon, typeof SparkleBold> = {
-  joy: SparkleBold,
-  usefulness: CheckCircleBold,
-  care: HeartBold,
+const iconByPrinciple: Record<
+  BrandStoryPrincipleIcon,
+  typeof PawPrintBold
+> = {
+  experience: PawPrintBold,
+  purpose: CheckCircleBold,
+  community: UsersThreeBold,
 };
 ---
 
@@ -30,132 +33,139 @@ const iconByPrinciple: Record<BrandStoryPrincipleIcon, typeof SparkleBold> = {
   class="section-spacing relative overflow-hidden bg-ink-950 text-white"
   aria-labelledby="brand-story-title"
 >
-  <!-- Decorative background -->
   <div
-    class="pointer-events-none absolute -top-36 -left-28 size-96 rounded-full bg-brand-500/20 blur-3xl"
+    class="pointer-events-none absolute -top-32 -left-24 size-80 rounded-full bg-brand-500/20 blur-3xl"
     aria-hidden="true"
   >
   </div>
 
   <div
-    class="pointer-events-none absolute -right-28 -bottom-40 size-[30rem] rounded-full bg-accent-500/20 blur-3xl"
+    class="pointer-events-none absolute -right-24 -bottom-32 size-96 rounded-full bg-accent-500/20 blur-3xl"
     aria-hidden="true"
   >
   </div>
 
   <div
-    class="pointer-events-none absolute top-1/2 left-1/2 size-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/5 blur-3xl"
-    aria-hidden="true"
+    class="site-container relative grid items-center gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-14"
   >
-  </div>
-
-  <div class="site-container-wide relative grid items-center gap-14 lg:grid-cols-[0.92fr_1.08fr]">
-    <!-- Story visual -->
-    <div class="relative mx-auto w-full max-w-xl">
+    <!-- Maxi artwork -->
+    <div class="relative mx-auto w-full max-w-md">
       <div
-        class="pointer-events-none absolute inset-8 -z-10 rounded-full bg-gradient-to-br from-brand-400/45 via-white/10 to-accent-400/45 blur-3xl"
+        class="pointer-events-none absolute inset-8 -z-10 rounded-full bg-linear-to-br from-brand-400/40 via-white/10 to-accent-400/40 blur-3xl"
         aria-hidden="true"
       >
       </div>
 
       <div
-        class="relative overflow-hidden rounded-[3rem] border border-white/15 bg-gradient-to-br from-brand-500/30 via-white/10 to-accent-500/25 p-3 shadow-2xl shadow-black/30 backdrop-blur"
+        class="relative overflow-hidden rounded-card-lg border border-white/15 bg-linear-to-br from-brand-500/25 via-white/10 to-accent-500/20 p-2 shadow-2xl shadow-black/25 backdrop-blur sm:p-3"
       >
-        <div class="relative aspect-square overflow-hidden rounded-[2.4rem] bg-cream-soft">
-          <BrandLogo variant="mascot" class="size-full object-cover" />
-
-          <div
-            class="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink-950/65 to-transparent"
-            aria-hidden="true"
-          >
-          </div>
+        <div
+          class="aspect-9/16 overflow-hidden rounded-card bg-cream-soft"
+        >
+          <BrandLogo
+            variant="maxi"
+            class="size-full object-cover"
+          />
         </div>
 
-        <!-- Founders message -->
         <div
-          class="absolute right-7 bottom-7 left-7 rounded-3xl border border-white/20 bg-ink-950/82 p-4 shadow-xl backdrop-blur-md sm:p-5"
+          class="mt-2 rounded-3xl border border-white/10 bg-ink-950/80 p-4 sm:mt-3 sm:p-5"
         >
-          <div class="flex items-center gap-4">
+          <div class="flex items-center gap-3">
             <span
-              class="grid size-12 shrink-0 place-items-center rounded-2xl bg-accent-500 text-ink-950 shadow-orange"
+              class="grid size-11 shrink-0 place-items-center rounded-2xl bg-accent-500 text-ink-950 shadow-orange"
               aria-hidden="true"
             >
-              <UsersThreeBold class="size-6" />
+              <PawPrintBold class="size-5" />
             </span>
 
-            <div>
-              <p class="font-display text-xl leading-tight text-white sm:text-2xl">
-                Two friends. One shared vision.
+            <div class="min-w-0">
+              <p
+                class="font-display text-xl leading-tight text-white sm:text-2xl"
+              >
+                Meet Maxi.
               </p>
 
-              <p class="mt-1 text-sm leading-5 text-white/70">
-                Joined by friendship, a love for pets, and a desire to create something meaningful.
+              <p
+                class="mt-1 text-sm leading-5 text-white/70"
+              >
+                Our dog, our mascot, and the inspiration behind
+                MaxiPawz.
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Decorative brand mark -->
       <span
-        class="absolute -top-5 -right-3 grid size-20 rotate-8 place-items-center rounded-[2rem] border-4 border-ink-950 bg-white-warm shadow-blue sm:size-24"
+        class="absolute -top-3 -right-2 grid size-16 rotate-6 place-items-center rounded-3xl border-4 border-ink-950 bg-white-warm shadow-blue sm:-right-4 sm:size-20"
         aria-hidden="true"
       >
-        <BrandLogo variant="mark" class="size-12 object-contain sm:size-14" />
+        <BrandLogo
+          variant="mark"
+          class="size-10 object-contain sm:size-12"
+        />
       </span>
 
       <span
-        class="absolute -bottom-5 -left-3 grid size-16 -rotate-8 place-items-center rounded-[1.6rem] border-4 border-ink-950 bg-accent-500 text-ink-950 shadow-orange sm:size-20"
+        class="absolute -bottom-3 -left-2 grid size-14 -rotate-6 place-items-center rounded-[1.25rem] border-4 border-ink-950 bg-brand-500 text-ink-950 shadow-orange sm:-left-4 sm:size-16"
         aria-hidden="true"
       >
-        <HeartBold class="size-8 sm:size-9" />
+        <BrandLogo
+          variant="mascot"
+          class="size-10 object-contain sm:size-12"
+        />
       </span>
     </div>
 
-    <!-- Story content -->
-    <div>
-      <Badge variant="accent" size="md">
-        <HeartBold slot="icon" aria-hidden="true" />
-
-        {brandStory.eyebrow}
-      </Badge>
-
+    <!-- Story copy -->
+    <div class="mx-auto w-full max-w-2xl lg:mx-0">
       <h2
         id="brand-story-title"
-        class="section-title mt-6 max-w-3xl text-4xl text-white sm:text-5xl lg:text-6xl"
+        class="section-title mt-5 max-w-xl text-4xl text-white sm:text-5xl lg:text-[3.5rem]"
       >
-        Made for pets. Built by{' '}
-        <span class="text-accent-300"> two friends </span>{' '}
-        who love them.
+        The dog behind the name—and the{' '}
+        <span class="text-accent-300">
+          heart behind our store.
+        </span>
       </h2>
 
-      <div class="mt-7 max-w-3xl space-y-5 text-base leading-8 text-white/75 sm:text-lg">
+      <div
+        class="mt-6 max-w-xl space-y-4 text-base leading-7 text-white/75 sm:text-lg sm:leading-8"
+      >
         <p>{brandStory.introduction}</p>
 
-        <p>{brandStory.description}</p>
+        <p>{brandStory.experience}</p>
 
-        <p>{brandStory.closing}</p>
+        <p>{brandStory.community}</p>
       </div>
 
-      <!-- Brand principles -->
-      <div class="mt-9 grid gap-3">
+      <div class="mt-8 grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {
           brandStoryPrinciples.map((principle) => {
             const Icon = iconByPrinciple[principle.icon];
 
             return (
-              <article class="group flex gap-4 rounded-3xl border border-white/10 bg-white/5 p-4 transition duration-200 hover:border-white/20 hover:bg-white/10 sm:p-5">
+              <article
+                class="group flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 transition duration-200 hover:border-white/20 hover:bg-white/10 sm:gap-4 sm:p-5"
+              >
                 <span
-                  class="grid size-11 shrink-0 place-items-center rounded-2xl bg-brand-500 text-white shadow-blue transition duration-200 group-hover:scale-105"
+                  class="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-500 text-white shadow-blue transition duration-200 group-hover:scale-105 sm:size-11 sm:rounded-2xl"
                   aria-hidden="true"
                 >
                   <Icon class="size-5" />
                 </span>
 
-                <div>
-                  <h3 class="text-xl text-white">{principle.title}</h3>
+                <div class="min-w-0">
+                  <h3 class="text-lg text-white sm:text-xl">
+                    {principle.title}
+                  </h3>
 
-                  <p class="mt-1.5 text-sm leading-6 text-white/65">{principle.description}</p>
+                  <p
+                    class="mt-1 text-sm leading-6 text-white/65"
+                  >
+                    {principle.description}
+                  </p>
                 </div>
               </article>
             );
@@ -163,23 +173,53 @@ const iconByPrinciple: Record<BrandStoryPrincipleIcon, typeof SparkleBold> = {
         }
       </div>
 
-      <!-- Conditional actions -->
-      <div class="mt-9 flex flex-col gap-3 sm:flex-row">
-        <Button href="/about" variant="primary" size="lg" iconPosition="right">
-          <ArrowRightBold slot="icon" aria-hidden="true" />
+      <div
+        class="mt-8 flex flex-col gap-3 sm:flex-row"
+      >
+        <Button
+          href="/about"
+          variant="primary"
+          size="lg"
+          iconPosition="right"
+          class="w-full sm:w-auto"
+        >
+          <ArrowRightBold
+            slot="icon"
+            aria-hidden="true"
+          />
 
-          Read Our Story
+          Meet Maxi
         </Button>
 
         {
           isStoreLive ? (
-            <Button href="/shop" variant="secondary" size="lg" iconPosition="right">
-              <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
+            <Button
+              href="/shop"
+              variant="secondary"
+              size="lg"
+              iconPosition="right"
+              class="w-full sm:w-auto"
+            >
+              <ShoppingBagOpenBold
+                slot="icon"
+                aria-hidden="true"
+              />
+
               Explore the Shop
             </Button>
           ) : (
-            <Button href="/#join-the-pack" variant="secondary" size="lg" iconPosition="right">
-              <HeartBold slot="icon" aria-hidden="true" />
+            <Button
+              href="/#join-the-pack"
+              variant="secondary"
+              size="lg"
+              iconPosition="right"
+              class="w-full sm:w-auto"
+            >
+              <HeartBold
+                slot="icon"
+                aria-hidden="true"
+              />
+
               Join the Pack
             </Button>
           )

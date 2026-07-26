@@ -5,6 +5,7 @@ import { Image } from 'astro:assets';
 import logoImage from '../../assets/brand/maxipawz-horizontal-logo.webp';
 import markImage from '../../assets/brand/maxipawz-mark.webp';
 import mascotImage from '../../assets/brand/maxipawz-mascot.webp';
+import maxi from "../../assets/home/maxi-1.webp";
 
 interface Props {
   variant?: 'logo' | 'mark' | 'mascot';
@@ -26,6 +27,10 @@ const imageByVariant = {
   mascot: {
     src: mascotImage,
     alt: 'MaxiPawz dog mascot',
+  },
+  maxi: {
+    src: maxi,
+    alt: 'MaxiPawz dog Maxi',
   },
 };
 

@@ -20,9 +20,9 @@ export interface LifestyleCategory {
 }
 
 export type BrandStoryPrincipleIcon =
-    | 'joy'
-    | 'usefulness'
-    | 'care';
+    | 'experience'
+    | 'purpose'
+    | 'community';
 
 export interface BrandStoryPrinciple {
     title: string;
@@ -99,46 +99,46 @@ export const lifestyleCategories: LifestyleCategory[] = [
 ];
 
 export const brandStory = {
-    eyebrow: 'Our Story',
+    eyebrow: 'Inspired by Maxi',
 
     title:
-        'Made for pets. Built by two friends who love them.',
+        'The dog behind the name—and the heart behind our store.',
 
     introduction:
-        'The MaxiPawz vision started with two friends and pet lovers who joined their efforts around one shared idea: shopping for pets should feel as joyful, practical, and personal as life with the animals we love.',
+        'Maxi is our dog, our daily companion, and the inspiration behind the MaxiPawz mascot and everything this store represents.',
 
-    description:
-        'Together, they set out to create a welcoming destination where playful toys, useful accessories, travel and hydration essentials, comfort items, and everyday supplies can live under one warm and trusted brand.',
+    experience:
+        'Raising Maxi from puppyhood gave us firsthand experience choosing toys, collars, walking accessories, portable water bottles, comfort products, and everyday essentials. Over time, we learned which products create excitement, which ones make daily routines easier, and which ones truly earn a place in a dog owner’s home.',
 
-    closing:
-        'MaxiPawz is their way of helping pet owners discover thoughtful products that bring more ease, personality, connection, and happiness to the moments they share with their pets.',
+    community:
+        'Maxi inspired the beginning, and our friends helped the idea grow. Their encouragement, feedback, creativity, and belief in the vision helped us take MaxiPawz from zero to hero.',
 } as const;
 
 export const brandStoryPrinciples: BrandStoryPrinciple[] = [
     {
-        title: 'Joyful by nature',
+        title: 'Real-life experience',
 
         description:
-            'Every part of MaxiPawz is designed to make shopping for pets feel warm, friendly, colorful, and full of personality.',
+            'Our perspective comes from caring for Maxi from puppyhood and learning what dogs actually enjoy and use.',
 
-        icon: 'joy',
+        icon: 'experience',
     },
 
     {
-        title: 'Useful every day',
+        title: 'Chosen with purpose',
 
         description:
-            'We look for products that have a meaningful place in playtime, travel, feeding, care, comfort, and daily routines.',
+            'We look beyond appearance and consider play value, usefulness, comfort, portability, and everyday practicality.',
 
-        icon: 'usefulness',
+        icon: 'purpose',
     },
 
     {
-        title: 'Selected with care',
+        title: 'Grown together',
 
         description:
-            'Our goal is to offer thoughtful choices supported by clear information, honest guidance, and genuine care for pets.',
+            'Maxi inspired the store, while the support and ideas of our friends helped transform the vision into a growing brand.',
 
-        icon: 'care',
+        icon: 'community',
     },
 ];
