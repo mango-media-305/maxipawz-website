@@ -1,0 +1,81 @@
+---
+import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
+
+import type { FaqItem as FaqItemData } from '../../data/faq';
+
+interface Props {
+    item: FaqItemData;
+    open?: boolean;
+}
+
+const { item, open = false } = Astro.props;
+---
+
+<details
+    class:list={[
+        'group overflow-hidden rounded-2xl border border-sand/90 bg-white-warm shadow-sm',
+        'transition duration-200',
+        'hover:border-brand-200',
+        '[[open]]:border-brand-300',
+        '[[open]]:shadow-card',
+    ]}
+    open={open}
+>
+    <summary
+        class:list={[
+        'flex cursor-pointer list-none items-center justify-between gap-4',
+        'rounded-2xl px-4 py-4 text-left',
+        'transition duration-200',
+        'hover:bg-brand-50/60',
+        'focus-visible:outline-none focus-visible:ring-4',
+        'focus-visible:ring-inset focus-visible:ring-brand-200',
+        'sm:px-5 sm:py-5',
+        '[&::-webkit-details-marker]:hidden',
+        ]}
+    >
+        <span class="text-base font-extrabold leading-6 text-ink-900 sm:text-lg">
+        {item.question}
+        </span>
+
+        <span
+        class:list={[
+            'grid size-9 shrink-0 place-items-center rounded-full',
+            'bg-brand-100 text-brand-700',
+            'transition duration-200',
+            'group-hover:bg-brand-200',
+            'group-open:rotate-90',
+            'group-open:bg-brand-500',
+            'group-open:text-white',
+        ]}
+        aria-hidden="true"
+        >
+        <ArrowRightBold class="size-4" />
+        </span>
+    </summary>
+
+    <div class="mx-4 border-t border-sand/80 p-5 sm:mx-5 sm:p-6">
+        <div class="max-w-3xl space-y-3 text-sm leading-7 text-ink-600 sm:text-base">
+            {item.answer.map((paragraph) => <p>{paragraph}</p>)}
+        </div>
+
+        {
+            item.link && (
+                <a
+                href={item.link.href}
+                class:list={[
+                    'mt-5 inline-flex items-center gap-2 rounded-full',
+                    'font-extrabold text-brand-700',
+                    'transition duration-200',
+                    'hover:gap-3 hover:text-brand-800',
+                    'focus-visible:outline-none focus-visible:ring-4',
+                    'focus-visible:ring-brand-200',
+                ]}
+                >
+                <span>{item.link.label}</span>
+
+                <ArrowRightBold class="size-4" aria-hidden="true" />
+                </a>
+            )
+        }
+    </div>
+</details>
