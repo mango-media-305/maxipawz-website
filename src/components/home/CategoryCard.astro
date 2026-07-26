@@ -1,7 +1,14 @@
 ---
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+
 import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
 
-import type { LifestyleCategoryTone } from '../../data/homepage';
+import type {
+    CategoryBackgroundOverlay,
+    CategoryBackgroundPosition,
+    LifestyleCategoryTone,
+} from '../../data/homepage';
 
 interface Props {
     title: string;
@@ -9,81 +16,220 @@ interface Props {
     href: string;
     linkLabel: string;
     tone?: LifestyleCategoryTone;
+    backgroundImage?: ImageMetadata;
+    backgroundPosition?: CategoryBackgroundPosition;
+    backgroundOverlay?: CategoryBackgroundOverlay;
     class?: string;
 }
 
-const { title, description, href, linkLabel, tone = 'brand', class: className = '' } = Astro.props;
+const {
+    title,
+    description,
+    href,
+    linkLabel,
+    tone = 'brand',
+    backgroundImage,
+    backgroundPosition = 'center',
+    backgroundOverlay = 'light',
+    class: className = '',
+} = Astro.props;
 
-const toneClasses: Record<LifestyleCategoryTone, string> = {
+const toneClasses: Record<
+    LifestyleCategoryTone,
+    string
+> = {
     brand: [
         'border-brand-200',
         'bg-linear-to-br from-brand-50 via-white-warm to-brand-100/70',
         'hover:border-brand-300',
+        'focus-visible:border-brand-400',
     ].join(' '),
 
     accent: [
         'border-accent-200',
         'bg-linear-to-br from-accent-50 via-white-warm to-accent-100/70',
         'hover:border-accent-300',
+        'focus-visible:border-accent-400',
     ].join(' '),
 
     sand: [
         'border-sand-dark/70',
         'bg-linear-to-br from-cream-soft via-white-warm to-sand/65',
         'hover:border-sand-dark',
+        'focus-visible:border-sand-dark',
     ].join(' '),
 };
 
-const iconClasses: Record<LifestyleCategoryTone, string> = {
+const iconClasses: Record<
+    LifestyleCategoryTone,
+    string
+> = {
     brand: 'bg-brand-500 text-white shadow-blue',
-    accent: 'bg-accent-500 text-ink-950 shadow-orange',
-    sand: 'bg-ink-800 text-white shadow-soft',
+
+    accent:
+        'bg-accent-500 text-ink-950 shadow-orange',
+
+    sand:
+        'bg-ink-800 text-white shadow-soft',
 };
+
+const positionClasses: Record<
+    CategoryBackgroundPosition,
+    string
+> = {
+    center: 'object-center',
+    top: 'object-top',
+    bottom: 'object-bottom',
+    left: 'object-left',
+    right: 'object-right',
+};
+
+const overlayClasses: Record<
+    CategoryBackgroundOverlay,
+    string
+> = {
+    light:
+        'bg-linear-to-b from-white-warm/55 via-white-warm/78 to-white-warm/96',
+
+    medium:
+        'bg-linear-to-b from-cream-soft/62 via-cream-soft/82 to-cream-soft/97',
+
+    dark:
+        'bg-linear-to-b from-ink-950/35 via-ink-950/72 to-ink-950/96',
+};
+
+const overlayInteractionClasses: Record<
+    CategoryBackgroundOverlay,
+    string
+> = {
+    light:
+        'group-hover:opacity-65 group-focus-visible:opacity-65',
+
+    medium:
+        'group-hover:opacity-58 group-focus-visible:opacity-58',
+
+    dark:
+        'group-hover:opacity-75 group-focus-visible:opacity-75',
+};
+
+const usesDarkOverlay =
+    Boolean(backgroundImage) &&
+    backgroundOverlay === 'dark';
 ---
 
-<article
-    class:list={[
-        'group relative flex h-full flex-col overflow-hidden rounded-card border p-5 shadow-sm',
+<article class="h-full">
+    <a
+        href={href}
+        class:list={[
+        'group relative isolate flex h-full cursor-pointer flex-col overflow-hidden rounded-card border p-5 shadow-sm',
         'transition duration-300 hover:-translate-y-1 hover:shadow-card',
+        'focus-visible:-translate-y-1 focus-visible:outline-none focus-visible:ring-4',
+        'focus-visible:ring-brand-300 focus-visible:ring-offset-2',
+        'focus-visible:ring-offset-cream-soft focus-visible:shadow-card',
         toneClasses[tone],
         className,
-    ]}
->
-    <div
-        class="pointer-events-none absolute -top-14 -right-14 size-36 rounded-full bg-white/65 blur-2xl transition duration-300 group-hover:scale-125"
-        aria-hidden="true"
+        ]}
     >
-    </div>
+        {
+        backgroundImage && (
+            <>
+            <Image
+                src={backgroundImage}
+                alt=""
+                class:list={[
+                'absolute inset-0 size-full object-cover',
+                'opacity-85 saturate-90',
+                'transition-[transform,opacity,filter] duration-500 ease-out',
+                'group-hover:scale-110 group-hover:opacity-100 group-hover:saturate-110',
+                'group-focus-visible:scale-110 group-focus-visible:opacity-100',
+                'group-focus-visible:saturate-110',
+                positionClasses[backgroundPosition],
+                ]}
+                widths={[320, 480, 640, 800]}
+                sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                loading="lazy"
+                quality={82}
+                aria-hidden="true"
+            />
 
-    <div class="relative flex h-full flex-col">
+            <div
+                class:list={[
+                'pointer-events-none absolute inset-0',
+                'transition-opacity duration-500 ease-out',
+                overlayClasses[backgroundOverlay],
+                overlayInteractionClasses[backgroundOverlay],
+                ]}
+                aria-hidden="true"
+            >
+            </div>
+            </>
+        )
+        }
+
+        {
+        !backgroundImage && (
+            <div
+            class="pointer-events-none absolute -top-14 -right-14 size-36 rounded-full bg-white/65 blur-2xl transition duration-300 group-hover:scale-125 group-focus-visible:scale-125"
+            aria-hidden="true"
+            >
+            </div>
+        )
+        }
+
+        <div class="relative z-10 flex h-full flex-col">
         <span
-        class:list={[
+            class:list={[
             'grid size-12 shrink-0 place-items-center rounded-2xl transition duration-300',
-            'group-hover:rotate-3 group-hover:scale-105 sm:size-14',
+            'group-hover:rotate-3 group-hover:scale-105',
+            'group-focus-visible:rotate-3 group-focus-visible:scale-105',
+            'sm:size-14',
             '[&>svg]:size-6 sm:[&>svg]:size-7',
             iconClasses[tone],
-        ]}
-        aria-hidden="true"
+            ]}
+            aria-hidden="true"
         >
-        <slot name="icon" />
+            <slot name="icon" />
         </span>
 
-        <h3 class="mt-5 text-xl text-ink-900 sm:text-2xl">
-        {title}
+        <h3
+            class:list={[
+            'mt-5 text-xl sm:text-2xl',
+            usesDarkOverlay
+                ? 'text-white'
+                : 'text-ink-900',
+            ]}
+        >
+            {title}
         </h3>
 
-        <p class="mt-3 flex-1 text-sm leading-6 text-ink-600">
-        {description}
+        <p
+            class:list={[
+            'mt-3 flex-1 text-sm leading-6',
+            usesDarkOverlay
+                ? 'text-white/80'
+                : 'text-ink-600',
+            ]}
+        >
+            {description}
         </p>
 
-        <a
-        href={href}
-        class="mt-5 inline-flex w-fit items-center gap-2 rounded-full font-extrabold text-brand-700 transition duration-200 hover:gap-3 hover:text-brand-800"
-        aria-label={`${linkLabel}: ${title}`}
+        <span
+            class:list={[
+            'mt-5 inline-flex w-fit items-center gap-2 rounded-full font-extrabold',
+            'transition duration-200',
+            'group-hover:gap-3 group-focus-visible:gap-3',
+            usesDarkOverlay
+                ? 'text-white group-hover:text-accent-200 group-focus-visible:text-accent-200'
+                : 'text-brand-700 group-hover:text-brand-800 group-focus-visible:text-brand-800',
+            ]}
         >
-        <span>{linkLabel}</span>
+            <span>{linkLabel}</span>
 
-        <ArrowRightBold class="size-4" aria-hidden="true" />
-        </a>
-    </div>
+            <ArrowRightBold
+            class="size-4"
+            aria-hidden="true"
+            />
+        </span>
+        </div>
+    </a>
 </article>

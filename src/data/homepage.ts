@@ -1,3 +1,24 @@
+import type { ImageMetadata } from 'astro';
+
+import playAndEnrichmentImage from '../assets/categories/play-and-enrichment.webp';
+import walkAndTravelImage from '../assets/categories/walk-and-travel.webp';
+import feedingAndHydrationImage from '../assets/categories/feeding-and-hydration.webp';
+import comfortAndHomeImage from '../assets/categories/comfort-and-home.webp';
+import groomingAndCareImage from '../assets/categories/grooming-and-care.webp';
+import collarsAndAccessoriesImage from '../assets/categories/collars-and-accessories.webp';
+
+export type CategoryBackgroundPosition =
+    | 'center'
+    | 'top'
+    | 'bottom'
+    | 'left'
+    | 'right';
+
+export type CategoryBackgroundOverlay =
+    | 'light'
+    | 'medium'
+    | 'dark';
+
 export type LifestyleCategoryTone =
     | 'brand'
     | 'accent'
@@ -17,6 +38,24 @@ export interface LifestyleCategory {
     slug: string;
     icon: LifestyleCategoryIcon;
     tone: LifestyleCategoryTone;
+
+    backgroundImage?: ImageMetadata;
+
+    backgroundPosition?: CategoryBackgroundPosition;
+
+    backgroundOverlay?: CategoryBackgroundOverlay;    
+}
+
+export interface LifestyleCategory {
+    title: string;
+    description: string;
+    slug: string;
+    icon: LifestyleCategoryIcon;
+    tone: LifestyleCategoryTone;
+
+    backgroundImage?: ImageMetadata;
+    backgroundPosition?: CategoryBackgroundPosition;
+    backgroundOverlay?: CategoryBackgroundOverlay;
 }
 
 export type BrandStoryPrincipleIcon =
@@ -35,66 +74,90 @@ export const lifestyleCategories: LifestyleCategory[] = [
         title: 'Play & Enrichment',
 
         description:
-            'Toys, puzzles, interactive products, and engaging activities that help keep pets active, curious, and entertained.',
+        'Toys, puzzles, interactive products, and engaging activities that help keep pets active, curious, and entertained.',
 
         slug: 'play-and-enrichment',
         icon: 'play',
         tone: 'accent',
+
+        backgroundImage: playAndEnrichmentImage,
+        backgroundPosition: 'center',
+        backgroundOverlay: 'medium',
     },
 
     {
         title: 'Walk & Travel',
 
         description:
-            'Portable essentials, walking accessories, travel gear, and practical products for comfortable adventures together.',
+        'Portable essentials, walking accessories, travel gear, and practical products for comfortable adventures together.',
 
         slug: 'walk-and-travel',
         icon: 'travel',
         tone: 'brand',
+
+        backgroundImage: walkAndTravelImage,
+        backgroundPosition: 'center',
+        backgroundOverlay: 'medium',
     },
 
     {
         title: 'Feeding & Hydration',
 
         description:
-            'Water bottles, bowls, feeding accessories, and helpful products for meals, treats, and hydration at home or away.',
+        'Water bottles, bowls, feeding accessories, and helpful products for meals, treats, and hydration at home or away.',
 
         slug: 'feeding-and-hydration',
         icon: 'hydration',
         tone: 'sand',
+
+        backgroundImage: feedingAndHydrationImage,
+        backgroundPosition: 'center',
+        backgroundOverlay: 'medium',
     },
 
     {
         title: 'Comfort & Home',
 
         description:
-            'Cozy, calming, and practical products designed to make resting and everyday life at home more comfortable.',
+        'Cozy, calming, and practical products designed to make resting and everyday life at home more comfortable.',
 
         slug: 'comfort-and-home',
         icon: 'comfort',
         tone: 'brand',
+
+        backgroundImage: comfortAndHomeImage,
+        backgroundPosition: 'center',
+        backgroundOverlay: 'medium',
     },
 
     {
         title: 'Grooming & Care',
 
         description:
-            'Useful care products and grooming essentials that help make regular pet-care routines simpler and more enjoyable.',
+        'Useful care products and grooming essentials that help make regular pet-care routines simpler and more enjoyable.',
 
         slug: 'grooming-and-care',
         icon: 'care',
         tone: 'accent',
+
+        backgroundImage: groomingAndCareImage,
+        backgroundPosition: 'center',
+        backgroundOverlay: 'light',
     },
 
     {
         title: 'Collars & Accessories',
 
         description:
-            'Collars, necklaces, wearable accessories, identification products, and expressive details for everyday pet style.',
+        'Collars, wearable accessories, identification products, and expressive details for everyday pet style.',
 
         slug: 'collars-and-accessories',
         icon: 'accessories',
         tone: 'sand',
+
+        backgroundImage: collarsAndAccessoriesImage,
+        backgroundPosition: 'right',
+        backgroundOverlay: 'medium',
     },
 ];
 

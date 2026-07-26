@@ -70,11 +70,11 @@ export const footerNavigation: FooterNavigationGroup[] = [
       },
       {
         label: 'Choosing the Right Product',
-        href: '/pet-guides/choosing-the-right-product',
+        href: '/pet-guides#choosing-the-right-product',
       },
       {
-        label: 'Travel and Hydration',
-        href: '/pet-guides/travel-and-hydration',
+        label: 'Walk & Travel Essentials',
+        href: '/pet-guides#walk-and-travel',
       },
     ],
   },

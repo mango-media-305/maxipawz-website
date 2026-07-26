@@ -1,0 +1,427 @@
+---
+import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
+import CheckCircleBold from 'phosphor-astro/CheckCircleBold.astro';
+import CheckCircleFill from 'phosphor-astro/CheckCircleFill.astro';
+import ConfettiBold from 'phosphor-astro/ConfettiBold.astro';
+import HeartBold from 'phosphor-astro/HeartBold.astro';
+import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
+import ShieldCheckBold from 'phosphor-astro/ShieldCheckBold.astro';
+import ShoppingBagOpenBold from 'phosphor-astro/ShoppingBagOpenBold.astro';
+import SparkleBold from 'phosphor-astro/SparkleBold.astro';
+import SuitcaseRollingBold from 'phosphor-astro/SuitcaseRollingBold.astro';
+
+import GuideCard from '@components/guides/GuideCard.astro';
+import Badge from '@components/ui/Badge.astro';
+import Button from '@components/ui/Button.astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+import { isStoreLive } from '../../config/storefront';
+
+import {
+    featuredGuide,
+    maxiGuideTips,
+    petGuideTopics,
+    type PetGuideIcon,
+} from '../../data/pet-guides';
+
+const iconByGuide: Record<PetGuideIcon, typeof PawPrintBold> = {
+    play: ConfettiBold,
+    travel: SuitcaseRollingBold,
+    hydration: HeartBold,
+    comfort: PawPrintBold,
+    care: ShieldCheckBold,
+    accessories: ShoppingBagOpenBold,
+};
+
+const guidePrinciples = [
+    {
+        icon: PawPrintBold,
+        title: 'Inspired by Maxi',
+        description:
+        'Our guides begin with the lessons we have learned through everyday life with our own dog.',
+    },
+
+    {
+        icon: CheckCircleBold,
+        title: 'Practical first',
+        description: 'We focus on comfort, usefulness, purpose, maintenance, and real daily routines.',
+    },
+
+    {
+        icon: ShieldCheckBold,
+        title: 'Clear and responsible',
+        description:
+        'Our guidance supports informed choices without replacing professional veterinary advice.',
+    },
+];
+---
+
+<BaseLayout
+    title="Pet Guides"
+    description="Explore practical MaxiPawz guides for dog toys, enrichment, walking, travel, feeding, hydration, comfort, grooming, collars, and everyday care."
+    noIndex={true}
+>
+    <!-- Hero -->
+    <section class="relative overflow-hidden">
+        <div
+        class="pointer-events-none absolute -top-40 -left-40 size-128 rounded-full bg-brand-300/25 blur-3xl"
+        aria-hidden="true"
+        >
+        </div>
+
+        <div
+        class="pointer-events-none absolute top-8 -right-48 size-136 rounded-full bg-accent-300/25 blur-3xl"
+        aria-hidden="true"
+        >
+        </div>
+
+        <div
+        class="site-container grid items-center gap-10 py-12 sm:py-14 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14 lg:py-16"
+        >
+        <div class="relative z-10 max-w-2xl">
+            <Badge variant="accent" size="md">
+            <SparkleBold slot="icon" aria-hidden="true" />
+
+            MaxiPawz Pet Guides
+            </Badge>
+
+            <h1 class="mt-6 max-w-2xl text-5xl text-ink-900 sm:text-6xl lg:text-7xl">
+            Practical guidance for{' '}
+            <span class="text-brand-gradient"> happier dog days. </span>
+            </h1>
+
+            <p class="mt-6 max-w-xl text-lg leading-8 text-ink-600 sm:text-xl">
+            Learn how to approach toys, accessories, walking, travel, hydration, comfort, grooming,
+            and everyday products with your dog’s real needs in mind.
+            </p>
+
+            <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Button
+                href="#guide-topics"
+                variant="primary"
+                size="lg"
+                iconPosition="right"
+                class="w-full sm:w-auto"
+            >
+                <ArrowRightBold slot="icon" aria-hidden="true" />
+
+                Browse the Guides
+            </Button>
+
+            {
+                isStoreLive ? (
+                <Button
+                    href="/shop"
+                    variant="secondary"
+                    size="lg"
+                    iconPosition="right"
+                    class="w-full sm:w-auto"
+                >
+                    <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
+                    Explore the Shop
+                </Button>
+                ) : (
+                <Button
+                    href="/#join-the-pack"
+                    variant="secondary"
+                    size="lg"
+                    iconPosition="right"
+                    class="w-full sm:w-auto"
+                >
+                    <HeartBold slot="icon" aria-hidden="true" />
+                    Join the Pack
+                </Button>
+                )
+            }
+            </div>
+        </div>
+
+        <!-- Guide principles -->
+        <div
+            class="relative rounded-[2.25rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-5 shadow-card sm:p-6"
+        >
+            <div
+            class="pointer-events-none absolute -top-16 -right-16 size-40 rounded-full bg-white/70 blur-2xl"
+            aria-hidden="true"
+            >
+            </div>
+
+            <div class="relative grid gap-3">
+            {
+                guidePrinciples.map(({ icon: Icon, title, description }) => (
+                <article class="flex gap-4 rounded-2xl border border-sand/80 bg-white-warm/80 p-4">
+                    <span
+                    class="grid size-11 shrink-0 place-items-center rounded-2xl bg-brand-500 text-white shadow-blue"
+                    aria-hidden="true"
+                    >
+                    <Icon class="size-5" />
+                    </span>
+
+                    <div class="min-w-0">
+                    <h2 class="text-lg text-ink-900">{title}</h2>
+
+                    <p class="mt-1 text-sm leading-6 text-ink-600">{description}</p>
+                    </div>
+                </article>
+                ))
+            }
+            </div>
+        </div>
+        </div>
+    </section>
+
+    <!-- Guide categories -->
+    <section
+        id="guide-topics"
+        class="section-spacing scroll-mt-28 border-y border-sand bg-white-warm/70"
+        aria-labelledby="guide-topics-title"
+    >
+        <div class="site-container">
+        <div class="mx-auto max-w-4xl text-center">
+            <Badge variant="brand" size="md" class="mx-auto">
+            <PawPrintBold slot="icon" aria-hidden="true" />
+
+            Browse by Topic
+            </Badge>
+
+            <h2 id="guide-topics-title" class="section-title mx-auto mt-5 text-4xl sm:text-5xl">
+            Start with the moment or routine you want to improve.
+            </h2>
+
+            <p class="section-description mx-auto mt-4">
+            Each topic introduces practical considerations that can help you make more thoughtful
+            product choices for your dog.
+            </p>
+        </div>
+
+        <div class="mt-10 grid gap-4 sm:grid-cols-2 sm:gap-5 lg:mt-12 lg:grid-cols-3 lg:gap-6">
+            {
+            petGuideTopics.map((guide) => {
+                const Icon = iconByGuide[guide.icon];
+
+                return (
+                <GuideCard
+                    title={guide.title}
+                    description={guide.description}
+                    href={`#${guide.slug}`}
+                    tone={guide.tone}
+                >
+                    <Icon slot="icon" aria-hidden="true" />
+                </GuideCard>
+                );
+            })
+            }
+        </div>
+        </div>
+    </section>
+
+    <!-- Featured guide -->
+    <section
+        id={featuredGuide.slug}
+        class="section-spacing scroll-mt-28 relative overflow-hidden bg-ink-950 text-white"
+        aria-labelledby="featured-guide-title"
+    >
+        <div
+        class="pointer-events-none absolute -top-32 -left-24 size-80 rounded-full bg-brand-500/20 blur-3xl"
+        aria-hidden="true"
+        >
+        </div>
+
+        <div
+        class="pointer-events-none absolute -right-24 -bottom-32 size-96 rounded-full bg-accent-500/20 blur-3xl"
+        aria-hidden="true"
+        >
+        </div>
+
+        <div
+        class="site-container relative grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14"
+        >
+        <div class="max-w-xl">
+            <Badge variant="accent" size="md">
+            <CheckCircleBold slot="icon" aria-hidden="true" />
+
+            {featuredGuide.eyebrow}
+            </Badge>
+
+            <h2 id="featured-guide-title" class="section-title mt-5 text-4xl text-white sm:text-5xl">
+            {featuredGuide.title}
+            </h2>
+
+            <p class="mt-5 text-base leading-7 text-white/75 sm:text-lg sm:leading-8">
+            {featuredGuide.description}
+            </p>
+
+            <p class="mt-4 text-base leading-7 text-white/65">
+            {featuredGuide.introduction}
+            </p>
+        </div>
+
+        <div class="grid gap-3">
+            {
+            featuredGuide.learningPoints.map((point) => (
+                <div class="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5">
+                <CheckCircleFill class="mt-0.5 size-5 shrink-0 text-accent-300" aria-hidden="true" />
+
+                <p class="text-sm font-bold leading-6 text-white/80">{point}</p>
+                </div>
+            ))
+            }
+        </div>
+        </div>
+    </section>
+
+    <!-- Detailed topic introductions -->
+    <section class="section-spacing">
+        <div class="site-container">
+        <div class="mx-auto max-w-4xl text-center">
+            <Badge variant="neutral" size="md" class="mx-auto">
+            <SparkleBold slot="icon" aria-hidden="true" />
+
+            Guide Introductions
+            </Badge>
+
+            <h2 class="section-title mx-auto mt-5 text-4xl sm:text-5xl">
+            Explore what each guide will help you consider.
+            </h2>
+        </div>
+
+        <div class="mt-10 grid gap-5 lg:mt-12">
+            {
+            petGuideTopics.map((guide) => {
+                const Icon = iconByGuide[guide.icon];
+
+                return (
+                <article
+                    id={guide.slug}
+                    class="scroll-mt-28 grid gap-6 rounded-[2.25rem] border border-sand bg-white-warm p-5 shadow-sm sm:p-6 lg:grid-cols-[0.78fr_1.22fr] lg:gap-10 lg:p-8"
+                >
+                    <div>
+                    <span
+                        class="grid size-14 place-items-center rounded-2xl bg-brand-500 text-white shadow-blue"
+                        aria-hidden="true"
+                    >
+                        <Icon class="size-7" />
+                    </span>
+
+                    <h3 class="mt-5 text-3xl text-ink-900">{guide.title}</h3>
+
+                    <p class="mt-4 text-base leading-7 text-ink-600">{guide.introduction}</p>
+                    </div>
+
+                    <div>
+                    <p class="text-xs font-extrabold tracking-[0.09em] text-ink-500 uppercase">
+                        What this guide will cover
+                    </p>
+
+                    <ul class="mt-4 grid gap-3">
+                        {guide.learningPoints.map((point) => (
+                        <li class="flex items-start gap-3 rounded-2xl border border-sand/80 bg-cream-soft p-4 text-sm font-bold leading-6 text-ink-700">
+                            <CheckCircleFill
+                            class="mt-0.5 size-5 shrink-0 text-brand-500"
+                            aria-hidden="true"
+                            />
+
+                            <span>{point}</span>
+                        </li>
+                        ))}
+                    </ul>
+                    </div>
+                </article>
+                );
+            })
+            }
+        </div>
+        </div>
+    </section>
+
+    <!-- Maxi tips -->
+    <section
+        class="section-spacing border-y border-sand bg-white-warm/70"
+        aria-labelledby="maxi-tips-title"
+    >
+        <div class="site-container">
+        <div class="mx-auto max-w-4xl text-center">
+            <Badge variant="accent" size="md" class="mx-auto">
+            <PawPrintBold slot="icon" aria-hidden="true" />
+
+            Lessons from Maxi
+            </Badge>
+
+            <h2 id="maxi-tips-title" class="section-title mx-auto mt-5 text-4xl sm:text-5xl">
+            Four simple principles we return to again and again.
+            </h2>
+        </div>
+
+        <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:mt-12 lg:grid-cols-4 lg:gap-5">
+            {
+            maxiGuideTips.map((tip) => (
+                <article class="rounded-card border border-sand bg-cream-soft p-5 shadow-sm">
+                <CheckCircleFill class="size-7 text-brand-500" aria-hidden="true" />
+
+                <h3 class="mt-5 text-xl text-ink-900">{tip.title}</h3>
+
+                <p class="mt-3 text-sm leading-6 text-ink-600">{tip.description}</p>
+                </article>
+            ))
+            }
+        </div>
+
+        <p class="mx-auto mt-8 max-w-3xl text-center text-sm leading-6 text-ink-500">
+            These guides provide general educational information. Contact a qualified veterinarian or
+            other appropriate professional for medical, nutritional, behavioral, or safety concerns
+            specific to your dog.
+        </p>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="section-spacing">
+        <div class="site-container">
+        <div
+            class="relative overflow-hidden rounded-[2.25rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 text-center shadow-card sm:p-8 lg:p-10"
+        >
+            <div
+            class="pointer-events-none absolute -top-24 -right-20 size-64 rounded-full bg-brand-300/25 blur-3xl"
+            aria-hidden="true"
+            >
+            </div>
+
+            <div class="relative mx-auto max-w-3xl">
+            <Badge variant="brand" size="md" class="mx-auto">
+                <HeartBold slot="icon" aria-hidden="true" />
+
+                Keep Learning with MaxiPawz
+            </Badge>
+
+            <h2 class="section-title mx-auto mt-5 text-4xl sm:text-5xl">
+                Helpful guidance is part of the MaxiPawz experience.
+            </h2>
+
+            <p class="section-description mx-auto mt-4">
+                {
+                isStoreLive
+                    ? 'Use our guides alongside the MaxiPawz collection to discover products that fit your dog’s routines and personality.'
+                    : 'Join the pack for new guides, launch updates, product news, and more lessons inspired by life with Maxi.'
+                }
+            </p>
+
+            <div class="mt-8 flex justify-center">
+                {
+                isStoreLive ? (
+                    <Button href="/shop" variant="primary" size="lg" iconPosition="right">
+                    <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
+                    Explore the Shop
+                    </Button>
+                ) : (
+                    <Button href="/#join-the-pack" variant="primary" size="lg" iconPosition="right">
+                    <ArrowRightBold slot="icon" aria-hidden="true" />
+                    Join the Pack
+                    </Button>
+                )
+                }
+            </div>
+            </div>
+        </div>
+        </div>
+    </section>
+</BaseLayout>

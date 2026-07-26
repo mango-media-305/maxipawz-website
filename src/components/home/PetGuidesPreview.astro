@@ -1,0 +1,80 @@
+---
+import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
+import ConfettiBold from 'phosphor-astro/ConfettiBold.astro';
+import HeartBold from 'phosphor-astro/HeartBold.astro';
+import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
+import SparkleBold from 'phosphor-astro/SparkleBold.astro';
+import SuitcaseRollingBold from 'phosphor-astro/SuitcaseRollingBold.astro';
+
+import GuideCard from '../guides/GuideCard.astro';
+import Badge from '../ui/Badge.astro';
+import Button from '../ui/Button.astro';
+
+import { homepagePetGuides, type PetGuideIcon } from '../../data/pet-guides';
+
+const iconByGuide: Record<PetGuideIcon, typeof PawPrintBold> = {
+    play: ConfettiBold,
+    travel: SuitcaseRollingBold,
+    hydration: HeartBold,
+    comfort: PawPrintBold,
+    care: SparkleBold,
+    accessories: PawPrintBold,
+};
+---
+
+<section
+    class="section-spacing relative overflow-hidden border-b border-sand bg-white-warm/70"
+    aria-labelledby="pet-guides-preview-title"
+>
+    <div
+        class="pointer-events-none absolute top-0 left-1/2 size-96 -translate-x-1/2 rounded-full bg-accent-200/20 blur-3xl"
+        aria-hidden="true"
+    >
+    </div>
+
+    <div class="site-container relative">
+        <div class="mx-auto max-w-4xl text-center">
+        <Badge variant="accent" size="md" class="mx-auto">
+            <SparkleBold slot="icon" aria-hidden="true" />
+
+            Practical Pet Guides
+        </Badge>
+
+        <h2 id="pet-guides-preview-title" class="section-title mx-auto mt-5 text-4xl sm:text-5xl">
+            Helpful guidance for everyday life with your dog.
+        </h2>
+
+        <p class="section-description mx-auto mt-4">
+            Explore practical information inspired by our experiences with Maxi—from choosing toys to
+            preparing for walks, travel, feeding, hydration, comfort, and care.
+        </p>
+        </div>
+
+        <div class="mt-10 grid gap-4 sm:gap-5 lg:mt-12 lg:grid-cols-3 lg:gap-6">
+        {
+            homepagePetGuides.map((guide) => {
+            const Icon = iconByGuide[guide.icon];
+
+            return (
+                <GuideCard
+                title={guide.title}
+                description={guide.description}
+                href={`/pet-guides#${guide.slug}`}
+                tone={guide.tone}
+                >
+                <Icon slot="icon" aria-hidden="true" />
+                </GuideCard>
+            );
+            })
+        }
+        </div>
+
+        <div class="mt-10 flex justify-center">
+        <Button href="/pet-guides" variant="secondary" size="lg" iconPosition="right">
+            <ArrowRightBold slot="icon" aria-hidden="true" />
+
+            Explore All Pet Guides
+        </Button>
+        </div>
+    </div>
+</section>
