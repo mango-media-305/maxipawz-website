@@ -1,11 +1,11 @@
 import type { ImageMetadata } from 'astro';
 
+import collarsAndAccessoriesImage from '../assets/categories/collars-and-accessories.webp';
+import comfortAndHomeImage from '../assets/categories/comfort-and-home.webp';
+import feedingAndHydrationImage from '../assets/categories/feeding-and-hydration.webp';
+import groomingAndCareImage from '../assets/categories/grooming-and-care.webp';
 import playAndEnrichmentImage from '../assets/categories/play-and-enrichment.webp';
 import walkAndTravelImage from '../assets/categories/walk-and-travel.webp';
-import feedingAndHydrationImage from '../assets/categories/feeding-and-hydration.webp';
-import comfortAndHomeImage from '../assets/categories/comfort-and-home.webp';
-import groomingAndCareImage from '../assets/categories/grooming-and-care.webp';
-import collarsAndAccessoriesImage from '../assets/categories/collars-and-accessories.webp';
 
 export type CategoryBackgroundPosition =
     | 'center'
@@ -40,33 +40,24 @@ export interface LifestyleCategory {
     tone: LifestyleCategoryTone;
 
     backgroundImage?: ImageMetadata;
-
-    backgroundPosition?: CategoryBackgroundPosition;
-
-    backgroundOverlay?: CategoryBackgroundOverlay;
-}
-
-export interface LifestyleCategory {
-    title: string;
-    description: string;
-    slug: string;
-    icon: LifestyleCategoryIcon;
-    tone: LifestyleCategoryTone;
-
-    backgroundImage?: ImageMetadata;
     backgroundPosition?: CategoryBackgroundPosition;
     backgroundOverlay?: CategoryBackgroundOverlay;
 }
 
-export type BrandStoryPrincipleIcon =
-    | 'experience'
+export type ShopPrincipleIcon =
     | 'purpose'
-    | 'community';
+    | 'practical'
+    | 'joy';
 
-export interface BrandStoryPrinciple {
+export interface ShopPrinciple {
     title: string;
     description: string;
-    icon: BrandStoryPrincipleIcon;
+    icon: ShopPrincipleIcon;
+}
+
+export interface CollectionHighlight {
+    title: string;
+    description: string;
 }
 
 export const lifestyleCategories: LifestyleCategory[] = [
@@ -161,48 +152,68 @@ export const lifestyleCategories: LifestyleCategory[] = [
     },
 ];
 
-export const brandStory = {
-    eyebrow: 'Inspired by Maxi',
+export const shopHeroHighlights = [
+    'Playful and practical finds',
+    'Products for everyday routines',
+    'A collection inspired by real pet life',
+] as const;
 
-    title:
-        'The dog behind the name—and the heart behind our store.',
-
-    introduction:
-        'Maxi is our dog, our daily companion, and the inspiration behind the MaxiPawz mascot and everything this store represents.',
-
-    experience:
-        'Raising Maxi from puppyhood gave us firsthand experience choosing toys, collars, walking accessories, portable water bottles, comfort products, and everyday essentials. Over time, we learned which products create excitement, which ones make daily routines easier, and which ones truly earn a place in a dog owner’s home.',
-
-    community:
-        'Maxi inspired the beginning, and our friends helped the idea grow. Their encouragement, feedback, creativity, and belief in the vision helped us take MaxiPawz from zero to hero.',
-} as const;
-
-export const brandStoryPrinciples: BrandStoryPrinciple[] = [
-    {
-        title: 'Real-life experience',
-
-        description:
-            'Our perspective comes from caring for Maxi from puppyhood and learning what dogs actually enjoy and use.',
-
-        icon: 'experience',
-    },
-
+export const shopPrinciples: ShopPrinciple[] = [
     {
         title: 'Chosen with purpose',
 
         description:
-            'We look beyond appearance and consider play value, usefulness, comfort, portability, and everyday practicality.',
+            'We consider how a product supports play, comfort, movement, feeding, care, travel, or another real part of pet life.',
 
         icon: 'purpose',
     },
 
     {
-        title: 'Grown together',
+        title: 'Useful every day',
 
         description:
-            'Maxi inspired the store, while the support and ideas of our friends helped transform the vision into a growing brand.',
+            'Our collection is being shaped around products that can earn a meaningful place in everyday routines.',
 
-        icon: 'community',
+        icon: 'practical',
+    },
+
+    {
+        title: 'Joyful by nature',
+
+        description:
+            'MaxiPawz brings warmth, color, personality, and a sense of fun to shopping for the pets we love.',
+
+        icon: 'joy',
     },
 ];
 
+export const prelaunchCollectionHighlights: CollectionHighlight[] =
+    [
+        {
+            title: 'A varied collection',
+
+            description:
+                'MaxiPawz is preparing products for play, walking, travel, feeding, hydration, comfort, grooming, and personal style.',
+        },
+
+        {
+            title: 'Thoughtful organization',
+
+            description:
+                'Products will be organized around the moments and routines pet owners understand instead of one long, confusing catalog.',
+        },
+
+        {
+            title: 'Helpful product guidance',
+
+            description:
+                'Our Pet Guides will support more informed decisions about sizing, purpose, use, comfort, and everyday care.',
+        },
+
+        {
+            title: 'A friendly shopping experience',
+
+            description:
+                'The store is being designed to feel welcoming, useful, colorful, and easy to explore on any device.',
+        },
+    ];
