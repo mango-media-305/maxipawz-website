@@ -50,22 +50,26 @@ export type ProductImagePosition =
     | 'left'
     | 'right';
 
+export interface ProductImageCredit {
+    name: string;
+    href: string;
+    source: 'Unsplash';
+}
+
 export interface ProductImage {
     src: ImageMetadata | string;
     alt: string;
     position?: ProductImagePosition;
 
-    /**
-     * These values are useful when the source comes from `/public`
-     * instead of an imported Astro asset.
-     */
     width?: number;
     height?: number;
+
+    credit?: ProductImageCredit;
 }
 
 export interface ProductPrice {
     /**
-     * Store monetary values in the smallest currency unit.
+     * Store prices in cents.
      *
      * Example:
      * $19.99 is represented as 1999.
@@ -95,15 +99,13 @@ export interface ProductVariant {
     price?: ProductPrice;
     availability?: ProductAvailability;
 
-    /**
-     * Added after the matching Stripe Price exists.
-     */
     stripePriceId?: string;
 }
 
 export interface Product {
     slug: string;
     name: string;
+    sku?: string;
 
     category: ProductCategorySlug;
     status: ProductStatus;
@@ -114,10 +116,12 @@ export interface Product {
 
     petTypes: PetType[];
     tags: string[];
+    searchKeywords?: string[];
 
     images: ProductImage[];
 
     featured?: boolean;
+    isDemo?: boolean;
 
     price?: ProductPrice;
     compareAtPrice?: ProductPrice;
@@ -130,9 +134,6 @@ export interface Product {
     careInstructions?: string[];
     safetyNotes?: string[];
 
-    /**
-     * These identifiers remain optional until Stripe integration.
-     */
     stripeProductId?: string;
     stripeDefaultPriceId?: string;
 

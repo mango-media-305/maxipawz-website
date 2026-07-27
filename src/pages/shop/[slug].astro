@@ -1,4 +1,5 @@
 ---
+import DemoCatalogNotice from '@components/products/DemoCatalogNotice.astro';
 import ProductDetails from '@components/products/ProductDetails.astro';
 import BaseLayout from '@layouts/BaseLayout.astro';
 
@@ -12,11 +13,11 @@ interface Props {
     product: Product;
 }
 
+/**
+ * Active demo products are generated during prelaunch so that
+ * product-detail layouts can be tested before the real store opens.
+ */
 export function getStaticPaths() {
-    if (!isStoreLive) {
-        return [];
-    }
-
     return getActiveProducts().map((product) => ({
         params: {
         slug: product.slug,
@@ -33,8 +34,20 @@ const { product } = Astro.props as Props;
 const pageTitle = product.seoTitle ?? product.name;
 
 const pageDescription = product.seoDescription ?? product.shortDescription;
+
+const shouldNoIndex = !isStoreLive || Boolean(product.isDemo);
 ---
 
-<BaseLayout title={pageTitle} description={pageDescription} noIndex={!isStoreLive}>
+<BaseLayout title={pageTitle} description={pageDescription} noIndex={shouldNoIndex}>
+    {
+        product.isDemo && (
+        <section class="pt-8 sm:pt-10">
+            <div class="site-container">
+            <DemoCatalogNotice compact={true} />
+            </div>
+        </section>
+        )
+    }
+
     <ProductDetails product={product} />
 </BaseLayout>

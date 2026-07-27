@@ -6,24 +6,24 @@ import SparkleBold from 'phosphor-astro/SparkleBold.astro';
 import Button from '../ui/Button.astro';
 
 interface Props {
-    variant?: 'catalog' | 'category';
+    variant?: 'catalog' | 'filtered';
 }
 
 const { variant = 'catalog' } = Astro.props;
 
-const title =
-    variant === 'category'
-        ? 'No products are published in this category yet.'
-        : 'No products are currently published.';
+const isFiltered = variant === 'filtered';
 
-const description =
-    variant === 'category'
-        ? 'Try another category or view the complete collection.'
-        : 'The catalog structure is ready. Products will appear here after real inventory information and images are added.';
+const title = isFiltered
+    ? 'No products match those filters.'
+    : 'No products are currently published.';
 
-const actionLabel = variant === 'category' ? 'View All Products' : 'Explore Pet Guides';
+const description = isFiltered
+    ? 'Try removing a filter, changing the price range, or using a broader search.'
+    : 'The catalog structure is ready. Products will appear here after inventory information and images are added.';
 
-const actionHref = variant === 'category' ? '/shop#products' : '/pet-guides';
+const actionLabel = isFiltered ? 'Clear All Filters' : 'Explore Pet Guides';
+
+const actionHref = isFiltered ? '/shop#products' : '/pet-guides';
 ---
 
 <article
@@ -46,7 +46,7 @@ const actionHref = variant === 'category' ? '/shop#products' : '/pet-guides';
         class="mx-auto grid size-16 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-600 shadow-soft"
         aria-hidden="true"
         >
-        {variant === 'category' ? <PawPrintBold class="size-8" /> : <SparkleBold class="size-8" />}
+        {isFiltered ? <PawPrintBold class="size-8" /> : <SparkleBold class="size-8" />}
         </span>
 
         <h2 class="mx-auto mt-6 max-w-2xl text-3xl text-ink-900 sm:text-4xl">

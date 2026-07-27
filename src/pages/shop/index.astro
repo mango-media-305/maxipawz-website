@@ -10,7 +10,7 @@ import ShopCategoryGrid from '@components/shop/ShopCategoryGrid.astro';
 import ShopHero from '@components/shop/ShopHero.astro';
 import BaseLayout from '@layouts/BaseLayout.astro';
 
-import { isStoreLive, isStorePrelaunch } from '../../config/storefront';
+import { isStorePrelaunch } from '../../config/storefront';
 
 import { shopPrinciples, type ShopPrincipleIcon } from '../../data/shop';
 
@@ -23,16 +23,17 @@ const iconByPrinciple: Record<ShopPrincipleIcon, typeof PawPrintBold> = {
 };
 
 const activeProducts = getActiveProducts();
+
+const hasDemoProducts = activeProducts.some((product) => product.isDemo);
 ---
 
 <BaseLayout
     title="Shop"
-    description="Explore MaxiPawz pet toys, walking and travel accessories, feeding and hydration products, comfort items, grooming essentials, collars, and everyday supplies."
-    noIndex={isStorePrelaunch}
+    description="Search and explore MaxiPawz pet toys, walking accessories, feeding products, comfort items, grooming essentials, collars, and everyday supplies."
+    noIndex={isStorePrelaunch || hasDemoProducts}
 >
     <ShopHero />
 
-    <!-- Collection principles -->
     <section
         class="border-y border-sand bg-white-warm/65"
         aria-label="How MaxiPawz approaches its collection"
@@ -65,7 +66,11 @@ const activeProducts = getActiveProducts();
 
     <ShopCategoryGrid />
 
-    {isStorePrelaunch && <PrelaunchShopState />}
+    {
+        activeProducts.length > 0 && (
+        <ProductGrid products={activeProducts} demoMode={isStorePrelaunch || hasDemoProducts} />
+        )
+    }
 
-    {isStoreLive && <ProductGrid products={activeProducts} />}
+    {isStorePrelaunch && <PrelaunchShopState />}
 </BaseLayout>

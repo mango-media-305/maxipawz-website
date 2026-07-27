@@ -8,21 +8,40 @@ import ProductImage from './ProductImage.astro';
 import type { Product, ProductAvailability } from '../../types/product';
 
 import {
-    formatProductPrice,
-    getAvailabilityLabel,
-    getCategoryLabel,
-    getPrimaryProductImage,
+  formatPetType,
+  formatProductPrice,
+  getAvailabilityLabel,
+  getCategoryLabel,
+  getPrimaryProductImage,
 } from '../../utils/products';
 
 interface Props {
-    product: Product;
+  product: Product;
+  index?: number;
 }
 
-const { product } = Astro.props;
+const { product, index = 0 } = Astro.props;
 
 const primaryImage = getPrimaryProductImage(product);
 
 const categoryLabel = getCategoryLabel(product.category);
+
+const petTypeLabel = product.petTypes.map((petType) => formatPetType(petType)).join(' · ');
+
+const searchableText = [
+    product.name,
+    product.shortDescription,
+    categoryLabel,
+    ...product.tags,
+    ...product.petTypes.map((petType) => formatPetType(petType)),
+    ...(product.searchKeywords ?? []),
+    ]
+    .join(' ')
+    .toLowerCase();
+
+const isOnSale = Boolean(
+    product.price && product.compareAtPrice && product.compareAtPrice.amount > product.price.amount,
+);
 
 const availabilityClasses: Record<ProductAvailability, string> = {
     'coming-soon': 'border-brand-200 bg-brand-50 text-brand-700',
@@ -35,7 +54,18 @@ const availabilityClasses: Record<ProductAvailability, string> = {
 };
 ---
 
-<article data-product-card data-product-category={product.category} class="group h-full">
+<article
+    data-product-card
+    data-product-name={product.name.toLowerCase()}
+    data-product-search={searchableText}
+    data-product-category={product.category}
+    data-product-pets={product.petTypes.join(',')}
+    data-product-availability={product.availability}
+    data-product-price={product.price?.amount ?? ''}
+    data-product-featured={String(product.featured ?? false)}
+    data-product-order={index}
+    class="group h-full"
+>
     <a
         href={`/shop/${product.slug}`}
         class:list={[
@@ -59,7 +89,15 @@ const availabilityClasses: Record<ProductAvailability, string> = {
             imageClass="transition duration-500 group-hover:scale-[1.04]"
         />
 
-        <div class="absolute top-4 left-4 flex flex-wrap gap-2">
+        <div class="absolute top-4 left-4 flex max-w-[calc(100%-2rem)] flex-wrap gap-2">
+            {
+            product.isDemo && (
+                <span class="inline-flex items-center gap-1.5 rounded-full border border-ink-700 bg-ink-950/90 px-3 py-1.5 text-xs font-extrabold text-white shadow-sm backdrop-blur">
+                Demo
+                </span>
+            )
+            }
+
             {
             product.featured && (
                 <span class="inline-flex items-center gap-1.5 rounded-full border border-accent-200 bg-accent-50/95 px-3 py-1.5 text-xs font-extrabold text-accent-800 shadow-sm backdrop-blur">
@@ -69,18 +107,26 @@ const availabilityClasses: Record<ProductAvailability, string> = {
             )
             }
 
-            <span
-            class:list={[
-                'rounded-full border px-3 py-1.5 text-xs font-extrabold shadow-sm backdrop-blur',
-                availabilityClasses[product.availability],
-            ]}
-            >
-            {getAvailabilityLabel(product.availability)}
-            </span>
-        </div>
+            {
+            isOnSale && (
+                <span class="rounded-full border border-danger-100 bg-danger-50/95 px-3 py-1.5 text-xs font-extrabold text-danger-700 shadow-sm backdrop-blur">
+                Sale
+                </span>
+            )
+            }
         </div>
 
-        <div class="flex flex-1 flex-col p-5 sm:p-6">
+        <span
+            class:list={[
+            'absolute right-4 bottom-4 rounded-full border px-3 py-1.5 text-xs font-extrabold shadow-sm backdrop-blur',
+            availabilityClasses[product.availability],
+            ]}
+        >
+            {getAvailabilityLabel(product.availability)}
+        </span>
+        </div>
+
+        <div class="flex flex-1 flex-col p-5">
         <div
             class="flex items-center gap-2 text-xs font-extrabold tracking-[0.07em] text-brand-700 uppercase"
         >
@@ -93,35 +139,41 @@ const availabilityClasses: Record<ProductAvailability, string> = {
             {product.name}
         </h2>
 
-        <p class="mt-3 flex-1 text-sm leading-6 text-ink-600">
-            {product.shortDescription}
-        </p>
-
         {
-            product.tags.length > 0 && (
-            <div class="mt-5 flex flex-wrap gap-2">
-                {product.tags.slice(0, 3).map((tag) => (
-                <span class="rounded-full border border-sand bg-cream-soft px-3 py-1 text-xs font-bold text-ink-600">
-                    {tag}
-                </span>
-                ))}
-            </div>
+            petTypeLabel && (
+            <p class="mt-2 text-xs font-extrabold tracking-wider text-ink-500 uppercase">
+                For {petTypeLabel}
+            </p>
             )
         }
 
-        <div class="mt-6 flex items-end justify-between gap-4 border-t border-sand/80 pt-5">
-            <div>
-            <p class="text-xs font-extrabold tracking-[0.07em] text-ink-500 uppercase">Price</p>
+        <p class="mt-3 line-clamp-3 flex-1 text-sm leading-6 text-ink-600">
+            {product.shortDescription}
+        </p>
 
-            <p class="mt-1 text-lg font-black text-ink-900">
+        <div class="mt-5 flex items-end justify-between gap-4 border-t border-sand/80 pt-5">
+            <div>
+            <p class="text-xs font-extrabold tracking-[0.07em] text-ink-500 uppercase">Demo price</p>
+
+            <div class="mt-1 flex flex-wrap items-baseline gap-2">
+                <p class="text-xl font-black text-ink-900">
                 {product.price ? formatProductPrice(product.price) : 'Coming soon'}
-            </p>
+                </p>
+
+                {
+                isOnSale && product.compareAtPrice && (
+                    <span class="text-sm font-bold text-ink-400 line-through">
+                    {formatProductPrice(product.compareAtPrice)}
+                    </span>
+                )
+                }
+            </div>
             </div>
 
             <span
-            class="inline-flex items-center gap-2 font-extrabold text-brand-700 transition group-hover:gap-3 group-hover:text-brand-800"
+            class="inline-flex shrink-0 items-center gap-2 rounded-full bg-brand-50 px-3 py-2 text-sm font-extrabold text-brand-700 transition group-hover:gap-3 group-hover:bg-brand-100 group-hover:text-brand-800"
             >
-            View details
+            View
 
             <ArrowRightBold class="size-4" aria-hidden="true" />
             </span>

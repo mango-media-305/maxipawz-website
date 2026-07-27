@@ -1,0 +1,54 @@
+---
+import ShieldCheckBold from 'phosphor-astro/ShieldCheckBold.astro';
+import SparkleBold from 'phosphor-astro/SparkleBold.astro';
+
+interface Props {
+  compact?: boolean;
+}
+
+const { compact = false } = Astro.props;
+---
+
+<aside
+  class:list={[
+    'rounded-card-lg border border-accent-200 bg-linear-to-br from-accent-50 via-white-warm to-brand-50 shadow-sm',
+    compact ? 'p-4 sm:p-5' : 'p-5 sm:p-6',
+  ]}
+  aria-label="Demo catalog notice"
+>
+  <div class="flex items-start gap-4">
+    <span
+      class="grid size-11 shrink-0 place-items-center rounded-2xl bg-accent-500 text-ink-950 shadow-orange"
+      aria-hidden="true"
+    >
+      <SparkleBold class="size-5" />
+    </span>
+
+    <div>
+      <div class="flex flex-wrap items-center gap-2">
+        <h2 class:list={['text-ink-900', compact ? 'text-lg' : 'text-xl']}>
+          Demo catalog for testing
+        </h2>
+
+        <span
+          class="rounded-full border border-accent-200 bg-accent-100 px-2.5 py-1 text-xs font-extrabold text-accent-800"
+        >
+          Not for sale
+        </span>
+      </div>
+
+      <p class="mt-2 max-w-4xl text-sm leading-6 text-ink-600">
+        Product names, prices, availability, descriptions, specifications, and images are temporary
+        testing content. These listings do not represent real MaxiPawz inventory or an offer to
+        sell.
+      </p>
+
+      <p class="mt-3 inline-flex items-start gap-2 text-xs font-bold leading-5 text-ink-500">
+        <ShieldCheckBold class="mt-0.5 size-4 shrink-0 text-brand-600" aria-hidden="true" />
+
+        Unsplash images are being used as visual placeholders and may not show the fictional product
+        described.
+      </p>
+    </div>
+  </div>
+</aside>

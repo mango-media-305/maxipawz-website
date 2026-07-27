@@ -13,6 +13,12 @@ import { isStoreLive } from '../../config/storefront';
 
 import { lifestyleCategories, type LifestyleCategoryIcon } from '../../data/shop';
 
+import { getActiveProducts } from '../../utils/products';
+
+const activeProducts = getActiveProducts();
+
+const hasCatalogProducts = activeProducts.length > 0;
+
 const iconByCategory: Record<LifestyleCategoryIcon, typeof PawPrintBold> = {
     play: ConfettiBold,
     travel: SuitcaseRollingBold,
@@ -23,14 +29,22 @@ const iconByCategory: Record<LifestyleCategoryIcon, typeof PawPrintBold> = {
 };
 
 function getCategoryHref(slug: string): string {
+    if (hasCatalogProducts) {
+        return `/shop?category=${encodeURIComponent(slug)}#products`;
+    }
+
     if (!isStoreLive) {
         return '#join-the-shop-updates';
     }
 
-    return `/shop?category=${encodeURIComponent(slug)}#products`;
+    return '/shop#products';
 }
 
-const categoryLinkLabel = isStoreLive ? 'Explore category' : 'Get launch updates';
+const categoryLinkLabel = isStoreLive
+    ? 'Explore category'
+    : hasCatalogProducts
+        ? 'Preview category'
+        : 'Get launch updates';
 ---
 
 <section
@@ -49,7 +63,13 @@ const categoryLinkLabel = isStoreLive ? 'Explore category' : 'Get launch updates
         <Badge variant="brand" size="md" class="mx-auto">
             <PawPrintBold slot="icon" aria-hidden="true" />
 
-            {isStoreLive ? 'Shop by Lifestyle' : 'What You Will Find'}
+            {
+            isStoreLive
+                ? 'Shop by Lifestyle'
+                : hasCatalogProducts
+                ? 'Preview by Lifestyle'
+                : 'What You Will Find'
+            }
         </Badge>
 
         <h2 id="shop-categories-title" class="section-title mx-auto mt-5 text-4xl sm:text-5xl">
@@ -60,6 +80,8 @@ const categoryLinkLabel = isStoreLive ? 'Explore category' : 'Get launch updates
             {
             isStoreLive
                 ? 'Explore the collection based on the activities, routines, and experiences you share with your pet.'
+                : hasCatalogProducts
+                ? 'Use the fictional demo catalog to test category navigation, searching, filtering, and product pages before real inventory is added.'
                 : 'Discover the types of products MaxiPawz is preparing for playtime, walks, travel, feeding, comfort, care, and personal style.'
             }
         </p>
@@ -89,7 +111,7 @@ const categoryLinkLabel = isStoreLive ? 'Explore category' : 'Get launch updates
         </div>
 
         {
-        !isStoreLive && (
+        !isStoreLive && !hasCatalogProducts && (
             <p class="mx-auto mt-8 max-w-2xl text-center text-sm leading-6 text-ink-500">
             Product availability, pricing, and launch timing will be shared only after the collection
             and shopping experience are ready.
