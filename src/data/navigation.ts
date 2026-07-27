@@ -87,21 +87,31 @@ export const footerNavigation: FooterNavigationGroup[] = [
         label: 'Walk & Travel Essentials',
         href: '/pet-guides/walk-and-travel',
       },
-    ],
-  },
 
-  {
-    title: 'Help & Updates',
-
-    links: [
       {
         label: 'Frequently Asked Questions',
         href: '/faq',
       },
+    ],
+  },
 
+  {
+    title: 'Help & Policies',
+
+    links: [
       {
         label: 'Contact Us',
         href: '/contact',
+      },
+
+      {
+        label: 'Shipping Policy',
+        href: '/shipping-policy',
+      },
+
+      {
+        label: 'Return & Refund Policy',
+        href: '/return-policy',
       },
 
       {
