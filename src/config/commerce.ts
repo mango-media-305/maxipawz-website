@@ -1,39 +1,31 @@
-import {
-    businessConfig,
-} from './business';
+import { businessConfig } from './business';
 
-import {
-    isStoreLive,
-} from './storefront';
+import { isStoreLive } from './storefront';
 
-export type CheckoutMode =
-    | 'disabled'
-    | 'test';
+export type CheckoutMode = 'disabled' | 'test';
 
-const configuredCheckoutMode =
-    import.meta.env.PUBLIC_CHECKOUT_MODE;
+const configuredCheckoutMode = import.meta.env.PUBLIC_CHECKOUT_MODE;
 
-export const checkoutMode: CheckoutMode =
-    configuredCheckoutMode === 'test'
-        ? 'test'
-        : 'disabled';
+export const checkoutMode: CheckoutMode = configuredCheckoutMode === 'test' ? 'test' : 'disabled';
 
-export const checkoutEndpoint =
-    '/api/create-checkout-session';
+export const checkoutEndpoint = '/api/create-checkout-session';
+
+export const orderStatusEndpoint = '/api/get-order-status';
+
+export const stripeWebhookEndpoint = '/api/stripe-webhook';
 
 export const commerceConfig = {
-    checkoutMode,
-    checkoutEndpoint,
+  checkoutMode,
 
-    storefrontLive: isStoreLive,
+  checkoutEndpoint,
+  orderStatusEndpoint,
+  stripeWebhookEndpoint,
 
-    policiesFinalized:
-        businessConfig.commercePoliciesFinalized,
+  storefrontLive: isStoreLive,
 
-    publicSiteUrl:
-        import.meta.env.PUBLIC_SITE_URL?.trim() ??
-        '',
+  policiesFinalized: businessConfig.commercePoliciesFinalized,
+
+  publicSiteUrl: import.meta.env.PUBLIC_SITE_URL?.trim() ?? '',
 } as const;
 
-export const isTestCheckoutEnabled =
-    checkoutMode === 'test';
+export const isTestCheckoutEnabled = checkoutMode === 'test';
