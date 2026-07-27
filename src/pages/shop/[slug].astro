@@ -1,0 +1,40 @@
+---
+import ProductDetails from '@components/products/ProductDetails.astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+import { isStoreLive } from '../../config/storefront';
+
+import type { Product } from '../../types/product';
+
+import { getActiveProducts } from '../../utils/products';
+
+interface Props {
+    product: Product;
+}
+
+export function getStaticPaths() {
+    if (!isStoreLive) {
+        return [];
+    }
+
+    return getActiveProducts().map((product) => ({
+        params: {
+        slug: product.slug,
+        },
+
+        props: {
+        product,
+        },
+    }));
+}
+
+const { product } = Astro.props as Props;
+
+const pageTitle = product.seoTitle ?? product.name;
+
+const pageDescription = product.seoDescription ?? product.shortDescription;
+---
+
+<BaseLayout title={pageTitle} description={pageDescription} noIndex={!isStoreLive}>
+    <ProductDetails product={product} />
+</BaseLayout>

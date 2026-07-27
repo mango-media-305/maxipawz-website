@@ -1,0 +1,219 @@
+---
+import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
+
+import ProductCard from './ProductCard.astro';
+import ProductEmptyState from './ProductEmptyState.astro';
+
+import Badge from '../ui/Badge.astro';
+
+import { lifestyleCategories } from '../../data/shop';
+
+import type { Product } from '../../types/product';
+
+interface Props {
+    products: Product[];
+}
+
+const { products } = Astro.props;
+
+function getCategoryCount(categorySlug: string): number {
+    return products.filter((product) => product.category === categorySlug).length;
+}
+---
+
+<section id="products" class="section-spacing scroll-mt-28" aria-labelledby="shop-products-title">
+    <div class="site-container">
+        <div class="mx-auto max-w-4xl text-center">
+        <Badge variant="brand" size="md" class="mx-auto">
+            <PawPrintBold slot="icon" aria-hidden="true" />
+
+            MaxiPawz Collection
+        </Badge>
+
+        <h2 id="shop-products-title" class="section-title mx-auto mt-5 text-4xl sm:text-5xl">
+            Products for happier everyday moments.
+        </h2>
+
+        <p class="section-description mx-auto mt-4">
+            Browse published products or choose a lifestyle category to narrow the collection.
+        </p>
+        </div>
+
+        {
+        products.length > 0 ? (
+            <div class="mt-10 lg:mt-12" data-product-catalog>
+            <div class="rounded-card-lg border border-sand bg-white-warm/80 p-4 shadow-sm sm:p-5">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                    <p class="text-xs font-extrabold tracking-[0.09em] text-brand-700 uppercase">
+                    Filter the Collection
+                    </p>
+
+                    <p class="mt-2 text-sm leading-6 text-ink-600">
+                    Choose a category to update the products shown below.
+                    </p>
+                </div>
+
+                <nav class="flex flex-wrap gap-2" aria-label="Filter products by category">
+                    <a
+                    href="/shop#products"
+                    class="product-filter inline-flex items-center gap-2 rounded-full border border-sand bg-cream-soft px-4 py-2 text-sm font-extrabold text-ink-700 transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800"
+                    data-product-filter="all"
+                    data-product-label="All products"
+                    aria-current="page"
+                    >
+                    All
+                    <span class="product-filter-count rounded-full bg-white-warm px-2 py-0.5 text-xs">
+                        {products.length}
+                    </span>
+                    </a>
+
+                    {lifestyleCategories.map((category) => (
+                    <a
+                        href={`/shop?category=${encodeURIComponent(category.slug)}#products`}
+                        class="product-filter inline-flex items-center gap-2 rounded-full border border-sand bg-cream-soft px-4 py-2 text-sm font-extrabold text-ink-700 transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800"
+                        data-product-filter={category.slug}
+                        data-product-label={category.title}
+                    >
+                        {category.title}
+
+                        <span class="product-filter-count rounded-full bg-white-warm px-2 py-0.5 text-xs">
+                        {getCategoryCount(category.slug)}
+                        </span>
+                    </a>
+                    ))}
+                </nav>
+                </div>
+            </div>
+
+            <p class="mt-6 text-sm font-bold text-ink-500" data-product-status aria-live="polite">
+                Showing {products.length}
+                {products.length === 1 ? ' product.' : ' products.'}
+            </p>
+
+            <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" data-product-list>
+                {products.map((product) => (
+                <ProductCard product={product} />
+                ))}
+            </div>
+
+            <div class="mt-5" data-product-filter-empty hidden>
+                <ProductEmptyState variant="category" />
+            </div>
+            </div>
+        ) : (
+            <div class="mt-10 lg:mt-12">
+            <ProductEmptyState variant="catalog" />
+            </div>
+        )
+        }
+    </div>
+</section>
+
+<script>
+    const productCatalogs = document.querySelectorAll<HTMLElement>('[data-product-catalog]');
+
+    productCatalogs.forEach((catalog) => {
+        const filterLinks = Array.from(
+        catalog.querySelectorAll<HTMLAnchorElement>('[data-product-filter]'),
+        );
+
+        const productCards = Array.from(catalog.querySelectorAll<HTMLElement>('[data-product-card]'));
+
+        const productList = catalog.querySelector<HTMLElement>('[data-product-list]');
+
+        const emptyState = catalog.querySelector<HTMLElement>('[data-product-filter-empty]');
+
+        const status = catalog.querySelector<HTMLElement>('[data-product-status]');
+
+        function applyFilter(requestedFilter: string, updateAddress: boolean): void {
+        const matchingLink = filterLinks.find(
+            (link) => link.dataset.productFilter === requestedFilter,
+        );
+
+        const selectedLink =
+            matchingLink ?? filterLinks.find((link) => link.dataset.productFilter === 'all');
+
+        const selectedFilter = selectedLink?.dataset.productFilter ?? 'all';
+
+        let visibleProducts = 0;
+
+        productCards.forEach((card) => {
+            const matches = selectedFilter === 'all' || card.dataset.productCategory === selectedFilter;
+
+            card.hidden = !matches;
+
+            if (matches) {
+            visibleProducts += 1;
+            }
+        });
+
+        filterLinks.forEach((link) => {
+            const isCurrent = link.dataset.productFilter === selectedFilter;
+
+            if (isCurrent) {
+            link.setAttribute('aria-current', 'page');
+            } else {
+            link.removeAttribute('aria-current');
+            }
+        });
+
+        if (productList) {
+            productList.hidden = visibleProducts === 0;
+        }
+
+        if (emptyState) {
+            emptyState.hidden = visibleProducts > 0;
+        }
+
+        if (status) {
+            const selectedLabel = selectedLink?.dataset.productLabel ?? 'Products';
+
+            status.textContent =
+            visibleProducts === 1
+                ? `${selectedLabel}: 1 product.`
+                : `${selectedLabel}: ${visibleProducts} products.`;
+        }
+
+        if (updateAddress) {
+            const url = new URL(window.location.href);
+
+            if (selectedFilter === 'all') {
+            url.searchParams.delete('category');
+            } else {
+            url.searchParams.set('category', selectedFilter);
+            }
+
+            url.hash = 'products';
+
+            window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+        }
+        }
+
+        filterLinks.forEach((link) => {
+        link.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            applyFilter(link.dataset.productFilter ?? 'all', true);
+        });
+        });
+
+        const requestedCategory = new URLSearchParams(window.location.search).get('category');
+
+        applyFilter(requestedCategory ?? 'all', false);
+    });
+</script>
+
+<style>
+    .product-filter[aria-current='page'] {
+        border-color: #0075db;
+        background: #008aff;
+        color: #ffffff;
+        box-shadow: var(--shadow-blue);
+    }
+
+    .product-filter[aria-current='page'] .product-filter-count {
+        background: rgb(255 255 255 / 20%);
+        color: #ffffff;
+    }
+</style>

@@ -1,0 +1,76 @@
+---
+import { Image } from 'astro:assets';
+
+import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
+
+import type { ProductImage as ProductImageData, ProductImagePosition } from '../../types/product';
+
+interface Props {
+    image?: ProductImageData;
+    eager?: boolean;
+    class?: string;
+    imageClass?: string;
+}
+
+const { image, eager = false, class: className = '', imageClass = '' } = Astro.props;
+
+const positionClasses: Record<ProductImagePosition, string> = {
+    center: 'object-center',
+    top: 'object-top',
+    bottom: 'object-bottom',
+    left: 'object-left',
+    right: 'object-right',
+};
+
+const imagePosition = positionClasses[image?.position ?? 'center'];
+
+const imageClasses = ['h-full w-full object-cover', imagePosition, imageClass]
+    .filter(Boolean)
+    .join(' ');
+---
+
+<div
+    class:list={[
+        'relative overflow-hidden bg-linear-to-br from-brand-50 via-cream-soft to-accent-50',
+        className,
+    ]}
+>
+    {
+        image ? (
+        typeof image.src === 'string' ? (
+            <img
+            src={image.src}
+            alt={image.alt}
+            width={image.width}
+            height={image.height}
+            loading={eager ? 'eager' : 'lazy'}
+            decoding="async"
+            class={imageClasses}
+            />
+        ) : (
+            <Image
+            src={image.src}
+            alt={image.alt}
+            loading={eager ? 'eager' : 'lazy'}
+            class={imageClasses}
+            />
+        )
+        ) : (
+        <div
+            class="grid h-full min-h-64 place-items-center p-8 text-center"
+            aria-label="Product image coming soon"
+        >
+            <div>
+            <span
+                class="mx-auto grid size-16 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-600 shadow-soft"
+                aria-hidden="true"
+            >
+                <PawPrintBold class="size-8" />
+            </span>
+
+            <p class="mt-4 text-sm font-extrabold text-ink-600">Product image coming soon</p>
+            </div>
+        </div>
+        )
+    }
+</div>

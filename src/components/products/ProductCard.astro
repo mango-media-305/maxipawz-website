@@ -1,0 +1,131 @@
+---
+import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
+import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
+import SparkleBold from 'phosphor-astro/SparkleBold.astro';
+
+import ProductImage from './ProductImage.astro';
+
+import type { Product, ProductAvailability } from '../../types/product';
+
+import {
+    formatProductPrice,
+    getAvailabilityLabel,
+    getCategoryLabel,
+    getPrimaryProductImage,
+} from '../../utils/products';
+
+interface Props {
+    product: Product;
+}
+
+const { product } = Astro.props;
+
+const primaryImage = getPrimaryProductImage(product);
+
+const categoryLabel = getCategoryLabel(product.category);
+
+const availabilityClasses: Record<ProductAvailability, string> = {
+    'coming-soon': 'border-brand-200 bg-brand-50 text-brand-700',
+
+    'in-stock': 'border-success-100 bg-success-50 text-success-700',
+
+    'out-of-stock': 'border-sand-dark bg-sand-light text-ink-700',
+
+    discontinued: 'border-danger-100 bg-danger-50 text-danger-700',
+};
+---
+
+<article data-product-card data-product-category={product.category} class="group h-full">
+    <a
+        href={`/shop/${product.slug}`}
+        class:list={[
+        'flex h-full flex-col overflow-hidden rounded-card-lg border',
+        'border-sand bg-white-warm shadow-card',
+        'transition duration-300',
+        'hover:-translate-y-1 hover:border-brand-300',
+        'hover:shadow-card-hover',
+        'focus-visible:outline-none',
+        'focus-visible:ring-4',
+        'focus-visible:ring-brand-200',
+        'focus-visible:ring-offset-2',
+        'focus-visible:ring-offset-cream-soft',
+        ]}
+        aria-label={`View ${product.name}`}
+    >
+        <div class="relative overflow-hidden">
+        <ProductImage
+            image={primaryImage}
+            class="aspect-square"
+            imageClass="transition duration-500 group-hover:scale-[1.04]"
+        />
+
+        <div class="absolute top-4 left-4 flex flex-wrap gap-2">
+            {
+            product.featured && (
+                <span class="inline-flex items-center gap-1.5 rounded-full border border-accent-200 bg-accent-50/95 px-3 py-1.5 text-xs font-extrabold text-accent-800 shadow-sm backdrop-blur">
+                <SparkleBold class="size-3.5" aria-hidden="true" />
+                Featured
+                </span>
+            )
+            }
+
+            <span
+            class:list={[
+                'rounded-full border px-3 py-1.5 text-xs font-extrabold shadow-sm backdrop-blur',
+                availabilityClasses[product.availability],
+            ]}
+            >
+            {getAvailabilityLabel(product.availability)}
+            </span>
+        </div>
+        </div>
+
+        <div class="flex flex-1 flex-col p-5 sm:p-6">
+        <div
+            class="flex items-center gap-2 text-xs font-extrabold tracking-[0.07em] text-brand-700 uppercase"
+        >
+            <PawPrintBold class="size-4" aria-hidden="true" />
+
+            {categoryLabel}
+        </div>
+
+        <h2 class="mt-3 text-2xl text-ink-900 transition group-hover:text-brand-800">
+            {product.name}
+        </h2>
+
+        <p class="mt-3 flex-1 text-sm leading-6 text-ink-600">
+            {product.shortDescription}
+        </p>
+
+        {
+            product.tags.length > 0 && (
+            <div class="mt-5 flex flex-wrap gap-2">
+                {product.tags.slice(0, 3).map((tag) => (
+                <span class="rounded-full border border-sand bg-cream-soft px-3 py-1 text-xs font-bold text-ink-600">
+                    {tag}
+                </span>
+                ))}
+            </div>
+            )
+        }
+
+        <div class="mt-6 flex items-end justify-between gap-4 border-t border-sand/80 pt-5">
+            <div>
+            <p class="text-xs font-extrabold tracking-[0.07em] text-ink-500 uppercase">Price</p>
+
+            <p class="mt-1 text-lg font-black text-ink-900">
+                {product.price ? formatProductPrice(product.price) : 'Coming soon'}
+            </p>
+            </div>
+
+            <span
+            class="inline-flex items-center gap-2 font-extrabold text-brand-700 transition group-hover:gap-3 group-hover:text-brand-800"
+            >
+            View details
+
+            <ArrowRightBold class="size-4" aria-hidden="true" />
+            </span>
+        </div>
+        </div>
+    </a>
+</article>

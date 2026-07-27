@@ -1,33 +1,34 @@
 ---
-import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
 import CheckCircleFill from 'phosphor-astro/CheckCircleFill.astro';
 import HeartBold from 'phosphor-astro/HeartBold.astro';
 import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
 import ShieldCheckBold from 'phosphor-astro/ShieldCheckBold.astro';
-import SparkleBold from 'phosphor-astro/SparkleBold.astro';
 
+import ProductGrid from '@components/products/ProductGrid.astro';
 import PrelaunchShopState from '@components/shop/PrelaunchShopState.astro';
 import ShopCategoryGrid from '@components/shop/ShopCategoryGrid.astro';
 import ShopHero from '@components/shop/ShopHero.astro';
-import Badge from '@components/ui/Badge.astro';
-import Button from '@components/ui/Button.astro';
 import BaseLayout from '@layouts/BaseLayout.astro';
 
 import { isStoreLive, isStorePrelaunch } from '../../config/storefront';
 
 import { shopPrinciples, type ShopPrincipleIcon } from '../../data/shop';
 
+import { getActiveProducts } from '../../utils/products';
+
 const iconByPrinciple: Record<ShopPrincipleIcon, typeof PawPrintBold> = {
     purpose: ShieldCheckBold,
     practical: CheckCircleFill,
     joy: HeartBold,
 };
+
+const activeProducts = getActiveProducts();
 ---
 
 <BaseLayout
     title="Shop"
     description="Explore MaxiPawz pet toys, walking and travel accessories, feeding and hydration products, comfort items, grooming essentials, collars, and everyday supplies."
-    noIndex={true}
+    noIndex={isStorePrelaunch}
 >
     <ShopHero />
 
@@ -66,67 +67,5 @@ const iconByPrinciple: Record<ShopPrincipleIcon, typeof PawPrintBold> = {
 
     {isStorePrelaunch && <PrelaunchShopState />}
 
-    {
-        isStoreLive && (
-        <section
-            id="products"
-            class="section-spacing scroll-mt-28"
-            aria-labelledby="shop-products-title"
-        >
-            <div class="site-container">
-            <div class="relative overflow-hidden rounded-[2.5rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 text-center shadow-card sm:p-8 lg:p-12">
-                <div
-                class="pointer-events-none absolute -top-24 -right-20 size-64 rounded-full bg-brand-300/25 blur-3xl"
-                aria-hidden="true"
-                ></div>
-
-                <div
-                class="pointer-events-none absolute -bottom-24 -left-20 size-64 rounded-full bg-accent-300/25 blur-3xl"
-                aria-hidden="true"
-                ></div>
-
-                <div class="relative mx-auto max-w-3xl">
-                <Badge variant="neutral" size="md" class="mx-auto">
-                    <SparkleBold slot="icon" aria-hidden="true" />
-                    Collection Update
-                </Badge>
-
-                <h2 id="shop-products-title" class="section-title mx-auto mt-5 text-4xl sm:text-5xl">
-                    No products are currently published.
-                </h2>
-
-                <p class="section-description mx-auto mt-4">
-                    The MaxiPawz catalog is being updated. Explore our Pet Guides or check back after
-                    new products have been published.
-                </p>
-
-                <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-                    <Button
-                    href="/pet-guides"
-                    variant="secondary"
-                    size="lg"
-                    iconPosition="right"
-                    class="w-full sm:w-auto"
-                    >
-                    <PawPrintBold slot="icon" aria-hidden="true" />
-                    Explore Pet Guides
-                    </Button>
-
-                    <Button
-                    href="/#join-the-pack"
-                    variant="primary"
-                    size="lg"
-                    iconPosition="right"
-                    class="w-full sm:w-auto"
-                    >
-                    <ArrowRightBold slot="icon" aria-hidden="true" />
-                    Get Store Updates
-                    </Button>
-                </div>
-                </div>
-            </div>
-            </div>
-        </section>
-        )
-    }
+    {isStoreLive && <ProductGrid products={activeProducts} />}
 </BaseLayout>
