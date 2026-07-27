@@ -5,6 +5,7 @@ import {
 } from 'preact/hooks';
 
 import CartItem from './CartItem';
+
 import {
     useCart,
 } from './useCart';
@@ -30,8 +31,16 @@ function CartIcon() {
             aria-hidden="true"
         >
             <path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L20 8H7" />
-            <circle cx="10" cy="20" r="1.5" />
-            <circle cx="18" cy="20" r="1.5" />
+            <circle
+                cx="10"
+                cy="20"
+                r="1.5"
+            />
+            <circle
+                cx="18"
+                cy="20"
+                r="1.5"
+            />
         </svg>
     );
 }
@@ -42,18 +51,23 @@ export default function CartPage() {
         hydrated,
     } = useCart();
 
-    const resolvedLines = useMemo(
-        () => resolveCartLines(state),
-        [state],
-    );
+    const resolvedLines =
+        useMemo(
+            () =>
+                resolveCartLines(
+                    state,
+                ),
+            [state],
+        );
 
-    const totals = useMemo(
-        () =>
-            getCartTotals(
-                resolvedLines,
-            ),
-        [resolvedLines],
-    );
+    const totals =
+        useMemo(
+            () =>
+                getCartTotals(
+                    resolvedLines,
+                ),
+            [resolvedLines],
+        );
 
     if (!hydrated) {
         return (
@@ -65,7 +79,9 @@ export default function CartPage() {
         );
     }
 
-    if (resolvedLines.length === 0) {
+    if (
+        resolvedLines.length === 0
+    ) {
         return (
             <div className="relative overflow-hidden rounded-[2.5rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-8 text-center shadow-card sm:p-10 lg:p-12">
                 <span className="mx-auto grid size-16 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-600 shadow-soft">
@@ -77,7 +93,7 @@ export default function CartPage() {
                 </h2>
 
                 <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-ink-600">
-                    Add some fictional demo products to test quantities, variants, totals, and persistent cart storage.
+                    Add demo products to test quantities, variants, shipping thresholds, Stripe Checkout, and persistent cart storage.
                 </p>
 
                 <a
@@ -106,8 +122,11 @@ export default function CartPage() {
                             id="cart-items-title"
                             className="mt-2 text-2xl text-ink-900 sm:text-3xl"
                         >
-                            {totals.itemCount}{' '}
-                            {totals.itemCount === 1
+                            {
+                                totals.itemCount
+                            }{' '}
+                            {totals
+                                .itemCount === 1
                                 ? 'item'
                                 : 'items'}
                         </h2>
@@ -149,7 +168,7 @@ export default function CartPage() {
                 </p>
 
                 <h2 className="mt-2 text-2xl text-ink-900">
-                    Demo total
+                    Order estimate
                 </h2>
 
                 <dl className="mt-6 grid gap-4">
@@ -159,23 +178,27 @@ export default function CartPage() {
                         </dt>
 
                         <dd className="font-black text-ink-900">
-                            {totals.itemCount}
+                            {
+                                totals.itemCount
+                            }
                         </dd>
                     </div>
 
                     <div className="flex items-center justify-between gap-4 border-t border-sand pt-4">
                         <dt className="font-bold text-ink-600">
-                            Subtotal
+                            Merchandise subtotal
                         </dt>
 
                         <dd className="text-xl font-black text-ink-900">
                             {formatCartAmount(
-                                totals.subtotalAmount,
+                                totals
+                                    .subtotalAmount,
                             )}
                         </dd>
                     </div>
 
-                    {totals.savingsAmount >
+                    {totals
+                        .savingsAmount >
                         0 && (
                             <div className="flex items-center justify-between gap-4 text-success-700">
                                 <dt className="font-bold">
@@ -185,33 +208,43 @@ export default function CartPage() {
                                 <dd className="font-black">
                                     −
                                     {formatCartAmount(
-                                        totals.savingsAmount,
+                                        totals
+                                            .savingsAmount,
                                     )}
                                 </dd>
                             </div>
                         )}
                 </dl>
 
-                {totals.unavailableLineCount >
+                {totals
+                    .unavailableLineCount >
                     0 && (
                         <p className="mt-5 rounded-2xl border border-accent-200 bg-accent-50 p-3 text-sm font-bold leading-6 text-ink-700">
-                            {totals.unavailableLineCount}{' '}
-                            {totals.unavailableLineCount === 1
+                            {
+                                totals
+                                    .unavailableLineCount
+                            }{' '}
+                            {totals
+                                .unavailableLineCount ===
+                                1
                                 ? 'cart line is'
                                 : 'cart lines are'}{' '}
                             currently unavailable and excluded from the subtotal.
                         </p>
                     )}
 
-                {totals.hasDemoItems && (
-                    <p className="mt-5 rounded-2xl border border-ink-700 bg-ink-950 p-4 text-sm font-bold leading-6 text-white/80">
-                        These products and prices are fictional testing content. This cart cannot create an order or charge a payment method.
-                    </p>
-                )}
+                {totals
+                    .hasDemoItems && (
+                        <p className="mt-5 rounded-2xl border border-ink-700 bg-ink-950 p-4 text-sm font-bold leading-6 text-white/80">
+                            These products are fictional testing content. Any enabled payment flow uses Stripe Sandbox and creates test transactions only.
+                        </p>
+                    )}
 
                 <div className="mt-5">
                     <CheckoutButton
-                        lines={resolvedLines}
+                        lines={
+                            resolvedLines
+                        }
                     />
                 </div>
 
@@ -223,7 +256,7 @@ export default function CartPage() {
                 </a>
 
                 <p className="mt-4 text-center text-xs leading-5 text-ink-500">
-                    Shipping, taxes, discounts, and payment processing are not connected.
+                    Shipping is calculated from the validated merchandise subtotal. Taxes are not yet connected.
                 </p>
             </aside>
         </div>

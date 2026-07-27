@@ -6,6 +6,15 @@ import {
     isStoreLive,
 } from './storefront';
 
+import {
+    parseShippingRateAmount,
+    shippingConfig,
+} from './shipping';
+
+import {
+    charityConfig,
+} from './charity';
+
 export type CheckoutMode =
     | 'disabled'
     | 'test';
@@ -26,6 +35,12 @@ export const sandboxCatalogCheckoutEnabled =
     import.meta.env
         .PUBLIC_SANDBOX_CATALOG_CHECKOUT ===
     'true';
+
+export const standardShippingRateAmount =
+    parseShippingRateAmount(
+        import.meta.env
+            .PUBLIC_STANDARD_SHIPPING_RATE_CENTS,
+    );
 
 export const checkoutEndpoint =
     '/api/create-checkout-session';
@@ -56,6 +71,24 @@ export const commerceConfig = {
         import.meta.env
             .PUBLIC_SITE_URL
             ?.trim() ?? '',
+
+    shipping: {
+        ...shippingConfig,
+
+        standardShippingRateAmount,
+    },
+
+    charity: {
+        planned:
+            charityConfig.planned,
+
+        enabled:
+            charityConfig.enabled,
+
+        countsTowardFreeShipping:
+            charityConfig
+                .countsTowardFreeShipping,
+    },
 } as const;
 
 export const isTestCheckoutEnabled =

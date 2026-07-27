@@ -13,6 +13,11 @@ import {
 } from '../../src/config/business';
 
 import {
+    parseShippingRateAmount,
+    shippingConfig,
+} from '../../src/config/shipping';
+
+import {
     products,
 } from '../../src/data/products';
 
@@ -26,20 +31,61 @@ import type {
 
 import type {
     Product,
+    ProductPrice,
     ProductVariant,
 } from '../../src/types/product';
+
+import type {
+    ShippingQuote,
+} from '../../src/types/shipping';
+
+import {
+    getShippingQuote,
+} from '../../src/utils/shipping';
 
 const MAXIMUM_CART_LINES = 50;
 const MAXIMUM_QUANTITY = 99;
 
+type StripeShippingOptions =
+    NonNullable<
+        Stripe.Checkout.SessionCreateParams[
+        'shipping_options'
+        ]
+    >;
+
 interface CheckoutRuntimeConfig {
     stripeSecretKey: string;
     allowDemoProducts: boolean;
+
+    standardShippingRateAmount:
+    | number
+    | null;
+}
+
+interface ValidatedStripeLine {
+    price: string;
+    quantity: number;
+    unitAmount: number;
+}
+
+interface ConsolidatedCart {
+    lineItems:
+    Stripe.Checkout.SessionCreateParams.LineItem[];
+
+    merchandiseSubtotalAmount: number;
+}
+
+interface ShippingSelection {
+    quote: ShippingQuote;
+
+    options:
+    StripeShippingOptions;
 }
 
 class CheckoutRequestError
     extends Error {
     readonly status: number;
+
     readonly code:
         CheckoutErrorCode;
 
@@ -53,8 +99,11 @@ class CheckoutRequestError
         this.name =
             'CheckoutRequestError';
 
-        this.status = status;
-        this.code = code;
+        this.status =
+            status;
+
+        this.code =
+            code;
     }
 }
 
@@ -105,8 +154,7 @@ function parseCheckoutLine(
     }
 
     if (
-        typeof value
-            .productSlug !==
+        typeof value.productSlug !==
         'string' ||
         !value.productSlug.trim()
     ) {
@@ -266,7 +314,14 @@ function assertCheckoutConfiguration():
 
     return {
         stripeSecretKey,
+
         allowDemoProducts,
+
+        standardShippingRateAmount:
+            parseShippingRateAmount(
+                process.env
+                    .PUBLIC_STANDARD_SHIPPING_RATE_CENTS,
+            ),
     };
 }
 
@@ -276,7 +331,9 @@ function getProduct(
 ): Product {
     const product =
         products.find(
-            (catalogProduct) =>
+            (
+                catalogProduct,
+            ) =>
                 catalogProduct.slug ===
                 slug,
         );
@@ -345,7 +402,9 @@ function getVariant(
 
     const variant =
         product.variants?.find(
-            (productVariant) =>
+            (
+                productVariant,
+            ) =>
                 productVariant.id ===
                 variantId,
         );
@@ -361,13 +420,43 @@ function getVariant(
     return variant;
 }
 
+function getCatalogPrice(
+    product: Product,
+    variant?: ProductVariant,
+): ProductPrice {
+    const price =
+        variant?.price ??
+        product.price;
+
+    if (
+        !price ||
+        price.amount < 0
+    ) {
+        throw new CheckoutRequestError(
+            400,
+            'price-not-configured',
+            `${product.name} does not have a valid catalog price.`,
+        );
+    }
+
+    if (
+        price.currency !==
+        shippingConfig.currency
+    ) {
+        throw new CheckoutRequestError(
+            400,
+            'invalid-cart',
+            `${product.name} uses an unsupported currency.`,
+        );
+    }
+
+    return price;
+}
+
 function getStripeLineItem(
     line: CheckoutRequestLine,
     allowDemoProducts: boolean,
-): {
-    price: string;
-    quantity: number;
-} {
+): ValidatedStripeLine {
     const product =
         getProduct(
             line.productSlug,
@@ -395,6 +484,12 @@ function getStripeLineItem(
         );
     }
 
+    const catalogPrice =
+        getCatalogPrice(
+            product,
+            variant,
+        );
+
     const stripePriceId =
         variant?.stripePriceId ??
         product
@@ -419,18 +514,27 @@ function getStripeLineItem(
 
         quantity:
             line.quantity,
+
+        unitAmount:
+            catalogPrice.amount,
     };
 }
 
 function consolidateLineItems(
     lines: CheckoutRequestLine[],
     allowDemoProducts: boolean,
-): Stripe.Checkout.SessionCreateParams.LineItem[] {
-    const quantitiesByPrice =
+): ConsolidatedCart {
+    const groupedLines =
         new Map<
             string,
-            number
+            {
+                quantity: number;
+                unitAmount: number;
+            }
         >();
+
+    let merchandiseSubtotalAmount =
+        0;
 
     lines.forEach((line) => {
         const stripeLine =
@@ -439,11 +543,19 @@ function consolidateLineItems(
                 allowDemoProducts,
             );
 
+        merchandiseSubtotalAmount +=
+            stripeLine.unitAmount *
+            stripeLine.quantity;
+
+        const existingLine =
+            groupedLines.get(
+                stripeLine.price,
+            );
+
         const nextQuantity =
             (
-                quantitiesByPrice.get(
-                    stripeLine.price,
-                ) ?? 0
+                existingLine
+                    ?.quantity ?? 0
             ) +
             stripeLine.quantity;
 
@@ -458,33 +570,137 @@ function consolidateLineItems(
             );
         }
 
-        quantitiesByPrice.set(
+        groupedLines.set(
             stripeLine.price,
-            nextQuantity,
+            {
+                quantity:
+                    nextQuantity,
+
+                unitAmount:
+                    stripeLine
+                        .unitAmount,
+            },
         );
     });
 
-    return Array.from(
-        quantitiesByPrice
-            .entries(),
-    ).map(
-        ([
-            price,
-            quantity,
-        ]) => ({
-            price,
-            quantity,
-        }),
-    );
+    return {
+        merchandiseSubtotalAmount,
+
+        lineItems:
+            Array.from(
+                groupedLines
+                    .entries(),
+            ).map(
+                ([
+                    price,
+                    value,
+                ]) => ({
+                    price,
+
+                    quantity:
+                        value.quantity,
+                }),
+            ),
+    };
+}
+
+function getShippingSelection(
+    merchandiseSubtotalAmount: number,
+    standardShippingRateAmount:
+        | number
+        | null,
+): ShippingSelection {
+    const quote =
+        getShippingQuote(
+            merchandiseSubtotalAmount,
+            standardShippingRateAmount,
+        );
+
+    if (
+        quote.shippingAmount ===
+        null
+    ) {
+        throw new CheckoutRequestError(
+            503,
+            'shipping-not-configured',
+            'The standard shipping rate is not configured.',
+        );
+    }
+
+    const displayName =
+        quote
+            .qualifiesForFreeShipping
+            ? shippingConfig
+                .freeDisplayName
+            : shippingConfig
+                .standardDisplayName;
+
+    return {
+        quote,
+
+        options: [
+            {
+                shipping_rate_data: {
+                    type:
+                        'fixed_amount',
+
+                    fixed_amount: {
+                        amount:
+                            quote
+                                .shippingAmount,
+
+                        currency:
+                            'usd',
+                    },
+
+                    display_name:
+                        displayName,
+
+                    delivery_estimate: {
+                        minimum: {
+                            unit:
+                                'business_day',
+
+                            value:
+                                shippingConfig
+                                    .transitEstimate
+                                    .minimumBusinessDays,
+                        },
+
+                        maximum: {
+                            unit:
+                                'business_day',
+
+                            value:
+                                shippingConfig
+                                    .transitEstimate
+                                    .maximumBusinessDays,
+                        },
+                    },
+
+                    metadata: {
+                        storefront:
+                            'maxipawz',
+
+                        shipping_tier:
+                            quote.tier,
+
+                        free_shipping_threshold_cents:
+                            String(
+                                shippingConfig
+                                    .freeShippingThresholdAmount,
+                            ),
+                    },
+                },
+            },
+        ],
+    };
 }
 
 function getSiteOrigin(): string {
     const configuredSiteUrl =
         process.env
             .PUBLIC_SITE_URL
-            ?.trim() ||
-        process.env
-            .DEPLOY_PRIME_URL
             ?.trim() ||
         process.env.URL?.trim();
 
@@ -531,7 +747,8 @@ export default async function handler(
     request: Request,
 ): Promise<Response> {
     if (
-        request.method !== 'POST'
+        request.method !==
+        'POST'
     ) {
         return jsonResponse(
             {
@@ -556,12 +773,21 @@ export default async function handler(
                 request,
             );
 
-        const lineItems =
+        const consolidatedCart =
             consolidateLineItems(
                 checkoutRequest.lines,
 
                 runtimeConfig
                     .allowDemoProducts,
+            );
+
+        const shippingSelection =
+            getShippingSelection(
+                consolidatedCart
+                    .merchandiseSubtotalAmount,
+
+                runtimeConfig
+                    .standardShippingRateAmount,
             );
 
         const siteOrigin =
@@ -581,10 +807,22 @@ export default async function handler(
                 .checkout
                 .sessions
                 .create({
-                    mode: 'payment',
+                    mode:
+                        'payment',
 
                     line_items:
-                        lineItems,
+                        consolidatedCart
+                            .lineItems,
+
+                    shipping_address_collection: {
+                        allowed_countries: [
+                            'US',
+                        ],
+                    },
+
+                    shipping_options:
+                        shippingSelection
+                            .options,
 
                     customer_creation:
                         'always',
@@ -616,6 +854,30 @@ export default async function handler(
                                 .allowDemoProducts
                                 ? 'true'
                                 : 'false',
+
+                        merchandise_subtotal_cents:
+                            String(
+                                consolidatedCart
+                                    .merchandiseSubtotalAmount,
+                            ),
+
+                        shipping_tier:
+                            shippingSelection
+                                .quote
+                                .tier,
+
+                        shipping_amount_cents:
+                            String(
+                                shippingSelection
+                                    .quote
+                                    .shippingAmount,
+                            ),
+
+                        free_shipping_threshold_cents:
+                            String(
+                                shippingConfig
+                                    .freeShippingThresholdAmount,
+                            ),
                     },
 
                     success_url:

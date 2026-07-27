@@ -22,6 +22,7 @@ export type CheckoutErrorCode =
     | 'storefront-not-live'
     | 'policies-incomplete'
     | 'stripe-not-configured'
+    | 'shipping-not-configured'
     | 'product-not-found'
     | 'product-unavailable'
     | 'demo-product'

@@ -12,6 +12,14 @@ import type {
     ResolvedCartLine,
 } from '../types/cart';
 
+import {
+    getCartTotals,
+} from './cart';
+
+import {
+    getShippingQuote,
+} from './shipping';
+
 function getStripePriceId(
     item: ResolvedCartLine,
 ): string | undefined {
@@ -29,9 +37,7 @@ function addReason(
     reason: string,
 ): void {
     if (
-        !reasons.includes(
-            reason,
-        )
+        !reasons.includes(reason)
     ) {
         reasons.push(reason);
     }
@@ -45,6 +51,18 @@ export function getCheckoutReadiness(
     const sandboxDemoCheckout =
         commerceConfig
             .sandboxCatalogCheckoutEnabled;
+
+    const totals =
+        getCartTotals(items);
+
+    const shippingQuote =
+        getShippingQuote(
+            totals.subtotalAmount,
+
+            commerceConfig
+                .shipping
+                .standardShippingRateAmount,
+        );
 
     if (items.length === 0) {
         addReason(
@@ -115,14 +133,24 @@ export function getCheckoutReadiness(
         items.some(
             (item) =>
                 item.available &&
-                !getStripePriceId(
-                    item,
-                ),
+                !getStripePriceId(item),
         )
     ) {
         addReason(
             reasons,
             'Every purchasable product or variant needs a Stripe Price ID.',
+        );
+    }
+
+    if (
+        items.length > 0 &&
+        totals.unavailableLineCount ===
+        0 &&
+        !shippingQuote.configured
+    ) {
+        addReason(
+            reasons,
+            'The standard shipping rate is not configured.',
         );
     }
 
@@ -142,22 +170,17 @@ export function buildCheckoutRequest(
             items
                 .filter(
                     (item) =>
-                        Boolean(
-                            item.product,
-                        ),
+                        Boolean(item.product),
                 )
                 .map((item) => ({
                     productSlug:
-                        item.line
-                            .productSlug,
+                        item.line.productSlug,
 
                     variantId:
-                        item.line
-                            .variantId,
+                        item.line.variantId,
 
                     quantity:
-                        item.line
-                            .quantity,
+                        item.line.quantity,
                 })),
     };
 }

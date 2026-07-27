@@ -1,7 +1,12 @@
 ---
 import LegalPageLayout from '@layouts/LegalPageLayout.astro';
 
-import { shippingPolicy } from '../../data/legal';
+import { businessConfig } from '../../config/business';
+
+import { shippingPolicyDocument } from '../../data/shipping-policy';
 ---
 
-<LegalPageLayout document={shippingPolicy} noIndex={true} />
+<LegalPageLayout
+    document={shippingPolicyDocument}
+    noIndex={!businessConfig.commercePoliciesFinalized}
+/>

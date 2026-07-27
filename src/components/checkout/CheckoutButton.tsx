@@ -19,9 +19,15 @@ import type {
 } from '../../types/checkout';
 
 import {
+    getCartTotals,
+} from '../../utils/cart';
+
+import {
     buildCheckoutRequest,
     getCheckoutReadiness,
 } from '../../utils/checkout';
+
+import ShippingSummary from './ShippingSummary';
 
 interface Props {
     lines: ResolvedCartLine[];
@@ -45,7 +51,8 @@ function isSuccessResponse(
         isRecord(value) &&
         value.ok === true &&
         typeof value.url === 'string' &&
-        typeof value.sessionId === 'string'
+        typeof value.sessionId ===
+        'string'
     );
 }
 
@@ -55,8 +62,10 @@ function isErrorResponse(
     return (
         isRecord(value) &&
         value.ok === false &&
-        typeof value.message === 'string' &&
-        typeof value.code === 'string'
+        typeof value.message ===
+        'string' &&
+        typeof value.code ===
+        'string'
     );
 }
 
@@ -71,8 +80,16 @@ function CheckoutIcon() {
             aria-hidden="true"
         >
             <path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L20 8H7" />
-            <circle cx="10" cy="20" r="1.5" />
-            <circle cx="18" cy="20" r="1.5" />
+            <circle
+                cx="10"
+                cy="20"
+                r="1.5"
+            />
+            <circle
+                cx="18"
+                cy="20"
+                r="1.5"
+            />
         </svg>
     );
 }
@@ -83,14 +100,27 @@ export default function CheckoutButton({
 }: Props) {
     const statusId = useId();
 
-    const [loading, setLoading] =
-        useState(false);
+    const [
+        loading,
+        setLoading,
+    ] = useState(false);
 
-    const [error, setError] =
-        useState('');
+    const [
+        error,
+        setError,
+    ] = useState('');
+
+    const totals = useMemo(
+        () =>
+            getCartTotals(lines),
+        [lines],
+    );
 
     const readiness = useMemo(
-        () => getCheckoutReadiness(lines),
+        () =>
+            getCheckoutReadiness(
+                lines,
+            ),
         [lines],
     );
 
@@ -106,46 +136,66 @@ export default function CheckoutButton({
         setError('');
 
         try {
-            const response = await fetch(
-                commerceConfig.checkoutEndpoint,
-                {
-                    method: 'POST',
+            const response =
+                await fetch(
+                    commerceConfig
+                        .checkoutEndpoint,
+                    {
+                        method: 'POST',
 
-                    headers: {
-                        Accept: 'application/json',
-                        'Content-Type':
-                            'application/json',
+                        headers: {
+                            Accept:
+                                'application/json',
+
+                            'Content-Type':
+                                'application/json',
+                        },
+
+                        body:
+                            JSON.stringify(
+                                buildCheckoutRequest(
+                                    lines,
+                                ),
+                            ),
                     },
-
-                    body: JSON.stringify(
-                        buildCheckoutRequest(lines),
-                    ),
-                },
-            );
+                );
 
             const payload =
                 (await response
                     .json()
                     .catch(
                         () => null,
-                    )) as CheckoutSessionResponse | null;
+                    )) as
+                | CheckoutSessionResponse
+                | null;
 
             if (
                 !response.ok ||
-                !isSuccessResponse(payload)
+                !isSuccessResponse(
+                    payload,
+                )
             ) {
                 const message =
-                    isErrorResponse(payload)
+                    isErrorResponse(
+                        payload,
+                    )
                         ? payload.message
                         : 'Checkout could not be started. Please try again.';
 
-                throw new Error(message);
+                throw new Error(
+                    message,
+                );
             }
 
-            window.location.assign(payload.url);
-        } catch (checkoutError) {
+            window.location.assign(
+                payload.url,
+            );
+        } catch (
+        checkoutError
+        ) {
             setError(
-                checkoutError instanceof Error
+                checkoutError instanceof
+                    Error
                     ? checkoutError.message
                     : 'Checkout could not be started. Please try again.',
             );
@@ -154,14 +204,22 @@ export default function CheckoutButton({
         }
     }
 
-    const buttonLabel = loading
-        ? 'Opening Stripe Checkout…'
-        : readiness.ready
-            ? 'Continue to Test Checkout'
-            : 'Checkout Not Ready';
+    const buttonLabel =
+        loading
+            ? 'Opening Stripe Checkout…'
+            : readiness.ready
+                ? 'Continue to Test Checkout'
+                : 'Checkout Not Ready';
 
     return (
         <div>
+            <ShippingSummary
+                subtotalAmount={
+                    totals.subtotalAmount
+                }
+                compact={compact}
+            />
+
             <button
                 type="button"
                 className={[
@@ -174,7 +232,9 @@ export default function CheckoutButton({
                     !readiness.ready ||
                     loading
                 }
-                aria-describedby={statusId}
+                aria-describedby={
+                    statusId
+                }
                 onClick={() => {
                     void beginCheckout();
                 }}
@@ -197,13 +257,19 @@ export default function CheckoutButton({
                     compact ? (
                         <div className="rounded-2xl border border-accent-200 bg-accent-50 p-3">
                             <p className="text-xs font-bold leading-5 text-ink-700">
-                                {readiness.reasons[0]}
+                                {
+                                    readiness
+                                        .reasons[0]
+                                }
 
-                                {readiness.reasons.length >
-                                    1 && (
+                                {readiness
+                                    .reasons
+                                    .length > 1 && (
                                         <span className="ml-1 text-ink-500">
                                             +
-                                            {readiness.reasons.length -
+                                            {readiness
+                                                .reasons
+                                                .length -
                                                 1}{' '}
                                             more requirements.
                                         </span>
@@ -217,21 +283,29 @@ export default function CheckoutButton({
                             </p>
 
                             <ul className="mt-2 grid gap-1.5">
-                                {readiness.reasons.map(
-                                    (reason) => (
-                                        <li
-                                            key={reason}
-                                            className="flex items-start gap-2 text-xs font-bold leading-5 text-ink-600"
-                                        >
-                                            <span
-                                                className="mt-2 size-1.5 shrink-0 rounded-full bg-accent-500"
-                                                aria-hidden="true"
-                                            />
+                                {readiness
+                                    .reasons
+                                    .map(
+                                        (
+                                            reason,
+                                        ) => (
+                                            <li
+                                                key={
+                                                    reason
+                                                }
+                                                className="flex items-start gap-2 text-xs font-bold leading-5 text-ink-600"
+                                            >
+                                                <span
+                                                    className="mt-2 size-1.5 shrink-0 rounded-full bg-accent-500"
+                                                    aria-hidden="true"
+                                                />
 
-                                            {reason}
-                                        </li>
-                                    ),
-                                )}
+                                                {
+                                                    reason
+                                                }
+                                            </li>
+                                        ),
+                                    )}
                             </ul>
                         </div>
                     )

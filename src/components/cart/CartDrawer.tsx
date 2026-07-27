@@ -7,6 +7,7 @@ import {
 } from 'preact/hooks';
 
 import CartItem from './CartItem';
+
 import {
     useCart,
     useCartDrawer,
@@ -33,8 +34,18 @@ function CartIcon() {
             aria-hidden="true"
         >
             <path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L20 8H7" />
-            <circle cx="10" cy="20" r="1.5" />
-            <circle cx="18" cy="20" r="1.5" />
+
+            <circle
+                cx="10"
+                cy="20"
+                r="1.5"
+            />
+
+            <circle
+                cx="18"
+                cy="20"
+                r="1.5"
+            />
         </svg>
     );
 }
@@ -55,7 +66,8 @@ function CloseIcon() {
 }
 
 export default function CartDrawer() {
-    const open = useCartDrawer();
+    const open =
+        useCartDrawer();
 
     const {
         state,
@@ -63,23 +75,32 @@ export default function CartDrawer() {
     } = useCart();
 
     const drawerRef =
-        useRef<HTMLElement>(null);
+        useRef<HTMLElement>(
+            null,
+        );
 
     const closeButtonRef =
-        useRef<HTMLButtonElement>(null);
+        useRef<HTMLButtonElement>(
+            null,
+        );
 
-    const resolvedLines = useMemo(
-        () => resolveCartLines(state),
-        [state],
-    );
+    const resolvedLines =
+        useMemo(
+            () =>
+                resolveCartLines(
+                    state,
+                ),
+            [state],
+        );
 
-    const totals = useMemo(
-        () =>
-            getCartTotals(
-                resolvedLines,
-            ),
-        [resolvedLines],
-    );
+    const totals =
+        useMemo(
+            () =>
+                getCartTotals(
+                    resolvedLines,
+                ),
+            [resolvedLines],
+        );
 
     useEffect(() => {
         if (!open) {
@@ -87,21 +108,27 @@ export default function CartDrawer() {
         }
 
         const previousOverflow =
-            document.body.style.overflow;
+            document.body.style
+                .overflow;
 
         document.body.style.overflow =
             'hidden';
 
         window.requestAnimationFrame(
             () => {
-                closeButtonRef.current?.focus();
+                closeButtonRef
+                    .current
+                    ?.focus();
             },
         );
 
         function handleKeydown(
             event: KeyboardEvent,
         ): void {
-            if (event.key === 'Escape') {
+            if (
+                event.key ===
+                'Escape'
+            ) {
                 closeCartDrawer();
                 return;
             }
@@ -115,16 +142,19 @@ export default function CartDrawer() {
 
             const focusableElements =
                 Array.from(
-                    drawerRef.current.querySelectorAll<HTMLElement>(
-                        'a[href], button:not([disabled]), select:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
-                    ),
+                    drawerRef.current
+                        .querySelectorAll<HTMLElement>(
+                            'a[href], button:not([disabled]), select:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+                        ),
                 );
 
             const firstElement =
                 focusableElements[0];
 
             const lastElement =
-                focusableElements.at(-1);
+                focusableElements.at(
+                    -1,
+                );
 
             if (
                 !firstElement ||
@@ -175,14 +205,16 @@ export default function CartDrawer() {
 
     return (
         <div
-            className="fixed inset-0 z-[120]"
+            className="fixed inset-0 z-120"
             role="presentation"
         >
             <button
                 type="button"
                 className="absolute inset-0 size-full cursor-default border-0 bg-ink-950/50 p-0 backdrop-blur-sm"
                 aria-label="Close shopping cart"
-                onClick={closeCartDrawer}
+                onClick={
+                    closeCartDrawer
+                }
             />
 
             <aside
@@ -207,8 +239,13 @@ export default function CartDrawer() {
                                 id="cart-drawer-title"
                                 className="mt-1 text-xl text-ink-900"
                             >
-                                {totals.itemCount}{' '}
-                                {totals.itemCount === 1
+                                {
+                                    totals
+                                        .itemCount
+                                }{' '}
+                                {totals
+                                    .itemCount ===
+                                    1
                                     ? 'item'
                                     : 'items'}
                             </h2>
@@ -216,11 +253,15 @@ export default function CartDrawer() {
                     </div>
 
                     <button
-                        ref={closeButtonRef}
+                        ref={
+                            closeButtonRef
+                        }
                         type="button"
                         className="grid size-10 place-items-center rounded-full border border-sand bg-cream-soft text-ink-700 transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800"
                         aria-label="Close shopping cart"
-                        onClick={closeCartDrawer}
+                        onClick={
+                            closeCartDrawer
+                        }
                     >
                         <CloseIcon />
                     </button>
@@ -233,7 +274,8 @@ export default function CartDrawer() {
                                 Loading your cart…
                             </p>
                         </div>
-                    ) : resolvedLines.length === 0 ? (
+                    ) : resolvedLines
+                        .length === 0 ? (
                         <div className="rounded-card-lg border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-7 text-center shadow-sm">
                             <span className="mx-auto grid size-14 place-items-center rounded-full bg-brand-100 text-brand-700">
                                 <CartIcon />
@@ -244,13 +286,15 @@ export default function CartDrawer() {
                             </h3>
 
                             <p className="mt-3 text-sm leading-6 text-ink-600">
-                                Explore the demo catalog and add a few products to test the cart experience.
+                                Explore the demo catalog and add products to test the cart, shipping threshold, and Stripe Sandbox checkout.
                             </p>
 
                             <a
                                 href="/shop#products"
                                 className="mt-6 inline-flex min-h-11 items-center justify-center rounded-full bg-brand-500 px-5 font-extrabold text-white shadow-blue transition hover:-translate-y-0.5 hover:bg-brand-600"
-                                onClick={closeCartDrawer}
+                                onClick={
+                                    closeCartDrawer
+                                }
                             >
                                 Browse Products
                             </a>
@@ -260,9 +304,15 @@ export default function CartDrawer() {
                             {resolvedLines.map(
                                 (item) => (
                                     <CartItem
-                                        key={item.key}
-                                        item={item}
-                                        compact={true}
+                                        key={
+                                            item.key
+                                        }
+                                        item={
+                                            item
+                                        }
+                                        compact={
+                                            true
+                                        }
                                     />
                                 ),
                             )}
@@ -270,58 +320,69 @@ export default function CartDrawer() {
                     )}
                 </div>
 
-                {resolvedLines.length > 0 && (
-                    <footer className="shrink-0 border-t border-sand bg-white-warm p-5">
-                        {totals.hasDemoItems && (
-                            <p className="mb-4 rounded-2xl border border-accent-200 bg-accent-50 p-3 text-xs font-bold leading-5 text-ink-700">
-                                This cart contains fictional demo products. No order or payment can be submitted.
-                            </p>
-                        )}
-
-                        <div className="flex items-center justify-between gap-4">
-                            <span className="font-bold text-ink-600">
-                                Subtotal
-                            </span>
-
-                            <span className="text-2xl font-black text-ink-900">
-                                {formatCartAmount(
-                                    totals.subtotalAmount,
+                {resolvedLines
+                    .length > 0 && (
+                        <footer className="shrink-0 overflow-y-auto border-t border-sand bg-white-warm p-5">
+                            {totals
+                                .hasDemoItems && (
+                                    <p className="mb-4 rounded-2xl border border-accent-200 bg-accent-50 p-3 text-xs font-bold leading-5 text-ink-700">
+                                        This cart contains fictional demo products. Any enabled checkout uses Stripe Sandbox and creates test transactions only.
+                                    </p>
                                 )}
-                            </span>
-                        </div>
 
-                        {totals.savingsAmount >
-                            0 && (
-                                <div className="mt-2 flex items-center justify-between gap-4 text-sm">
-                                    <span className="font-bold text-success-700">
-                                        Demo savings
-                                    </span>
+                            <div className="flex items-center justify-between gap-4">
+                                <span className="font-bold text-ink-600">
+                                    Merchandise subtotal
+                                </span>
 
-                                    <span className="font-black text-success-700">
-                                        −
-                                        {formatCartAmount(
-                                            totals.savingsAmount,
-                                        )}
-                                    </span>
-                                </div>
-                            )}
+                                <span className="text-2xl font-black text-ink-900">
+                                    {formatCartAmount(
+                                        totals
+                                            .subtotalAmount,
+                                    )}
+                                </span>
+                            </div>
 
-                        <div className="mt-5">
-                            <CheckoutButton
-                                lines={resolvedLines}
-                                compact={true}
-                            />
-                        </div>
+                            {totals
+                                .savingsAmount >
+                                0 && (
+                                    <div className="mt-2 flex items-center justify-between gap-4 text-sm">
+                                        <span className="font-bold text-success-700">
+                                            Demo savings
+                                        </span>
 
-                        <a
-                            href="/cart"
-                            className="mt-3 flex min-h-12 w-full items-center justify-center rounded-full border border-brand-300 bg-brand-50 px-5 font-extrabold text-brand-800 transition hover:bg-brand-100"
-                            onClick={closeCartDrawer}
-                        >
-                            View Full Cart
-                        </a>
-                    </footer>
-                )}
+                                        <span className="font-black text-success-700">
+                                            −
+                                            {formatCartAmount(
+                                                totals
+                                                    .savingsAmount,
+                                            )}
+                                        </span>
+                                    </div>
+                                )}
+
+                            <div className="mt-5">
+                                <CheckoutButton
+                                    lines={
+                                        resolvedLines
+                                    }
+                                    compact={
+                                        true
+                                    }
+                                />
+                            </div>
+
+                            <a
+                                href="/cart"
+                                className="mt-3 flex min-h-12 w-full items-center justify-center rounded-full border border-brand-300 bg-brand-50 px-5 font-extrabold text-brand-800 transition hover:bg-brand-100"
+                                onClick={
+                                    closeCartDrawer
+                                }
+                            >
+                                View Full Cart
+                            </a>
+                        </footer>
+                    )}
             </aside>
         </div>
     );
