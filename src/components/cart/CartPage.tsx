@@ -1,3 +1,5 @@
+import CheckoutButton from '../checkout/CheckoutButton';
+
 import {
     useMemo,
 } from 'preact/hooks';
@@ -207,13 +209,11 @@ export default function CartPage() {
                     </p>
                 )}
 
-                <button
-                    type="button"
-                    className="mt-5 flex min-h-12 w-full cursor-not-allowed items-center justify-center rounded-full bg-ink-300 px-5 font-extrabold text-ink-600"
-                    disabled
-                >
-                    Demo Checkout Unavailable
-                </button>
+                <div className="mt-5">
+                    <CheckoutButton
+                        lines={resolvedLines}
+                    />
+                </div>
 
                 <a
                     href="/shop#products"

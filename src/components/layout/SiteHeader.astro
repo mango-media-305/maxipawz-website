@@ -146,7 +146,7 @@ const cartEnabled = isStoreLive || hasDemoProducts;
       <MobileNavigation
         items={mobileNavigation}
         currentPath={currentPath}
-        storeLive={isStoreLive}
+        cartEnabled={cartEnabled}
         actionLabel={headerAction?.label}
         actionHref={headerAction?.href}
         note={storefrontState.mobileNote}
