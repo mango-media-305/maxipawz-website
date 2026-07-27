@@ -21,9 +21,18 @@ export const checkoutMode: CheckoutMode =
 export const checkoutEndpoint =
     '/api/create-checkout-session';
 
+export const orderStatusEndpoint =
+    '/api/get-order-status';
+
+export const stripeWebhookEndpoint =
+    '/api/stripe-webhook';
+
 export const commerceConfig = {
     checkoutMode,
+
     checkoutEndpoint,
+    orderStatusEndpoint,
+    stripeWebhookEndpoint,
 
     storefrontLive: isStoreLive,
 
@@ -31,8 +40,8 @@ export const commerceConfig = {
         businessConfig.commercePoliciesFinalized,
 
     publicSiteUrl:
-        import.meta.env.PUBLIC_SITE_URL?.trim() ??
-        '',
+        import.meta.env.PUBLIC_SITE_URL
+            ?.trim() ?? '',
 } as const;
 
 export const isTestCheckoutEnabled =

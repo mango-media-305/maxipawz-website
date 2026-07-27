@@ -1,12 +1,12 @@
 ---
-import CheckoutStatus from '@components/checkout/CheckoutStatus.astro';
+import OrderStatus from '@components/checkout/OrderStatus';
 import BaseLayout from '@layouts/BaseLayout.astro';
 ---
 
 <BaseLayout
-    title="Checkout Return"
-    description="Return page for the MaxiPawz Stripe Checkout testing flow."
+    title="Payment Confirmation"
+    description="Verify the payment status of a MaxiPawz Stripe Checkout Session."
     noIndex={true}
 >
-    <CheckoutStatus status="success" />
+    <OrderStatus client:load />
 </BaseLayout>
