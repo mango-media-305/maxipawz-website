@@ -3,6 +3,7 @@ import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
 import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
 import SparkleBold from 'phosphor-astro/SparkleBold.astro';
 
+import AddToCartButton from '../cart/AddToCartButton';
 import ProductImage from './ProductImage.astro';
 
 import type { Product, ProductAvailability } from '../../types/product';
@@ -66,23 +67,14 @@ const availabilityClasses: Record<ProductAvailability, string> = {
     data-product-order={index}
     class="group h-full"
 >
-    <a
-        href={`/shop/${product.slug}`}
-        class:list={[
-        'flex h-full flex-col overflow-hidden rounded-card-lg border',
-        'border-sand bg-white-warm shadow-card',
-        'transition duration-300',
-        'hover:-translate-y-1 hover:border-brand-300',
-        'hover:shadow-card-hover',
-        'focus-visible:outline-none',
-        'focus-visible:ring-4',
-        'focus-visible:ring-brand-200',
-        'focus-visible:ring-offset-2',
-        'focus-visible:ring-offset-cream-soft',
-        ]}
-        aria-label={`View ${product.name}`}
+    <div
+        class="flex h-full flex-col overflow-hidden rounded-card-lg border border-sand bg-white-warm shadow-card transition duration-300 hover:-translate-y-1 hover:border-brand-300 hover:shadow-card-hover"
     >
-        <div class="relative overflow-hidden">
+        <a
+        href={`/shop/${product.slug}`}
+        class="relative block overflow-hidden focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-brand-200"
+        aria-label={`View ${product.name}`}
+        >
         <ProductImage
             image={primaryImage}
             class="aspect-square"
@@ -92,7 +84,7 @@ const availabilityClasses: Record<ProductAvailability, string> = {
         <div class="absolute top-4 left-4 flex max-w-[calc(100%-2rem)] flex-wrap gap-2">
             {
             product.isDemo && (
-                <span class="inline-flex items-center gap-1.5 rounded-full border border-ink-700 bg-ink-950/90 px-3 py-1.5 text-xs font-extrabold text-white shadow-sm backdrop-blur">
+                <span class="inline-flex items-center rounded-full border border-ink-700 bg-ink-950/90 px-3 py-1.5 text-xs font-extrabold text-white shadow-sm backdrop-blur">
                 Demo
                 </span>
             )
@@ -119,12 +111,13 @@ const availabilityClasses: Record<ProductAvailability, string> = {
         <span
             class:list={[
             'absolute right-4 bottom-4 rounded-full border px-3 py-1.5 text-xs font-extrabold shadow-sm backdrop-blur',
+
             availabilityClasses[product.availability],
             ]}
         >
             {getAvailabilityLabel(product.availability)}
         </span>
-        </div>
+        </a>
 
         <div class="flex flex-1 flex-col p-5">
         <div
@@ -135,9 +128,14 @@ const availabilityClasses: Record<ProductAvailability, string> = {
             {categoryLabel}
         </div>
 
-        <h2 class="mt-3 text-2xl text-ink-900 transition group-hover:text-brand-800">
+        <a
+            href={`/shop/${product.slug}`}
+            class="mt-3 rounded-xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-200"
+        >
+            <h2 class="text-2xl text-ink-900 transition hover:text-brand-800">
             {product.name}
-        </h2>
+            </h2>
+        </a>
 
         {
             petTypeLabel && (
@@ -151,33 +149,36 @@ const availabilityClasses: Record<ProductAvailability, string> = {
             {product.shortDescription}
         </p>
 
-        <div class="mt-5 flex items-end justify-between gap-4 border-t border-sand/80 pt-5">
-            <div>
+        <div class="mt-5 border-t border-sand/80 pt-5">
             <p class="text-xs font-extrabold tracking-[0.07em] text-ink-500 uppercase">Demo price</p>
 
             <div class="mt-1 flex flex-wrap items-baseline gap-2">
-                <p class="text-xl font-black text-ink-900">
+            <p class="text-xl font-black text-ink-900">
                 {product.price ? formatProductPrice(product.price) : 'Coming soon'}
-                </p>
+            </p>
 
-                {
+            {
                 isOnSale && product.compareAtPrice && (
-                    <span class="text-sm font-bold text-ink-400 line-through">
+                <span class="text-sm font-bold text-ink-400 line-through">
                     {formatProductPrice(product.compareAtPrice)}
-                    </span>
+                </span>
                 )
-                }
-            </div>
+            }
             </div>
 
-            <span
-            class="inline-flex shrink-0 items-center gap-2 rounded-full bg-brand-50 px-3 py-2 text-sm font-extrabold text-brand-700 transition group-hover:gap-3 group-hover:bg-brand-100 group-hover:text-brand-800"
+            <div class="mt-4">
+            <AddToCartButton productSlug={product.slug} mode="card" client:visible />
+            </div>
+
+            <a
+            href={`/shop/${product.slug}`}
+            class="mt-2 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-full text-sm font-extrabold text-brand-700 transition hover:gap-3 hover:bg-brand-50 hover:text-brand-800"
             >
-            View
+            View Details
 
             <ArrowRightBold class="size-4" aria-hidden="true" />
-            </span>
+            </a>
         </div>
         </div>
-    </a>
+    </div>
 </article>

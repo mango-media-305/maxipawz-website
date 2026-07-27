@@ -192,6 +192,7 @@ function isCurrentRoute(href: string): boolean {
               class="flex min-h-12 w-full items-center justify-center gap-2.5 rounded-full border border-accent-600 bg-accent-500 px-5 py-3 font-extrabold text-ink-950 shadow-orange transition duration-200 hover:-translate-y-0.5 hover:bg-accent-400"
               aria-label="View shopping cart, 0 items"
               data-mobile-navigation-link
+              data-cart-link
             >
               <ShoppingCartBold
                 class="size-5"
@@ -203,6 +204,7 @@ function isCurrentRoute(href: string): boolean {
               <span
                 class="grid min-w-7 place-items-center rounded-full bg-white/75 px-2 py-1 text-xs leading-none font-black"
                 aria-hidden="true"
+                data-cart-count
               >
                 0
               </span>

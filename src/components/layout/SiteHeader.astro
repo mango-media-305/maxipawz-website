@@ -1,21 +1,17 @@
 ---
 import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
 import MagnifyingGlassBold from 'phosphor-astro/MagnifyingGlassBold.astro';
-import ShoppingCartBold from 'phosphor-astro/ShoppingCartBold.astro';
 
 import BrandLogo from '../brand/BrandLogo.astro';
+import CartButton from '../cart/CartButton';
 import MobileNavigation from './MobileNavigation.astro';
 import Button from '../ui/Button.astro';
 
-import {
-  isStoreLive,
-  storefrontState,
-} from '../../config/storefront';
+import { isStoreLive, storefrontState } from '../../config/storefront';
 
-import {
-  mobileNavigation,
-  primaryNavigation,
-} from '../../data/navigation';
+import { mobileNavigation, primaryNavigation } from '../../data/navigation';
+
+import { getActiveProducts } from '../../utils/products';
 
 function normalizePath(path: string): string {
   if (path === '/') {
@@ -31,15 +27,9 @@ const activeNavigationHref = primaryNavigation
   .filter((item) => {
     const itemPath = normalizePath(item.href);
 
-    return (
-      currentPath === itemPath ||
-      currentPath.startsWith(`${itemPath}/`)
-    );
+    return currentPath === itemPath || currentPath.startsWith(`${itemPath}/`);
   })
-  .sort(
-    (firstItem, secondItem) =>
-      secondItem.href.length - firstItem.href.length,
-  )[0]?.href;
+  .sort((firstItem, secondItem) => secondItem.href.length - firstItem.href.length)[0]?.href;
 
 function isCurrentRoute(href: string): boolean {
   if (!activeNavigationHref) {
@@ -50,16 +40,18 @@ function isCurrentRoute(href: string): boolean {
 }
 
 const headerAction = storefrontState.headerAction;
+
+const activeProducts = getActiveProducts();
+
+const hasDemoProducts = activeProducts.some((product) => product.isDemo);
+
+const cartEnabled = isStoreLive || hasDemoProducts;
 ---
 
 <header
   class="sticky top-0 z-40 isolate w-full border-b border-sand/60 shadow-[0_8px_28px_-24px_rgba(53,39,31,0.35)]"
   data-site-header
 >
-  <!--
-    The backdrop filter stays in its own layer so it does not become
-    a positioning ancestor for the fixed mobile-navigation drawer.
-  -->
   <div
     class="pointer-events-none absolute inset-0 z-0 bg-cream-soft/95 backdrop-blur-xl"
     aria-hidden="true"
@@ -69,20 +61,17 @@ const headerAction = storefrontState.headerAction;
   <div
     class="site-container-wide relative z-10 flex min-h-16 items-center justify-between gap-3 py-1.5 sm:min-h-17"
   >
-    <!-- Responsive brand -->
     <a
       href="/"
       class="group relative z-10 inline-flex shrink-0 items-center rounded-full focus-visible:outline-offset-4 md:rounded-2xl"
       aria-label="MaxiPawz Store home"
     >
-      <!-- Mobile mascot -->
       <BrandLogo
         variant="mascot"
         class="size-11 rounded-full border border-brand-100 bg-white-warm object-cover shadow-sm transition duration-200 group-hover:-translate-y-0.5 group-hover:shadow-blue md:hidden"
         eager={true}
       />
 
-      <!-- Tablet and desktop horizontal logo -->
       <BrandLogo
         variant="logo"
         class="hidden h-10 w-auto object-contain transition duration-200 group-hover:-translate-y-0.5 md:block lg:h-11"
@@ -90,11 +79,7 @@ const headerAction = storefrontState.headerAction;
       />
     </a>
 
-    <!-- Desktop navigation -->
-    <nav
-      class="hidden items-center gap-0.5 lg:flex"
-      aria-label="Primary navigation"
-    >
+    <nav class="hidden items-center gap-0.5 lg:flex" aria-label="Primary navigation">
       {
         primaryNavigation.map((item) => {
           const isCurrent = isCurrentRoute(item.href);
@@ -104,6 +89,7 @@ const headerAction = storefrontState.headerAction;
               href={item.href}
               class:list={[
                 'relative inline-flex min-h-10 items-center rounded-full px-3 py-2 text-sm font-extrabold transition duration-200',
+
                 isCurrent
                   ? 'bg-brand-100 text-brand-800'
                   : 'text-ink-700 hover:bg-white-warm hover:text-brand-700',
@@ -112,76 +98,48 @@ const headerAction = storefrontState.headerAction;
             >
               {item.label}
 
-              {
-                isCurrent && (
-                  <span
-                    class="absolute inset-x-4 -bottom-0.5 h-0.5 rounded-full bg-accent-500"
-                    aria-hidden="true"
-                  >
-                  </span>
-                )
-              }
+              {isCurrent && (
+                <span
+                  class="absolute inset-x-4 -bottom-0.5 h-0.5 rounded-full bg-accent-500"
+                  aria-hidden="true"
+                ></span>
+              )}
             </a>
           );
         })
       }
     </nav>
 
-    <!-- Header actions -->
     <div class="flex shrink-0 items-center gap-1.5 sm:gap-2">
       {
-        isStoreLive ? (
-          <>
-            <a
-              href="/search"
-              class="hidden size-10 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-800 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-brand-400 hover:bg-brand-50 sm:grid"
-              aria-label="Search MaxiPawz Store"
+        cartEnabled && (
+          <a
+            href="/shop#products"
+            class="hidden size-10 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-800 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-brand-400 hover:bg-brand-50 xl:grid"
+            aria-label="Search MaxiPawz products"
+          >
+            <MagnifyingGlassBold class="size-4.5" aria-hidden="true" />
+          </a>
+        )
+      }
+
+      {cartEnabled && <CartButton client:load />}
+
+      {
+        !isStoreLive && headerAction && (
+          <div class="hidden xl:block">
+            <Button
+              href={headerAction.href}
+              variant="primary"
+              size="sm"
+              iconPosition="right"
+              ariaLabel={headerAction.label}
             >
-              <MagnifyingGlassBold
-                class="size-4.5"
-                aria-hidden="true"
-              />
-            </a>
+              <ArrowRightBold slot="icon" aria-hidden="true" />
 
-            <a
-              href="/cart"
-              class="relative hidden min-h-10 items-center gap-1.5 rounded-full border border-accent-300 bg-accent-50 px-3 py-1.5 text-sm font-extrabold text-accent-800 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-accent-500 hover:bg-accent-100 sm:flex"
-              aria-label="View shopping cart, 0 items"
-            >
-              <ShoppingCartBold
-                class="size-4.5"
-                aria-hidden="true"
-              />
-
-              <span class="hidden xl:inline">Cart</span>
-
-              <span
-                class="grid min-w-5 place-items-center rounded-full bg-accent-500 px-1.5 py-0.5 text-[0.6875rem] leading-none font-black text-ink-950"
-                aria-hidden="true"
-              >
-                0
-              </span>
-            </a>
-          </>
-        ) : (
-          headerAction && (
-            <div class="hidden sm:block">
-              <Button
-                href={headerAction.href}
-                variant="primary"
-                size="sm"
-                iconPosition="right"
-                ariaLabel={headerAction.label}
-              >
-                <ArrowRightBold
-                  slot="icon"
-                  aria-hidden="true"
-                />
-
-                {headerAction.label}
-              </Button>
-            </div>
-          )
+              {headerAction.label}
+            </Button>
+          </div>
         )
       }
 
