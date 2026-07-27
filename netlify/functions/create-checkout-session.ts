@@ -506,9 +506,6 @@ export default async function handler(
                     cart_reference:
                         cartReference,
 
-                    cart_source:
-                        'storefront-cart',
-
                     storefront:
                         'maxipawz',
 
