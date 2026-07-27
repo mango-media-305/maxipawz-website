@@ -1,31 +1,62 @@
-import { businessConfig } from './business';
+import {
+    businessConfig,
+} from './business';
 
-import { isStoreLive } from './storefront';
+import {
+    isStoreLive,
+} from './storefront';
 
-export type CheckoutMode = 'disabled' | 'test';
+export type CheckoutMode =
+    | 'disabled'
+    | 'test';
 
-const configuredCheckoutMode = import.meta.env.PUBLIC_CHECKOUT_MODE;
+const configuredCheckoutMode =
+    import.meta.env
+        .PUBLIC_CHECKOUT_MODE;
 
-export const checkoutMode: CheckoutMode = configuredCheckoutMode === 'test' ? 'test' : 'disabled';
+export const checkoutMode:
+    CheckoutMode =
+    configuredCheckoutMode ===
+        'test'
+        ? 'test'
+        : 'disabled';
 
-export const checkoutEndpoint = '/api/create-checkout-session';
+export const sandboxCatalogCheckoutEnabled =
+    checkoutMode === 'test' &&
+    import.meta.env
+        .PUBLIC_SANDBOX_CATALOG_CHECKOUT ===
+    'true';
 
-export const orderStatusEndpoint = '/api/get-order-status';
+export const checkoutEndpoint =
+    '/api/create-checkout-session';
 
-export const stripeWebhookEndpoint = '/api/stripe-webhook';
+export const orderStatusEndpoint =
+    '/api/get-order-status';
+
+export const stripeWebhookEndpoint =
+    '/api/stripe-webhook';
 
 export const commerceConfig = {
-  checkoutMode,
+    checkoutMode,
 
-  checkoutEndpoint,
-  orderStatusEndpoint,
-  stripeWebhookEndpoint,
+    sandboxCatalogCheckoutEnabled,
 
-  storefrontLive: isStoreLive,
+    checkoutEndpoint,
+    orderStatusEndpoint,
+    stripeWebhookEndpoint,
 
-  policiesFinalized: businessConfig.commercePoliciesFinalized,
+    storefrontLive:
+        isStoreLive,
 
-  publicSiteUrl: import.meta.env.PUBLIC_SITE_URL?.trim() ?? '',
+    policiesFinalized:
+        businessConfig
+            .commercePoliciesFinalized,
+
+    publicSiteUrl:
+        import.meta.env
+            .PUBLIC_SITE_URL
+            ?.trim() ?? '',
 } as const;
 
-export const isTestCheckoutEnabled = checkoutMode === 'test';
+export const isTestCheckoutEnabled =
+    checkoutMode === 'test';

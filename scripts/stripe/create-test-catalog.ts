@@ -1,402 +1,640 @@
-import { randomUUID } from 'node:crypto';
+import {
+    mkdir,
+    writeFile,
+} from 'node:fs/promises';
 
-import { mkdir, writeFile } from 'node:fs/promises';
-
-import { loadEnvFile } from 'node:process';
+import {
+    loadEnvFile,
+} from 'node:process';
 
 import Stripe from 'stripe';
 
+import {
+    products,
+} from '../../src/data/products';
+
+import type {
+    Product,
+    ProductPrice,
+    ProductVariant,
+} from '../../src/types/product';
+
+import type {
+    StripeDemoCatalog,
+    StripeDemoCatalogProduct,
+} from '../../src/types/stripe-demo-catalog';
+
 try {
-  loadEnvFile('.env');
+    loadEnvFile('.env');
 } catch {
-  // Environment variables may already be supplied by the shell.
+    // Environment variables may already
+    // be supplied by the shell.
 }
 
-interface FixturePrice {
-  fixturePriceId: string;
-  label: string;
+const GENERATED_TYPESCRIPT_PATH =
+    'src/data/stripe-demo-catalog.generated.ts';
 
-  unitAmount: number;
-  lookupKey: string;
-
-  variantId?: string;
-}
-
-interface FixtureProduct {
-  fixtureProductId: string;
-
-  name: string;
-  description: string;
-  catalogSlug: string;
-
-  prices: FixturePrice[];
-}
-
-interface CreatedFixturePrice {
-  fixturePriceId: string;
-  label: string;
-
-  stripePriceId: string;
-  lookupKey: string;
-
-  unitAmount: number;
-  currency: string;
-
-  variantId?: string;
-}
-
-interface CreatedFixtureProduct {
-  fixtureProductId: string;
-
-  catalogSlug: string;
-  name: string;
-
-  stripeProductId: string;
-
-  prices: CreatedFixturePrice[];
-}
-
-const fixtures: FixtureProduct[] = [
-  {
-    fixtureProductId: 'simple-rope-toy',
-
-    name: 'MaxiPawz Stripe Test — Rope Toy',
-
-    description: 'Stripe sandbox fixture used only for checkout and webhook testing.',
-
-    catalogSlug: 'stripe-test-rope-toy',
-
-    prices: [
-      {
-        fixturePriceId: 'simple-rope-toy-default',
-
-        label: 'Default',
-
-        unitAmount: 1999,
-
-        lookupKey: 'maxipawz_test_rope_toy_default',
-      },
-    ],
-  },
-
-  {
-    fixtureProductId: 'sized-harness',
-
-    name: 'MaxiPawz Stripe Test — Sized Harness',
-
-    description: 'Stripe sandbox fixture with multiple prices for variant testing.',
-
-    catalogSlug: 'stripe-test-sized-harness',
-
-    prices: [
-      {
-        fixturePriceId: 'sized-harness-small',
-
-        label: 'Small',
-
-        variantId: 'small',
-
-        unitAmount: 2499,
-
-        lookupKey: 'maxipawz_test_harness_small',
-      },
-
-      {
-        fixturePriceId: 'sized-harness-medium',
-
-        label: 'Medium',
-
-        variantId: 'medium',
-
-        unitAmount: 2999,
-
-        lookupKey: 'maxipawz_test_harness_medium',
-      },
-
-      {
-        fixturePriceId: 'sized-harness-large',
-
-        label: 'Large',
-
-        variantId: 'large',
-
-        unitAmount: 3499,
-
-        lookupKey: 'maxipawz_test_harness_large',
-      },
-    ],
-  },
-];
+const GENERATED_JSON_PATH =
+    '.tmp/stripe-demo-catalog.json';
 
 function getStripeSecretKey(): string {
-  const stripeSecretKey = process.env.STRIPE_SECRET_KEY?.trim();
+    const stripeSecretKey =
+        process.env
+            .STRIPE_SECRET_KEY
+            ?.trim();
 
-  if (!stripeSecretKey || !stripeSecretKey.startsWith('sk_test_')) {
-    throw new Error('STRIPE_SECRET_KEY must contain a Stripe test secret key.');
-  }
+    if (
+        !stripeSecretKey ||
+        !stripeSecretKey.startsWith(
+            'sk_test_',
+        )
+    ) {
+        throw new Error(
+            'STRIPE_SECRET_KEY must contain a Stripe Sandbox secret key beginning with sk_test_.',
+        );
+    }
 
-  return stripeSecretKey;
+    return stripeSecretKey;
+}
+
+function normalizeLookupSegment(
+    value: string,
+): string {
+    return value
+        .toLowerCase()
+        .replace(
+            /[^a-z0-9]+/g,
+            '_',
+        )
+        .replace(
+            /^_+|_+$/g,
+            '',
+        )
+        .slice(0, 80);
+}
+
+function getProductLookupKey(
+    product: Product,
+    variant?: ProductVariant,
+): string {
+    const productSegment =
+        normalizeLookupSegment(
+            product.slug,
+        );
+
+    const optionSegment =
+        variant
+            ? normalizeLookupSegment(
+                variant.id,
+            )
+            : 'default';
+
+    return `maxipawz_demo_${productSegment}_${optionSegment}`;
+}
+
+function getProductImageUrl(
+    product: Product,
+): string | undefined {
+    const image =
+        product.images[0];
+
+    if (!image) {
+        return undefined;
+    }
+
+    const source =
+        typeof image.src === 'string'
+            ? image.src
+            : image.src.src;
+
+    if (
+        !source.startsWith(
+            'https://',
+        )
+    ) {
+        return undefined;
+    }
+
+    return source;
+}
+
+function getStripeProductId(
+    price: Stripe.Price,
+): string {
+    return typeof price.product ===
+        'string'
+        ? price.product
+        : price.product.id;
+}
+
+function getPriceForOption(
+    product: Product,
+    variant?: ProductVariant,
+): ProductPrice {
+    const price =
+        variant?.price ??
+        product.price;
+
+    if (!price) {
+        const optionLabel =
+            variant
+                ? ` option "${variant.label}"`
+                : '';
+
+        throw new Error(
+            `${product.name}${optionLabel} does not have a price.`,
+        );
+    }
+
+    return price;
+}
+
+function getOptionAvailability(
+    product: Product,
+    variant?: ProductVariant,
+): string {
+    return (
+        variant?.availability ??
+        product.availability
+    );
 }
 
 async function findExistingProduct(
-  stripe: Stripe,
-  fixture: FixtureProduct,
-): Promise<Stripe.Product | undefined> {
-  for await (const product of stripe.products.list({
-    active: true,
-    limit: 100,
-  })) {
-    if (product.metadata.maxipawz_fixture_id === fixture.fixtureProductId) {
-      return product;
+    stripe: Stripe,
+    product: Product,
+): Promise<
+    Stripe.Product | undefined
+> {
+    for await (
+        const stripeProduct of
+        stripe.products.list({
+            limit: 100,
+        })
+    ) {
+        if (
+            stripeProduct.metadata
+                .catalog_slug ===
+            product.slug &&
+            stripeProduct.metadata
+                .storefront ===
+            'maxipawz' &&
+            stripeProduct.metadata
+                .demo_only === 'true'
+        ) {
+            return stripeProduct;
+        }
     }
-  }
 
-  return undefined;
+    return undefined;
 }
 
 async function getOrCreateProduct(
-  stripe: Stripe,
-  fixture: FixtureProduct,
+    stripe: Stripe,
+    product: Product,
 ): Promise<Stripe.Product> {
-  const existingProduct = await findExistingProduct(stripe, fixture);
+    const existingProduct =
+        await findExistingProduct(
+            stripe,
+            product,
+        );
 
-  const metadata = {
-    maxipawz_fixture_id: fixture.fixtureProductId,
+    const imageUrl =
+        getProductImageUrl(
+            product,
+        );
 
-    catalog_slug: fixture.catalogSlug,
+    const metadata = {
+        catalog_slug:
+            product.slug,
 
-    storefront: 'maxipawz',
+        catalog_sku:
+            product.sku ?? '',
 
-    test_only: 'true',
-  };
+        catalog_category:
+            product.category,
 
-  if (existingProduct) {
-    return stripe.products.update(existingProduct.id, {
-      name: fixture.name,
+        availability:
+            product.availability,
 
-      description: fixture.description,
+        storefront:
+            'maxipawz',
 
-      metadata,
-    });
-  }
+        demo_only:
+            'true',
+    };
 
-  return stripe.products.create({
-    name: fixture.name,
+    const productData = {
+        active: true,
 
-    description: fixture.description,
+        name:
+            `[DEMO] ${product.name}`,
 
-    metadata,
-  });
+        description:
+            `TEST ONLY — ${product.shortDescription}`,
+
+        metadata,
+
+        ...(imageUrl
+            ? {
+                images: [
+                    imageUrl,
+                ],
+            }
+            : {}),
+    };
+
+    if (existingProduct) {
+        return stripe.products.update(
+            existingProduct.id,
+            productData,
+        );
+    }
+
+    return stripe.products.create(
+        productData,
+    );
+}
+
+async function findExistingPrice(
+    stripe: Stripe,
+    lookupKey: string,
+): Promise<
+    Stripe.Price | undefined
+> {
+    const response =
+        await stripe.prices.list({
+            lookup_keys: [
+                lookupKey,
+            ],
+
+            limit: 100,
+        });
+
+    return response.data[0];
 }
 
 async function getOrCreatePrice(
-  stripe: Stripe,
-  product: Stripe.Product,
-  fixture: FixtureProduct,
-  priceFixture: FixturePrice,
+    stripe: Stripe,
+    stripeProduct: Stripe.Product,
+    product: Product,
+    variant?: ProductVariant,
 ): Promise<Stripe.Price> {
-  const prices = await stripe.prices.list({
-    product: product.id,
+    const price =
+        getPriceForOption(
+            product,
+            variant,
+        );
 
-    active: true,
-    limit: 100,
-  });
+    const lookupKey =
+        getProductLookupKey(
+            product,
+            variant,
+        );
 
-  const existingPrice = prices.data.find((price) => price.lookup_key === priceFixture.lookupKey);
+    const availability =
+        getOptionAvailability(
+            product,
+            variant,
+        );
 
-  if (existingPrice) {
-    if (existingPrice.unit_amount !== priceFixture.unitAmount) {
-      throw new Error(
-        `The existing Stripe Price ${existingPrice.id} uses a different amount for ${priceFixture.lookupKey}.`,
-      );
+    const shouldBeActive =
+        availability === 'in-stock';
+
+    const label =
+        variant
+            ? `${product.name} — ${variant.label}`
+            : product.name;
+
+    const metadata = {
+        catalog_slug:
+            product.slug,
+
+        catalog_sku:
+            variant?.sku ??
+            product.sku ??
+            '',
+
+        variant_id:
+            variant?.id ?? '',
+
+        variant_label:
+            variant?.label ?? '',
+
+        availability,
+
+        storefront:
+            'maxipawz',
+
+        demo_only:
+            'true',
+    };
+
+    const existingPrice =
+        await findExistingPrice(
+            stripe,
+            lookupKey,
+        );
+
+    const currency =
+        price.currency.toLowerCase();
+
+    const existingMatches =
+        existingPrice &&
+        getStripeProductId(
+            existingPrice,
+        ) === stripeProduct.id &&
+        existingPrice.unit_amount ===
+        price.amount &&
+        existingPrice.currency ===
+        currency;
+
+    if (
+        existingPrice &&
+        existingMatches
+    ) {
+        return stripe.prices.update(
+            existingPrice.id,
+            {
+                active:
+                    shouldBeActive,
+
+                nickname:
+                    `[DEMO] ${label}`,
+
+                metadata,
+            },
+        );
     }
 
-    return existingPrice;
-  }
+    const newPrice =
+        await stripe.prices.create({
+            product:
+                stripeProduct.id,
 
-  return stripe.prices.create({
-    product: product.id,
+            currency,
 
-    currency: 'usd',
+            unit_amount:
+                price.amount,
 
-    unit_amount: priceFixture.unitAmount,
+            active:
+                shouldBeActive,
 
-    lookup_key: priceFixture.lookupKey,
+            lookup_key:
+                lookupKey,
 
-    metadata: {
-      maxipawz_fixture_price_id: priceFixture.fixturePriceId,
+            transfer_lookup_key:
+                Boolean(existingPrice),
 
-      catalog_slug: fixture.catalogSlug,
+            nickname:
+                `[DEMO] ${label}`,
 
-      variant_id: priceFixture.variantId ?? '',
+            metadata,
+        });
 
-      variant_label: priceFixture.label,
-
-      storefront: 'maxipawz',
-
-      test_only: 'true',
-    },
-  });
-}
-
-async function createFixtureCatalog(stripe: Stripe): Promise<CreatedFixtureProduct[]> {
-  const createdProducts: CreatedFixtureProduct[] = [];
-
-  for (const fixture of fixtures) {
-    const product = await getOrCreateProduct(stripe, fixture);
-
-    const createdPrices: CreatedFixturePrice[] = [];
-
-    for (const priceFixture of fixture.prices) {
-      const price = await getOrCreatePrice(stripe, product, fixture, priceFixture);
-
-      createdPrices.push({
-        fixturePriceId: priceFixture.fixturePriceId,
-
-        label: priceFixture.label,
-
-        stripePriceId: price.id,
-
-        lookupKey: priceFixture.lookupKey,
-
-        unitAmount: price.unit_amount ?? 0,
-
-        currency: price.currency,
-
-        variantId: priceFixture.variantId,
-      });
+    if (
+        existingPrice?.active
+    ) {
+        await stripe.prices.update(
+            existingPrice.id,
+            {
+                active: false,
+            },
+        );
     }
 
-    createdProducts.push({
-      fixtureProductId: fixture.fixtureProductId,
-
-      catalogSlug: fixture.catalogSlug,
-
-      name: fixture.name,
-
-      stripeProductId: product.id,
-
-      prices: createdPrices,
-    });
-  }
-
-  return createdProducts;
+    return newPrice;
 }
 
-function getSiteOrigin(): string {
-  const configuredUrl = process.env.PUBLIC_SITE_URL?.trim() || 'http://localhost:8888';
+async function syncCatalogProduct(
+    stripe: Stripe,
+    product: Product,
+): Promise<
+    [
+        string,
+        StripeDemoCatalogProduct,
+    ]
+> {
+    const stripeProduct =
+        await getOrCreateProduct(
+            stripe,
+            product,
+        );
 
-  return new URL(configuredUrl).origin;
+    const reference:
+        StripeDemoCatalogProduct = {
+        stripeProductId:
+            stripeProduct.id,
+
+        variantPriceIds: {},
+    };
+
+    if (
+        product.variants &&
+        product.variants.length > 0
+    ) {
+        for (
+            const variant of
+            product.variants
+        ) {
+            const stripePrice =
+                await getOrCreatePrice(
+                    stripe,
+                    stripeProduct,
+                    product,
+                    variant,
+                );
+
+            reference.variantPriceIds[
+                variant.id
+            ] = stripePrice.id;
+        }
+    } else {
+        const stripePrice =
+            await getOrCreatePrice(
+                stripe,
+                stripeProduct,
+                product,
+            );
+
+        reference.stripeDefaultPriceId =
+            stripePrice.id;
+    }
+
+    return [
+        product.slug,
+        reference,
+    ];
 }
 
-async function createFixtureCheckout(
-  stripe: Stripe,
-  fixtureCatalog: CreatedFixtureProduct[],
-): Promise<void> {
-  const firstFixture = fixtureCatalog[0];
+function createGeneratedModule(
+    catalog: StripeDemoCatalog,
+): string {
+    return `import type {
+  StripeDemoCatalog,
+} from '../types/stripe-demo-catalog';
 
-  const firstPrice = firstFixture?.prices[0];
-
-  if (!firstFixture || !firstPrice) {
-    throw new Error('No Stripe fixture price was created.');
-  }
-
-  const siteOrigin = getSiteOrigin();
-
-  const cartReference = randomUUID();
-
-  const session = await stripe.checkout.sessions.create({
-    mode: 'payment',
-
-    line_items: [
-      {
-        price: firstPrice.stripePriceId,
-
-        quantity: 1,
-      },
-    ],
-
-    customer_creation: 'always',
-
-    billing_address_collection: 'auto',
-
-    client_reference_id: cartReference,
-
-    metadata: {
-      cart_reference: cartReference,
-
-      cart_source: 'stripe-fixture-script',
-
-      storefront: 'maxipawz',
-
-      checkout_mode: 'test',
-
-      fixture: 'true',
-    },
-
-    success_url: `${siteOrigin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-
-    cancel_url: `${siteOrigin}/checkout/cancel`,
-  });
-
-  if (!session.url) {
-    throw new Error('Stripe did not return a Checkout URL.');
-  }
-
-  console.log('');
-  console.log('Stripe test Checkout Session:');
-
-  console.log(session.url);
-
-  console.log('');
+/**
+ * AUTO-GENERATED FILE.
+ *
+ * Generated by:
+ *
+ * npm run stripe:create-test-catalog
+ *
+ * Do not edit the Stripe IDs manually.
+ */
+export const stripeDemoCatalog:
+  StripeDemoCatalog = ${JSON.stringify(
+        catalog,
+        null,
+        2,
+    )};
+`;
 }
 
 async function main(): Promise<void> {
-  const stripe = new Stripe(getStripeSecretKey());
+    const stripe =
+        new Stripe(
+            getStripeSecretKey(),
+        );
 
-  const fixtureCatalog = await createFixtureCatalog(stripe);
+    const demoProducts =
+        products.filter(
+            (product) =>
+                product.isDemo,
+        );
 
-  await mkdir('.tmp', {
-    recursive: true,
-  });
+    if (
+        demoProducts.length === 0
+    ) {
+        throw new Error(
+            'No demo products were found in src/data/products.ts.',
+        );
+    }
 
-  const outputPath = '.tmp/stripe-test-catalog.json';
+    console.log(
+        `Synchronizing ${demoProducts.length} demo products with Stripe Sandbox...`,
+    );
 
-  await writeFile(
-    outputPath,
+    const entries: Array<
+        [
+            string,
+            StripeDemoCatalogProduct,
+        ]
+    > = [];
 
-    `${JSON.stringify(
-      {
-        generatedAt: new Date().toISOString(),
+    for (
+        const product of
+        demoProducts
+    ) {
+        console.log(
+            `Synchronizing ${product.name}...`,
+        );
 
-        products: fixtureCatalog,
-      },
-      null,
-      2,
-    )}\n`,
+        entries.push(
+            await syncCatalogProduct(
+                stripe,
+                product,
+            ),
+        );
+    }
 
-    'utf8',
-  );
+    const catalog =
+        Object.fromEntries(
+            entries,
+        ) as StripeDemoCatalog;
 
-  console.log(`Stripe fixture catalog saved to ${outputPath}.`);
+    await mkdir(
+        '.tmp',
+        {
+            recursive: true,
+        },
+    );
 
-  fixtureCatalog.forEach((product) => {
+    await writeFile(
+        GENERATED_TYPESCRIPT_PATH,
+
+        createGeneratedModule(
+            catalog,
+        ),
+
+        'utf8',
+    );
+
+    await writeFile(
+        GENERATED_JSON_PATH,
+
+        `${JSON.stringify(
+            {
+                generatedAt:
+                    new Date()
+                        .toISOString(),
+
+                products:
+                    catalog,
+            },
+            null,
+            2,
+        )}\n`,
+
+        'utf8',
+    );
+
+    console.log('');
+    console.log(
+        'Stripe Sandbox synchronization complete.',
+    );
+
+    console.log(
+        `Generated ${GENERATED_TYPESCRIPT_PATH}.`,
+    );
+
+    console.log(
+        `Generated ${GENERATED_JSON_PATH}.`,
+    );
+
     console.log('');
 
-    console.log(`${product.name}: ${product.stripeProductId}`);
+    entries.forEach(
+        ([
+            productSlug,
+            reference,
+        ]) => {
+            console.log(
+                `${productSlug}: ${reference.stripeProductId}`,
+            );
 
-    product.prices.forEach((price) => {
-      console.log(`  ${price.label}: ${price.stripePriceId}`);
-    });
-  });
+            if (
+                reference
+                    .stripeDefaultPriceId
+            ) {
+                console.log(
+                    `  default: ${reference.stripeDefaultPriceId}`,
+                );
+            }
 
-  if (process.argv.includes('--checkout')) {
-    await createFixtureCheckout(stripe, fixtureCatalog);
-  }
+            Object.entries(
+                reference
+                    .variantPriceIds,
+            ).forEach(
+                ([
+                    variantId,
+                    priceId,
+                ]) => {
+                    console.log(
+                        `  ${variantId}: ${priceId}`,
+                    );
+                },
+            );
+        },
+    );
 }
 
 main().catch((error) => {
-  console.error(error instanceof Error ? error.message : error);
+    console.error(
+        error instanceof Error
+            ? error.message
+            : error,
+    );
 
-  process.exitCode = 1;
+    process.exitCode = 1;
 });

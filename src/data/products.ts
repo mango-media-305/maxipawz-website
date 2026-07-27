@@ -1,3 +1,5 @@
+import { stripeDemoCatalog } from './stripe-demo-catalog.generated';
+
 import type {
     Product,
     ProductImage,
@@ -41,7 +43,7 @@ function unsplashImage(
  *
  * Remove or replace these records before the real store launches.
  */
-export const products: Product[] = [
+const demoProducts: Product[] = [
     {
         slug: 'tug-and-fetch-rope-ball',
         name: 'Tug & Fetch Rope Ball',
@@ -1096,3 +1098,58 @@ export const products: Product[] = [
         ],
     },
 ];
+
+export const products: Product[] =
+    demoProducts.map((product) => {
+        const stripeReference =
+            stripeDemoCatalog[
+            product.slug
+            ];
+
+        if (!stripeReference) {
+            return product;
+        }
+
+        const variants =
+            product.variants?.map(
+                (variant) => {
+                    const stripePriceId =
+                        stripeReference
+                            .variantPriceIds[
+                        variant.id
+                        ];
+
+                    if (!stripePriceId) {
+                        return variant;
+                    }
+
+                    return {
+                        ...variant,
+                        stripePriceId,
+                    };
+                },
+            );
+
+        return {
+            ...product,
+
+            stripeProductId:
+                stripeReference
+                    .stripeProductId,
+
+            ...(stripeReference
+                .stripeDefaultPriceId
+                ? {
+                    stripeDefaultPriceId:
+                        stripeReference
+                            .stripeDefaultPriceId,
+                }
+                : {}),
+
+            ...(variants
+                ? {
+                    variants,
+                }
+                : {}),
+        };
+    });

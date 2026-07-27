@@ -16,17 +16,23 @@ function getStripePriceId(
     item: ResolvedCartLine,
 ): string | undefined {
     if (item.variant) {
-        return item.variant.stripePriceId;
+        return item.variant
+            .stripePriceId;
     }
 
-    return item.product?.stripeDefaultPriceId;
+    return item.product
+        ?.stripeDefaultPriceId;
 }
 
 function addReason(
     reasons: string[],
     reason: string,
 ): void {
-    if (!reasons.includes(reason)) {
+    if (
+        !reasons.includes(
+            reason,
+        )
+    ) {
         reasons.push(reason);
     }
 }
@@ -36,6 +42,10 @@ export function getCheckoutReadiness(
 ): CheckoutReadiness {
     const reasons: string[] = [];
 
+    const sandboxDemoCheckout =
+        commerceConfig
+            .sandboxCatalogCheckoutEnabled;
+
     if (items.length === 0) {
         addReason(
             reasons,
@@ -43,7 +53,10 @@ export function getCheckoutReadiness(
         );
     }
 
-    if (!commerceConfig.storefrontLive) {
+    if (
+        !commerceConfig
+            .storefrontLive
+    ) {
         addReason(
             reasons,
             'The storefront must be in live mode.',
@@ -51,7 +64,9 @@ export function getCheckoutReadiness(
     }
 
     if (
-        !commerceConfig.policiesFinalized
+        !commerceConfig
+            .policiesFinalized &&
+        !sandboxDemoCheckout
     ) {
         addReason(
             reasons,
@@ -59,27 +74,35 @@ export function getCheckoutReadiness(
         );
     }
 
-    if (!isTestCheckoutEnabled) {
+    if (
+        !isTestCheckoutEnabled
+    ) {
         addReason(
             reasons,
             'Stripe test checkout is currently disabled.',
         );
     }
 
-    if (
+    const containsDemoItems =
         items.some(
-            (item) => item.product?.isDemo,
-        )
+            (item) =>
+                item.product?.isDemo,
+        );
+
+    if (
+        containsDemoItems &&
+        !sandboxDemoCheckout
     ) {
         addReason(
             reasons,
-            'Fictional demo products cannot be submitted to Stripe.',
+            'Demo products require the Stripe Sandbox catalog checkout setting.',
         );
     }
 
     if (
         items.some(
-            (item) => !item.available,
+            (item) =>
+                !item.available,
         )
     ) {
         addReason(
@@ -92,8 +115,9 @@ export function getCheckoutReadiness(
         items.some(
             (item) =>
                 item.available &&
-                !item.product?.isDemo &&
-                !getStripePriceId(item),
+                !getStripePriceId(
+                    item,
+                ),
         )
     ) {
         addReason(
@@ -103,7 +127,9 @@ export function getCheckoutReadiness(
     }
 
     return {
-        ready: reasons.length === 0,
+        ready:
+            reasons.length === 0,
+
         reasons,
     };
 }
@@ -112,19 +138,26 @@ export function buildCheckoutRequest(
     items: ResolvedCartLine[],
 ): CheckoutSessionRequest {
     return {
-        lines: items
-            .filter(
-                (item) => Boolean(item.product),
-            )
-            .map((item) => ({
-                productSlug:
-                    item.line.productSlug,
+        lines:
+            items
+                .filter(
+                    (item) =>
+                        Boolean(
+                            item.product,
+                        ),
+                )
+                .map((item) => ({
+                    productSlug:
+                        item.line
+                            .productSlug,
 
-                variantId:
-                    item.line.variantId,
+                    variantId:
+                        item.line
+                            .variantId,
 
-                quantity:
-                    item.line.quantity,
-            })),
+                    quantity:
+                        item.line
+                            .quantity,
+                })),
     };
 }

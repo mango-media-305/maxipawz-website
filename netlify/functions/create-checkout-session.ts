@@ -1,12 +1,20 @@
-import { randomUUID } from 'node:crypto';
+import {
+    randomUUID,
+} from 'node:crypto';
 
-import type { Config } from '@netlify/functions';
+import type {
+    Config,
+} from '@netlify/functions';
 
 import Stripe from 'stripe';
 
-import { businessConfig } from '../../src/config/business';
+import {
+    businessConfig,
+} from '../../src/config/business';
 
-import { products } from '../../src/data/products';
+import {
+    products,
+} from '../../src/data/products';
 
 import type {
     CheckoutErrorCode,
@@ -16,19 +24,34 @@ import type {
     CheckoutSessionSuccessResponse,
 } from '../../src/types/checkout';
 
-import type { Product, ProductVariant } from '../../src/types/product';
+import type {
+    Product,
+    ProductVariant,
+} from '../../src/types/product';
 
 const MAXIMUM_CART_LINES = 50;
 const MAXIMUM_QUANTITY = 99;
 
-class CheckoutRequestError extends Error {
-    readonly status: number;
-    readonly code: CheckoutErrorCode;
+interface CheckoutRuntimeConfig {
+    stripeSecretKey: string;
+    allowDemoProducts: boolean;
+}
 
-    constructor(status: number, code: CheckoutErrorCode, message: string) {
+class CheckoutRequestError
+    extends Error {
+    readonly status: number;
+    readonly code:
+        CheckoutErrorCode;
+
+    constructor(
+        status: number,
+        code: CheckoutErrorCode,
+        message: string,
+    ) {
         super(message);
 
-        this.name = 'CheckoutRequestError';
+        this.name =
+            'CheckoutRequestError';
 
         this.status = status;
         this.code = code;
@@ -36,28 +59,57 @@ class CheckoutRequestError extends Error {
 }
 
 function jsonResponse(
-    body: CheckoutSessionSuccessResponse | CheckoutSessionErrorResponse,
+    body:
+        | CheckoutSessionSuccessResponse
+        | CheckoutSessionErrorResponse,
     status = 200,
 ): Response {
-    return Response.json(body, {
-        status,
+    return Response.json(
+        body,
+        {
+            status,
 
-        headers: {
-            'Cache-Control': 'no-store, max-age=0',
+            headers: {
+                'Cache-Control':
+                    'no-store, max-age=0',
+            },
         },
-    });
+    );
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null && !Array.isArray(value);
+function isRecord(
+    value: unknown,
+): value is Record<
+    string,
+    unknown
+> {
+    return (
+        typeof value ===
+        'object' &&
+        value !== null &&
+        !Array.isArray(
+            value,
+        )
+    );
 }
 
-function parseCheckoutLine(value: unknown): CheckoutRequestLine {
+function parseCheckoutLine(
+    value: unknown,
+): CheckoutRequestLine {
     if (!isRecord(value)) {
-        throw new CheckoutRequestError(400, 'invalid-cart', 'A cart item has an invalid format.');
+        throw new CheckoutRequestError(
+            400,
+            'invalid-cart',
+            'A cart item has an invalid format.',
+        );
     }
 
-    if (typeof value.productSlug !== 'string' || !value.productSlug.trim()) {
+    if (
+        typeof value
+            .productSlug !==
+        'string' ||
+        !value.productSlug.trim()
+    ) {
         throw new CheckoutRequestError(
             400,
             'invalid-cart',
@@ -65,9 +117,20 @@ function parseCheckoutLine(value: unknown): CheckoutRequestLine {
         );
     }
 
-    const quantity = typeof value.quantity === 'number' ? value.quantity : Number.NaN;
+    const quantity =
+        typeof value.quantity ===
+            'number'
+            ? value.quantity
+            : Number.NaN;
 
-    if (!Number.isInteger(quantity) || quantity < 1 || quantity > MAXIMUM_QUANTITY) {
+    if (
+        !Number.isInteger(
+            quantity,
+        ) ||
+        quantity < 1 ||
+        quantity >
+        MAXIMUM_QUANTITY
+    ) {
         throw new CheckoutRequestError(
             400,
             'invalid-cart',
@@ -76,23 +139,29 @@ function parseCheckoutLine(value: unknown): CheckoutRequestLine {
     }
 
     const variantId =
-        typeof value.variantId === 'string' && value.variantId.trim()
+        typeof value.variantId ===
+            'string' &&
+            value.variantId.trim()
             ? value.variantId.trim()
             : undefined;
 
     return {
-        productSlug: value.productSlug.trim(),
+        productSlug:
+            value.productSlug.trim(),
 
         variantId,
         quantity,
     };
 }
 
-async function parseRequest(request: Request): Promise<CheckoutSessionRequest> {
+async function parseRequest(
+    request: Request,
+): Promise<CheckoutSessionRequest> {
     let value: unknown;
 
     try {
-        value = await request.json();
+        value =
+            await request.json();
     } catch {
         throw new CheckoutRequestError(
             400,
@@ -101,7 +170,12 @@ async function parseRequest(request: Request): Promise<CheckoutSessionRequest> {
         );
     }
 
-    if (!isRecord(value) || !Array.isArray(value.lines)) {
+    if (
+        !isRecord(value) ||
+        !Array.isArray(
+            value.lines,
+        )
+    ) {
         throw new CheckoutRequestError(
             400,
             'invalid-request',
@@ -109,7 +183,11 @@ async function parseRequest(request: Request): Promise<CheckoutSessionRequest> {
         );
     }
 
-    if (value.lines.length === 0 || value.lines.length > MAXIMUM_CART_LINES) {
+    if (
+        value.lines.length === 0 ||
+        value.lines.length >
+        MAXIMUM_CART_LINES
+    ) {
         throw new CheckoutRequestError(
             400,
             'invalid-cart',
@@ -118,14 +196,96 @@ async function parseRequest(request: Request): Promise<CheckoutSessionRequest> {
     }
 
     return {
-        lines: value.lines.map(parseCheckoutLine),
+        lines:
+            value.lines.map(
+                parseCheckoutLine,
+            ),
     };
 }
 
-function getProduct(slug: string): Product {
-    const product = products.find((catalogProduct) => catalogProduct.slug === slug);
+function assertCheckoutConfiguration():
+    CheckoutRuntimeConfig {
+    if (
+        process.env
+            .PUBLIC_CHECKOUT_MODE !==
+        'test'
+    ) {
+        throw new CheckoutRequestError(
+            503,
+            'checkout-disabled',
+            'Stripe test checkout is currently disabled.',
+        );
+    }
 
-    if (!product || product.status !== 'active') {
+    if (
+        process.env
+            .PUBLIC_STOREFRONT_MODE !==
+        'live'
+    ) {
+        throw new CheckoutRequestError(
+            503,
+            'storefront-not-live',
+            'The storefront must be in live mode before checkout can begin.',
+        );
+    }
+
+    const stripeSecretKey =
+        process.env
+            .STRIPE_SECRET_KEY
+            ?.trim();
+
+    if (
+        !stripeSecretKey ||
+        !stripeSecretKey.startsWith(
+            'sk_test_',
+        )
+    ) {
+        throw new CheckoutRequestError(
+            503,
+            'stripe-not-configured',
+            'A Stripe Sandbox secret key has not been configured.',
+        );
+    }
+
+    const allowDemoProducts =
+        process.env
+            .PUBLIC_SANDBOX_CATALOG_CHECKOUT ===
+        'true';
+
+    if (
+        !businessConfig
+            .commercePoliciesFinalized &&
+        !allowDemoProducts
+    ) {
+        throw new CheckoutRequestError(
+            503,
+            'policies-incomplete',
+            'Commerce policies must be finalized before checkout can begin.',
+        );
+    }
+
+    return {
+        stripeSecretKey,
+        allowDemoProducts,
+    };
+}
+
+function getProduct(
+    slug: string,
+    allowDemoProducts: boolean,
+): Product {
+    const product =
+        products.find(
+            (catalogProduct) =>
+                catalogProduct.slug ===
+                slug,
+        );
+
+    if (
+        !product ||
+        product.status !==
+        'active'
+    ) {
         throw new CheckoutRequestError(
             400,
             'product-not-found',
@@ -133,21 +293,34 @@ function getProduct(slug: string): Product {
         );
     }
 
-    if (product.isDemo) {
+    if (
+        product.isDemo &&
+        !allowDemoProducts
+    ) {
         throw new CheckoutRequestError(
             400,
             'demo-product',
-            'Fictional demo products cannot be submitted to Stripe.',
+            'Demo products are disabled for Stripe Checkout.',
         );
     }
 
     return product;
 }
 
-function getVariant(product: Product, variantId?: string): ProductVariant | undefined {
-    const hasVariants = Boolean(product.variants?.length);
+function getVariant(
+    product: Product,
+    variantId?: string,
+): ProductVariant | undefined {
+    const hasVariants =
+        Boolean(
+            product.variants
+                ?.length,
+        );
 
-    if (hasVariants && !variantId) {
+    if (
+        hasVariants &&
+        !variantId
+    ) {
         throw new CheckoutRequestError(
             400,
             'variant-required',
@@ -155,7 +328,10 @@ function getVariant(product: Product, variantId?: string): ProductVariant | unde
         );
     }
 
-    if (!hasVariants && variantId) {
+    if (
+        !hasVariants &&
+        variantId
+    ) {
         throw new CheckoutRequestError(
             400,
             'variant-not-found',
@@ -167,7 +343,12 @@ function getVariant(product: Product, variantId?: string): ProductVariant | unde
         return undefined;
     }
 
-    const variant = product.variants?.find((productVariant) => productVariant.id === variantId);
+    const variant =
+        product.variants?.find(
+            (productVariant) =>
+                productVariant.id ===
+                variantId,
+        );
 
     if (!variant) {
         throw new CheckoutRequestError(
@@ -180,17 +361,33 @@ function getVariant(product: Product, variantId?: string): ProductVariant | unde
     return variant;
 }
 
-function getStripeLineItem(line: CheckoutRequestLine): {
+function getStripeLineItem(
+    line: CheckoutRequestLine,
+    allowDemoProducts: boolean,
+): {
     price: string;
     quantity: number;
 } {
-    const product = getProduct(line.productSlug);
+    const product =
+        getProduct(
+            line.productSlug,
+            allowDemoProducts,
+        );
 
-    const variant = getVariant(product, line.variantId);
+    const variant =
+        getVariant(
+            product,
+            line.variantId,
+        );
 
-    const availability = variant?.availability ?? product.availability;
+    const availability =
+        variant?.availability ??
+        product.availability;
 
-    if (availability !== 'in-stock') {
+    if (
+        availability !==
+        'in-stock'
+    ) {
         throw new CheckoutRequestError(
             400,
             'product-unavailable',
@@ -198,33 +395,62 @@ function getStripeLineItem(line: CheckoutRequestLine): {
         );
     }
 
-    const stripePriceId = variant?.stripePriceId ?? product.stripeDefaultPriceId;
+    const stripePriceId =
+        variant?.stripePriceId ??
+        product
+            .stripeDefaultPriceId;
 
-    if (!stripePriceId || !stripePriceId.startsWith('price_')) {
+    if (
+        !stripePriceId ||
+        !stripePriceId.startsWith(
+            'price_',
+        )
+    ) {
         throw new CheckoutRequestError(
             400,
             'price-not-configured',
-            `${product.name} does not have a valid Stripe Price ID.`,
+            `${product.name} does not have a valid Stripe Sandbox Price ID.`,
         );
     }
 
     return {
-        price: stripePriceId,
-        quantity: line.quantity,
+        price:
+            stripePriceId,
+
+        quantity:
+            line.quantity,
     };
 }
 
 function consolidateLineItems(
     lines: CheckoutRequestLine[],
+    allowDemoProducts: boolean,
 ): Stripe.Checkout.SessionCreateParams.LineItem[] {
-    const quantitiesByPrice = new Map<string, number>();
+    const quantitiesByPrice =
+        new Map<
+            string,
+            number
+        >();
 
     lines.forEach((line) => {
-        const stripeLine = getStripeLineItem(line);
+        const stripeLine =
+            getStripeLineItem(
+                line,
+                allowDemoProducts,
+            );
 
-        const nextQuantity = (quantitiesByPrice.get(stripeLine.price) ?? 0) + stripeLine.quantity;
+        const nextQuantity =
+            (
+                quantitiesByPrice.get(
+                    stripeLine.price,
+                ) ?? 0
+            ) +
+            stripeLine.quantity;
 
-        if (nextQuantity > MAXIMUM_QUANTITY) {
+        if (
+            nextQuantity >
+            MAXIMUM_QUANTITY
+        ) {
             throw new CheckoutRequestError(
                 400,
                 'invalid-cart',
@@ -232,17 +458,35 @@ function consolidateLineItems(
             );
         }
 
-        quantitiesByPrice.set(stripeLine.price, nextQuantity);
+        quantitiesByPrice.set(
+            stripeLine.price,
+            nextQuantity,
+        );
     });
 
-    return Array.from(quantitiesByPrice.entries()).map(([price, quantity]) => ({
-        price,
-        quantity,
-    }));
+    return Array.from(
+        quantitiesByPrice
+            .entries(),
+    ).map(
+        ([
+            price,
+            quantity,
+        ]) => ({
+            price,
+            quantity,
+        }),
+    );
 }
 
 function getSiteOrigin(): string {
-    const configuredSiteUrl = process.env.PUBLIC_SITE_URL?.trim() || process.env.URL?.trim();
+    const configuredSiteUrl =
+        process.env
+            .PUBLIC_SITE_URL
+            ?.trim() ||
+        process.env
+            .DEPLOY_PRIME_URL
+            ?.trim() ||
+        process.env.URL?.trim();
 
     if (!configuredSiteUrl) {
         throw new CheckoutRequestError(
@@ -255,7 +499,10 @@ function getSiteOrigin(): string {
     let parsedUrl: URL;
 
     try {
-        parsedUrl = new URL(configuredSiteUrl);
+        parsedUrl =
+            new URL(
+                configuredSiteUrl,
+            );
     } catch {
         throw new CheckoutRequestError(
             503,
@@ -264,7 +511,12 @@ function getSiteOrigin(): string {
         );
     }
 
-    if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+    if (
+        parsedUrl.protocol !==
+        'http:' &&
+        parsedUrl.protocol !==
+        'https:'
+    ) {
         throw new CheckoutRequestError(
             503,
             'stripe-not-configured',
@@ -275,97 +527,103 @@ function getSiteOrigin(): string {
     return parsedUrl.origin;
 }
 
-function assertCheckoutConfiguration(): string {
-    if (process.env.PUBLIC_CHECKOUT_MODE !== 'test') {
-        throw new CheckoutRequestError(
-            503,
-            'checkout-disabled',
-            'Stripe test checkout is currently disabled.',
-        );
-    }
-
-    if (process.env.PUBLIC_STOREFRONT_MODE !== 'live') {
-        throw new CheckoutRequestError(
-            503,
-            'storefront-not-live',
-            'The storefront must be in live mode before checkout can begin.',
-        );
-    }
-
-    if (!businessConfig.commercePoliciesFinalized) {
-        throw new CheckoutRequestError(
-            503,
-            'policies-incomplete',
-            'Commerce policies must be finalized before checkout can begin.',
-        );
-    }
-
-    const stripeSecretKey = process.env.STRIPE_SECRET_KEY?.trim();
-
-    if (!stripeSecretKey || !stripeSecretKey.startsWith('sk_test_')) {
-        throw new CheckoutRequestError(
-            503,
-            'stripe-not-configured',
-            'A Stripe test secret key has not been configured.',
-        );
-    }
-
-    return stripeSecretKey;
-}
-
-export default async function handler(request: Request): Promise<Response> {
-    if (request.method !== 'POST') {
+export default async function handler(
+    request: Request,
+): Promise<Response> {
+    if (
+        request.method !== 'POST'
+    ) {
         return jsonResponse(
             {
                 ok: false,
-                code: 'invalid-method',
 
-                message: 'This endpoint accepts POST requests only.',
+                code:
+                    'invalid-method',
+
+                message:
+                    'This endpoint accepts POST requests only.',
             },
             405,
         );
     }
 
     try {
-        const stripeSecretKey = assertCheckoutConfiguration();
+        const runtimeConfig =
+            assertCheckoutConfiguration();
 
-        const checkoutRequest = await parseRequest(request);
+        const checkoutRequest =
+            await parseRequest(
+                request,
+            );
 
-        const lineItems = consolidateLineItems(checkoutRequest.lines);
+        const lineItems =
+            consolidateLineItems(
+                checkoutRequest.lines,
 
-        const siteOrigin = getSiteOrigin();
+                runtimeConfig
+                    .allowDemoProducts,
+            );
 
-        const cartReference = randomUUID();
+        const siteOrigin =
+            getSiteOrigin();
 
-        const stripe = new Stripe(stripeSecretKey);
+        const cartReference =
+            randomUUID();
 
-        const session = await stripe.checkout.sessions.create({
-            mode: 'payment',
+        const stripe =
+            new Stripe(
+                runtimeConfig
+                    .stripeSecretKey,
+            );
 
-            line_items: lineItems,
+        const session =
+            await stripe
+                .checkout
+                .sessions
+                .create({
+                    mode: 'payment',
 
-            customer_creation: 'always',
+                    line_items:
+                        lineItems,
 
-            billing_address_collection: 'auto',
+                    customer_creation:
+                        'always',
 
-            allow_promotion_codes: false,
+                    billing_address_collection:
+                        'auto',
 
-            client_reference_id: cartReference,
+                    allow_promotion_codes:
+                        false,
 
-            metadata: {
-                cart_reference: cartReference,
+                    client_reference_id:
+                        cartReference,
 
-                cart_source: 'storefront-cart',
+                    metadata: {
+                        cart_reference:
+                            cartReference,
 
-                storefront: 'maxipawz',
+                        cart_source:
+                            'storefront-cart',
 
-                checkout_mode: 'test',
-            },
+                        storefront:
+                            'maxipawz',
 
-            success_url: `${siteOrigin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+                        checkout_mode:
+                            'test',
 
-            cancel_url: `${siteOrigin}/checkout/cancel`,
-        });
+                        sandbox_catalog_checkout:
+                            runtimeConfig
+                                .allowDemoProducts
+                                ? 'true'
+                                : 'false',
+                    },
+
+                    success_url:
+                        `${siteOrigin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+
+                    cancel_url:
+                        `${siteOrigin}/checkout/cancel`,
+                });
 
         if (!session.url) {
             throw new CheckoutRequestError(
@@ -378,36 +636,52 @@ export default async function handler(request: Request): Promise<Response> {
         return jsonResponse({
             ok: true,
 
-            sessionId: session.id,
+            sessionId:
+                session.id,
 
-            url: session.url,
+            url:
+                session.url,
         });
     } catch (error) {
-        if (error instanceof CheckoutRequestError) {
+        if (
+            error instanceof
+            CheckoutRequestError
+        ) {
             return jsonResponse(
                 {
                     ok: false,
-                    code: error.code,
-                    message: error.message,
+
+                    code:
+                        error.code,
+
+                    message:
+                        error.message,
                 },
+
                 error.status,
             );
         }
 
-        const errorReference = randomUUID();
+        const errorReference =
+            randomUUID();
 
-        console.error('Stripe Checkout Session creation failed.', {
-            errorReference,
-            error,
-        });
+        console.error(
+            'Stripe Checkout Session creation failed.',
+            {
+                errorReference,
+                error,
+            },
+        );
 
         return jsonResponse(
             {
                 ok: false,
 
-                code: 'session-creation-failed',
+                code:
+                    'session-creation-failed',
 
-                message: `Checkout could not be started. Reference: ${errorReference}`,
+                message:
+                    `Checkout could not be started. Reference: ${errorReference}`,
             },
             500,
         );
@@ -415,5 +689,6 @@ export default async function handler(request: Request): Promise<Response> {
 }
 
 export const config: Config = {
-    path: '/api/create-checkout-session',
+    path:
+        '/api/create-checkout-session',
 };
