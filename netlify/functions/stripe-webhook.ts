@@ -1,8 +1,17 @@
-import type { Config } from '@netlify/functions';
+import type {
+  Config,
+} from '@netlify/functions';
 
 import Stripe from 'stripe';
 
-import type { ProcessedStripeEvent, SupportedCheckoutEventType } from '../../src/types/order';
+import {
+  sendPaidOrderEmails,
+} from '../../src/server/email/send-order-emails';
+
+import type {
+  ProcessedStripeEvent,
+  SupportedCheckoutEventType,
+} from '../../src/types/order';
 
 import {
   buildOrderRecord,
@@ -11,201 +20,354 @@ import {
   saveOrderRecord,
 } from '../../src/utils/orders';
 
-const supportedEventTypes = new Set<string>([
-  'checkout.session.completed',
-  'checkout.session.async_payment_succeeded',
-  'checkout.session.async_payment_failed',
-]);
+const supportedEventTypes =
+  new Set<string>([
+    'checkout.session.completed',
+    'checkout.session.async_payment_succeeded',
+    'checkout.session.async_payment_failed',
+  ]);
 
-class WebhookError extends Error {
+class WebhookError
+  extends Error {
   readonly status: number;
 
-  constructor(status: number, message: string) {
+  constructor(
+    status: number,
+    message: string,
+  ) {
     super(message);
 
-    this.name = 'WebhookError';
-    this.status = status;
+    this.name =
+      'WebhookError';
+
+    this.status =
+      status;
   }
 }
 
-function jsonResponse(value: unknown, status = 200): Response {
-  return Response.json(value, {
-    status,
+function jsonResponse(
+  value: unknown,
+  status = 200,
+): Response {
+  return Response.json(
+    value,
+    {
+      status,
 
-    headers: {
-      'Cache-Control': 'no-store, max-age=0',
+      headers: {
+        'Cache-Control':
+          'no-store, max-age=0',
+      },
     },
-  });
+  );
 }
 
 function getStripeConfiguration(): {
   stripe: Stripe;
   webhookSecret: string;
 } {
-  const stripeSecretKey = process.env.STRIPE_SECRET_KEY?.trim();
+  const stripeSecretKey =
+    process.env
+      .STRIPE_SECRET_KEY
+      ?.trim();
 
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET?.trim();
+  const webhookSecret =
+    process.env
+      .STRIPE_WEBHOOK_SECRET
+      ?.trim();
 
-  if (!stripeSecretKey || !stripeSecretKey.startsWith('sk_test_')) {
-    throw new WebhookError(503, 'A Stripe test secret key has not been configured.');
+  if (
+    !stripeSecretKey ||
+    !stripeSecretKey.startsWith(
+      'sk_test_',
+    )
+  ) {
+    throw new WebhookError(
+      503,
+      'A Stripe test secret key has not been configured.',
+    );
   }
 
-  if (!webhookSecret || !webhookSecret.startsWith('whsec_')) {
-    throw new WebhookError(503, 'A Stripe webhook signing secret has not been configured.');
+  if (
+    !webhookSecret ||
+    !webhookSecret.startsWith(
+      'whsec_',
+    )
+  ) {
+    throw new WebhookError(
+      503,
+      'A Stripe webhook signing secret has not been configured.',
+    );
   }
 
   return {
-    stripe: new Stripe(stripeSecretKey),
+    stripe:
+      new Stripe(
+        stripeSecretKey,
+      ),
 
     webhookSecret,
   };
 }
 
-function isSupportedEventType(value: string): value is SupportedCheckoutEventType {
-  return supportedEventTypes.has(value);
+function isSupportedEventType(
+  value: string,
+): value is SupportedCheckoutEventType {
+  return supportedEventTypes.has(
+    value,
+  );
 }
 
-export default async function handler(request: Request): Promise<Response> {
-  if (request.method !== 'POST') {
+export default async function handler(
+  request: Request,
+): Promise<Response> {
+  if (
+    request.method !==
+    'POST'
+  ) {
     return jsonResponse(
       {
         received: false,
 
-        message: 'This endpoint accepts POST requests only.',
+        message:
+          'This endpoint accepts POST requests only.',
       },
       405,
     );
   }
 
   try {
-    const { stripe, webhookSecret } = getStripeConfiguration();
+    const {
+      stripe,
+      webhookSecret,
+    } = getStripeConfiguration();
 
-    const signature = request.headers.get('stripe-signature');
+    const signature =
+      request.headers.get(
+        'stripe-signature',
+      );
 
     if (!signature) {
-      throw new WebhookError(400, 'The Stripe-Signature header is missing.');
+      throw new WebhookError(
+        400,
+        'The Stripe-Signature header is missing.',
+      );
     }
 
-    const rawBody = await request.text();
+    const rawBody =
+      await request.text();
 
-    let event: Stripe.Event;
+    let event:
+      Stripe.Event;
 
     try {
-      event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
+      event =
+        stripe.webhooks
+          .constructEvent(
+            rawBody,
+            signature,
+            webhookSecret,
+          );
     } catch {
-      throw new WebhookError(400, 'The webhook signature could not be verified.');
+      throw new WebhookError(
+        400,
+        'The webhook signature could not be verified.',
+      );
     }
 
     if (event.livemode) {
-      throw new WebhookError(400, 'Live Stripe events are not accepted by this test endpoint.');
+      throw new WebhookError(
+        400,
+        'Live Stripe events are not accepted by this test endpoint.',
+      );
     }
 
-    if (!isSupportedEventType(event.type)) {
+    if (
+      !isSupportedEventType(
+        event.type,
+      )
+    ) {
       return jsonResponse({
         received: true,
         ignored: true,
-        eventType: event.type,
+
+        eventType:
+          event.type,
       });
     }
 
-    const session = event.data.object as Stripe.Checkout.Session;
+    const session =
+      event.data
+        .object as Stripe.Checkout.Session;
 
-    if (session.metadata?.storefront !== 'maxipawz') {
+    if (
+      session.metadata
+        ?.storefront !==
+      'maxipawz'
+    ) {
       return jsonResponse({
         received: true,
         ignored: true,
 
-        reason: 'The Checkout Session does not belong to the MaxiPawz integration.',
+        reason:
+          'The Checkout Session does not belong to the MaxiPawz integration.',
       });
     }
 
-    const alreadyProcessed = await hasProcessedStripeEvent(event.id, event.livemode);
+    const alreadyProcessed =
+      await hasProcessedStripeEvent(
+        event.id,
+        event.livemode,
+      );
 
-    if (alreadyProcessed) {
+    if (
+      alreadyProcessed
+    ) {
       return jsonResponse({
         received: true,
         duplicate: true,
-        eventId: event.id,
+
+        eventId:
+          event.id,
       });
     }
 
-    const lineItemsResponse = await stripe.checkout.sessions.listLineItems(session.id, {
-      limit: 100,
+    const lineItemsResponse =
+      await stripe
+        .checkout
+        .sessions
+        .listLineItems(
+          session.id,
+          {
+            limit: 100,
 
-      expand: ['data.price.product'],
-    });
+            expand: [
+              'data.price.product',
+            ],
+          },
+        );
 
-    if (lineItemsResponse.has_more) {
+    if (
+      lineItemsResponse
+        .has_more
+    ) {
       throw new WebhookError(
         400,
         'The Checkout Session contains more line items than this integration currently supports.',
       );
     }
 
-    const incomingOrder = buildOrderRecord({
-      session,
+    const incomingOrder =
+      buildOrderRecord({
+        session,
 
-      lineItems: lineItemsResponse.data,
+        lineItems:
+          lineItemsResponse.data,
 
-      eventId: event.id,
+        eventId:
+          event.id,
 
-      eventType: event.type,
+        eventType:
+          event.type,
 
-      eventCreated: event.created,
-    });
+        eventCreated:
+          event.created,
+      });
 
-    const savedOrder = await saveOrderRecord(incomingOrder);
+    const savedOrder =
+      await saveOrderRecord(
+        incomingOrder,
+      );
 
-    const processedEvent: ProcessedStripeEvent = {
+    if (
+      savedOrder
+        .paymentStatus ===
+      'paid'
+    ) {
+      await sendPaidOrderEmails({
+        session,
+        order:
+          savedOrder,
+      });
+    }
+
+    const processedEvent:
+      ProcessedStripeEvent = {
       version: 1,
 
-      eventId: event.id,
+      eventId:
+        event.id,
 
-      eventType: event.type,
+      eventType:
+        event.type,
 
-      sessionId: session.id,
+      sessionId:
+        session.id,
 
-      livemode: event.livemode,
+      livemode:
+        event.livemode,
 
-      processedAt: new Date().toISOString(),
+      processedAt:
+        new Date()
+          .toISOString(),
     };
 
-    await recordProcessedStripeEvent(processedEvent);
+    await recordProcessedStripeEvent(
+      processedEvent,
+    );
 
     return jsonResponse({
       received: true,
       duplicate: false,
 
-      sessionId: savedOrder.sessionId,
+      sessionId:
+        savedOrder
+          .sessionId,
 
-      paymentStatus: savedOrder.paymentStatus,
+      paymentStatus:
+        savedOrder
+          .paymentStatus,
 
-      orderStatus: savedOrder.orderStatus,
+      orderStatus:
+        savedOrder
+          .orderStatus,
     });
   } catch (error) {
-    if (error instanceof WebhookError) {
+    if (
+      error instanceof
+      WebhookError
+    ) {
       return jsonResponse(
         {
-          received: false,
-          message: error.message,
+          received:
+            false,
+
+          message:
+            error.message,
         },
         error.status,
       );
     }
 
-    console.error('Stripe webhook processing failed.', error);
+    console.error(
+      'Stripe webhook processing failed.',
+      error,
+    );
 
     return jsonResponse(
       {
         received: false,
 
-        message: 'The webhook could not be processed.',
+        message:
+          'The webhook could not be processed.',
       },
       500,
     );
   }
 }
 
-export const config: Config = {
-  path: '/api/stripe-webhook',
+export const config:
+  Config = {
+  path:
+    '/api/stripe-webhook',
 };
