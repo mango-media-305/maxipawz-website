@@ -35,11 +35,39 @@ export interface EasyPostRate {
 
     currency: string;
 
-    delivery_days?: number | null;
+    delivery_days?:
+    | number
+    | null;
 
-    est_delivery_days?: number | null;
+    est_delivery_days?:
+    | number
+    | null;
 
     shipment_id: string;
+}
+
+export interface EasyPostPostageLabel {
+    label_url: string;
+
+    label_pdf_url?:
+    | string
+    | null;
+
+    label_zpl_url?:
+    | string
+    | null;
+}
+
+export interface EasyPostTracker {
+    id: string;
+
+    tracking_code: string;
+
+    status?: string;
+
+    public_url?:
+    | string
+    | null;
 }
 
 export interface EasyPostShipment {
@@ -49,8 +77,28 @@ export interface EasyPostShipment {
     | 'test'
     | 'production';
 
+    status?:
+    | string
+    | null;
+
     rates:
     EasyPostRate[];
+
+    selected_rate?:
+    | EasyPostRate
+    | null;
+
+    tracking_code?:
+    | string
+    | null;
+
+    postage_label?:
+    | EasyPostPostageLabel
+    | null;
+
+    tracker?:
+    | EasyPostTracker
+    | null;
 }
 
 interface EasyPostRuntimeConfig {
@@ -74,9 +122,7 @@ function requiredEnvironmentVariable(
             name
         ]?.trim();
 
-    if (
-        !value
-    ) {
+    if (!value) {
         throw new Error(
             `${name} is not configured.`,
         );
@@ -133,6 +179,11 @@ function getRuntimeConfig():
         );
     }
 
+    const street2 =
+        optionalEnvironmentVariable(
+            'EASYPOST_FROM_STREET2',
+        );
+
     return {
         apiKey:
             requiredEnvironmentVariable(
@@ -150,14 +201,9 @@ function getRuntimeConfig():
                     'EASYPOST_FROM_STREET1',
                 ),
 
-            ...(optionalEnvironmentVariable(
-                'EASYPOST_FROM_STREET2',
-            )
+            ...(street2
                 ? {
-                    street2:
-                        optionalEnvironmentVariable(
-                            'EASYPOST_FROM_STREET2',
-                        ),
+                    street2,
                 }
                 : {}),
 
@@ -251,7 +297,7 @@ function getEasyPostErrorMessage(
         return error.message;
     }
 
-    return 'EasyPost could not calculate shipping rates.';
+    return 'EasyPost could not process the shipment.';
 }
 
 async function easyPostRequest(
@@ -311,6 +357,130 @@ async function easyPostRequest(
     return payload;
 }
 
+function parseRate(
+    value: unknown,
+): EasyPostRate | null {
+    if (
+        !isRecord(
+            value,
+        ) ||
+        typeof value.id !==
+        'string' ||
+        typeof value.carrier !==
+        'string' ||
+        typeof value.service !==
+        'string' ||
+        typeof value.rate !==
+        'string' ||
+        typeof value.currency !==
+        'string' ||
+        typeof value.shipment_id !==
+        'string'
+    ) {
+        return null;
+    }
+
+    return {
+        id:
+            value.id,
+
+        carrier:
+            value.carrier,
+
+        service:
+            value.service,
+
+        rate:
+            value.rate,
+
+        currency:
+            value.currency,
+
+        delivery_days:
+            typeof value.delivery_days ===
+                'number'
+                ? value.delivery_days
+                : null,
+
+        est_delivery_days:
+            typeof value.est_delivery_days ===
+                'number'
+                ? value.est_delivery_days
+                : null,
+
+        shipment_id:
+            value.shipment_id,
+    };
+}
+
+function parsePostageLabel(
+    value: unknown,
+): EasyPostPostageLabel | null {
+    if (
+        !isRecord(
+            value,
+        ) ||
+        typeof value.label_url !==
+        'string' ||
+        !value.label_url
+    ) {
+        return null;
+    }
+
+    return {
+        label_url:
+            value.label_url,
+
+        label_pdf_url:
+            typeof value.label_pdf_url ===
+                'string'
+                ? value.label_pdf_url
+                : null,
+
+        label_zpl_url:
+            typeof value.label_zpl_url ===
+                'string'
+                ? value.label_zpl_url
+                : null,
+    };
+}
+
+function parseTracker(
+    value: unknown,
+): EasyPostTracker | null {
+    if (
+        !isRecord(
+            value,
+        ) ||
+        typeof value.id !==
+        'string' ||
+        typeof value.tracking_code !==
+        'string'
+    ) {
+        return null;
+    }
+
+    return {
+        id:
+            value.id,
+
+        tracking_code:
+            value.tracking_code,
+
+        status:
+            typeof value.status ===
+                'string'
+                ? value.status
+                : undefined,
+
+        public_url:
+            typeof value.public_url ===
+                'string'
+                ? value.public_url
+                : null,
+    };
+}
+
 function parseShipment(
     value: unknown,
 ): EasyPostShipment {
@@ -329,66 +499,22 @@ function parseShipment(
         );
     }
 
-    const rates:
-        EasyPostRate[] =
+    const rates =
         value.rates
-            .filter(
-                isRecord,
+            .map(
+                parseRate,
             )
-            .flatMap(
-                (rate) => {
-                    if (
-                        typeof rate.id !==
-                        'string' ||
-                        typeof rate.carrier !==
-                        'string' ||
-                        typeof rate.service !==
-                        'string' ||
-                        typeof rate.rate !==
-                        'string' ||
-                        typeof rate.currency !==
-                        'string' ||
-                        typeof rate.shipment_id !==
-                        'string'
-                    ) {
-                        return [];
-                    }
-
-                    return [
-                        {
-                            id:
-                                rate.id,
-
-                            carrier:
-                                rate.carrier,
-
-                            service:
-                                rate.service,
-
-                            rate:
-                                rate.rate,
-
-                            currency:
-                                rate.currency,
-
-                            delivery_days:
-                                typeof rate.delivery_days ===
-                                    'number'
-                                    ? rate.delivery_days
-                                    : null,
-
-                            est_delivery_days:
-                                typeof rate.est_delivery_days ===
-                                    'number'
-                                    ? rate.est_delivery_days
-                                    : null,
-
-                            shipment_id:
-                                rate.shipment_id,
-                        },
-                    ];
-                },
+            .filter(
+                (
+                    rate,
+                ): rate is EasyPostRate =>
+                    rate !== null,
             );
+
+    const selectedRate =
+        parseRate(
+            value.selected_rate,
+        );
 
     return {
         id:
@@ -400,8 +526,60 @@ function parseShipment(
                 ? 'production'
                 : 'test',
 
+        status:
+            typeof value.status ===
+                'string'
+                ? value.status
+                : null,
+
         rates,
+
+        selected_rate:
+            selectedRate,
+
+        tracking_code:
+            typeof value.tracking_code ===
+                'string'
+                ? value.tracking_code
+                : null,
+
+        postage_label:
+            parsePostageLabel(
+                value.postage_label,
+            ),
+
+        tracker:
+            parseTracker(
+                value.tracker,
+            ),
     };
+}
+
+function assertTestShipment(
+    shipment:
+        EasyPostShipment,
+): void {
+    if (
+        shipment.mode !==
+        'test'
+    ) {
+        throw new Error(
+            'EasyPost returned a production Shipment while MaxiPawz is in Sandbox.',
+        );
+    }
+}
+
+export function isPurchasedShipment(
+    shipment:
+        EasyPostShipment,
+): boolean {
+    return Boolean(
+        shipment
+            .tracking_code &&
+        shipment
+            .postage_label
+            ?.label_url,
+    );
 }
 
 export async function createRatedTestShipment(
@@ -453,14 +631,9 @@ export async function createRatedTestShipment(
             payload,
         );
 
-    if (
-        shipment.mode !==
-        'test'
-    ) {
-        throw new Error(
-            'EasyPost returned a production shipment while MaxiPawz is in Sandbox.',
-        );
-    }
+    assertTestShipment(
+        shipment,
+    );
 
     return shipment;
 }
@@ -489,7 +662,124 @@ export async function retrieveTestShipment(
             },
         );
 
-    return parseShipment(
-        payload,
+    const shipment =
+        parseShipment(
+            payload,
+        );
+
+    assertTestShipment(
+        shipment,
     );
+
+    return shipment;
+}
+
+export async function buyTestShipmentRate(
+    shipmentId: string,
+    rateId: string,
+): Promise<EasyPostShipment> {
+    if (
+        !rateId.startsWith(
+            'rate_',
+        )
+    ) {
+        throw new Error(
+            'The EasyPost Rate ID is invalid.',
+        );
+    }
+
+    const existingShipment =
+        await retrieveTestShipment(
+            shipmentId,
+        );
+
+    if (
+        isPurchasedShipment(
+            existingShipment,
+        )
+    ) {
+        return existingShipment;
+    }
+
+    const rate =
+        existingShipment
+            .rates
+            .find(
+                (
+                    shipmentRate,
+                ) =>
+                    shipmentRate.id ===
+                    rateId,
+            );
+
+    if (!rate) {
+        throw new Error(
+            'The selected EasyPost Rate does not belong to this Shipment.',
+        );
+    }
+
+    try {
+        const payload =
+            await easyPostRequest(
+                `/shipments/${encodeURIComponent(
+                    shipmentId,
+                )}/buy`,
+                {
+                    method:
+                        'POST',
+
+                    body:
+                        JSON.stringify({
+                            rate: {
+                                id:
+                                    rateId,
+                            },
+                        }),
+                },
+            );
+
+        const purchasedShipment =
+            parseShipment(
+                payload,
+            );
+
+        assertTestShipment(
+            purchasedShipment,
+        );
+
+        if (
+            !isPurchasedShipment(
+                purchasedShipment,
+            )
+        ) {
+            throw new Error(
+                'EasyPost did not return a completed test label purchase.',
+            );
+        }
+
+        return purchasedShipment;
+    } catch (error) {
+        /**
+         * A webhook retry could happen after EasyPost successfully
+         * purchased the label but before MaxiPawz persisted the result.
+         *
+         * Retrieve the Shipment again before treating the operation as
+         * failed. If it is already purchased, reuse that label instead
+         * of attempting to buy another one.
+         */
+        const recoveredShipment =
+            await retrieveTestShipment(
+                shipmentId,
+            );
+
+        if (
+            isPurchasedShipment(
+                recoveredShipment,
+            )
+        ) {
+            return recoveredShipment;
+        }
+
+        throw error;
+    }
 }

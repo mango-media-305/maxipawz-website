@@ -1,88 +1,148 @@
-import { getStore } from '@netlify/blobs';
+import {
+  getStore,
+} from '@netlify/blobs';
 
 import type Stripe from 'stripe';
 
-import { products } from '../data/products';
+import {
+  products,
+} from '../data/products';
 
 import type {
   OrderCartSource,
   OrderItem,
   OrderPaymentStatus,
   OrderRecord,
+  OrderShippingDetails,
   OrderStatus,
   OrderStatusSuccessResponse,
   ProcessedStripeEvent,
   SupportedCheckoutEventType,
 } from '../types/order';
 
-import type { Product, ProductVariant } from '../types/product';
+import type {
+  Product,
+  ProductVariant,
+} from '../types/product';
 
-const MAXIMUM_PROCESSED_EVENT_IDS = 100;
-const MAXIMUM_WRITE_ATTEMPTS = 5;
+const MAXIMUM_PROCESSED_EVENT_IDS =
+  100;
+
+const MAXIMUM_WRITE_ATTEMPTS =
+  5;
 
 interface CatalogSelection {
   product: Product;
+
   variant?: ProductVariant;
 }
 
 interface BuildOrderRecordOptions {
-  session: Stripe.Checkout.Session;
-  lineItems: Stripe.LineItem[];
+  session:
+  Stripe.Checkout.Session;
+
+  lineItems:
+  Stripe.LineItem[];
 
   eventId: string;
-  eventType: SupportedCheckoutEventType;
+
+  eventType:
+  SupportedCheckoutEventType;
+
   eventCreated: number;
 }
 
-function getEnvironmentSuffix(livemode: boolean): 'live' | 'test' {
-  return livemode ? 'live' : 'test';
+function getEnvironmentSuffix(
+  livemode: boolean,
+): 'live' | 'test' {
+  return livemode
+    ? 'live'
+    : 'test';
 }
 
-function getOrderStore(livemode: boolean) {
-  return getStore(`maxipawz-orders-${getEnvironmentSuffix(livemode)}`, {
-    consistency: 'strong',
-  });
+function getOrderStore(
+  livemode: boolean,
+) {
+  return getStore(
+    `maxipawz-orders-${getEnvironmentSuffix(
+      livemode,
+    )}`,
+    {
+      consistency:
+        'strong',
+    },
+  );
 }
 
-function getEventStore(livemode: boolean) {
-  return getStore(`maxipawz-stripe-events-${getEnvironmentSuffix(livemode)}`, {
-    consistency: 'strong',
-  });
+function getEventStore(
+  livemode: boolean,
+) {
+  return getStore(
+    `maxipawz-stripe-events-${getEnvironmentSuffix(
+      livemode,
+    )}`,
+    {
+      consistency:
+        'strong',
+    },
+  );
 }
 
-function getOrderKey(sessionId: string): string {
+function getOrderKey(
+  sessionId: string,
+): string {
   return `session/${sessionId}`;
 }
 
-function getEventKey(eventId: string): string {
+function getEventKey(
+  eventId: string,
+): string {
   return `event/${eventId}`;
 }
 
-function getSessionLivemode(sessionId: string): boolean {
-  return sessionId.startsWith('cs_live_');
+function getSessionLivemode(
+  sessionId: string,
+): boolean {
+  return sessionId.startsWith(
+    'cs_live_',
+  );
 }
 
 function normalizeStripeId(
   value:
     | string
     | {
-        id: string;
-      }
+      id: string;
+    }
     | null,
 ): string | undefined {
   if (!value) {
     return undefined;
   }
 
-  return typeof value === 'string' ? value : value.id;
+  return typeof value ===
+    'string'
+    ? value
+    : value.id;
 }
 
-function getStripeProductMetadata(price?: Stripe.Price | null): {
+function getStripeProductMetadata(
+  price?:
+    | Stripe.Price
+    | null,
+): {
   id?: string;
+
   name?: string;
-  metadata: Record<string, string>;
+
+  metadata:
+  Record<
+    string,
+    string
+  >;
 } {
-  const productReference = price?.product;
+  const productReference =
+    price?.product;
 
   if (!productReference) {
     return {
@@ -90,42 +150,74 @@ function getStripeProductMetadata(price?: Stripe.Price | null): {
     };
   }
 
-  if (typeof productReference === 'string') {
+  if (
+    typeof productReference ===
+    'string'
+  ) {
     return {
-      id: productReference,
+      id:
+        productReference,
+
       metadata: {},
     };
   }
 
-  if ('deleted' in productReference && productReference.deleted) {
+  if (
+    'deleted' in
+    productReference &&
+    productReference.deleted
+  ) {
     return {
-      id: productReference.id,
+      id:
+        productReference.id,
+
       metadata: {},
     };
   }
 
   return {
-    id: productReference.id,
-    name: productReference.name,
-    metadata: productReference.metadata,
+    id:
+      productReference.id,
+
+    name:
+      productReference.name,
+
+    metadata:
+      productReference
+        .metadata,
   };
 }
 
-function findCatalogSelection(stripePriceId?: string): CatalogSelection | undefined {
+function findCatalogSelection(
+  stripePriceId?: string,
+): CatalogSelection | undefined {
   if (!stripePriceId) {
     return undefined;
   }
 
-  for (const product of products) {
-    if (product.stripeDefaultPriceId === stripePriceId) {
+  for (
+    const product of
+    products
+  ) {
+    if (
+      product
+        .stripeDefaultPriceId ===
+      stripePriceId
+    ) {
       return {
         product,
       };
     }
 
-    const variant = product.variants?.find(
-      (productVariant) => productVariant.stripePriceId === stripePriceId,
-    );
+    const variant =
+      product.variants?.find(
+        (
+          productVariant,
+        ) =>
+          productVariant
+            .stripePriceId ===
+          stripePriceId,
+      );
 
     if (variant) {
       return {
@@ -138,113 +230,206 @@ function findCatalogSelection(stripePriceId?: string): CatalogSelection | undefi
   return undefined;
 }
 
-function buildOrderItem(lineItem: Stripe.LineItem): OrderItem {
-  const price = lineItem.price ?? undefined;
+function buildOrderItem(
+  lineItem:
+    Stripe.LineItem,
+): OrderItem {
+  const price =
+    lineItem.price ??
+    undefined;
 
-  const stripePriceId = price?.id;
+  const stripePriceId =
+    price?.id;
 
-  const catalogSelection = findCatalogSelection(stripePriceId);
+  const catalogSelection =
+    findCatalogSelection(
+      stripePriceId,
+    );
 
-  const stripeProduct = getStripeProductMetadata(price);
+  const stripeProduct =
+    getStripeProductMetadata(
+      price,
+    );
 
-  const priceMetadata = price?.metadata ?? {};
+  const priceMetadata =
+    price?.metadata ?? {};
 
-  const quantity = lineItem.quantity ?? 1;
+  const quantity =
+    lineItem.quantity ?? 1;
 
   const calculatedUnitAmount =
-    quantity > 0 ? Math.round(lineItem.amount_subtotal / quantity) : lineItem.amount_subtotal;
+    quantity > 0
+      ? Math.round(
+        lineItem
+          .amount_subtotal /
+        quantity,
+      )
+      : lineItem
+        .amount_subtotal;
 
   const productSlug =
-    catalogSelection?.product.slug ??
-    priceMetadata.catalog_slug ??
-    stripeProduct.metadata.catalog_slug ??
+    catalogSelection
+      ?.product.slug ??
+    priceMetadata
+      .catalog_slug ??
+    stripeProduct
+      .metadata
+      .catalog_slug ??
     `stripe-product-${stripeProduct.id ?? stripePriceId ?? 'unknown'}`;
 
   const variantId =
-    catalogSelection?.variant?.id ??
-    priceMetadata.variant_id ??
-    stripeProduct.metadata.variant_id ??
+    catalogSelection
+      ?.variant?.id ??
+    priceMetadata
+      .variant_id ??
+    stripeProduct
+      .metadata
+      .variant_id ??
     undefined;
 
   const productName =
-    catalogSelection?.product.name ??
+    catalogSelection
+      ?.product.name ??
     stripeProduct.name ??
     lineItem.description ??
     'Stripe product';
 
-  const variantLabel = catalogSelection?.variant?.label ?? priceMetadata.variant_label ?? undefined;
+  const variantLabel =
+    catalogSelection
+      ?.variant?.label ??
+    priceMetadata
+      .variant_label ??
+    undefined;
 
   return {
     productSlug,
+
     variantId,
 
     productName,
+
     variantLabel,
 
     stripePriceId,
 
-    stripeProductId: stripeProduct.id,
+    stripeProductId:
+      stripeProduct.id,
 
     quantity,
 
-    unitAmount: price?.unit_amount ?? calculatedUnitAmount,
+    unitAmount:
+      price?.unit_amount ??
+      calculatedUnitAmount,
 
-    lineTotalAmount: lineItem.amount_total,
+    lineTotalAmount:
+      lineItem
+        .amount_total,
 
-    currency: lineItem.currency,
+    currency:
+      lineItem.currency,
   };
 }
 
 function getPaymentStatus(
-  session: Stripe.Checkout.Session,
-  eventType: SupportedCheckoutEventType,
+  session:
+    Stripe.Checkout.Session,
+
+  eventType:
+    SupportedCheckoutEventType,
 ): OrderPaymentStatus {
-  if (eventType === 'checkout.session.async_payment_failed') {
+  if (
+    eventType ===
+    'checkout.session.async_payment_failed'
+  ) {
     return 'failed';
   }
 
-  if (eventType === 'checkout.session.async_payment_succeeded') {
+  if (
+    eventType ===
+    'checkout.session.async_payment_succeeded'
+  ) {
     return 'paid';
   }
 
-  if (session.payment_status === 'paid' || session.payment_status === 'no_payment_required') {
+  if (
+    session.payment_status ===
+    'paid' ||
+    session.payment_status ===
+    'no_payment_required'
+  ) {
     return 'paid';
   }
 
   return 'processing';
 }
 
-function getOrderStatus(paymentStatus: OrderPaymentStatus): OrderStatus {
-  if (paymentStatus === 'paid') {
+function getOrderStatus(
+  paymentStatus:
+    OrderPaymentStatus,
+): OrderStatus {
+  if (
+    paymentStatus ===
+    'paid'
+  ) {
     return 'confirmed';
   }
 
-  if (paymentStatus === 'failed') {
+  if (
+    paymentStatus ===
+    'failed'
+  ) {
     return 'payment-failed';
   }
 
   return 'pending';
 }
 
-function getCheckoutMode(session: Stripe.Checkout.Session): OrderCheckoutMode {
-  return session.metadata?.checkout_mode === 'live' ? 'live' : 'test';
+function getCheckoutMode(
+  session:
+    Stripe.Checkout.Session,
+):
+  | 'test'
+  | 'live' {
+  return session.metadata
+    ?.checkout_mode ===
+    'live'
+    ? 'live'
+    : 'test';
 }
 
-function getCartSource(session: Stripe.Checkout.Session): OrderCartSource {
-  const source = session.metadata?.cart_source;
+function getCartSource(
+  session:
+    Stripe.Checkout.Session,
+): OrderCartSource {
+  const source =
+    session.metadata
+      ?.cart_source;
 
-  if (source === 'storefront-cart' || source === 'stripe-fixture-script') {
+  if (
+    source ===
+    'storefront-cart' ||
+    source ===
+    'stripe-fixture-script'
+  ) {
     return source;
   }
 
   return 'unknown';
 }
 
-function getIsoDate(unixTimestamp: number): string {
-  return new Date(unixTimestamp * 1000).toISOString();
+function getIsoDate(
+  unixTimestamp: number,
+): string {
+  return new Date(
+    unixTimestamp *
+    1000,
+  ).toISOString();
 }
 
-function getPaymentPriority(status: OrderPaymentStatus): number {
+function getPaymentPriority(
+  status:
+    OrderPaymentStatus,
+): number {
   switch (status) {
     case 'paid':
       return 3;
@@ -257,24 +442,62 @@ function getPaymentPriority(status: OrderPaymentStatus): number {
   }
 }
 
-function mergeProcessedEventIds(existingIds: string[], incomingIds: string[]): string[] {
-  return Array.from(new Set([...existingIds, ...incomingIds])).slice(-MAXIMUM_PROCESSED_EVENT_IDS);
+function mergeProcessedEventIds(
+  existingIds:
+    string[],
+
+  incomingIds:
+    string[],
+): string[] {
+  return Array.from(
+    new Set([
+      ...existingIds,
+      ...incomingIds,
+    ]),
+  ).slice(
+    -MAXIMUM_PROCESSED_EVENT_IDS,
+  );
 }
 
-function mergeOrderRecords(existing: OrderRecord, incoming: OrderRecord): OrderRecord {
-  const processedEventIds = mergeProcessedEventIds(
-    existing.processedEventIds,
-    incoming.processedEventIds,
-  );
+function mergeOrderRecords(
+  existing:
+    OrderRecord,
 
-  const existingPriority = getPaymentPriority(existing.paymentStatus);
+  incoming:
+    OrderRecord,
+): OrderRecord {
+  const processedEventIds =
+    mergeProcessedEventIds(
+      existing
+        .processedEventIds,
 
-  const incomingPriority = getPaymentPriority(incoming.paymentStatus);
+      incoming
+        .processedEventIds,
+    );
+
+  const existingPriority =
+    getPaymentPriority(
+      existing
+        .paymentStatus,
+    );
+
+  const incomingPriority =
+    getPaymentPriority(
+      incoming
+        .paymentStatus,
+    );
 
   const shouldUseIncoming =
-    incomingPriority > existingPriority ||
-    (incomingPriority === existingPriority &&
-      incoming.lastEventCreated >= existing.lastEventCreated);
+    incomingPriority >
+    existingPriority ||
+    (
+      incomingPriority ===
+      existingPriority &&
+      incoming
+        .lastEventCreated >=
+      existing
+        .lastEventCreated
+    );
 
   if (!shouldUseIncoming) {
     return {
@@ -282,183 +505,548 @@ function mergeOrderRecords(existing: OrderRecord, incoming: OrderRecord): OrderR
 
       processedEventIds,
 
-      updatedAt: incoming.updatedAt,
+      updatedAt:
+        incoming
+          .updatedAt,
     };
   }
 
   return {
     ...incoming,
 
-    createdAt: existing.createdAt,
+    createdAt:
+      existing
+        .createdAt,
 
     processedEventIds,
+
+    fulfillmentStatus:
+      existing
+        .fulfillmentStatus ??
+      incoming
+        .fulfillmentStatus,
+
+    shipping:
+      existing.shipping ??
+      incoming.shipping,
   };
 }
 
-function isIncomingEventSaved(saved: OrderRecord, incoming: OrderRecord): boolean {
-  const eventId = incoming.processedEventIds[0];
+function isIncomingEventSaved(
+  saved:
+    OrderRecord,
 
-  if (!eventId || !saved.processedEventIds.includes(eventId)) {
+  incoming:
+    OrderRecord,
+): boolean {
+  const eventId =
+    incoming
+      .processedEventIds[0];
+
+  if (
+    !eventId ||
+    !saved
+      .processedEventIds
+      .includes(
+        eventId,
+      )
+  ) {
     return false;
   }
 
-  return getPaymentPriority(saved.paymentStatus) >= getPaymentPriority(incoming.paymentStatus);
+  return (
+    getPaymentPriority(
+      saved
+        .paymentStatus,
+    ) >=
+    getPaymentPriority(
+      incoming
+        .paymentStatus,
+    )
+  );
 }
 
-function delay(milliseconds: number): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(resolve, milliseconds);
-  });
+function delay(
+  milliseconds: number,
+): Promise<void> {
+  return new Promise(
+    (
+      resolve,
+    ) => {
+      setTimeout(
+        resolve,
+        milliseconds,
+      );
+    },
+  );
 }
 
-export function buildOrderRecord(options: BuildOrderRecordOptions): OrderRecord {
-  const { session, lineItems, eventId, eventType, eventCreated } = options;
+export function buildOrderRecord(
+  options:
+    BuildOrderRecordOptions,
+): OrderRecord {
+  const {
+    session,
+    lineItems,
+    eventId,
+    eventType,
+    eventCreated,
+  } = options;
 
-  const paymentStatus = getPaymentStatus(session, eventType);
+  const paymentStatus =
+    getPaymentStatus(
+      session,
+      eventType,
+    );
 
-  const eventDate = getIsoDate(eventCreated);
+  const eventDate =
+    getIsoDate(
+      eventCreated,
+    );
 
   return {
     version: 1,
 
-    sessionId: session.id,
+    sessionId:
+      session.id,
 
-    cartReference: session.metadata?.cart_reference ?? session.client_reference_id ?? session.id,
+    cartReference:
+      session.metadata
+        ?.cart_reference ??
+      session
+        .client_reference_id ??
+      session.id,
 
-    cartSource: getCartSource(session),
+    cartSource:
+      getCartSource(
+        session,
+      ),
 
-    checkoutMode: getCheckoutMode(session),
+    checkoutMode:
+      getCheckoutMode(
+        session,
+      ),
 
-    livemode: session.livemode,
+    livemode:
+      session.livemode,
 
-    paymentIntentId: normalizeStripeId(session.payment_intent),
+    paymentIntentId:
+      normalizeStripeId(
+        session
+          .payment_intent,
+      ),
 
     paymentStatus,
 
-    orderStatus: getOrderStatus(paymentStatus),
+    orderStatus:
+      getOrderStatus(
+        paymentStatus,
+      ),
 
-    stripeSessionStatus: session.status ?? undefined,
+    fulfillmentStatus:
+      'unfulfilled',
 
-    currency: session.currency ?? lineItems[0]?.currency ?? 'usd',
+    stripeSessionStatus:
+      session.status ??
+      undefined,
 
-    amountSubtotal: session.amount_subtotal ?? 0,
+    currency:
+      session.currency ??
+      lineItems[0]
+        ?.currency ??
+      'usd',
 
-    amountTotal: session.amount_total ?? 0,
+    amountSubtotal:
+      session
+        .amount_subtotal ??
+      0,
 
-    amountTax: session.total_details?.amount_tax ?? 0,
+    amountTotal:
+      session
+        .amount_total ??
+      0,
 
-    amountShipping: session.total_details?.amount_shipping ?? 0,
+    amountTax:
+      session
+        .total_details
+        ?.amount_tax ??
+      0,
 
-    amountDiscount: session.total_details?.amount_discount ?? 0,
+    amountShipping:
+      session
+        .total_details
+        ?.amount_shipping ??
+      0,
 
-    items: lineItems.map(buildOrderItem),
+    amountDiscount:
+      session
+        .total_details
+        ?.amount_discount ??
+      0,
 
-    processedEventIds: [eventId],
+    items:
+      lineItems.map(
+        buildOrderItem,
+      ),
 
-    lastEventType: eventType,
+    processedEventIds: [
+      eventId,
+    ],
 
-    lastEventCreated: eventCreated,
+    lastEventType:
+      eventType,
 
-    createdAt: getIsoDate(session.created),
+    lastEventCreated:
+      eventCreated,
 
-    updatedAt: eventDate,
+    createdAt:
+      getIsoDate(
+        session.created,
+      ),
+
+    updatedAt:
+      eventDate,
   };
 }
 
-export async function getOrderBySessionId(sessionId: string): Promise<OrderRecord | null> {
-  const store = getOrderStore(getSessionLivemode(sessionId));
+export async function getOrderBySessionId(
+  sessionId: string,
+): Promise<OrderRecord | null> {
+  const store =
+    getOrderStore(
+      getSessionLivemode(
+        sessionId,
+      ),
+    );
 
-  return (await store.get(getOrderKey(sessionId), {
-    type: 'json',
-  })) as OrderRecord | null;
+  return await store.get(
+    getOrderKey(
+      sessionId,
+    ),
+    {
+      type:
+        'json',
+    },
+  ) as OrderRecord | null;
 }
 
 export async function hasProcessedStripeEvent(
   eventId: string,
   livemode: boolean,
 ): Promise<boolean> {
-  const store = getEventStore(livemode);
+  const store =
+    getEventStore(
+      livemode,
+    );
 
-  const value = await store.get(getEventKey(eventId));
+  const value =
+    await store.get(
+      getEventKey(
+        eventId,
+      ),
+    );
 
-  return value !== null;
+  return value !==
+    null;
 }
 
-export async function saveOrderRecord(incoming: OrderRecord): Promise<OrderRecord> {
-  const store = getOrderStore(incoming.livemode);
+export async function saveOrderRecord(
+  incoming:
+    OrderRecord,
+): Promise<OrderRecord> {
+  const store =
+    getOrderStore(
+      incoming
+        .livemode,
+    );
 
-  const key = getOrderKey(incoming.sessionId);
+  const key =
+    getOrderKey(
+      incoming
+        .sessionId,
+    );
 
-  for (let attempt = 0; attempt < MAXIMUM_WRITE_ATTEMPTS; attempt += 1) {
-    const existing = (await store.get(key, {
-      type: 'json',
-    })) as OrderRecord | null;
+  for (
+    let attempt = 0;
+    attempt <
+    MAXIMUM_WRITE_ATTEMPTS;
+    attempt += 1
+  ) {
+    const existing =
+      await store.get(
+        key,
+        {
+          type:
+            'json',
+        },
+      ) as OrderRecord | null;
 
     if (
       existing &&
-      incoming.processedEventIds.some((eventId) => existing.processedEventIds.includes(eventId))
+      incoming
+        .processedEventIds
+        .some(
+          (
+            eventId,
+          ) =>
+            existing
+              .processedEventIds
+              .includes(
+                eventId,
+              ),
+        )
     ) {
       return existing;
     }
 
-    const nextRecord = existing ? mergeOrderRecords(existing, incoming) : incoming;
+    const nextRecord =
+      existing
+        ? mergeOrderRecords(
+          existing,
+          incoming,
+        )
+        : incoming;
 
-    await store.setJSON(key, nextRecord);
+    await store.setJSON(
+      key,
+      nextRecord,
+    );
 
-    const confirmed = (await store.get(key, {
-      type: 'json',
-    })) as OrderRecord | null;
+    const confirmed =
+      await store.get(
+        key,
+        {
+          type:
+            'json',
+        },
+      ) as OrderRecord | null;
 
-    if (confirmed && isIncomingEventSaved(confirmed, incoming)) {
+    if (
+      confirmed &&
+      isIncomingEventSaved(
+        confirmed,
+        incoming,
+      )
+    ) {
       return confirmed;
     }
 
-    await delay(25 * (attempt + 1));
+    await delay(
+      25 *
+      (
+        attempt +
+        1
+      ),
+    );
   }
 
-  throw new Error('The order record could not be saved after multiple attempts.');
+  throw new Error(
+    'The order record could not be saved after multiple attempts.',
+  );
 }
 
-export async function recordProcessedStripeEvent(event: ProcessedStripeEvent): Promise<void> {
-  const store = getEventStore(event.livemode);
+export async function saveOrderFulfillment(
+  sessionId: string,
+  livemode: boolean,
+  shipping:
+    OrderShippingDetails,
+): Promise<OrderRecord> {
+  const store =
+    getOrderStore(
+      livemode,
+    );
 
-  await store.setJSON(getEventKey(event.eventId), event);
+  const key =
+    getOrderKey(
+      sessionId,
+    );
+
+  for (
+    let attempt = 0;
+    attempt <
+    MAXIMUM_WRITE_ATTEMPTS;
+    attempt += 1
+  ) {
+    const existing =
+      await store.get(
+        key,
+        {
+          type:
+            'json',
+        },
+      ) as OrderRecord | null;
+
+    if (!existing) {
+      throw new Error(
+        'The order record does not exist.',
+      );
+    }
+
+    if (
+      existing.shipping
+        ?.trackingCode &&
+      existing.shipping
+        .easypostShipmentId ===
+      shipping
+        .easypostShipmentId
+    ) {
+      return existing;
+    }
+
+    const now =
+      new Date()
+        .toISOString();
+
+    const nextRecord:
+      OrderRecord = {
+      ...existing,
+
+      fulfillmentStatus:
+        'label-created',
+
+      shipping,
+
+      updatedAt:
+        now,
+    };
+
+    await store.setJSON(
+      key,
+      nextRecord,
+    );
+
+    const confirmed =
+      await store.get(
+        key,
+        {
+          type:
+            'json',
+        },
+      ) as OrderRecord | null;
+
+    if (
+      confirmed
+        ?.shipping
+        ?.trackingCode ===
+      shipping
+        .trackingCode &&
+      confirmed
+        .fulfillmentStatus ===
+      'label-created'
+    ) {
+      return confirmed;
+    }
+
+    await delay(
+      25 *
+      (
+        attempt +
+        1
+      ),
+    );
+  }
+
+  throw new Error(
+    'The fulfillment record could not be saved after multiple attempts.',
+  );
 }
 
-export function toPublicOrderStatus(order: OrderRecord): OrderStatusSuccessResponse {
-  let status: 'processing' | 'confirmed' | 'failed';
+export async function recordProcessedStripeEvent(
+  event:
+    ProcessedStripeEvent,
+): Promise<void> {
+  const store =
+    getEventStore(
+      event
+        .livemode,
+    );
 
-  if (order.orderStatus === 'confirmed') {
-    status = 'confirmed';
-  } else if (order.orderStatus === 'payment-failed') {
-    status = 'failed';
+  await store.setJSON(
+    getEventKey(
+      event
+        .eventId,
+    ),
+    event,
+  );
+}
+
+export function toPublicOrderStatus(
+  order:
+    OrderRecord,
+): OrderStatusSuccessResponse {
+  let status:
+    | 'processing'
+    | 'confirmed'
+    | 'failed';
+
+  if (
+    order
+      .orderStatus ===
+    'confirmed'
+  ) {
+    status =
+      'confirmed';
+  } else if (
+    order
+      .orderStatus ===
+    'payment-failed'
+  ) {
+    status =
+      'failed';
   } else {
-    status = 'processing';
+    status =
+      'processing';
   }
 
-  const itemCount = order.items.reduce((total, item) => total + item.quantity, 0);
+  const itemCount =
+    order.items.reduce(
+      (
+        total,
+        item,
+      ) =>
+        total +
+        item.quantity,
+      0,
+    );
 
   return {
     ok: true,
 
-    sessionId: order.sessionId,
+    sessionId:
+      order.sessionId,
 
     status,
 
-    paymentStatus: order.paymentStatus,
+    paymentStatus:
+      order.paymentStatus,
 
-    orderStatus: order.orderStatus,
+    orderStatus:
+      order.orderStatus,
 
-    livemode: order.livemode,
+    fulfillmentStatus:
+      order
+        .fulfillmentStatus ??
+      'unfulfilled',
 
-    currency: order.currency,
+    livemode:
+      order.livemode,
 
-    amountTotal: order.amountTotal,
+    currency:
+      order.currency,
+
+    amountTotal:
+      order.amountTotal,
 
     itemCount,
 
-    clearCart: status === 'confirmed' && order.cartSource === 'storefront-cart',
+    clearCart:
+      status ===
+      'confirmed' &&
+      order
+        .cartSource ===
+      'storefront-cart',
 
-    updatedAt: order.updatedAt,
+    updatedAt:
+      order.updatedAt,
   };
 }

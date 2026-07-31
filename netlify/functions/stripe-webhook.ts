@@ -8,6 +8,10 @@ import {
   sendPaidOrderEmails,
 } from '../../src/server/email/send-order-emails';
 
+import {
+  fulfillPaidSandboxOrder,
+} from '../../src/server/fulfillment';
+
 import type {
   ProcessedStripeEvent,
   SupportedCheckoutEventType,
@@ -29,13 +33,16 @@ const supportedEventTypes =
 
 class WebhookError
   extends Error {
-  readonly status: number;
+  readonly status:
+    number;
 
   constructor(
     status: number,
     message: string,
   ) {
-    super(message);
+    super(
+      message,
+    );
 
     this.name =
       'WebhookError';
@@ -64,6 +71,7 @@ function jsonResponse(
 
 function getStripeConfiguration(): {
   stripe: Stripe;
+
   webhookSecret: string;
 } {
   const stripeSecretKey =
@@ -127,7 +135,8 @@ export default async function handler(
   ) {
     return jsonResponse(
       {
-        received: false,
+        received:
+          false,
 
         message:
           'This endpoint accepts POST requests only.',
@@ -140,7 +149,8 @@ export default async function handler(
     const {
       stripe,
       webhookSecret,
-    } = getStripeConfiguration();
+    } =
+      getStripeConfiguration();
 
     const signature =
       request.headers.get(
@@ -175,7 +185,9 @@ export default async function handler(
       );
     }
 
-    if (event.livemode) {
+    if (
+      event.livemode
+    ) {
       throw new WebhookError(
         400,
         'Live Stripe events are not accepted by this test endpoint.',
@@ -188,26 +200,33 @@ export default async function handler(
       )
     ) {
       return jsonResponse({
-        received: true,
-        ignored: true,
+        received:
+          true,
+
+        ignored:
+          true,
 
         eventType:
           event.type,
       });
     }
 
-    const session =
+    const eventSession =
       event.data
         .object as Stripe.Checkout.Session;
 
     if (
-      session.metadata
+      eventSession
+        .metadata
         ?.storefront !==
       'maxipawz'
     ) {
       return jsonResponse({
-        received: true,
-        ignored: true,
+        received:
+          true,
+
+        ignored:
+          true,
 
         reason:
           'The Checkout Session does not belong to the MaxiPawz integration.',
@@ -224,13 +243,37 @@ export default async function handler(
       alreadyProcessed
     ) {
       return jsonResponse({
-        received: true,
-        duplicate: true,
+        received:
+          true,
+
+        duplicate:
+          true,
 
         eventId:
           event.id,
       });
     }
+
+    /**
+     * Retrieve the current Session instead of relying only
+     * on the webhook snapshot.
+     *
+     * We specifically expand the selected ShippingRate so
+     * fulfillment can read the EasyPost metadata attached
+     * when the customer selected the carrier service.
+     */
+    const session =
+      await stripe
+        .checkout
+        .sessions
+        .retrieve(
+          eventSession.id,
+          {
+            expand: [
+              'shipping_cost.shipping_rate',
+            ],
+          },
+        );
 
     const lineItemsResponse =
       await stripe
@@ -239,7 +282,8 @@ export default async function handler(
         .listLineItems(
           session.id,
           {
-            limit: 100,
+            limit:
+              100,
 
             expand: [
               'data.price.product',
@@ -262,7 +306,8 @@ export default async function handler(
         session,
 
         lineItems:
-          lineItemsResponse.data,
+          lineItemsResponse
+            .data,
 
         eventId:
           event.id,
@@ -279,15 +324,24 @@ export default async function handler(
         incomingOrder,
       );
 
+    const fulfilledOrder =
+      await fulfillPaidSandboxOrder({
+        session,
+
+        order:
+          savedOrder,
+      });
+
     if (
-      savedOrder
+      fulfilledOrder
         .paymentStatus ===
       'paid'
     ) {
       await sendPaidOrderEmails({
         session,
+
         order:
-          savedOrder,
+          fulfilledOrder,
       });
     }
 
@@ -317,20 +371,27 @@ export default async function handler(
     );
 
     return jsonResponse({
-      received: true,
-      duplicate: false,
+      received:
+        true,
+
+      duplicate:
+        false,
 
       sessionId:
-        savedOrder
+        fulfilledOrder
           .sessionId,
 
       paymentStatus:
-        savedOrder
+        fulfilledOrder
           .paymentStatus,
 
       orderStatus:
-        savedOrder
+        fulfilledOrder
           .orderStatus,
+
+      fulfillmentStatus:
+        fulfilledOrder
+          .fulfillmentStatus,
     });
   } catch (error) {
     if (
@@ -356,7 +417,8 @@ export default async function handler(
 
     return jsonResponse(
       {
-        received: false,
+        received:
+          false,
 
         message:
           'The webhook could not be processed.',
