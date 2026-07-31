@@ -1,3 +1,7 @@
+import type {
+    ShippingDestinationZone,
+} from '../config/shipping';
+
 export interface ShippingThresholdState {
     merchandiseSubtotalAmount: number;
 
@@ -39,7 +43,10 @@ export interface ShippingOptionsUpdateRequest {
 export interface ShippingOptionsUpdateSuccessResponse {
     ok: true;
 
-    shipmentId: string;
+    zone:
+    ShippingDestinationZone;
+
+    shippingAmount: number;
 
     optionCount: number;
 

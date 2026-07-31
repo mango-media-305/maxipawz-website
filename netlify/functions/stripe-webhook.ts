@@ -8,10 +8,6 @@ import {
   sendPaidOrderEmails,
 } from '../../src/server/email/send-order-emails';
 
-import {
-  fulfillPaidSandboxOrder,
-} from '../../src/server/fulfillment';
-
 import type {
   ProcessedStripeEvent,
   SupportedCheckoutEventType,
@@ -254,25 +250,12 @@ export default async function handler(
       });
     }
 
-    /**
-     * Retrieve the current Session instead of relying only
-     * on the webhook snapshot.
-     *
-     * We specifically expand the selected ShippingRate so
-     * fulfillment can read the EasyPost metadata attached
-     * when the customer selected the carrier service.
-     */
     const session =
       await stripe
         .checkout
         .sessions
         .retrieve(
           eventSession.id,
-          {
-            expand: [
-              'shipping_cost.shipping_rate',
-            ],
-          },
         );
 
     const lineItemsResponse =
@@ -324,16 +307,8 @@ export default async function handler(
         incomingOrder,
       );
 
-    const fulfilledOrder =
-      await fulfillPaidSandboxOrder({
-        session,
-
-        order:
-          savedOrder,
-      });
-
     if (
-      fulfilledOrder
+      savedOrder
         .paymentStatus ===
       'paid'
     ) {
@@ -341,7 +316,7 @@ export default async function handler(
         session,
 
         order:
-          fulfilledOrder,
+          savedOrder,
       });
     }
 
@@ -378,19 +353,19 @@ export default async function handler(
         false,
 
       sessionId:
-        fulfilledOrder
+        savedOrder
           .sessionId,
 
       paymentStatus:
-        fulfilledOrder
+        savedOrder
           .paymentStatus,
 
       orderStatus:
-        fulfilledOrder
+        savedOrder
           .orderStatus,
 
       fulfillmentStatus:
-        fulfilledOrder
+        savedOrder
           .fulfillmentStatus,
     });
   } catch (error) {

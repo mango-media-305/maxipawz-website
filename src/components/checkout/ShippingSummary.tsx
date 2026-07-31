@@ -91,26 +91,26 @@ export default function ShippingSummary({
                         {shippingState
                             .qualifiesForFreeShipping
                             ? 'Free'
-                            : 'Live carrier rate'}
+                            : 'Weight-based estimate'}
                     </dd>
                 </div>
 
                 <div className="flex items-center justify-between gap-4 border-t border-brand-200 pt-2">
                     <dt className="font-bold text-ink-600">
-                        Carrier rate
+                        Final shipping charge
                     </dt>
 
                     <dd className="text-right font-black text-ink-900">
                         {shippingState
                             .qualifiesForFreeShipping
                             ? 'Included'
-                            : 'Calculated after address'}
+                            : 'Calculated at checkout'}
                     </dd>
                 </div>
             </dl>
 
             <p className="mt-3 text-xs font-bold leading-5 text-ink-600">
-                Carrier options are calculated from the U.S. delivery address and shipment details during secure checkout.
+                Standard shipping is estimated from the order's packed weight and U.S. destination. The amount is shown before payment.
             </p>
 
             <a

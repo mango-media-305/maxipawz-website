@@ -1,4 +1,8 @@
 import {
+    shippingConfig,
+} from '../config/shipping';
+
+import {
     products,
 } from '../data/products';
 
@@ -12,6 +16,7 @@ import type {
     Product,
     ProductPrice,
     ProductVariant,
+    ProductWeight,
 } from '../types/product';
 
 const MAXIMUM_CART_LINES =
@@ -28,6 +33,8 @@ export interface ValidatedCheckoutCart {
     }>;
 
     merchandiseSubtotalAmount: number;
+
+    shippingWeightOz: number;
 }
 
 export class CheckoutValidationError
@@ -247,9 +254,7 @@ function getVariant(
         );
     }
 
-    if (
-        !variantId
-    ) {
+    if (!variantId) {
         return undefined;
     }
 
@@ -262,9 +267,7 @@ function getVariant(
                 variantId,
         );
 
-    if (
-        !variant
-    ) {
+    if (!variant) {
         throw new CheckoutValidationError(
             400,
             'variant-not-found',
@@ -299,6 +302,69 @@ function getPrice(
     return price;
 }
 
+function weightToOunces(
+    weight:
+        ProductWeight,
+): number {
+    switch (
+    weight.unit
+    ) {
+        case 'oz':
+            return weight.value;
+
+        case 'lb':
+            return (
+                weight.value *
+                16
+            );
+
+        case 'g':
+            return (
+                weight.value /
+                28.349523125
+            );
+
+        case 'kg':
+            return (
+                weight.value *
+                35.27396195
+            );
+    }
+}
+
+function getProductShippingWeightOz(
+    product: Product,
+): number {
+    const weight =
+        product.dimensions
+            ?.weight;
+
+    if (
+        weight &&
+        Number.isFinite(
+            weight.value,
+        ) &&
+        weight.value > 0
+    ) {
+        return weightToOunces(
+            weight,
+        );
+    }
+
+    if (
+        product.isDemo
+    ) {
+        return shippingConfig
+            .demoFallbackItemWeightOz;
+    }
+
+    throw new CheckoutValidationError(
+        400,
+        'invalid-cart',
+        `${product.name} does not have a shipping weight configured.`,
+    );
+}
+
 export function validateCheckoutCart(
     request:
         CheckoutSessionRequest,
@@ -308,14 +374,13 @@ export function validateCheckoutCart(
     const groupedLines =
         new Map<
             string,
-            {
-                quantity: number;
-
-                unitAmount: number;
-            }
+            number
         >();
 
     let merchandiseSubtotalAmount =
+        0;
+
+    let productWeightOz =
         0;
 
     request.lines.forEach(
@@ -376,16 +441,19 @@ export function validateCheckoutCart(
                 price.amount *
                 line.quantity;
 
-            const existing =
+            productWeightOz +=
+                getProductShippingWeightOz(
+                    product,
+                ) *
+                line.quantity;
+
+            const existingQuantity =
                 groupedLines.get(
                     stripePriceId,
-                );
+                ) ?? 0;
 
             const nextQuantity =
-                (
-                    existing?.quantity ??
-                    0
-                ) +
+                existingQuantity +
                 line.quantity;
 
             if (
@@ -401,19 +469,34 @@ export function validateCheckoutCart(
 
             groupedLines.set(
                 stripePriceId,
-                {
-                    quantity:
-                        nextQuantity,
-
-                    unitAmount:
-                        price.amount,
-                },
+                nextQuantity,
             );
         },
     );
 
+    const shippingWeightOz =
+        Math.ceil(
+            productWeightOz +
+            shippingConfig
+                .packagingWeightOz,
+        );
+
+    if (
+        shippingWeightOz >
+        shippingConfig
+            .maximumAutomaticWeightOz
+    ) {
+        throw new CheckoutValidationError(
+            400,
+            'invalid-cart',
+            'This cart is too heavy for automatic standard-shipping estimation.',
+        );
+    }
+
     return {
         merchandiseSubtotalAmount,
+
+        shippingWeightOz,
 
         lineItems:
             Array.from(
@@ -422,12 +505,11 @@ export function validateCheckoutCart(
             ).map(
                 ([
                     price,
-                    line,
+                    quantity,
                 ]) => ({
                     price,
 
-                    quantity:
-                        line.quantity,
+                    quantity,
                 }),
             ),
     };

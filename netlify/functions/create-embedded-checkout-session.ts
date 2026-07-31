@@ -343,7 +343,16 @@ export default async function handler(
                             'true',
 
                         shipping_provider:
-                            'easypost',
+                            'maxipawz',
+
+                        shipping_model:
+                            'weight-destination-table',
+
+                        shipping_weight_oz:
+                            String(
+                                cart
+                                    .shippingWeightOz,
+                            ),
 
                         free_shipping_threshold_cents:
                             String(

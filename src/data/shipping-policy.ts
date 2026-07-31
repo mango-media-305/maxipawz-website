@@ -55,10 +55,10 @@ export const shippingPolicyDocument:
         'Orders and Delivery',
 
     description:
-        'Review MaxiPawz shipping destinations, carrier-calculated rates, free-shipping eligibility, tracking, and delivery information.',
+        'Review MaxiPawz shipping destinations, shipping estimates, free-shipping eligibility, tracking, and delivery information.',
 
     introduction:
-        `${businessDisplayName} currently uses this policy as a draft for storefront, Stripe Sandbox, and carrier-integration testing. Carrier-calculated shipping is being implemented before live commercial payments are enabled.`,
+        `${businessDisplayName} currently uses this policy as a draft while the storefront and Stripe Sandbox checkout are being prepared for commercial launch.`,
 
     icon:
         'shipping',
@@ -97,25 +97,27 @@ export const shippingPolicyDocument:
                 'rates',
 
             title:
-                '2. Carrier-calculated shipping',
+                '2. Standard shipping charges',
 
             paragraphs: [
                 `For eligible orders below ${formatAmount(
                     shippingConfig
                         .freeShippingThresholdAmount,
-                )}, shipping charges are calculated using available carrier rates based on the delivery address and shipment information.`,
+                )}, MaxiPawz calculates a standard-shipping estimate based on the order's shipping weight and destination category.`,
 
-                'The shipping options and amounts available for an order are displayed during checkout before payment is completed.',
+                'The shipping charge for the order is displayed during checkout before payment is completed.',
             ],
 
             bullets: [
-                'MaxiPawz does not use a fixed standard-shipping charge in the current shipping model.',
+                'MaxiPawz does not currently use a single fixed standard-shipping charge.',
 
-                'Carrier availability, service levels, transit estimates, and rates may vary by destination and shipment characteristics.',
+                'The checkout shipping charge is an estimate and is not represented as a live USPS, UPS, FedEx, or other carrier quote.',
 
-                'Shipping charges may be subject to applicable tax rules when required by the destination jurisdiction.',
+                'The actual postage MaxiPawz later pays to fulfill an order may be higher or lower than the checkout shipping charge.',
 
-                'The shipping amount paid by the customer is shown separately from the merchandise subtotal and sales tax.',
+                'Customers are not charged an additional amount solely because actual postage later differs from the shipping charge accepted during checkout.',
+
+                'Shipping charges may be subject to applicable sales-tax rules based on the destination.',
             ],
         },
 
@@ -132,7 +134,7 @@ export const shippingPolicyDocument:
                         .freeShippingThresholdAmount,
                 )} or more.`,
 
-                'When an order qualifies, MaxiPawz covers the eligible standard carrier service offered for that shipment. Faster or upgraded services may remain available for an additional charge.',
+                'When an eligible order receives free standard shipping, MaxiPawz absorbs the applicable fulfillment shipping expense.',
             ],
 
             bullets: [
@@ -157,26 +159,28 @@ export const shippingPolicyDocument:
                 '4. Order processing',
 
             paragraphs: [
-                'Orders require processing before they are transferred to a carrier.',
+                'Orders require processing and packaging before they are transferred to a shipping carrier.',
 
-                'A final commercial processing-time commitment has not yet been published. The live policy will be updated before commercial launch with the applicable order-processing expectations.',
+                'A final commercial processing-time commitment has not yet been published. The live policy will be updated before commercial launch.',
             ],
 
             notice:
-                'Processing time and carrier transit time are separate. Creating a shipping label does not by itself mean that the carrier has received the package.',
+                'Processing time and carrier transit time are separate. Creating a shipping label does not by itself mean that a carrier has received the package.',
         },
 
         {
             id:
-                'delivery',
+                'fulfillment',
 
             title:
-                '5. Carrier transit estimates',
+                '5. Shipping carrier and fulfillment',
 
             paragraphs: [
-                'When available, carrier transit estimates may be displayed alongside shipping services during checkout.',
+                'MaxiPawz may select an appropriate available carrier and service when fulfilling a standard-shipping order.',
 
-                'Carrier delivery estimates are not guarantees. Weather, carrier capacity, service interruptions, destination conditions, and other events outside MaxiPawz control may affect delivery.',
+                'Carrier selection may depend on package size, package weight, destination, service availability, delivery expectations, and shipping cost.',
+
+                'During the initial launch stage, shipping labels and carrier services may be purchased manually as part of the fulfillment process.',
             ],
         },
 
@@ -188,7 +192,7 @@ export const shippingPolicyDocument:
                 '6. Shipping addresses and changes',
 
             paragraphs: [
-                'Customers are responsible for reviewing the recipient name, street address, unit or apartment information, city, state, and postal code before completing checkout.',
+                'Customers are responsible for reviewing the recipient name, street address, apartment or unit information, city, state, and postal code before completing checkout.',
 
                 `Contact MaxiPawz through the ${businessConfig.contactLabel} promptly if an address correction is needed.`,
 
@@ -201,12 +205,12 @@ export const shippingPolicyDocument:
                 'tracking',
 
             title:
-                '7. Tracking and carrier activity',
+                '7. Tracking',
 
             paragraphs: [
-                'Tracking information will be provided when a supported shipping label is created for the order.',
+                'Tracking information will be provided when tracking is available for the shipping service used to fulfill the order.',
 
-                'Tracking information may require time to update after label creation. A shipment should not be considered accepted by the carrier until carrier tracking activity reflects possession or acceptance.',
+                'Tracking information can require time to update after a label is created.',
 
                 'Carrier scans, estimated delivery dates, delivery notices, and route information are controlled by the carrier.',
             ],
@@ -257,7 +261,7 @@ export const shippingPolicyDocument:
                 '10. Policy updates and contact',
 
             paragraphs: [
-                'This Shipping Policy may be updated when shipping carriers, rates, destinations, fulfillment procedures, delivery expectations, or legal requirements change.',
+                'This Shipping Policy may be updated when shipping rates, destinations, fulfillment procedures, delivery expectations, or legal requirements change.',
 
                 `Questions may be submitted through the ${businessConfig.contactLabel}.`,
             ],

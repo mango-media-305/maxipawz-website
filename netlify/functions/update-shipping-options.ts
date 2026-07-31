@@ -1,21 +1,8 @@
-import {
-    createHash,
-} from 'node:crypto';
-
 import type {
     Config,
 } from '@netlify/functions';
 
 import Stripe from 'stripe';
-
-import {
-    createRatedTestShipment,
-    retrieveTestShipment,
-} from '../../src/server/easypost';
-
-import type {
-    EasyPostAddress,
-} from '../../src/server/easypost';
 
 import {
     buildStripeShippingOptions,
@@ -161,99 +148,6 @@ function parseShippingDetails(
     };
 }
 
-function toEasyPostAddress(
-    shipping:
-        CheckoutShippingDetails,
-): EasyPostAddress {
-    return {
-        name:
-            shipping.name,
-
-        street1:
-            shipping.address
-                .line1,
-
-        ...(shipping.address
-            .line2
-            ? {
-                street2:
-                    shipping.address
-                        .line2,
-            }
-            : {}),
-
-        city:
-            shipping.address
-                .city,
-
-        state:
-            shipping.address
-                .state,
-
-        zip:
-            shipping.address
-                .postal_code,
-
-        country:
-            'US',
-    };
-}
-
-function getAddressFingerprint(
-    shipping:
-        CheckoutShippingDetails,
-): string {
-    const normalized =
-        JSON.stringify({
-            name:
-                shipping.name
-                    .toLowerCase(),
-
-            line1:
-                shipping.address
-                    .line1
-                    .toLowerCase(),
-
-            line2:
-                shipping.address
-                    .line2
-                    ?.toLowerCase() ??
-                '',
-
-            city:
-                shipping.address
-                    .city
-                    .toLowerCase(),
-
-            state:
-                shipping.address
-                    .state
-                    .toUpperCase(),
-
-            postalCode:
-                shipping.address
-                    .postal_code
-                    .toUpperCase(),
-
-            country:
-                'US',
-        });
-
-    return createHash(
-        'sha256',
-    )
-        .update(
-            normalized,
-        )
-        .digest(
-            'hex',
-        )
-        .slice(
-            0,
-            32,
-        );
-}
-
 function parseRequest(
     value: unknown,
 ): ShippingOptionsUpdateRequest {
@@ -283,14 +177,16 @@ function parseRequest(
     };
 }
 
-function getMerchandiseSubtotal(
-    session:
-        Stripe.Checkout.Session,
+function parseTrustedAmount(
+    value:
+        | string
+        | undefined,
+
+    label: string,
 ): number {
     const amount =
         Number(
-            session.metadata
-                ?.merchandise_subtotal_cents,
+            value,
         );
 
     if (
@@ -300,7 +196,7 @@ function getMerchandiseSubtotal(
         amount < 0
     ) {
         throw new Error(
-            'The Checkout Session does not contain a trusted merchandise subtotal.',
+            `The Checkout Session does not contain a valid ${label}.`,
         );
     }
 
@@ -326,16 +222,6 @@ export default async function handler(
     }
 
     try {
-        if (
-            process.env
-                .EASYPOST_MODE !==
-            'test'
-        ) {
-            throw new Error(
-                'EasyPost Sandbox shipping is not configured.',
-            );
-        }
-
         const stripeSecretKey =
             process.env
                 .STRIPE_SECRET_KEY
@@ -401,53 +287,45 @@ export default async function handler(
         }
 
         const merchandiseSubtotalAmount =
-            getMerchandiseSubtotal(
-                session,
+            parseTrustedAmount(
+                session.metadata
+                    ?.merchandise_subtotal_cents,
+
+                'merchandise subtotal',
             );
+
+        const shippingWeightOz =
+            parseTrustedAmount(
+                session.metadata
+                    ?.shipping_weight_oz,
+
+                'shipping weight',
+            );
+
+        if (
+            shippingWeightOz <= 0
+        ) {
+            throw new Error(
+                'The Checkout Session shipping weight is invalid.',
+            );
+        }
 
         const shippingDetails =
             payload
                 .shipping_details;
 
-        const fingerprint =
-            getAddressFingerprint(
-                shippingDetails,
-            );
-
-        const previousFingerprint =
-            session.metadata
-                ?.shipping_quote_fingerprint;
-
-        const previousShipmentId =
-            session.metadata
-                ?.easypost_shipment_id;
-
-        const shipment =
-            previousFingerprint ===
-                fingerprint &&
-                previousShipmentId
-                    ?.startsWith(
-                        'shp_',
-                    )
-                ? await retrieveTestShipment(
-                    previousShipmentId,
-                )
-                : await createRatedTestShipment(
-                    toEasyPostAddress(
-                        shippingDetails,
-                    ),
-
-                    session.id,
-                );
-
         const {
             options,
-            freeShippingApplied,
+            estimate,
         } =
             buildStripeShippingOptions(
-                shipment,
+                shippingDetails
+                    .address
+                    .state,
 
                 merchandiseSubtotalAmount,
+
+                shippingWeightOz,
             );
 
         await stripe
@@ -498,14 +376,24 @@ export default async function handler(
                         options,
 
                     metadata: {
-                        shipping_quote_fingerprint:
-                            fingerprint,
+                        shipping_provider:
+                            'maxipawz',
 
-                        easypost_shipment_id:
-                            shipment.id,
+                        shipping_model:
+                            'weight-destination-table',
+
+                        shipping_zone:
+                            estimate.zone,
+
+                        shipping_estimate_cents:
+                            String(
+                                estimate
+                                    .shippingAmount,
+                            ),
 
                         free_shipping_applied:
-                            freeShippingApplied
+                            estimate
+                                .freeShippingApplied
                                 ? 'true'
                                 : 'false',
                     },
@@ -515,17 +403,23 @@ export default async function handler(
         return jsonResponse({
             ok: true,
 
-            shipmentId:
-                shipment.id,
+            zone:
+                estimate.zone,
+
+            shippingAmount:
+                estimate
+                    .shippingAmount,
 
             optionCount:
                 options.length,
 
-            freeShippingApplied,
+            freeShippingApplied:
+                estimate
+                    .freeShippingApplied,
         });
     } catch (error) {
         console.error(
-            'Dynamic shipping rate calculation failed.',
+            'Shipping estimate calculation failed.',
             error,
         );
 
@@ -536,7 +430,7 @@ export default async function handler(
                 message:
                     error instanceof Error
                         ? error.message
-                        : 'Shipping options could not be calculated.',
+                        : 'Shipping could not be calculated.',
             },
             400,
         );
