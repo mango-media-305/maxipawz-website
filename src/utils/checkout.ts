@@ -12,14 +12,6 @@ import type {
     ResolvedCartLine,
 } from '../types/cart';
 
-import {
-    getCartTotals,
-} from './cart';
-
-import {
-    getShippingQuote,
-} from './shipping';
-
 function getStripePriceId(
     item: ResolvedCartLine,
 ): string | undefined {
@@ -37,34 +29,29 @@ function addReason(
     reason: string,
 ): void {
     if (
-        !reasons.includes(reason)
+        !reasons.includes(
+            reason,
+        )
     ) {
-        reasons.push(reason);
+        reasons.push(
+            reason,
+        );
     }
 }
 
 export function getCheckoutReadiness(
     items: ResolvedCartLine[],
 ): CheckoutReadiness {
-    const reasons: string[] = [];
+    const reasons: string[] =
+        [];
 
     const sandboxDemoCheckout =
         commerceConfig
             .sandboxCatalogCheckoutEnabled;
 
-    const totals =
-        getCartTotals(items);
-
-    const shippingQuote =
-        getShippingQuote(
-            totals.subtotalAmount,
-
-            commerceConfig
-                .shipping
-                .standardShippingRateAmount,
-        );
-
-    if (items.length === 0) {
+    if (
+        items.length === 0
+    ) {
         addReason(
             reasons,
             'Your cart is empty.',
@@ -101,10 +88,24 @@ export function getCheckoutReadiness(
         );
     }
 
+    if (
+        !commerceConfig
+            .stripePublishableKey
+            .startsWith(
+                'pk_test_',
+            )
+    ) {
+        addReason(
+            reasons,
+            'The Stripe Sandbox publishable key is not configured.',
+        );
+    }
+
     const containsDemoItems =
         items.some(
             (item) =>
-                item.product?.isDemo,
+                item.product
+                    ?.isDemo,
         );
 
     if (
@@ -133,7 +134,9 @@ export function getCheckoutReadiness(
         items.some(
             (item) =>
                 item.available &&
-                !getStripePriceId(item),
+                !getStripePriceId(
+                    item,
+                ),
         )
     ) {
         addReason(
@@ -142,21 +145,10 @@ export function getCheckoutReadiness(
         );
     }
 
-    if (
-        items.length > 0 &&
-        totals.unavailableLineCount ===
-        0 &&
-        !shippingQuote.configured
-    ) {
-        addReason(
-            reasons,
-            'The standard shipping rate is not configured.',
-        );
-    }
-
     return {
         ready:
-            reasons.length === 0,
+            reasons.length ===
+            0,
 
         reasons,
     };
@@ -170,17 +162,24 @@ export function buildCheckoutRequest(
             items
                 .filter(
                     (item) =>
-                        Boolean(item.product),
+                        Boolean(
+                            item.product,
+                        ),
                 )
-                .map((item) => ({
-                    productSlug:
-                        item.line.productSlug,
+                .map(
+                    (item) => ({
+                        productSlug:
+                            item.line
+                                .productSlug,
 
-                    variantId:
-                        item.line.variantId,
+                        variantId:
+                            item.line
+                                .variantId,
 
-                    quantity:
-                        item.line.quantity,
-                })),
+                        quantity:
+                            item.line
+                                .quantity,
+                    }),
+                ),
     };
 }

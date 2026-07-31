@@ -8,10 +8,6 @@ import {
 } from '../config/charity';
 
 import {
-    commerceConfig,
-} from '../config/commerce';
-
-import {
     shippingConfig,
 } from '../config/shipping';
 
@@ -29,28 +25,14 @@ function formatAmount(
                 'currency',
 
             currency:
-                shippingConfig.currency,
+                shippingConfig
+                    .currency,
         },
     ).format(
-        amount / 100,
+        amount /
+        100,
     );
 }
-
-const standardShippingRateAmount =
-    commerceConfig
-        .shipping
-        .standardShippingRateAmount;
-
-const standardShippingStatement =
-    standardShippingRateAmount ===
-        null
-        ? 'The flat standard-shipping amount is not yet configured. It must be configured and displayed before a commercial order below the free-shipping threshold can be accepted.'
-        : `Orders with an eligible merchandise subtotal below ${formatAmount(
-            shippingConfig
-                .freeShippingThresholdAmount,
-        )} are charged ${formatAmount(
-            standardShippingRateAmount,
-        )} for standard shipping.`;
 
 const policyStatusLabel =
     businessConfig
@@ -73,10 +55,10 @@ export const shippingPolicyDocument:
         'Orders and Delivery',
 
     description:
-        'Review MaxiPawz shipping destinations, rates, free-shipping eligibility, processing times, and delivery information.',
+        'Review MaxiPawz shipping destinations, carrier-calculated rates, free-shipping eligibility, tracking, and delivery information.',
 
     introduction:
-        `${businessDisplayName} currently uses this policy as a draft for storefront and Stripe Sandbox testing. Shipping rates and threshold calculations are implemented, but the complete commerce policy package must still be approved before live payments are enabled.`,
+        `${businessDisplayName} currently uses this policy as a draft for storefront, Stripe Sandbox, and carrier-integration testing. Carrier-calculated shipping is being implemented before live commercial payments are enabled.`,
 
     icon:
         'shipping',
@@ -104,13 +86,10 @@ export const shippingPolicyDocument:
                 '1. Shipping destinations',
 
             paragraphs: [
-                `MaxiPawz is currently configured to collect and accept shipping addresses within the ${shippingConfig.destinationLabel}.`,
+                `MaxiPawz is configured to accept shipping addresses within the ${shippingConfig.destinationLabel}.`,
 
-                'A valid and complete shipping address must be entered during Stripe Checkout. International shipping and delivery to separately coded United States territories are not included in the current checkout configuration.',
+                'International shipping and delivery to separately coded United States territories are not included in the current checkout configuration.',
             ],
-
-            notice:
-                'Shipping availability may change when carriers, fulfillment providers, product restrictions, or destination requirements are finalized.',
         },
 
         {
@@ -118,15 +97,42 @@ export const shippingPolicyDocument:
                 'rates',
 
             title:
-                '2. Standard and free shipping',
+                '2. Carrier-calculated shipping',
 
             paragraphs: [
-                standardShippingStatement,
+                `For eligible orders below ${formatAmount(
+                    shippingConfig
+                        .freeShippingThresholdAmount,
+                )}, shipping charges are calculated using available carrier rates based on the delivery address and shipment information.`,
 
+                'The shipping options and amounts available for an order are displayed during checkout before payment is completed.',
+            ],
+
+            bullets: [
+                'MaxiPawz does not use a fixed standard-shipping charge in the current shipping model.',
+
+                'Carrier availability, service levels, transit estimates, and rates may vary by destination and shipment characteristics.',
+
+                'Shipping charges may be subject to applicable tax rules when required by the destination jurisdiction.',
+
+                'The shipping amount paid by the customer is shown separately from the merchandise subtotal and sales tax.',
+            ],
+        },
+
+        {
+            id:
+                'free-shipping',
+
+            title:
+                '3. Free standard shipping',
+
+            paragraphs: [
                 `Eligible orders receive free standard shipping when the merchandise subtotal is ${formatAmount(
                     shippingConfig
                         .freeShippingThresholdAmount,
                 )} or more.`,
+
+                'When an order qualifies, MaxiPawz covers the eligible standard carrier service offered for that shipment. Faster or upgraded services may remain available for an additional charge.',
             ],
 
             bullets: [
@@ -140,8 +146,6 @@ export const shippingPolicyDocument:
                     .countsTowardFreeShipping
                     ? 'A future shelter contribution may count toward the free-shipping threshold only when that program is formally enabled.'
                     : 'A future optional animal-shelter contribution will not count toward the free-shipping threshold.',
-
-                'The applicable shipping amount is displayed in the cart estimate and again in Stripe Checkout before payment.',
             ],
         },
 
@@ -150,16 +154,16 @@ export const shippingPolicyDocument:
                 'processing',
 
             title:
-                '3. Order processing',
+                '4. Order processing',
 
             paragraphs: [
-                `The current draft processing estimate is ${shippingConfig.processingEstimate.minimumBusinessDays}–${shippingConfig.processingEstimate.maximumBusinessDays} business days before an order is transferred to a carrier.`,
+                'Orders require processing before they are transferred to a carrier.',
 
-                'Business days generally exclude weekends and federal holidays. High-volume periods, inventory review, address questions, payment review, severe weather, or operational interruptions may extend processing time.',
+                'A final commercial processing-time commitment has not yet been published. The live policy will be updated before commercial launch with the applicable order-processing expectations.',
             ],
 
             notice:
-                'Processing time and carrier transit time are separate. An order is not considered shipped until it has been transferred to the carrier.',
+                'Processing time and carrier transit time are separate. Creating a shipping label does not by itself mean that the carrier has received the package.',
         },
 
         {
@@ -167,12 +171,12 @@ export const shippingPolicyDocument:
                 'delivery',
 
             title:
-                '4. Estimated carrier transit',
+                '5. Carrier transit estimates',
 
             paragraphs: [
-                `The current standard-shipping transit estimate is ${shippingConfig.transitEstimate.minimumBusinessDays}–${shippingConfig.transitEstimate.maximumBusinessDays} business days after carrier acceptance.`,
+                'When available, carrier transit estimates may be displayed alongside shipping services during checkout.',
 
-                'Delivery estimates are not guarantees. Carrier capacity, weather, service interruptions, destination conditions, and events outside MaxiPawz control may affect actual delivery.',
+                'Carrier delivery estimates are not guarantees. Weather, carrier capacity, service interruptions, destination conditions, and other events outside MaxiPawz control may affect delivery.',
             ],
         },
 
@@ -181,14 +185,14 @@ export const shippingPolicyDocument:
                 'addresses',
 
             title:
-                '5. Shipping addresses and changes',
+                '6. Shipping addresses and changes',
 
             paragraphs: [
                 'Customers are responsible for reviewing the recipient name, street address, unit or apartment information, city, state, and postal code before completing checkout.',
 
                 `Contact MaxiPawz through the ${businessConfig.contactLabel} promptly if an address correction is needed.`,
 
-                'An address change cannot be guaranteed after an order has entered processing, has been packed, or has been transferred to a carrier.',
+                'An address change cannot be guaranteed after an order has entered fulfillment or has been transferred to a carrier.',
             ],
         },
 
@@ -197,12 +201,14 @@ export const shippingPolicyDocument:
                 'tracking',
 
             title:
-                '6. Tracking and carrier activity',
+                '7. Tracking and carrier activity',
 
             paragraphs: [
-                'Tracking information will be provided when supported by the selected carrier and fulfillment process.',
+                'Tracking information will be provided when a supported shipping label is created for the order.',
 
-                'A tracking status may require time to update after a label is created. Carrier scans, estimated dates, delivery notices, and route information are controlled by the carrier.',
+                'Tracking information may require time to update after label creation. A shipment should not be considered accepted by the carrier until carrier tracking activity reflects possession or acceptance.',
+
+                'Carrier scans, estimated delivery dates, delivery notices, and route information are controlled by the carrier.',
             ],
         },
 
@@ -211,7 +217,7 @@ export const shippingPolicyDocument:
                 'shipping-problems',
 
             title:
-                '7. Delayed, damaged, incomplete, or missing shipments',
+                '8. Delayed, damaged, incomplete, or missing shipments',
 
             paragraphs: [
                 `Contact MaxiPawz through the ${businessConfig.contactLabel} promptly when a shipment appears delayed, damaged, incomplete, misdirected, or marked delivered but cannot be located.`,
@@ -227,7 +233,7 @@ export const shippingPolicyDocument:
                 'charity',
 
             title:
-                '8. Future animal-shelter contribution program',
+                '9. Future animal-shelter contribution program',
 
             paragraphs: [
                 charityConfig.planned
@@ -248,10 +254,10 @@ export const shippingPolicyDocument:
                 'updates',
 
             title:
-                '9. Policy updates and contact',
+                '10. Policy updates and contact',
 
             paragraphs: [
-                'This Shipping Policy may be updated when shipping rates, carriers, destinations, fulfillment procedures, delivery estimates, or legal requirements change.',
+                'This Shipping Policy may be updated when shipping carriers, rates, destinations, fulfillment procedures, delivery expectations, or legal requirements change.',
 
                 `Questions may be submitted through the ${businessConfig.contactLabel}.`,
             ],

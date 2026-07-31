@@ -7,7 +7,6 @@ import {
 } from './storefront';
 
 import {
-    parseShippingRateAmount,
     shippingConfig,
 } from './shipping';
 
@@ -36,14 +35,11 @@ export const sandboxCatalogCheckoutEnabled =
         .PUBLIC_SANDBOX_CATALOG_CHECKOUT ===
     'true';
 
-export const standardShippingRateAmount =
-    parseShippingRateAmount(
-        import.meta.env
-            .PUBLIC_STANDARD_SHIPPING_RATE_CENTS,
-    );
-
 export const checkoutEndpoint =
-    '/api/create-checkout-session';
+    '/api/create-embedded-checkout-session';
+
+export const shippingOptionsEndpoint =
+    '/api/update-shipping-options';
 
 export const orderStatusEndpoint =
     '/api/get-order-status';
@@ -51,14 +47,25 @@ export const orderStatusEndpoint =
 export const stripeWebhookEndpoint =
     '/api/stripe-webhook';
 
+export const stripePublishableKey =
+    import.meta.env
+        .PUBLIC_STRIPE_PUBLISHABLE_KEY
+        ?.trim() ?? '';
+
 export const commerceConfig = {
     checkoutMode,
 
     sandboxCatalogCheckoutEnabled,
 
     checkoutEndpoint,
+
+    shippingOptionsEndpoint,
+
     orderStatusEndpoint,
+
     stripeWebhookEndpoint,
+
+    stripePublishableKey,
 
     storefrontLive:
         isStoreLive,
@@ -74,8 +81,6 @@ export const commerceConfig = {
 
     shipping: {
         ...shippingConfig,
-
-        standardShippingRateAmount,
     },
 
     charity: {

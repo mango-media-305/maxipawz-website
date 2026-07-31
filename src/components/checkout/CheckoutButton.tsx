@@ -1,72 +1,27 @@
 import {
     useId,
     useMemo,
-    useState,
 } from 'preact/hooks';
-
-import {
-    commerceConfig,
-} from '../../config/commerce';
 
 import type {
     ResolvedCartLine,
 } from '../../types/cart';
-
-import type {
-    CheckoutSessionErrorResponse,
-    CheckoutSessionResponse,
-    CheckoutSessionSuccessResponse,
-} from '../../types/checkout';
 
 import {
     getCartTotals,
 } from '../../utils/cart';
 
 import {
-    buildCheckoutRequest,
     getCheckoutReadiness,
 } from '../../utils/checkout';
 
 import ShippingSummary from './ShippingSummary';
 
 interface Props {
-    lines: ResolvedCartLine[];
+    lines:
+    ResolvedCartLine[];
+
     compact?: boolean;
-}
-
-function isRecord(
-    value: unknown,
-): value is Record<string, unknown> {
-    return (
-        typeof value === 'object' &&
-        value !== null &&
-        !Array.isArray(value)
-    );
-}
-
-function isSuccessResponse(
-    value: unknown,
-): value is CheckoutSessionSuccessResponse {
-    return (
-        isRecord(value) &&
-        value.ok === true &&
-        typeof value.url === 'string' &&
-        typeof value.sessionId ===
-        'string'
-    );
-}
-
-function isErrorResponse(
-    value: unknown,
-): value is CheckoutSessionErrorResponse {
-    return (
-        isRecord(value) &&
-        value.ok === false &&
-        typeof value.message ===
-        'string' &&
-        typeof value.code ===
-        'string'
-    );
 }
 
 function CheckoutIcon() {
@@ -80,11 +35,13 @@ function CheckoutIcon() {
             aria-hidden="true"
         >
             <path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L20 8H7" />
+
             <circle
                 cx="10"
                 cy="20"
                 r="1.5"
             />
+
             <circle
                 cx="18"
                 cy="20"
@@ -98,126 +55,42 @@ export default function CheckoutButton({
     lines,
     compact = false,
 }: Props) {
-    const statusId = useId();
+    const statusId =
+        useId();
 
-    const [
-        loading,
-        setLoading,
-    ] = useState(false);
+    const totals =
+        useMemo(
+            () =>
+                getCartTotals(
+                    lines,
+                ),
+            [lines],
+        );
 
-    const [
-        error,
-        setError,
-    ] = useState('');
-
-    const totals = useMemo(
-        () =>
-            getCartTotals(lines),
-        [lines],
-    );
-
-    const readiness = useMemo(
-        () =>
-            getCheckoutReadiness(
-                lines,
-            ),
-        [lines],
-    );
-
-    async function beginCheckout(): Promise<void> {
-        if (
-            !readiness.ready ||
-            loading
-        ) {
-            return;
-        }
-
-        setLoading(true);
-        setError('');
-
-        try {
-            const response =
-                await fetch(
-                    commerceConfig
-                        .checkoutEndpoint,
-                    {
-                        method: 'POST',
-
-                        headers: {
-                            Accept:
-                                'application/json',
-
-                            'Content-Type':
-                                'application/json',
-                        },
-
-                        body:
-                            JSON.stringify(
-                                buildCheckoutRequest(
-                                    lines,
-                                ),
-                            ),
-                    },
-                );
-
-            const payload =
-                (await response
-                    .json()
-                    .catch(
-                        () => null,
-                    )) as
-                | CheckoutSessionResponse
-                | null;
-
-            if (
-                !response.ok ||
-                !isSuccessResponse(
-                    payload,
-                )
-            ) {
-                const message =
-                    isErrorResponse(
-                        payload,
-                    )
-                        ? payload.message
-                        : 'Checkout could not be started. Please try again.';
-
-                throw new Error(
-                    message,
-                );
-            }
-
-            window.location.assign(
-                payload.url,
-            );
-        } catch (
-        checkoutError
-        ) {
-            setError(
-                checkoutError instanceof
-                    Error
-                    ? checkoutError.message
-                    : 'Checkout could not be started. Please try again.',
-            );
-
-            setLoading(false);
-        }
-    }
+    const readiness =
+        useMemo(
+            () =>
+                getCheckoutReadiness(
+                    lines,
+                ),
+            [lines],
+        );
 
     const buttonLabel =
-        loading
-            ? 'Opening Stripe Checkout…'
-            : readiness.ready
-                ? 'Continue to Test Checkout'
-                : 'Checkout Not Ready';
+        readiness.ready
+            ? 'Continue to Test Checkout'
+            : 'Checkout Not Ready';
 
     return (
         <div>
             <ShippingSummary
                 subtotalAmount={
-                    totals.subtotalAmount
+                    totals
+                        .subtotalAmount
                 }
-                compact={compact}
+                compact={
+                    compact
+                }
             />
 
             <button
@@ -229,14 +102,15 @@ export default function CheckoutButton({
                         : 'cursor-not-allowed border border-sand-dark bg-ink-200 text-ink-600',
                 ].join(' ')}
                 disabled={
-                    !readiness.ready ||
-                    loading
+                    !readiness.ready
                 }
                 aria-describedby={
                     statusId
                 }
                 onClick={() => {
-                    void beginCheckout();
+                    window.location.assign(
+                        '/checkout',
+                    );
                 }}
             >
                 <CheckoutIcon />
@@ -245,7 +119,9 @@ export default function CheckoutButton({
             </button>
 
             <div
-                id={statusId}
+                id={
+                    statusId
+                }
                 className={
                     compact
                         ? 'mt-3'
@@ -264,7 +140,8 @@ export default function CheckoutButton({
 
                                 {readiness
                                     .reasons
-                                    .length > 1 && (
+                                    .length >
+                                    1 && (
                                         <span className="ml-1 text-ink-500">
                                             +
                                             {readiness
@@ -309,12 +186,6 @@ export default function CheckoutButton({
                             </ul>
                         </div>
                     )
-                )}
-
-                {error && (
-                    <p className="rounded-2xl border border-danger-100 bg-danger-50 p-3 text-sm font-bold leading-6 text-danger-700">
-                        {error}
-                    </p>
                 )}
             </div>
         </div>

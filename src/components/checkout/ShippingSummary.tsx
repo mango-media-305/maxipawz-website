@@ -7,12 +7,12 @@ import {
 } from '../../utils/cart';
 
 import {
-    getFreeShippingProgress,
-    getShippingQuote,
+    getShippingThresholdState,
 } from '../../utils/shipping';
 
 interface Props {
     subtotalAmount: number;
+
     compact?: boolean;
 }
 
@@ -20,41 +20,10 @@ export default function ShippingSummary({
     subtotalAmount,
     compact = false,
 }: Props) {
-    const shippingQuote =
-        getShippingQuote(
-            subtotalAmount,
-
-            commerceConfig
-                .shipping
-                .standardShippingRateAmount,
-        );
-
-    const progress =
-        getFreeShippingProgress(
+    const shippingState =
+        getShippingThresholdState(
             subtotalAmount,
         );
-
-    const shippingLabel =
-        shippingQuote
-            .qualifiesForFreeShipping
-            ? 'Free'
-            : shippingQuote
-                .shippingAmount === null
-                ? 'Not configured'
-                : formatCartAmount(
-                    shippingQuote
-                        .shippingAmount,
-                );
-
-    const totalLabel =
-        shippingQuote
-            .estimatedTotalBeforeTaxAmount ===
-            null
-            ? 'Pending'
-            : formatCartAmount(
-                shippingQuote
-                    .estimatedTotalBeforeTaxAmount,
-            );
 
     return (
         <section
@@ -73,34 +42,41 @@ export default function ShippingSummary({
                     </p>
 
                     <p className="mt-1 text-sm font-black text-ink-900">
-                        {shippingQuote
+                        {shippingState
                             .qualifiesForFreeShipping
                             ? 'Free standard shipping unlocked'
                             : `Add ${formatCartAmount(
-                                shippingQuote
+                                shippingState
                                     .amountUntilFreeShipping,
-                            )} for free shipping`}
+                            )} for free standard shipping`}
                     </p>
                 </div>
 
                 <span className="shrink-0 rounded-full border border-brand-200 bg-white-warm px-3 py-1 text-xs font-extrabold text-brand-800">
-                    {progress}%
+                    {
+                        shippingState
+                            .progress
+                    }
+                    %
                 </span>
             </div>
 
             <div
                 className="mt-3 h-2.5 overflow-hidden rounded-full bg-brand-100"
                 role="progressbar"
-                aria-label="Progress toward free shipping"
+                aria-label="Progress toward free standard shipping"
                 aria-valuemin={0}
                 aria-valuemax={100}
-                aria-valuenow={progress}
+                aria-valuenow={
+                    shippingState
+                        .progress
+                }
             >
                 <div
                     className="h-full rounded-full bg-brand-500 transition-[width] duration-300"
                     style={{
                         width:
-                            `${progress}%`,
+                            `${shippingState.progress}%`,
                     }}
                 />
             </div>
@@ -111,27 +87,31 @@ export default function ShippingSummary({
                         Standard shipping
                     </dt>
 
-                    <dd className="font-black text-ink-900">
-                        {shippingLabel}
+                    <dd className="text-right font-black text-ink-900">
+                        {shippingState
+                            .qualifiesForFreeShipping
+                            ? 'Free'
+                            : 'Live carrier rate'}
                     </dd>
                 </div>
 
                 <div className="flex items-center justify-between gap-4 border-t border-brand-200 pt-2">
-                    <dt className="font-bold text-ink-700">
-                        Estimated total before tax
+                    <dt className="font-bold text-ink-600">
+                        Carrier rate
                     </dt>
 
-                    <dd className="font-black text-ink-900">
-                        {totalLabel}
+                    <dd className="text-right font-black text-ink-900">
+                        {shippingState
+                            .qualifiesForFreeShipping
+                            ? 'Included'
+                            : 'Calculated after address'}
                     </dd>
                 </div>
             </dl>
 
-            {!shippingQuote.configured && (
-                <p className="mt-3 text-xs font-bold leading-5 text-accent-800">
-                    A standard shipping rate must be configured before orders below the free-shipping threshold can be checked out.
-                </p>
-            )}
+            <p className="mt-3 text-xs font-bold leading-5 text-ink-600">
+                Carrier options are calculated from the U.S. delivery address and shipment details during secure checkout.
+            </p>
 
             <a
                 href={

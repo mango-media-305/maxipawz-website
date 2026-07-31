@@ -1,17 +1,22 @@
 export interface CheckoutRequestLine {
     productSlug: string;
+
     variantId?: string;
+
     quantity: number;
 }
 
 export interface CheckoutSessionRequest {
-    lines: CheckoutRequestLine[];
+    lines:
+    CheckoutRequestLine[];
 }
 
 export interface CheckoutSessionSuccessResponse {
     ok: true;
+
     sessionId: string;
-    url: string;
+
+    clientSecret: string;
 }
 
 export type CheckoutErrorCode =
@@ -22,7 +27,6 @@ export type CheckoutErrorCode =
     | 'storefront-not-live'
     | 'policies-incomplete'
     | 'stripe-not-configured'
-    | 'shipping-not-configured'
     | 'product-not-found'
     | 'product-unavailable'
     | 'demo-product'
@@ -33,7 +37,10 @@ export type CheckoutErrorCode =
 
 export interface CheckoutSessionErrorResponse {
     ok: false;
-    code: CheckoutErrorCode;
+
+    code:
+    CheckoutErrorCode;
+
     message: string;
 }
 
@@ -43,5 +50,6 @@ export type CheckoutSessionResponse =
 
 export interface CheckoutReadiness {
     ready: boolean;
+
     reasons: string[];
 }
