@@ -16,6 +16,50 @@ import type {
 const ADMIN_TOKEN_KEY =
     'maxipawz-admin-token';
 
+function RefreshIcon() {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="size-4"
+            aria-hidden="true"
+        >
+            <path d="M20 6v5h-5" />
+
+            <path d="M4 18v-5h5" />
+
+            <path d="M6.1 8a8 8 0 0 1 13.2-2L20 11" />
+
+            <path d="M17.9 16a8 8 0 0 1-13.2 2L4 13" />
+        </svg>
+    );
+}
+
+function LogoutIcon() {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="size-4"
+            aria-hidden="true"
+        >
+            <path d="M10 17l5-5-5-5" />
+
+            <path d="M15 12H3" />
+
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+        </svg>
+    );
+}
+
 function formatMoney(
     amount: number,
     currency: string,
@@ -38,20 +82,43 @@ function formatMoney(
 function formatDate(
     value: string,
 ): string {
-    return new Intl.DateTimeFormat(
-        'en-US',
-        {
-            dateStyle:
-                'medium',
-
-            timeStyle:
-                'short',
-        },
-    ).format(
+    const date =
         new Date(
             value,
-        ),
-    );
+        );
+
+    const datePart =
+        new Intl.DateTimeFormat(
+            'en-US',
+            {
+                month:
+                    'short',
+
+                day:
+                    'numeric',
+
+                year:
+                    'numeric',
+            },
+        ).format(
+            date,
+        );
+
+    const timePart =
+        new Intl.DateTimeFormat(
+            'en-US',
+            {
+                hour:
+                    'numeric',
+
+                minute:
+                    '2-digit',
+            },
+        ).format(
+            date,
+        );
+
+    return `${datePart} at ${timePart}`;
 }
 
 function formatAddress(
@@ -480,6 +547,65 @@ function FulfillmentForm({
     );
 }
 
+interface FulfilledOrderCardProps {
+    order:
+    AdminOrder;
+}
+
+function FulfilledOrderCard({
+    order,
+}: FulfilledOrderCardProps) {
+    return (
+        <article className="rounded-4xl border border-sand bg-white-warm p-5 shadow-card sm:p-6">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                    <p className="text-xs font-extrabold tracking-[0.08em] text-brand-700 uppercase">
+                        {
+                            order.reference
+                        }
+                    </p>
+
+                    <h2 className="mt-2 text-2xl text-ink-900">
+                        {
+                            order.customer
+                                ?.name ??
+                            'Customer'
+                        }
+                    </h2>
+
+                    <p className="mt-1 break-all text-sm text-ink-600">
+                        {
+                            order.customer
+                                ?.email ??
+                            'Email unavailable'
+                        }
+                    </p>
+
+                    <p className="mt-3 text-xs font-bold text-ink-500">
+                        {formatDate(
+                            order.createdAt,
+                        )}
+                    </p>
+                </div>
+
+                <div className="flex shrink-0 flex-wrap gap-2">
+                    <span className="rounded-full bg-success-50 px-3 py-1 text-xs font-extrabold text-success-700">
+                        {
+                            order.paymentStatus
+                        }
+                    </span>
+
+                    <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-extrabold text-brand-700">
+                        {
+                            order.fulfillmentStatus
+                        }
+                    </span>
+                </div>
+            </div>
+        </article>
+    );
+}
+
 interface OrderCardProps {
     order:
     AdminOrder;
@@ -498,6 +624,24 @@ function OrderCard({
     token,
     onUpdated,
 }: OrderCardProps) {
+    const isFulfilled =
+        order.fulfillmentStatus ===
+        'shipped' ||
+        order.fulfillmentStatus ===
+        'delivered';
+
+    if (
+        isFulfilled
+    ) {
+        return (
+            <FulfilledOrderCard
+                order={
+                    order
+                }
+            />
+        );
+    }
+
     const itemCount =
         order.items.reduce(
             (
@@ -508,10 +652,6 @@ function OrderCard({
                 item.quantity,
             0,
         );
-
-    const actualPostage =
-        order.fulfillment
-            ?.postageAmount;
 
     return (
         <article className="rounded-4xl border border-sand bg-white-warm p-5 shadow-card sm:p-6">
@@ -531,7 +671,7 @@ function OrderCard({
                         }
                     </h2>
 
-                    <p className="mt-1 text-sm text-ink-600">
+                    <p className="mt-1 break-all text-sm text-ink-600">
                         {
                             order.customer
                                 ?.email ??
@@ -539,7 +679,7 @@ function OrderCard({
                         }
                     </p>
 
-                    <p className="mt-2 text-xs font-bold text-ink-500">
+                    <p className="mt-3 text-xs font-bold text-ink-500">
                         {formatDate(
                             order.createdAt,
                         )}
@@ -641,22 +781,6 @@ function OrderCard({
                     </dd>
                 </div>
 
-                {typeof actualPostage ===
-                    'number' && (
-                        <div className="flex justify-between gap-4">
-                            <dt className="font-bold text-ink-600">
-                                Actual postage
-                            </dt>
-
-                            <dd className="font-black text-ink-900">
-                                {formatMoney(
-                                    actualPostage,
-                                    order.currency,
-                                )}
-                            </dd>
-                        </div>
-                    )}
-
                 <div className="flex justify-between gap-4">
                     <dt className="font-bold text-ink-600">
                         Tax
@@ -684,51 +808,7 @@ function OrderCard({
                 </div>
             </dl>
 
-            {order.fulfillmentStatus ===
-                'shipped' &&
-                order.fulfillment ? (
-                <div className="mt-5 rounded-2xl border border-success-100 bg-success-50 p-4">
-                    <p className="font-extrabold text-success-700">
-                        Shipped
-                    </p>
-
-                    <p className="mt-2 text-sm leading-6 text-ink-700">
-                        {
-                            order.fulfillment
-                                .carrier
-                        }
-                        {order.fulfillment
-                            .service
-                            ? ` — ${order.fulfillment.service}`
-                            : ''}
-                        <br />
-
-                        Tracking:{' '}
-                        <strong>
-                            {
-                                order.fulfillment
-                                    .trackingNumber
-                            }
-                        </strong>
-                    </p>
-
-                    {order.fulfillment
-                        .trackingUrl && (
-                            <a
-                                href={
-                                    order.fulfillment
-                                        .trackingUrl
-                                }
-                                target="_blank"
-                                rel="noreferrer"
-                                className="mt-3 inline-flex font-extrabold text-brand-700 underline"
-                            >
-                                Open tracking
-                            </a>
-                        )}
-                </div>
-            ) : (
-                order.paymentStatus ===
+            {order.paymentStatus ===
                 'paid' && (
                     <FulfillmentForm
                         order={
@@ -741,8 +821,7 @@ function OrderCard({
                             onUpdated
                         }
                     />
-                )
-            )}
+                )}
         </article>
     );
 }
@@ -876,7 +955,9 @@ export default function AdminOrders() {
                     ADMIN_TOKEN_KEY,
                 );
 
-            if (savedToken) {
+            if (
+                savedToken
+            ) {
                 setTokenInput(
                     savedToken,
                 );
@@ -889,7 +970,9 @@ export default function AdminOrders() {
         [],
     );
 
-    if (!token) {
+    if (
+        !token
+    ) {
         return (
             <section className="mx-auto max-w-xl rounded-[2.5rem] border border-brand-200 bg-white-warm p-6 shadow-card sm:p-8">
                 <p className="text-xs font-extrabold tracking-[0.08em] text-brand-700 uppercase">
@@ -991,19 +1074,21 @@ export default function AdminOrders() {
                 <div className="flex gap-2">
                     <button
                         type="button"
-                        className="rounded-full border border-brand-300 bg-white-warm px-4 py-2 text-sm font-extrabold text-brand-800"
+                        className="inline-flex items-center gap-2 rounded-full border border-brand-300 bg-white-warm px-4 py-2 text-sm font-extrabold text-brand-800 transition hover:border-brand-400 hover:bg-brand-50"
                         onClick={() => {
                             void loadOrders(
                                 token,
                             );
                         }}
                     >
+                        <RefreshIcon />
+
                         Refresh
                     </button>
 
                     <button
                         type="button"
-                        className="rounded-full border border-sand-dark bg-white-warm px-4 py-2 text-sm font-extrabold text-ink-700"
+                        className="inline-flex items-center gap-2 rounded-full border border-sand-dark bg-white-warm px-4 py-2 text-sm font-extrabold text-ink-700 transition hover:bg-cream-soft"
                         onClick={() => {
                             window.sessionStorage.removeItem(
                                 ADMIN_TOKEN_KEY,
@@ -1013,11 +1098,17 @@ export default function AdminOrders() {
                                 '',
                             );
 
+                            setTokenInput(
+                                '',
+                            );
+
                             setOrders(
                                 [],
                             );
                         }}
                     >
+                        <LogoutIcon />
+
                         Lock
                     </button>
                 </div>
@@ -1037,7 +1128,7 @@ export default function AdminOrders() {
                     </h2>
                 </div>
             ) : (
-                <div className="grid gap-5">
+                <div className="grid gap-4">
                     {orders.map(
                         (
                             order,
