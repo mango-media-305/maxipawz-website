@@ -9,11 +9,12 @@ import {
 } from '../data/products';
 
 import type {
+  OrderCarrier,
   OrderCartSource,
+  OrderFulfillment,
   OrderItem,
   OrderPaymentStatus,
   OrderRecord,
-  OrderShippingDetails,
   OrderStatus,
   OrderStatusSuccessResponse,
   ProcessedStripeEvent,
@@ -50,6 +51,23 @@ interface BuildOrderRecordOptions {
   SupportedCheckoutEventType;
 
   eventCreated: number;
+}
+
+export interface ManualFulfillmentInput {
+  sessionId: string;
+
+  livemode: boolean;
+
+  carrier:
+  OrderCarrier;
+
+  service?: string;
+
+  trackingNumber: string;
+
+  trackingUrl?: string;
+
+  postageAmount: number;
 }
 
 function getEnvironmentSuffix(
@@ -526,9 +544,21 @@ function mergeOrderRecords(
       incoming
         .fulfillmentStatus,
 
-    shipping:
-      existing.shipping ??
-      incoming.shipping,
+    fulfillment:
+      existing
+        .fulfillment ??
+      incoming
+        .fulfillment,
+
+    customer:
+      incoming.customer ??
+      existing.customer,
+
+    shippingAddress:
+      incoming
+        .shippingAddress ??
+      existing
+        .shippingAddress,
   };
 }
 
@@ -579,6 +609,103 @@ function delay(
       );
     },
   );
+}
+
+function buildCustomer(
+  session:
+    Stripe.Checkout.Session,
+) {
+  const details =
+    session
+      .customer_details;
+
+  const shipping =
+    session
+      .collected_information
+      ?.shipping_details;
+
+  const name =
+    shipping
+      ?.name
+      ?.trim() ||
+    details
+      ?.name
+      ?.trim() ||
+    undefined;
+
+  const email =
+    details
+      ?.email
+      ?.trim() ||
+    undefined;
+
+  const phone =
+    details
+      ?.phone
+      ?.trim() ||
+    undefined;
+
+  if (
+    !name &&
+    !email &&
+    !phone
+  ) {
+    return undefined;
+  }
+
+  return {
+    name,
+    email,
+    phone,
+  };
+}
+
+function buildShippingAddress(
+  session:
+    Stripe.Checkout.Session,
+) {
+  const shipping =
+    session
+      .collected_information
+      ?.shipping_details;
+
+  if (!shipping) {
+    return undefined;
+  }
+
+  const {
+    address,
+  } = shipping;
+
+  return {
+    name:
+      shipping.name ??
+      undefined,
+
+    line1:
+      address.line1 ??
+      undefined,
+
+    line2:
+      address.line2 ??
+      undefined,
+
+    city:
+      address.city ??
+      undefined,
+
+    state:
+      address.state ??
+      undefined,
+
+    postalCode:
+      address.postal_code ??
+      undefined,
+
+    country:
+      address.country ??
+      undefined,
+  };
 }
 
 export function buildOrderRecord(
@@ -645,6 +772,16 @@ export function buildOrderRecord(
 
     fulfillmentStatus:
       'unfulfilled',
+
+    customer:
+      buildCustomer(
+        session,
+      ),
+
+    shippingAddress:
+      buildShippingAddress(
+        session,
+      ),
 
     stripeSessionStatus:
       session.status ??
@@ -727,7 +864,64 @@ export async function getOrderBySessionId(
       type:
         'json',
     },
-  ) as OrderRecord | null;
+  ) as
+    | OrderRecord
+    | null;
+}
+
+export async function listOrders(
+  livemode: boolean,
+): Promise<OrderRecord[]> {
+  const store =
+    getOrderStore(
+      livemode,
+    );
+
+  const {
+    blobs,
+  } =
+    await store.list({
+      prefix:
+        'session/',
+    });
+
+  const orders =
+    await Promise.all(
+      blobs.map(
+        async (
+          blob,
+        ) =>
+          await store.get(
+            blob.key,
+            {
+              type:
+                'json',
+            },
+          ) as
+          | OrderRecord
+          | null,
+      ),
+    );
+
+  return orders
+    .filter(
+      (
+        order,
+      ): order is OrderRecord =>
+        order !== null,
+    )
+    .sort(
+      (
+        left,
+        right,
+      ) =>
+        new Date(
+          right.createdAt,
+        ).getTime() -
+        new Date(
+          left.createdAt,
+        ).getTime(),
+    );
 }
 
 export async function hasProcessedStripeEvent(
@@ -779,7 +973,9 @@ export async function saveOrderRecord(
           type:
             'json',
         },
-      ) as OrderRecord | null;
+      ) as
+      | OrderRecord
+      | null;
 
     if (
       existing &&
@@ -819,7 +1015,9 @@ export async function saveOrderRecord(
           type:
             'json',
         },
-      ) as OrderRecord | null;
+      ) as
+      | OrderRecord
+      | null;
 
     if (
       confirmed &&
@@ -845,20 +1043,18 @@ export async function saveOrderRecord(
   );
 }
 
-export async function saveOrderFulfillment(
-  sessionId: string,
-  livemode: boolean,
-  shipping:
-    OrderShippingDetails,
+export async function saveManualFulfillment(
+  input:
+    ManualFulfillmentInput,
 ): Promise<OrderRecord> {
   const store =
     getOrderStore(
-      livemode,
+      input.livemode,
     );
 
   const key =
     getOrderKey(
-      sessionId,
+      input.sessionId,
     );
 
   for (
@@ -874,7 +1070,9 @@ export async function saveOrderFulfillment(
           type:
             'json',
         },
-      ) as OrderRecord | null;
+      ) as
+      | OrderRecord
+      | null;
 
     if (!existing) {
       throw new Error(
@@ -883,28 +1081,53 @@ export async function saveOrderFulfillment(
     }
 
     if (
-      existing.shipping
-        ?.trackingCode &&
-      existing.shipping
-        .easypostShipmentId ===
-      shipping
-        .easypostShipmentId
+      existing.paymentStatus !==
+      'paid'
     ) {
-      return existing;
+      throw new Error(
+        'Only paid orders can be marked as shipped.',
+      );
     }
 
     const now =
       new Date()
         .toISOString();
 
+    const fulfillment:
+      OrderFulfillment = {
+      carrier:
+        input.carrier,
+
+      service:
+        input.service,
+
+      trackingNumber:
+        input.trackingNumber,
+
+      trackingUrl:
+        input.trackingUrl,
+
+      postageAmount:
+        input.postageAmount,
+
+      shippedAt:
+        existing
+          .fulfillment
+          ?.shippedAt ??
+        now,
+
+      updatedAt:
+        now,
+    };
+
     const nextRecord:
       OrderRecord = {
       ...existing,
 
       fulfillmentStatus:
-        'label-created',
+        'shipped',
 
-      shipping,
+      fulfillment,
 
       updatedAt:
         now,
@@ -922,17 +1145,18 @@ export async function saveOrderFulfillment(
           type:
             'json',
         },
-      ) as OrderRecord | null;
+      ) as
+      | OrderRecord
+      | null;
 
     if (
       confirmed
-        ?.shipping
-        ?.trackingCode ===
-      shipping
-        .trackingCode &&
+        ?.fulfillmentStatus ===
+      'shipped' &&
       confirmed
-        .fulfillmentStatus ===
-      'label-created'
+        .fulfillment
+        ?.trackingNumber ===
+      input.trackingNumber
     ) {
       return confirmed;
     }
@@ -947,7 +1171,7 @@ export async function saveOrderFulfillment(
   }
 
   throw new Error(
-    'The fulfillment record could not be saved after multiple attempts.',
+    'The fulfillment update could not be saved after multiple attempts.',
   );
 }
 

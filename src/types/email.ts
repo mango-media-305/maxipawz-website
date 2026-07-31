@@ -1,6 +1,7 @@
 export type TransactionalEmailKind =
     | 'customer-order-confirmation'
-    | 'internal-new-order';
+    | 'internal-new-order'
+    | 'customer-shipping-confirmation';
 
 export type EmailDeliveryStatus =
     | 'sent'
@@ -9,14 +10,18 @@ export type EmailDeliveryStatus =
 export interface EmailDeliveryRecord {
     version: 1;
 
-    kind: TransactionalEmailKind;
+    kind:
+    TransactionalEmailKind;
 
     sessionId: string;
+
     recipient: string;
 
-    status: EmailDeliveryStatus;
+    status:
+    EmailDeliveryStatus;
 
     provider: 'resend';
+
     providerMessageId?: string;
 
     attemptCount: number;
@@ -24,5 +29,6 @@ export interface EmailDeliveryRecord {
     lastError?: string;
 
     createdAt: string;
+
     updatedAt: string;
 }

@@ -1,0 +1,16 @@
+---
+import AdminOrders from '@components/admin/AdminOrders';
+import BaseLayout from '@layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+    title="Order Fulfillment"
+    description="Private MaxiPawz order fulfillment dashboard."
+    noIndex={true}
+>
+    <section class="section-spacing">
+        <div class="site-container">
+        <AdminOrders client:load />
+        </div>
+    </section>
+</BaseLayout>

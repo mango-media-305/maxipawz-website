@@ -10,10 +10,9 @@ export type OrderStatus =
 
 export type OrderFulfillmentStatus =
   | 'unfulfilled'
-  | 'label-created'
-  | 'in-transit'
+  | 'processing'
+  | 'shipped'
   | 'delivered'
-  | 'delivery-exception'
   | 'cancelled';
 
 export type OrderCheckoutMode =
@@ -29,6 +28,12 @@ export type SupportedCheckoutEventType =
   | 'checkout.session.completed'
   | 'checkout.session.async_payment_succeeded'
   | 'checkout.session.async_payment_failed';
+
+export type OrderCarrier =
+  | 'USPS'
+  | 'UPS'
+  | 'FedEx'
+  | 'Other';
 
 export interface OrderItem {
   productSlug: string;
@@ -52,49 +57,49 @@ export interface OrderItem {
   currency: string;
 }
 
-export interface OrderShippingDetails {
-  provider: 'easypost';
+export interface OrderCustomer {
+  name?: string;
 
-  easypostShipmentId: string;
+  email?: string;
 
-  easypostRateId: string;
+  phone?: string;
+}
 
-  carrier: string;
+export interface OrderShippingAddress {
+  name?: string;
 
-  service: string;
+  line1?: string;
 
-  /**
-   * Actual carrier postage represented in cents.
-   *
-   * This can be greater than customerShippingAmount
-   * when MaxiPawz provides free shipping.
-   */
-  postageAmount: number;
+  line2?: string;
 
-  /**
-   * Shipping amount charged to the customer in Stripe.
-   *
-   * This is 0 when free standard shipping applies.
-   */
-  customerShippingAmount: number;
+  city?: string;
 
-  freeShippingApplied: boolean;
+  state?: string;
 
-  trackingCode: string;
+  postalCode?: string;
 
-  trackerId?: string;
+  country?: string;
+}
+
+export interface OrderFulfillment {
+  carrier: OrderCarrier;
+
+  service?: string;
+
+  trackingNumber: string;
 
   trackingUrl?: string;
 
-  labelUrl: string;
+  /**
+   * Actual postage MaxiPawz paid to ship the package.
+   *
+   * Stored in cents.
+   */
+  postageAmount: number;
 
-  labelPdfUrl?: string;
+  shippedAt: string;
 
-  labelZplUrl?: string;
-
-  trackerStatus?: string;
-
-  labelCreatedAt: string;
+  updatedAt: string;
 }
 
 export interface OrderRecord {
@@ -119,6 +124,15 @@ export interface OrderRecord {
   fulfillmentStatus:
   OrderFulfillmentStatus;
 
+  fulfillment?:
+  OrderFulfillment;
+
+  customer?:
+  OrderCustomer;
+
+  shippingAddress?:
+  OrderShippingAddress;
+
   stripeSessionStatus?: string;
 
   currency: string;
@@ -129,14 +143,16 @@ export interface OrderRecord {
 
   amountTax: number;
 
+  /**
+   * Shipping amount charged to the customer.
+   *
+   * This can be 0 when free shipping applies.
+   */
   amountShipping: number;
 
   amountDiscount: number;
 
   items: OrderItem[];
-
-  shipping?:
-  OrderShippingDetails;
 
   processedEventIds: string[];
 
