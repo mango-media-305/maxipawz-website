@@ -10,6 +10,10 @@ import {
 import Stripe from 'stripe';
 
 import {
+    taxConfig,
+} from '../../src/config/tax';
+
+import {
     products,
 } from '../../src/data/products';
 
@@ -70,7 +74,10 @@ function normalizeLookupSegment(
             /^_+|_+$/g,
             '',
         )
-        .slice(0, 80);
+        .slice(
+            0,
+            80,
+        );
 }
 
 function getProductLookupKey(
@@ -103,7 +110,8 @@ function getProductImageUrl(
     }
 
     const source =
-        typeof image.src === 'string'
+        typeof image.src ===
+            'string'
             ? image.src
             : image.src.src;
 
@@ -146,6 +154,14 @@ function getPriceForOption(
         );
     }
 
+    if (
+        price.currency !== 'USD'
+    ) {
+        throw new Error(
+            `${product.name} must use USD for the U.S.-only storefront.`,
+        );
+    }
+
     return price;
 }
 
@@ -172,14 +188,18 @@ async function findExistingProduct(
         })
     ) {
         if (
-            stripeProduct.metadata
+            stripeProduct
+                .metadata
                 .catalog_slug ===
             product.slug &&
-            stripeProduct.metadata
+            stripeProduct
+                .metadata
                 .storefront ===
             'maxipawz' &&
-            stripeProduct.metadata
-                .demo_only === 'true'
+            stripeProduct
+                .metadata
+                .demo_only ===
+            'true'
         ) {
             return stripeProduct;
         }
@@ -221,6 +241,14 @@ async function getOrCreateProduct(
 
         demo_only:
             'true',
+
+        sales_country:
+            taxConfig
+                .salesCountry,
+
+        tax_code:
+            taxConfig
+                .productTaxCode,
     };
 
     const productData = {
@@ -231,6 +259,10 @@ async function getOrCreateProduct(
 
         description:
             `TEST ONLY — ${product.shortDescription}`,
+
+        tax_code:
+            taxConfig
+                .productTaxCode,
 
         metadata,
 
@@ -298,7 +330,8 @@ async function getOrCreatePrice(
         );
 
     const shouldBeActive =
-        availability === 'in-stock';
+        availability ===
+        'in-stock';
 
     const label =
         variant
@@ -327,6 +360,14 @@ async function getOrCreatePrice(
 
         demo_only:
             'true',
+
+        sales_country:
+            taxConfig
+                .salesCountry,
+
+        tax_behavior:
+            taxConfig
+                .taxBehavior,
     };
 
     const existingPrice =
@@ -336,17 +377,26 @@ async function getOrCreatePrice(
         );
 
     const currency =
-        price.currency.toLowerCase();
+        price.currency
+            .toLowerCase();
 
     const existingMatches =
-        existingPrice &&
-        getStripeProductId(
-            existingPrice,
-        ) === stripeProduct.id &&
-        existingPrice.unit_amount ===
-        price.amount &&
-        existingPrice.currency ===
-        currency;
+        Boolean(
+            existingPrice &&
+            getStripeProductId(
+                existingPrice,
+            ) === stripeProduct.id &&
+            existingPrice
+                .unit_amount ===
+            price.amount &&
+            existingPrice
+                .currency ===
+            currency &&
+            existingPrice
+                .tax_behavior ===
+            taxConfig
+                .taxBehavior,
+        );
 
     if (
         existingPrice &&
@@ -376,6 +426,10 @@ async function getOrCreatePrice(
             unit_amount:
                 price.amount,
 
+            tax_behavior:
+                taxConfig
+                    .taxBehavior,
+
             active:
                 shouldBeActive,
 
@@ -383,7 +437,9 @@ async function getOrCreatePrice(
                 lookupKey,
 
             transfer_lookup_key:
-                Boolean(existingPrice),
+                Boolean(
+                    existingPrice,
+                ),
 
             nickname:
                 `[DEMO] ${label}`,
@@ -444,7 +500,8 @@ async function syncCatalogProduct(
                     variant,
                 );
 
-            reference.variantPriceIds[
+            reference
+                .variantPriceIds[
                 variant.id
             ] = stripePrice.id;
         }
@@ -456,7 +513,8 @@ async function syncCatalogProduct(
                 product,
             );
 
-        reference.stripeDefaultPriceId =
+        reference
+            .stripeDefaultPriceId =
             stripePrice.id;
     }
 
@@ -515,6 +573,16 @@ async function main(): Promise<void> {
         `Synchronizing ${demoProducts.length} demo products with Stripe Sandbox...`,
     );
 
+    console.log(
+        `Product tax code: ${taxConfig.productTaxCode} (${taxConfig.productTaxCodeLabel})`,
+    );
+
+    console.log(
+        `Tax behavior: ${taxConfig.taxBehavior}`,
+    );
+
+    console.log('');
+
     const entries: Array<
         [
             string,
@@ -569,6 +637,24 @@ async function main(): Promise<void> {
                     new Date()
                         .toISOString(),
 
+                taxConfiguration: {
+                    salesCountry:
+                        taxConfig
+                            .salesCountry,
+
+                    productTaxCode:
+                        taxConfig
+                            .productTaxCode,
+
+                    shippingTaxCode:
+                        taxConfig
+                            .shippingTaxCode,
+
+                    taxBehavior:
+                        taxConfig
+                            .taxBehavior,
+                },
+
                 products:
                     catalog,
             },
@@ -580,6 +666,7 @@ async function main(): Promise<void> {
     );
 
     console.log('');
+
     console.log(
         'Stripe Sandbox synchronization complete.',
     );
@@ -629,12 +716,14 @@ async function main(): Promise<void> {
     );
 }
 
-main().catch((error) => {
-    console.error(
-        error instanceof Error
-            ? error.message
-            : error,
-    );
+main().catch(
+    (error) => {
+        console.error(
+            error instanceof Error
+                ? error.message
+                : error,
+        );
 
-    process.exitCode = 1;
-});
+        process.exitCode = 1;
+    },
+);

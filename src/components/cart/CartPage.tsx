@@ -31,11 +31,13 @@ function CartIcon() {
             aria-hidden="true"
         >
             <path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L20 8H7" />
+
             <circle
                 cx="10"
                 cy="20"
                 r="1.5"
             />
+
             <circle
                 cx="18"
                 cy="20"
@@ -93,7 +95,7 @@ export default function CartPage() {
                 </h2>
 
                 <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-ink-600">
-                    Add demo products to test quantities, variants, shipping thresholds, Stripe Checkout, and persistent cart storage.
+                    Add demo products to test quantities, variants, shipping thresholds, automatic sales tax, Stripe Checkout, and persistent cart storage.
                 </p>
 
                 <a
@@ -141,7 +143,9 @@ export default function CartPage() {
                                     'Remove every item from your cart?',
                                 );
 
-                            if (confirmed) {
+                            if (
+                                confirmed
+                            ) {
                                 clearCart();
                             }
                         }}
@@ -154,8 +158,12 @@ export default function CartPage() {
                     {resolvedLines.map(
                         (item) => (
                             <CartItem
-                                key={item.key}
-                                item={item}
+                                key={
+                                    item.key
+                                }
+                                item={
+                                    item
+                                }
                             />
                         ),
                     )}
@@ -256,7 +264,7 @@ export default function CartPage() {
                 </a>
 
                 <p className="mt-4 text-center text-xs leading-5 text-ink-500">
-                    Shipping is calculated from the validated merchandise subtotal. Taxes are not yet connected.
+                    Shipping is calculated from the validated merchandise subtotal. Sales tax is calculated by Stripe at checkout using the U.S. shipping address.
                 </p>
             </aside>
         </div>

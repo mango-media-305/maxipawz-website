@@ -18,6 +18,10 @@ import {
 } from '../../src/config/shipping';
 
 import {
+    taxConfig,
+} from '../../src/config/tax';
+
+import {
     products,
 } from '../../src/data/products';
 
@@ -55,6 +59,7 @@ type StripeShippingOptions =
 
 interface CheckoutRuntimeConfig {
     stripeSecretKey: string;
+
     allowDemoProducts: boolean;
 
     standardShippingRateAmount:
@@ -64,7 +69,9 @@ interface CheckoutRuntimeConfig {
 
 interface ValidatedStripeLine {
     price: string;
+
     quantity: number;
+
     unitAmount: number;
 }
 
@@ -198,6 +205,7 @@ function parseCheckoutLine(
             value.productSlug.trim(),
 
         variantId,
+
         quantity,
     };
 }
@@ -536,52 +544,54 @@ function consolidateLineItems(
     let merchandiseSubtotalAmount =
         0;
 
-    lines.forEach((line) => {
-        const stripeLine =
-            getStripeLineItem(
-                line,
-                allowDemoProducts,
-            );
+    lines.forEach(
+        (line) => {
+            const stripeLine =
+                getStripeLineItem(
+                    line,
+                    allowDemoProducts,
+                );
 
-        merchandiseSubtotalAmount +=
-            stripeLine.unitAmount *
-            stripeLine.quantity;
+            merchandiseSubtotalAmount +=
+                stripeLine.unitAmount *
+                stripeLine.quantity;
 
-        const existingLine =
-            groupedLines.get(
+            const existingLine =
+                groupedLines.get(
+                    stripeLine.price,
+                );
+
+            const nextQuantity =
+                (
+                    existingLine
+                        ?.quantity ?? 0
+                ) +
+                stripeLine.quantity;
+
+            if (
+                nextQuantity >
+                MAXIMUM_QUANTITY
+            ) {
+                throw new CheckoutRequestError(
+                    400,
+                    'invalid-cart',
+                    `A product quantity cannot exceed ${MAXIMUM_QUANTITY}.`,
+                );
+            }
+
+            groupedLines.set(
                 stripeLine.price,
+                {
+                    quantity:
+                        nextQuantity,
+
+                    unitAmount:
+                        stripeLine
+                            .unitAmount,
+                },
             );
-
-        const nextQuantity =
-            (
-                existingLine
-                    ?.quantity ?? 0
-            ) +
-            stripeLine.quantity;
-
-        if (
-            nextQuantity >
-            MAXIMUM_QUANTITY
-        ) {
-            throw new CheckoutRequestError(
-                400,
-                'invalid-cart',
-                `A product quantity cannot exceed ${MAXIMUM_QUANTITY}.`,
-            );
-        }
-
-        groupedLines.set(
-            stripeLine.price,
-            {
-                quantity:
-                    nextQuantity,
-
-                unitAmount:
-                    stripeLine
-                        .unitAmount,
-            },
-        );
-    });
+        },
+    );
 
     return {
         merchandiseSubtotalAmount,
@@ -650,11 +660,20 @@ function getShippingSelection(
                                 .shippingAmount,
 
                         currency:
-                            'usd',
+                            taxConfig
+                                .stripeCurrency,
                     },
 
                     display_name:
                         displayName,
+
+                    tax_behavior:
+                        taxConfig
+                            .taxBehavior,
+
+                    tax_code:
+                        taxConfig
+                            .shippingTaxCode,
 
                     delivery_estimate: {
                         minimum: {
@@ -685,6 +704,14 @@ function getShippingSelection(
                         shipping_tier:
                             quote.tier,
 
+                        tax_code:
+                            taxConfig
+                                .shippingTaxCode,
+
+                        tax_behavior:
+                            taxConfig
+                                .taxBehavior,
+
                         free_shipping_threshold_cents:
                             String(
                                 shippingConfig
@@ -702,7 +729,8 @@ function getSiteOrigin(): string {
         process.env
             .PUBLIC_SITE_URL
             ?.trim() ||
-        process.env.URL?.trim();
+        process.env.URL
+            ?.trim();
 
     if (!configuredSiteUrl) {
         throw new CheckoutRequestError(
@@ -814,9 +842,14 @@ export default async function handler(
                         consolidatedCart
                             .lineItems,
 
+                    automatic_tax: {
+                        enabled: true,
+                    },
+
                     shipping_address_collection: {
                         allowed_countries: [
-                            'US',
+                            taxConfig
+                                .salesCountry,
                         ],
                     },
 
@@ -854,6 +887,25 @@ export default async function handler(
                                 .allowDemoProducts
                                 ? 'true'
                                 : 'false',
+
+                        sales_country:
+                            taxConfig
+                                .salesCountry,
+
+                        automatic_tax_enabled:
+                            'true',
+
+                        product_tax_code:
+                            taxConfig
+                                .productTaxCode,
+
+                        shipping_tax_code:
+                            taxConfig
+                                .shippingTaxCode,
+
+                        tax_behavior:
+                            taxConfig
+                                .taxBehavior,
 
                         merchandise_subtotal_cents:
                             String(

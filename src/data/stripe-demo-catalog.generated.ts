@@ -1,5 +1,5 @@
 import type {
-    StripeDemoCatalog,
+  StripeDemoCatalog,
 } from '../types/stripe-demo-catalog';
 
 /**
@@ -12,74 +12,74 @@ import type {
  * Do not edit the Stripe IDs manually.
  */
 export const stripeDemoCatalog:
-    StripeDemoCatalog = {
-    "tug-and-fetch-rope-ball": {
-        "stripeProductId": "prod_Uxb1rqfcScZfNu",
-        "variantPriceIds": {},
-        "stripeDefaultPriceId": "price_1TxfpPCpMg02SFmCDnVoWoqK"
-    },
-    "whisker-feather-wand": {
-        "stripeProductId": "prod_Uxb1h7poe5eI1J",
-        "variantPriceIds": {},
-        "stripeDefaultPriceId": "price_1TxfpQCpMg02SFmCNj5TlyFY"
-    },
-    "adventure-fit-harness": {
-        "stripeProductId": "prod_Uxb1ikgTVbPJq1",
-        "variantPriceIds": {
-            "small": "price_1TxfpRCpMg02SFmCX5KgWdr3",
-            "medium": "price_1TxfpRCpMg02SFmCeuAVETJ6",
-            "large": "price_1TxfpRCpMg02SFmC4a2VOsGj"
-        }
-    },
-    "trail-loop-leash": {
-        "stripeProductId": "prod_Uxb1AC0yuZ8Url",
-        "variantPriceIds": {},
-        "stripeDefaultPriceId": "price_1TxfpSCpMg02SFmCZbA0SthX"
-    },
-    "duo-ceramic-bowl-set": {
-        "stripeProductId": "prod_Uxb1riETMoh8p3",
-        "variantPriceIds": {},
-        "stripeDefaultPriceId": "price_1TxfpTCpMg02SFmCaVKE0knn"
-    },
-    "slow-moment-feeding-bowl": {
-        "stripeProductId": "prod_Uxb10MGPmlMloM",
-        "variantPriceIds": {},
-        "stripeDefaultPriceId": "price_1TxfpTCpMg02SFmCbBFecGHf"
-    },
-    "cloud-nest-pet-bed": {
-        "stripeProductId": "prod_Uxb1F5X0bCfWAD",
-        "variantPriceIds": {
-            "small": "price_1TxfpUCpMg02SFmCqLJMEL5t",
-            "medium": "price_1TxfpVCpMg02SFmCZz5rhJzY",
-            "large": "price_1TxfpVCpMg02SFmCKZSKjrij"
-        }
-    },
-    "cozy-basket-lounger": {
-        "stripeProductId": "prod_Uxb1951xVQllQI",
-        "variantPriceIds": {},
-        "stripeDefaultPriceId": "price_1TxfpWCpMg02SFmCbcOzzmny"
-    },
-    "everyday-slicker-brush": {
-        "stripeProductId": "prod_Uxb1wRZPeEkLqh",
-        "variantPriceIds": {},
-        "stripeDefaultPriceId": "price_1TxfpWCpMg02SFmCMXXXYHiW"
-    },
-    "paw-rinse-cleaning-cup": {
-        "stripeProductId": "prod_Uxb1jv2rqhQOO0",
-        "variantPriceIds": {},
-        "stripeDefaultPriceId": "price_1TxfpXCpMg02SFmCHQA9mDN6"
-    },
-    "classic-everyday-collar": {
-        "stripeProductId": "prod_Uxb1PvJnFEC6WH",
-        "variantPriceIds": {
-            "small": "price_1TxfpYCpMg02SFmCBl2YspI9",
-            "medium": "price_1TxfpYCpMg02SFmCTSk4BibH",
-            "large": "price_1TxfpZCpMg02SFmC56SZeBeV"
-        }
-    },
-    "paw-charm-pet-collar": {
-        "stripeProductId": "prod_Uxb1Gsqf3VQNPR",
-        "variantPriceIds": {},
-        "stripeDefaultPriceId": "price_1TxfpZCpMg02SFmCuaRyunq1"
+  StripeDemoCatalog = {
+  "tug-and-fetch-rope-ball": {
+    "stripeProductId": "prod_Uxb1rqfcScZfNu",
+    "variantPriceIds": {},
+    "stripeDefaultPriceId": "price_1TzHYTCpMg02SFmCNaV6EPU6"
+  },
+  "whisker-feather-wand": {
+    "stripeProductId": "prod_Uxb1h7poe5eI1J",
+    "variantPriceIds": {},
+    "stripeDefaultPriceId": "price_1TzHYUCpMg02SFmC8GcuGu4a"
+  },
+  "adventure-fit-harness": {
+    "stripeProductId": "prod_Uxb1ikgTVbPJq1",
+    "variantPriceIds": {
+      "small": "price_1TzHYVCpMg02SFmCAVq0rOyX",
+      "medium": "price_1TzHYWCpMg02SFmCq3Aevkdk",
+      "large": "price_1TzHYXCpMg02SFmC9BWZse9Y"
     }
+  },
+  "trail-loop-leash": {
+    "stripeProductId": "prod_Uxb1AC0yuZ8Url",
+    "variantPriceIds": {},
+    "stripeDefaultPriceId": "price_1TzHYYCpMg02SFmCERtzNQfi"
+  },
+  "duo-ceramic-bowl-set": {
+    "stripeProductId": "prod_Uxb1riETMoh8p3",
+    "variantPriceIds": {},
+    "stripeDefaultPriceId": "price_1TzHYZCpMg02SFmCnEpMzKcj"
+  },
+  "slow-moment-feeding-bowl": {
+    "stripeProductId": "prod_Uxb10MGPmlMloM",
+    "variantPriceIds": {},
+    "stripeDefaultPriceId": "price_1TzHYaCpMg02SFmCJp4vuEit"
+  },
+  "cloud-nest-pet-bed": {
+    "stripeProductId": "prod_Uxb1F5X0bCfWAD",
+    "variantPriceIds": {
+      "small": "price_1TzHYbCpMg02SFmCS5tcerNe",
+      "medium": "price_1TzHYbCpMg02SFmCzVDEyqDR",
+      "large": "price_1TzHYcCpMg02SFmC7hPbPFqd"
+    }
+  },
+  "cozy-basket-lounger": {
+    "stripeProductId": "prod_Uxb1951xVQllQI",
+    "variantPriceIds": {},
+    "stripeDefaultPriceId": "price_1TzHYdCpMg02SFmCVEGgDjxr"
+  },
+  "everyday-slicker-brush": {
+    "stripeProductId": "prod_Uxb1wRZPeEkLqh",
+    "variantPriceIds": {},
+    "stripeDefaultPriceId": "price_1TzHYeCpMg02SFmCBcbAjLSA"
+  },
+  "paw-rinse-cleaning-cup": {
+    "stripeProductId": "prod_Uxb1jv2rqhQOO0",
+    "variantPriceIds": {},
+    "stripeDefaultPriceId": "price_1TzHYfCpMg02SFmCmj5JLbbn"
+  },
+  "classic-everyday-collar": {
+    "stripeProductId": "prod_Uxb1PvJnFEC6WH",
+    "variantPriceIds": {
+      "small": "price_1TzHYgCpMg02SFmCW6Ask06L",
+      "medium": "price_1TzHYhCpMg02SFmCvC8kPDZ4",
+      "large": "price_1TzHYhCpMg02SFmC0wcBDKTN"
+    }
+  },
+  "paw-charm-pet-collar": {
+    "stripeProductId": "prod_Uxb1Gsqf3VQNPR",
+    "variantPriceIds": {},
+    "stripeDefaultPriceId": "price_1TzHYiCpMg02SFmCBBI1zb0U"
+  }
 };
