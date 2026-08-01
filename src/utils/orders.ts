@@ -15,10 +15,14 @@ import type {
   OrderItem,
   OrderPaymentStatus,
   OrderRecord,
+  OrderRefundEntryStatus,
+  OrderRefundRecord,
+  OrderRefundStatus,
   OrderStatus,
   OrderStatusSuccessResponse,
   ProcessedStripeEvent,
   SupportedCheckoutEventType,
+  SupportedRefundEventType,
 } from '../types/order';
 
 import type {
@@ -70,6 +74,42 @@ export interface ManualFulfillmentInput {
   postageAmount: number;
 }
 
+export interface StripeRefundSnapshotInput {
+  paymentIntentId: string;
+
+  livemode: boolean;
+
+  refunds:
+  Stripe.Refund[];
+
+  currentRefundId: string;
+
+  eventId: string;
+
+  eventType:
+  SupportedRefundEventType;
+
+  eventCreated: number;
+}
+
+interface PaymentIntentOrderIndex {
+  version: 1;
+
+  paymentIntentId: string;
+
+  sessionId: string;
+
+  updatedAt: string;
+}
+
+interface RefundReferenceDetails {
+  reference?: string;
+
+  referenceType?: string;
+
+  referenceStatus?: string;
+}
+
 function getEnvironmentSuffix(
   livemode: boolean,
 ): 'live' | 'test' {
@@ -112,6 +152,12 @@ function getOrderKey(
   return `session/${sessionId}`;
 }
 
+function getPaymentIntentIndexKey(
+  paymentIntentId: string,
+): string {
+  return `payment-intent/${paymentIntentId}`;
+}
+
 function getEventKey(
   eventId: string,
 ): string {
@@ -126,13 +172,30 @@ function getSessionLivemode(
   );
 }
 
+function isRecord(
+  value: unknown,
+): value is Record<
+  string,
+  unknown
+> {
+  return (
+    typeof value ===
+    'object' &&
+    value !== null &&
+    !Array.isArray(
+      value,
+    )
+  );
+}
+
 function normalizeStripeId(
   value:
     | string
     | {
       id: string;
     }
-    | null,
+    | null
+    | undefined,
 ): string | undefined {
   if (!value) {
     return undefined;
@@ -201,8 +264,7 @@ function getStripeProductMetadata(
       productReference.name,
 
     metadata:
-      productReference
-        .metadata,
+      productReference.metadata,
   };
 }
 
@@ -340,8 +402,7 @@ function buildOrderItem(
       calculatedUnitAmount,
 
     lineTotalAmount:
-      lineItem
-        .amount_total,
+      lineItem.amount_total,
 
     currency:
       lineItem.currency,
@@ -477,6 +538,19 @@ function mergeProcessedEventIds(
   );
 }
 
+function getDefaultRefundableAmount(
+  order:
+    Pick<
+      OrderRecord,
+      'amountTotal'
+    >,
+): number {
+  return Math.max(
+    0,
+    order.amountTotal,
+  );
+}
+
 function mergeOrderRecords(
   existing:
     OrderRecord,
@@ -495,14 +569,12 @@ function mergeOrderRecords(
 
   const existingPriority =
     getPaymentPriority(
-      existing
-        .paymentStatus,
+      existing.paymentStatus,
     );
 
   const incomingPriority =
     getPaymentPriority(
-      incoming
-        .paymentStatus,
+      incoming.paymentStatus,
     );
 
   const shouldUseIncoming =
@@ -511,10 +583,8 @@ function mergeOrderRecords(
     (
       incomingPriority ===
       existingPriority &&
-      incoming
-        .lastEventCreated >=
-      existing
-        .lastEventCreated
+      incoming.lastEventCreated >=
+      existing.lastEventCreated
     );
 
   if (!shouldUseIncoming) {
@@ -524,8 +594,7 @@ function mergeOrderRecords(
       processedEventIds,
 
       updatedAt:
-        incoming
-          .updatedAt,
+        incoming.updatedAt,
     };
   }
 
@@ -533,32 +602,45 @@ function mergeOrderRecords(
     ...incoming,
 
     createdAt:
-      existing
-        .createdAt,
+      existing.createdAt,
 
     processedEventIds,
 
     fulfillmentStatus:
-      existing
-        .fulfillmentStatus ??
-      incoming
-        .fulfillmentStatus,
+      existing.fulfillmentStatus ??
+      incoming.fulfillmentStatus,
 
     fulfillment:
-      existing
-        .fulfillment ??
-      incoming
-        .fulfillment,
+      existing.fulfillment ??
+      incoming.fulfillment,
 
     customer:
       incoming.customer ??
       existing.customer,
 
     shippingAddress:
-      incoming
-        .shippingAddress ??
-      existing
-        .shippingAddress,
+      incoming.shippingAddress ??
+      existing.shippingAddress,
+
+    refundStatus:
+      existing.refundStatus ??
+      incoming.refundStatus,
+
+    amountRefunded:
+      existing.amountRefunded ??
+      incoming.amountRefunded,
+
+    amountRefundPending:
+      existing.amountRefundPending ??
+      incoming.amountRefundPending,
+
+    amountRefundable:
+      existing.amountRefundable ??
+      incoming.amountRefundable,
+
+    refunds:
+      existing.refunds ??
+      incoming.refunds,
   };
 }
 
@@ -586,12 +668,10 @@ function isIncomingEventSaved(
 
   return (
     getPaymentPriority(
-      saved
-        .paymentStatus,
+      saved.paymentStatus,
     ) >=
     getPaymentPriority(
-      incoming
-        .paymentStatus,
+      incoming.paymentStatus,
     )
   );
 }
@@ -616,8 +696,7 @@ function buildCustomer(
     Stripe.Checkout.Session,
 ) {
   const details =
-    session
-      .customer_details;
+    session.customer_details;
 
   const shipping =
     session
@@ -708,6 +787,275 @@ function buildShippingAddress(
   };
 }
 
+function normalizeRefundStatus(
+  value:
+    string
+    | null,
+): OrderRefundEntryStatus {
+  switch (value) {
+    case 'pending':
+    case 'requires_action':
+    case 'succeeded':
+    case 'failed':
+    case 'canceled':
+      return value;
+
+    default:
+      return 'unknown';
+  }
+}
+
+function getRefundReferenceDetails(
+  refund:
+    Stripe.Refund,
+): RefundReferenceDetails {
+  const destinationDetails =
+    refund.destination_details as
+    unknown;
+
+  if (
+    !isRecord(
+      destinationDetails,
+    )
+  ) {
+    return {};
+  }
+
+  const destinationType =
+    typeof destinationDetails.type ===
+      'string'
+      ? destinationDetails.type
+      : undefined;
+
+  let methodDetails:
+    Record<
+      string,
+      unknown
+    >
+    | undefined;
+
+  if (
+    destinationType &&
+    isRecord(
+      destinationDetails[
+      destinationType
+      ],
+    )
+  ) {
+    methodDetails =
+      destinationDetails[
+      destinationType
+      ];
+  } else if (
+    isRecord(
+      destinationDetails.card,
+    )
+  ) {
+    methodDetails =
+      destinationDetails.card;
+  }
+
+  if (!methodDetails) {
+    return {};
+  }
+
+  return {
+    reference:
+      typeof methodDetails.reference ===
+        'string'
+        ? methodDetails.reference
+        : undefined,
+
+    referenceType:
+      typeof methodDetails.reference_type ===
+        'string'
+        ? methodDetails.reference_type
+        : undefined,
+
+    referenceStatus:
+      typeof methodDetails.reference_status ===
+        'string'
+        ? methodDetails.reference_status
+        : undefined,
+  };
+}
+
+function buildRefundRecord(
+  refund:
+    Stripe.Refund,
+
+  paymentIntentId: string,
+
+  previous:
+    OrderRefundRecord
+    | undefined,
+
+  currentRefundId: string,
+
+  eventUpdatedAt: string,
+): OrderRefundRecord {
+  const createdAt =
+    getIsoDate(
+      refund.created,
+    );
+
+  const referenceDetails =
+    getRefundReferenceDetails(
+      refund,
+    );
+
+  return {
+    stripeRefundId:
+      refund.id,
+
+    paymentIntentId:
+      normalizeStripeId(
+        refund.payment_intent,
+      ) ??
+      paymentIntentId,
+
+    chargeId:
+      normalizeStripeId(
+        refund.charge,
+      ),
+
+    amount:
+      refund.amount,
+
+    currency:
+      refund.currency,
+
+    status:
+      normalizeRefundStatus(
+        refund.status,
+      ),
+
+    reason:
+      refund.reason ??
+      undefined,
+
+    failureReason:
+      refund.failure_reason ??
+      undefined,
+
+    pendingReason:
+      refund.pending_reason ??
+      undefined,
+
+    ...referenceDetails,
+
+    receiptNumber:
+      refund.receipt_number ??
+      undefined,
+
+    createdAt,
+
+    updatedAt:
+      refund.id ===
+        currentRefundId
+        ? eventUpdatedAt
+        : previous
+          ?.updatedAt ??
+        createdAt,
+  };
+}
+
+function getAggregateRefundStatus(
+  orderTotal: number,
+
+  amountRefunded: number,
+
+  amountRefundPending: number,
+
+  refunds:
+    OrderRefundRecord[],
+): OrderRefundStatus {
+  if (
+    orderTotal > 0 &&
+    amountRefunded >=
+    orderTotal
+  ) {
+    return 'refunded';
+  }
+
+  if (
+    amountRefunded > 0
+  ) {
+    return 'partially-refunded';
+  }
+
+  if (
+    amountRefundPending > 0
+  ) {
+    return 'pending';
+  }
+
+  if (
+    refunds.some(
+      (
+        refund,
+      ) =>
+        refund.status ===
+        'failed',
+    )
+  ) {
+    return 'failed';
+  }
+
+  if (
+    refunds.length > 0 &&
+    refunds.every(
+      (
+        refund,
+      ) =>
+        refund.status ===
+        'canceled',
+    )
+  ) {
+    return 'canceled';
+  }
+
+  return 'none';
+}
+
+async function ensurePaymentIntentIndex(
+  order:
+    OrderRecord,
+): Promise<void> {
+  if (
+    !order.paymentIntentId
+  ) {
+    return;
+  }
+
+  const store =
+    getOrderStore(
+      order.livemode,
+    );
+
+  const index:
+    PaymentIntentOrderIndex = {
+    version: 1,
+
+    paymentIntentId:
+      order.paymentIntentId,
+
+    sessionId:
+      order.sessionId,
+
+    updatedAt:
+      new Date()
+        .toISOString(),
+  };
+
+  await store.setJSON(
+    getPaymentIntentIndexKey(
+      order.paymentIntentId,
+    ),
+    index,
+  );
+}
+
 export function buildOrderRecord(
   options:
     BuildOrderRecordOptions,
@@ -731,6 +1079,10 @@ export function buildOrderRecord(
       eventCreated,
     );
 
+  const amountTotal =
+    session.amount_total ??
+    0;
+
   return {
     version: 1,
 
@@ -740,8 +1092,7 @@ export function buildOrderRecord(
     cartReference:
       session.metadata
         ?.cart_reference ??
-      session
-        .client_reference_id ??
+      session.client_reference_id ??
       session.id,
 
     cartSource:
@@ -759,8 +1110,7 @@ export function buildOrderRecord(
 
     paymentIntentId:
       normalizeStripeId(
-        session
-          .payment_intent,
+        session.payment_intent,
       ),
 
     paymentStatus,
@@ -794,14 +1144,10 @@ export function buildOrderRecord(
       'usd',
 
     amountSubtotal:
-      session
-        .amount_subtotal ??
+      session.amount_subtotal ??
       0,
 
-    amountTotal:
-      session
-        .amount_total ??
-      0,
+    amountTotal,
 
     amountTax:
       session
@@ -820,6 +1166,20 @@ export function buildOrderRecord(
         .total_details
         ?.amount_discount ??
       0,
+
+    refundStatus:
+      'none',
+
+    amountRefunded:
+      0,
+
+    amountRefundPending:
+      0,
+
+    amountRefundable:
+      amountTotal,
+
+    refunds: [],
 
     items:
       lineItems.map(
@@ -924,8 +1284,86 @@ export async function listOrders(
     );
 }
 
+export async function getOrderByPaymentIntentId(
+  paymentIntentId: string,
+
+  livemode: boolean,
+): Promise<OrderRecord | null> {
+  const store =
+    getOrderStore(
+      livemode,
+    );
+
+  const index =
+    await store.get(
+      getPaymentIntentIndexKey(
+        paymentIntentId,
+      ),
+      {
+        type:
+          'json',
+      },
+    ) as
+    | PaymentIntentOrderIndex
+    | null;
+
+  if (
+    index
+      ?.sessionId
+  ) {
+    const indexedOrder =
+      await store.get(
+        getOrderKey(
+          index.sessionId,
+        ),
+        {
+          type:
+            'json',
+        },
+      ) as
+      | OrderRecord
+      | null;
+
+    if (
+      indexedOrder
+        ?.paymentIntentId ===
+      paymentIntentId
+    ) {
+      return indexedOrder;
+    }
+  }
+
+  /**
+   * Older Sandbox orders can predate the PaymentIntent
+   * index. Scan once, then create the index for future events.
+   */
+  const orders =
+    await listOrders(
+      livemode,
+    );
+
+  const found =
+    orders.find(
+      (
+        order,
+      ) =>
+        order.paymentIntentId ===
+        paymentIntentId,
+    ) ??
+    null;
+
+  if (found) {
+    await ensurePaymentIntentIndex(
+      found,
+    );
+  }
+
+  return found;
+}
+
 export async function hasProcessedStripeEvent(
   eventId: string,
+
   livemode: boolean,
 ): Promise<boolean> {
   const store =
@@ -950,14 +1388,12 @@ export async function saveOrderRecord(
 ): Promise<OrderRecord> {
   const store =
     getOrderStore(
-      incoming
-        .livemode,
+      incoming.livemode,
     );
 
   const key =
     getOrderKey(
-      incoming
-        .sessionId,
+      incoming.sessionId,
     );
 
   for (
@@ -992,6 +1428,10 @@ export async function saveOrderRecord(
               ),
         )
     ) {
+      await ensurePaymentIntentIndex(
+        existing,
+      );
+
       return existing;
     }
 
@@ -1026,6 +1466,10 @@ export async function saveOrderRecord(
         incoming,
       )
     ) {
+      await ensurePaymentIntentIndex(
+        confirmed,
+      );
+
       return confirmed;
     }
 
@@ -1040,6 +1484,255 @@ export async function saveOrderRecord(
 
   throw new Error(
     'The order record could not be saved after multiple attempts.',
+  );
+}
+
+export async function saveStripeRefundSnapshot(
+  input:
+    StripeRefundSnapshotInput,
+): Promise<OrderRecord> {
+  const order =
+    await getOrderByPaymentIntentId(
+      input.paymentIntentId,
+      input.livemode,
+    );
+
+  if (!order) {
+    throw new Error(
+      'No MaxiPawz order matches the refunded Stripe PaymentIntent.',
+    );
+  }
+
+  const store =
+    getOrderStore(
+      input.livemode,
+    );
+
+  const key =
+    getOrderKey(
+      order.sessionId,
+    );
+
+  const eventUpdatedAt =
+    getIsoDate(
+      input.eventCreated,
+    );
+
+  for (
+    let attempt = 0;
+    attempt <
+    MAXIMUM_WRITE_ATTEMPTS;
+    attempt += 1
+  ) {
+    const existing =
+      await store.get(
+        key,
+        {
+          type:
+            'json',
+        },
+      ) as
+      | OrderRecord
+      | null;
+
+    if (!existing) {
+      throw new Error(
+        'The MaxiPawz order disappeared while its refund was being synchronized.',
+      );
+    }
+
+    if (
+      existing
+        .processedEventIds
+        .includes(
+          input.eventId,
+        )
+    ) {
+      return existing;
+    }
+
+    const previousRefunds =
+      new Map(
+        (
+          existing.refunds ??
+          []
+        ).map(
+          (
+            refund,
+          ) => [
+              refund
+                .stripeRefundId,
+              refund,
+            ],
+        ),
+      );
+
+    const refunds =
+      input.refunds
+        .map(
+          (
+            refund,
+          ) =>
+            buildRefundRecord(
+              refund,
+              input
+                .paymentIntentId,
+              previousRefunds.get(
+                refund.id,
+              ),
+              input
+                .currentRefundId,
+              eventUpdatedAt,
+            ),
+        )
+        .sort(
+          (
+            left,
+            right,
+          ) =>
+            new Date(
+              right.createdAt,
+            ).getTime() -
+            new Date(
+              left.createdAt,
+            ).getTime(),
+        );
+
+    const amountRefunded =
+      refunds
+        .filter(
+          (
+            refund,
+          ) =>
+            refund.status ===
+            'succeeded',
+        )
+        .reduce(
+          (
+            total,
+            refund,
+          ) =>
+            total +
+            refund.amount,
+          0,
+        );
+
+    const amountRefundPending =
+      refunds
+        .filter(
+          (
+            refund,
+          ) =>
+            refund.status ===
+            'pending' ||
+            refund.status ===
+            'requires_action',
+        )
+        .reduce(
+          (
+            total,
+            refund,
+          ) =>
+            total +
+            refund.amount,
+          0,
+        );
+
+    const amountRefundable =
+      Math.max(
+        0,
+        existing.amountTotal -
+        amountRefunded -
+        amountRefundPending,
+      );
+
+    const refundStatus =
+      getAggregateRefundStatus(
+        existing.amountTotal,
+        amountRefunded,
+        amountRefundPending,
+        refunds,
+      );
+
+    const nextRecord:
+      OrderRecord = {
+      ...existing,
+
+      refundStatus,
+
+      amountRefunded,
+
+      amountRefundPending,
+
+      amountRefundable,
+
+      refunds,
+
+      processedEventIds:
+        mergeProcessedEventIds(
+          existing
+            .processedEventIds,
+
+          [
+            input.eventId,
+          ],
+        ),
+
+      lastEventType:
+        input.eventType,
+
+      lastEventCreated:
+        input.eventCreated,
+
+      updatedAt:
+        eventUpdatedAt,
+    };
+
+    await store.setJSON(
+      key,
+      nextRecord,
+    );
+
+    const confirmed =
+      await store.get(
+        key,
+        {
+          type:
+            'json',
+        },
+      ) as
+      | OrderRecord
+      | null;
+
+    if (
+      confirmed
+        ?.processedEventIds
+        .includes(
+          input.eventId,
+        ) &&
+      confirmed.refundStatus ===
+      refundStatus &&
+      confirmed.amountRefunded ===
+      amountRefunded
+    ) {
+      await ensurePaymentIntentIndex(
+        confirmed,
+      );
+
+      return confirmed;
+    }
+
+    await delay(
+      25 *
+      (
+        attempt +
+        1
+      ),
+    );
+  }
+
+  throw new Error(
+    'The Stripe refund could not be synchronized after multiple attempts.',
   );
 }
 
@@ -1089,6 +1782,15 @@ export async function saveManualFulfillment(
       );
     }
 
+    if (
+      existing.refundStatus ===
+      'refunded'
+    ) {
+      throw new Error(
+        'A fully refunded order cannot be marked as shipped.',
+      );
+    }
+
     const now =
       new Date()
         .toISOString();
@@ -1115,6 +1817,11 @@ export async function saveManualFulfillment(
           .fulfillment
           ?.shippedAt ??
         now,
+
+      deliveredAt:
+        existing
+          .fulfillment
+          ?.deliveredAt,
 
       updatedAt:
         now,
@@ -1181,14 +1888,12 @@ export async function recordProcessedStripeEvent(
 ): Promise<void> {
   const store =
     getEventStore(
-      event
-        .livemode,
+      event.livemode,
     );
 
   await store.setJSON(
     getEventKey(
-      event
-        .eventId,
+      event.eventId,
     ),
     event,
   );
@@ -1204,15 +1909,13 @@ export function toPublicOrderStatus(
     | 'failed';
 
   if (
-    order
-      .orderStatus ===
+    order.orderStatus ===
     'confirmed'
   ) {
     status =
       'confirmed';
   } else if (
-    order
-      .orderStatus ===
+    order.orderStatus ===
     'payment-failed'
   ) {
     status =
@@ -1248,8 +1951,7 @@ export function toPublicOrderStatus(
       order.orderStatus,
 
     fulfillmentStatus:
-      order
-        .fulfillmentStatus ??
+      order.fulfillmentStatus ??
       'unfulfilled',
 
     livemode:
@@ -1266,8 +1968,7 @@ export function toPublicOrderStatus(
     clearCart:
       status ===
       'confirmed' &&
-      order
-        .cartSource ===
+      order.cartSource ===
       'storefront-cart',
 
     updatedAt:

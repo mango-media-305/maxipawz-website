@@ -314,6 +314,12 @@ function toAdminOrder(
                 order.sessionId,
             ),
 
+        livemode:
+            order.livemode,
+
+        paymentIntentId:
+            order.paymentIntentId,
+
         paymentStatus:
             order.paymentStatus,
 
@@ -321,15 +327,36 @@ function toAdminOrder(
             order.orderStatus,
 
         fulfillmentStatus:
-            order
-                .fulfillmentStatus,
+            order.fulfillmentStatus,
+
+        refundStatus:
+            order.refundStatus ??
+            'none',
+
+        amountRefunded:
+            order.amountRefunded ??
+            0,
+
+        amountRefundPending:
+            order.amountRefundPending ??
+            0,
+
+        amountRefundable:
+            order.amountRefundable ??
+            Math.max(
+                0,
+                order.amountTotal,
+            ),
+
+        refunds:
+            order.refunds ??
+            [],
 
         customer:
             order.customer,
 
         shippingAddress:
-            order
-                .shippingAddress,
+            order.shippingAddress,
 
         fulfillment:
             order.fulfillment,

@@ -22,7 +22,10 @@ type OrderFilter =
     | 'all'
     | 'needs-fulfillment'
     | 'shipped'
-    | 'delivered';
+    | 'delivered'
+    | 'refund-attention'
+    | 'partially-refunded'
+    | 'refunded';
 
 function RefreshIcon() {
     return (
@@ -285,7 +288,10 @@ function formatStatusLabel(
 ): string {
     return value
         .split(
-            '-',
+            /[-_]/,
+        )
+        .filter(
+            Boolean,
         )
         .map(
             (
@@ -351,6 +357,47 @@ function FulfillmentBadge({
                     'cancelled'
                     ? 'bg-danger-50 text-danger-700'
                     : 'bg-accent-50 text-accent-700';
+
+    return (
+        <span
+            className={`rounded-full px-3 py-1 text-xs font-extrabold ${className}`}
+        >
+            {formatStatusLabel(
+                status,
+            )}
+        </span>
+    );
+}
+
+function RefundBadge({
+    status,
+}: {
+    status:
+    AdminOrder[
+    'refundStatus'
+    ];
+}) {
+    if (
+        status ===
+        'none'
+    ) {
+        return null;
+    }
+
+    const className =
+        status ===
+            'refunded'
+            ? 'bg-success-50 text-success-700'
+            : status ===
+                'partially-refunded'
+                ? 'bg-brand-50 text-brand-700'
+                : status ===
+                    'failed'
+                    ? 'bg-danger-50 text-danger-700'
+                    : status ===
+                        'canceled'
+                        ? 'bg-danger-50 text-danger-700'
+                        : 'bg-accent-50 text-accent-700';
 
     return (
         <span
@@ -548,6 +595,23 @@ function OrderDetails({
                     </dd>
                 </div>
 
+                {order.amountRefunded >
+                    0 && (
+                        <div className="flex justify-between gap-4">
+                            <dt className="font-bold text-ink-600">
+                                Refunded
+                            </dt>
+
+                            <dd className="font-black text-success-700">
+                                −
+                                {formatMoney(
+                                    order.amountRefunded,
+                                    order.currency,
+                                )}
+                            </dd>
+                        </div>
+                    )}
+
                 <div className="flex justify-between gap-4 border-t border-sand pt-2">
                     <dt className="font-black text-ink-900">
                         Total
@@ -668,6 +732,318 @@ function FulfillmentDetails({
                         )}
                 </dl>
             </div>
+        </section>
+    );
+}
+
+function RefundDetails({
+    order,
+}: {
+    order:
+    AdminOrder;
+}) {
+    const [
+        copied,
+        setCopied,
+    ] =
+        useState(
+            false,
+        );
+
+    const [
+        copyError,
+        setCopyError,
+    ] =
+        useState(
+            '',
+        );
+
+    if (
+        !order.paymentIntentId &&
+        order.refundStatus ===
+        'none'
+    ) {
+        return null;
+    }
+
+    const stripePaymentUrl =
+        order.paymentIntentId
+            ? order.livemode
+                ? `https://dashboard.stripe.com/payments/${encodeURIComponent(
+                    order.paymentIntentId,
+                )}`
+                : `https://dashboard.stripe.com/test/payments/${encodeURIComponent(
+                    order.paymentIntentId,
+                )}`
+            : undefined;
+
+    async function copyPaymentIntent() {
+        if (
+            !order.paymentIntentId
+        ) {
+            return;
+        }
+
+        setCopyError(
+            '',
+        );
+
+        try {
+            await navigator.clipboard.writeText(
+                order.paymentIntentId,
+            );
+
+            setCopied(
+                true,
+            );
+
+            window.setTimeout(
+                () => {
+                    setCopied(
+                        false,
+                    );
+                },
+                1800,
+            );
+        } catch {
+            setCopyError(
+                'The PaymentIntent could not be copied automatically.',
+            );
+        }
+    }
+
+    return (
+        <section className="mt-5 rounded-2xl border border-accent-200 bg-accent-50 p-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                    <p className="text-xs font-extrabold tracking-[0.07em] text-accent-700 uppercase">
+                        Stripe payment and refunds
+                    </p>
+
+                    <p className="mt-2 text-sm font-bold leading-6 text-ink-700">
+                        Refunds are issued only inside Stripe. This dashboard displays Stripe&apos;s synchronized financial status.
+                    </p>
+                </div>
+
+                <RefundBadge
+                    status={
+                        order.refundStatus
+                    }
+                />
+            </div>
+
+            {order.paymentIntentId && (
+                <div className="mt-4 rounded-2xl border border-accent-200 bg-white-warm p-4">
+                    <p className="text-xs font-extrabold text-ink-600 uppercase">
+                        PaymentIntent
+                    </p>
+
+                    <p className="mt-2 break-all font-mono text-sm font-bold text-ink-900">
+                        {
+                            order.paymentIntentId
+                        }
+                    </p>
+
+                    <div className="mt-3 flex flex-wrap gap-2">
+                        <button
+                            type="button"
+                            className="rounded-full border border-accent-300 bg-white-warm px-4 py-2 text-sm font-extrabold text-accent-800 transition hover:bg-accent-50"
+                            onClick={() => {
+                                void copyPaymentIntent();
+                            }}
+                        >
+                            {copied
+                                ? 'Copied'
+                                : 'Copy Payment ID'}
+                        </button>
+
+                        {stripePaymentUrl && (
+                            <a
+                                href={
+                                    stripePaymentUrl
+                                }
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center rounded-full bg-accent-600 px-4 py-2 text-sm font-extrabold text-white transition hover:bg-accent-700"
+                            >
+                                Open in Stripe
+                            </a>
+                        )}
+                    </div>
+
+                    {copyError && (
+                        <p className="mt-3 text-xs font-bold text-danger-700">
+                            {copyError}
+                        </p>
+                    )}
+                </div>
+            )}
+
+            <dl className="mt-4 grid gap-2 rounded-2xl bg-white-warm p-4 text-sm">
+                <div className="flex justify-between gap-4">
+                    <dt className="font-bold text-ink-600">
+                        Order total
+                    </dt>
+
+                    <dd className="font-black text-ink-900">
+                        {formatMoney(
+                            order.amountTotal,
+                            order.currency,
+                        )}
+                    </dd>
+                </div>
+
+                <div className="flex justify-between gap-4">
+                    <dt className="font-bold text-ink-600">
+                        Refunded
+                    </dt>
+
+                    <dd className="font-black text-success-700">
+                        {formatMoney(
+                            order.amountRefunded,
+                            order.currency,
+                        )}
+                    </dd>
+                </div>
+
+                {order.amountRefundPending >
+                    0 && (
+                        <div className="flex justify-between gap-4">
+                            <dt className="font-bold text-ink-600">
+                                Pending
+                            </dt>
+
+                            <dd className="font-black text-accent-700">
+                                {formatMoney(
+                                    order.amountRefundPending,
+                                    order.currency,
+                                )}
+                            </dd>
+                        </div>
+                    )}
+
+                <div className="flex justify-between gap-4 border-t border-accent-200 pt-2">
+                    <dt className="font-black text-ink-900">
+                        Remaining refundable
+                    </dt>
+
+                    <dd className="font-black text-ink-900">
+                        {formatMoney(
+                            order.amountRefundable,
+                            order.currency,
+                        )}
+                    </dd>
+                </div>
+            </dl>
+
+            {order.refunds.length >
+                0 && (
+                    <div className="mt-4 grid gap-3">
+                        <h3 className="text-sm font-extrabold text-ink-900">
+                            Stripe refund history
+                        </h3>
+
+                        {order.refunds.map(
+                            (
+                                refund,
+                            ) => (
+                                <article
+                                    key={
+                                        refund.stripeRefundId
+                                    }
+                                    className="rounded-2xl border border-accent-200 bg-white-warm p-4"
+                                >
+                                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                        <div>
+                                            <p className="break-all font-mono text-xs font-bold text-ink-700">
+                                                {
+                                                    refund.stripeRefundId
+                                                }
+                                            </p>
+
+                                            <p className="mt-2 text-lg font-black text-ink-900">
+                                                {formatMoney(
+                                                    refund.amount,
+                                                    refund.currency,
+                                                )}
+                                            </p>
+
+                                            <p className="mt-1 text-xs font-bold text-ink-500">
+                                                {formatDate(
+                                                    refund.createdAt,
+                                                )}
+                                            </p>
+                                        </div>
+
+                                        <span className="rounded-full bg-accent-50 px-3 py-1 text-xs font-extrabold text-accent-700">
+                                            {formatStatusLabel(
+                                                refund.status,
+                                            )}
+                                        </span>
+                                    </div>
+
+                                    {refund.reason && (
+                                        <p className="mt-3 text-sm text-ink-700">
+                                            <strong>
+                                                Reason:
+                                            </strong>{' '}
+                                            {formatStatusLabel(
+                                                refund.reason,
+                                            )}
+                                        </p>
+                                    )}
+
+                                    {refund.pendingReason && (
+                                        <p className="mt-2 text-sm font-bold text-accent-700">
+                                            Pending reason:{' '}
+                                            {formatStatusLabel(
+                                                refund.pendingReason,
+                                            )}
+                                        </p>
+                                    )}
+
+                                    {refund.failureReason && (
+                                        <p className="mt-2 text-sm font-bold text-danger-700">
+                                            Failure reason:{' '}
+                                            {formatStatusLabel(
+                                                refund.failureReason,
+                                            )}
+                                        </p>
+                                    )}
+
+                                    {refund.reference && (
+                                        <p className="mt-2 break-all text-sm text-ink-700">
+                                            <strong>
+                                                Bank reference:
+                                            </strong>{' '}
+                                            {
+                                                refund.reference
+                                            }
+                                        </p>
+                                    )}
+
+                                    {refund.referenceType && (
+                                        <p className="mt-1 text-xs font-bold text-ink-500">
+                                            Reference type:{' '}
+                                            {formatStatusLabel(
+                                                refund.referenceType,
+                                            )}
+                                        </p>
+                                    )}
+
+                                    {refund.receiptNumber && (
+                                        <p className="mt-1 break-all text-xs font-bold text-ink-500">
+                                            Receipt number:{' '}
+                                            {
+                                                refund.receiptNumber
+                                            }
+                                        </p>
+                                    )}
+                                </article>
+                            ),
+                        )}
+                    </div>
+                )}
         </section>
     );
 }
@@ -1247,11 +1623,15 @@ function FulfilledOrderCard({
 
     const canEdit =
         order.fulfillmentStatus ===
-        'shipped';
+        'shipped' &&
+        order.refundStatus !==
+        'refunded';
 
     const canMarkDelivered =
         order.fulfillmentStatus ===
-        'shipped';
+        'shipped' &&
+        order.refundStatus !==
+        'refunded';
 
     return (
         <article className="rounded-4xl border border-sand bg-white-warm p-5 shadow-card sm:p-6">
@@ -1274,6 +1654,12 @@ function FulfilledOrderCard({
                             status={
                                 order
                                     .fulfillmentStatus
+                            }
+                        />
+
+                        <RefundBadge
+                            status={
+                                order.refundStatus
                             }
                         />
                     </div>
@@ -1323,6 +1709,12 @@ function FulfilledOrderCard({
                     />
 
                     <FulfillmentDetails
+                        order={
+                            order
+                        }
+                    />
+
+                    <RefundDetails
                         order={
                             order
                         }
@@ -1494,6 +1886,12 @@ function OrderCard({
                                 .fulfillmentStatus
                         }
                     />
+
+                    <RefundBadge
+                        status={
+                            order.refundStatus
+                        }
+                    />
                 </div>
             </div>
 
@@ -1503,10 +1901,18 @@ function OrderCard({
                 }
             />
 
+            <RefundDetails
+                order={
+                    order
+                }
+            />
+
             {order.paymentStatus ===
                 'paid' &&
                 order.fulfillmentStatus !==
-                'cancelled' && (
+                'cancelled' &&
+                order.refundStatus !==
+                'refunded' && (
                     <FulfillmentForm
                         order={
                             order
@@ -1545,6 +1951,8 @@ function matchesFilter(
         return (
             order.paymentStatus ===
             'paid' &&
+            order.refundStatus !==
+            'refunded' &&
             (
                 order
                     .fulfillmentStatus ===
@@ -1553,6 +1961,40 @@ function matchesFilter(
                     .fulfillmentStatus ===
                 'processing'
             )
+        );
+    }
+
+    if (
+        filter ===
+        'refund-attention'
+    ) {
+        return (
+            order.refundStatus ===
+            'pending' ||
+            order.refundStatus ===
+            'failed' ||
+            order.refundStatus ===
+            'canceled'
+        );
+    }
+
+    if (
+        filter ===
+        'partially-refunded'
+    ) {
+        return (
+            order.refundStatus ===
+            'partially-refunded'
+        );
+    }
+
+    if (
+        filter ===
+        'refunded'
+    ) {
+        return (
+            order.refundStatus ===
+            'refunded'
         );
     }
 
@@ -1581,10 +2023,27 @@ function matchesSearch(
         return true;
     }
 
+    const refundSearchValues =
+        order.refunds.flatMap(
+            (
+                refund,
+            ) => [
+                    refund.stripeRefundId,
+                    refund.reason,
+                    refund.failureReason,
+                    refund.pendingReason,
+                    refund.reference,
+                    refund.referenceType,
+                    refund.receiptNumber,
+                ],
+        );
+
     const searchableText =
         [
             order.reference,
             order.sessionId,
+            order.paymentIntentId,
+            order.refundStatus,
             order.customer
                 ?.name,
             order.customer
@@ -1601,9 +2060,16 @@ function matchesSearch(
                 ?.state,
             order.shippingAddress
                 ?.postalCode,
+            ...refundSearchValues,
         ]
             .filter(
-                Boolean,
+                (
+                    value,
+                ): value is string =>
+                    typeof value ===
+                    'string' &&
+                    value.length >
+                    0,
             )
             .join(
                 ' ',
@@ -1835,6 +2301,35 @@ export default function AdminOrders() {
                                 .fulfillmentStatus ===
                             'delivered',
                     ).length,
+
+                refundAttention:
+                    orders.filter(
+                        (
+                            order,
+                        ) =>
+                            matchesFilter(
+                                order,
+                                'refund-attention',
+                            ),
+                    ).length,
+
+                partiallyRefunded:
+                    orders.filter(
+                        (
+                            order,
+                        ) =>
+                            order.refundStatus ===
+                            'partially-refunded',
+                    ).length,
+
+                refunded:
+                    orders.filter(
+                        (
+                            order,
+                        ) =>
+                            order.refundStatus ===
+                            'refunded',
+                    ).length,
             }),
             [
                 orders,
@@ -1987,6 +2482,41 @@ export default function AdminOrders() {
 
             {
                 value:
+                    'refund-attention',
+
+                label:
+                    'Refund Attention',
+
+                count:
+                    counts
+                        .refundAttention,
+            },
+
+            {
+                value:
+                    'partially-refunded',
+
+                label:
+                    'Partial Refunds',
+
+                count:
+                    counts
+                        .partiallyRefunded,
+            },
+
+            {
+                value:
+                    'refunded',
+
+                label:
+                    'Refunded',
+
+                count:
+                    counts.refunded,
+            },
+
+            {
+                value:
                     'all',
 
                 label:
@@ -2091,7 +2621,7 @@ export default function AdminOrders() {
                     <input
                         type="search"
                         className="form-control pl-12"
-                        placeholder="Search reference, customer, email, or tracking…"
+                        placeholder="Search order, customer, tracking, payment, or refund…"
                         value={
                             query
                         }
@@ -2174,7 +2704,7 @@ export default function AdminOrders() {
                     </h2>
 
                     <p className="mt-3 text-sm leading-6 text-ink-600">
-                        Try another search or fulfillment filter.
+                        Try another search or order-status filter.
                     </p>
                 </div>
             ) : (

@@ -5,6 +5,8 @@ import type {
     OrderFulfillmentStatus,
     OrderItem,
     OrderPaymentStatus,
+    OrderRefundRecord,
+    OrderRefundStatus,
     OrderShippingAddress,
     OrderStatus,
 } from './order';
@@ -14,6 +16,10 @@ export interface AdminOrder {
 
     reference: string;
 
+    livemode: boolean;
+
+    paymentIntentId?: string;
+
     paymentStatus:
     OrderPaymentStatus;
 
@@ -22,6 +28,18 @@ export interface AdminOrder {
 
     fulfillmentStatus:
     OrderFulfillmentStatus;
+
+    refundStatus:
+    OrderRefundStatus;
+
+    amountRefunded: number;
+
+    amountRefundPending: number;
+
+    amountRefundable: number;
+
+    refunds:
+    OrderRefundRecord[];
 
     customer?:
     OrderCustomer;
@@ -91,12 +109,6 @@ export interface AdminSaveFulfillmentRequest {
 
     postageAmount: number;
 
-    /**
-     * True only when initially marking an order shipped.
-     *
-     * Editing an existing shipment sends false so customer
-     * communication remains a separate, deliberate action.
-     */
     sendEmail: boolean;
 }
 

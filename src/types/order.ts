@@ -29,11 +29,36 @@ export type SupportedCheckoutEventType =
   | 'checkout.session.async_payment_succeeded'
   | 'checkout.session.async_payment_failed';
 
+export type SupportedRefundEventType =
+  | 'refund.created'
+  | 'refund.updated'
+  | 'refund.failed';
+
+export type SupportedStripeEventType =
+  | SupportedCheckoutEventType
+  | SupportedRefundEventType;
+
 export type OrderCarrier =
   | 'USPS'
   | 'UPS'
   | 'FedEx'
   | 'Other';
+
+export type OrderRefundStatus =
+  | 'none'
+  | 'pending'
+  | 'partially-refunded'
+  | 'refunded'
+  | 'failed'
+  | 'canceled';
+
+export type OrderRefundEntryStatus =
+  | 'pending'
+  | 'requires_action'
+  | 'succeeded'
+  | 'failed'
+  | 'canceled'
+  | 'unknown';
 
 export interface OrderItem {
   productSlug: string;
@@ -104,6 +129,43 @@ export interface OrderFulfillment {
   updatedAt: string;
 }
 
+export interface OrderRefundRecord {
+  stripeRefundId: string;
+
+  paymentIntentId: string;
+
+  chargeId?: string;
+
+  amount: number;
+
+  currency: string;
+
+  status:
+  OrderRefundEntryStatus;
+
+  reason?: string;
+
+  failureReason?: string;
+
+  pendingReason?: string;
+
+  /**
+   * ARN, STAN, RRN, or another bank/payment-method
+   * tracing reference when Stripe makes one available.
+   */
+  reference?: string;
+
+  referenceType?: string;
+
+  referenceStatus?: string;
+
+  receiptNumber?: string;
+
+  createdAt: string;
+
+  updatedAt: string;
+}
+
 export interface OrderRecord {
   version: 1;
 
@@ -111,17 +173,21 @@ export interface OrderRecord {
 
   cartReference: string;
 
-  cartSource: OrderCartSource;
+  cartSource:
+  OrderCartSource;
 
-  checkoutMode: OrderCheckoutMode;
+  checkoutMode:
+  OrderCheckoutMode;
 
   livemode: boolean;
 
   paymentIntentId?: string;
 
-  paymentStatus: OrderPaymentStatus;
+  paymentStatus:
+  OrderPaymentStatus;
 
-  orderStatus: OrderStatus;
+  orderStatus:
+  OrderStatus;
 
   fulfillmentStatus:
   OrderFulfillmentStatus;
@@ -154,12 +220,37 @@ export interface OrderRecord {
 
   amountDiscount: number;
 
-  items: OrderItem[];
+  refundStatus:
+  OrderRefundStatus;
 
-  processedEventIds: string[];
+  /**
+   * Total amount from refunds whose Stripe status
+   * is succeeded.
+   */
+  amountRefunded: number;
+
+  /**
+   * Total amount currently pending or requiring action.
+   */
+  amountRefundPending: number;
+
+  /**
+   * Amount not already succeeded, pending, or requiring
+   * action in Stripe.
+   */
+  amountRefundable: number;
+
+  refunds:
+  OrderRefundRecord[];
+
+  items:
+  OrderItem[];
+
+  processedEventIds:
+  string[];
 
   lastEventType:
-  SupportedCheckoutEventType;
+  SupportedStripeEventType;
 
   lastEventCreated: number;
 
@@ -174,7 +265,7 @@ export interface ProcessedStripeEvent {
   eventId: string;
 
   eventType:
-  SupportedCheckoutEventType;
+  SupportedStripeEventType;
 
   sessionId: string;
 
@@ -193,7 +284,8 @@ export interface OrderStatusSuccessResponse {
 
   sessionId: string;
 
-  status: PublicOrderState;
+  status:
+  PublicOrderState;
 
   paymentStatus:
   OrderPaymentStatus;
