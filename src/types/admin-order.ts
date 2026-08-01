@@ -69,7 +69,15 @@ export type AdminOrdersResponse =
     | AdminOrdersSuccessResponse
     | AdminOrdersErrorResponse;
 
-export interface AdminFulfillOrderRequest {
+export type AdminOrderAction =
+    | 'save-fulfillment'
+    | 'resend-shipping-email'
+    | 'mark-delivered';
+
+export interface AdminSaveFulfillmentRequest {
+    action:
+    'save-fulfillment';
+
     sessionId: string;
 
     carrier:
@@ -82,18 +90,53 @@ export interface AdminFulfillOrderRequest {
     trackingUrl?: string;
 
     postageAmount: number;
+
+    /**
+     * True only when initially marking an order shipped.
+     *
+     * Editing an existing shipment sends false so customer
+     * communication remains a separate, deliberate action.
+     */
+    sendEmail: boolean;
 }
+
+export interface AdminResendShippingEmailRequest {
+    action:
+    'resend-shipping-email';
+
+    sessionId: string;
+}
+
+export interface AdminMarkDeliveredRequest {
+    action:
+    'mark-delivered';
+
+    sessionId: string;
+}
+
+export type AdminFulfillOrderRequest =
+    | AdminSaveFulfillmentRequest
+    | AdminResendShippingEmailRequest
+    | AdminMarkDeliveredRequest;
+
+export type AdminEmailStatus =
+    | 'sent'
+    | 'skipped'
+    | 'failed';
 
 export interface AdminFulfillOrderSuccessResponse {
     ok: true;
+
+    action:
+    AdminOrderAction;
 
     order:
     AdminOrder;
 
     emailStatus:
-    | 'sent'
-    | 'skipped'
-    | 'failed';
+    AdminEmailStatus;
+
+    message: string;
 }
 
 export interface AdminFulfillOrderErrorResponse {

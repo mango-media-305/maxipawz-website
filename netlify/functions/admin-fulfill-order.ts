@@ -1,3 +1,7 @@
+import {
+    getStore,
+} from '@netlify/blobs';
+
 import type {
     Config,
 } from '@netlify/functions';
@@ -15,6 +19,7 @@ import type {
     AdminFulfillOrderRequest,
     AdminFulfillOrderResponse,
     AdminOrder,
+    AdminOrderAction,
 } from '../../src/types/admin-order';
 
 import type {
@@ -23,6 +28,7 @@ import type {
 } from '../../src/types/order';
 
 import {
+    getOrderBySessionId,
     saveManualFulfillment,
 } from '../../src/utils/orders';
 
@@ -69,22 +75,12 @@ function optionalString(
         undefined;
 }
 
-function parseRequest(
+function parseSessionId(
     value: unknown,
-): AdminFulfillOrderRequest {
-    if (
-        !isRecord(
-            value,
-        )
-    ) {
-        throw new Error(
-            'The fulfillment request is invalid.',
-        );
-    }
-
+): string {
     const sessionId =
         optionalString(
-            value.sessionId,
+            value,
         );
 
     if (
@@ -98,6 +94,57 @@ function parseRequest(
         );
     }
 
+    return sessionId;
+}
+
+function parseTrackingUrl(
+    value: unknown,
+): string | undefined {
+    const trackingUrl =
+        optionalString(
+            value,
+        );
+
+    if (
+        !trackingUrl
+    ) {
+        return undefined;
+    }
+
+    let url: URL;
+
+    try {
+        url =
+            new URL(
+                trackingUrl,
+            );
+    } catch {
+        throw new Error(
+            'The tracking URL is invalid.',
+        );
+    }
+
+    if (
+        url.protocol !==
+        'https:'
+    ) {
+        throw new Error(
+            'The tracking URL must use HTTPS.',
+        );
+    }
+
+    return trackingUrl;
+}
+
+function parseSaveFulfillmentRequest(
+    value:
+        Record<
+            string,
+            unknown
+        >,
+
+    sessionId: string,
+): AdminFulfillOrderRequest {
     const carrier =
         optionalString(
             value.carrier,
@@ -129,40 +176,6 @@ function parseRequest(
         );
     }
 
-    const service =
-        optionalString(
-            value.service,
-        );
-
-    const trackingUrl =
-        optionalString(
-            value.trackingUrl,
-        );
-
-    if (trackingUrl) {
-        let url: URL;
-
-        try {
-            url =
-                new URL(
-                    trackingUrl,
-                );
-        } catch {
-            throw new Error(
-                'The tracking URL is invalid.',
-            );
-        }
-
-        if (
-            url.protocol !==
-            'https:'
-        ) {
-            throw new Error(
-                'The tracking URL must use HTTPS.',
-            );
-        }
-    }
-
     const postageAmount =
         value.postageAmount;
 
@@ -180,18 +193,95 @@ function parseRequest(
     }
 
     return {
+        action:
+            'save-fulfillment',
+
         sessionId,
 
         carrier,
 
-        service,
+        service:
+            optionalString(
+                value.service,
+            ),
 
         trackingNumber,
 
-        trackingUrl,
+        trackingUrl:
+            parseTrackingUrl(
+                value.trackingUrl,
+            ),
 
         postageAmount,
+
+        /**
+         * Defaults to true for compatibility with the first
+         * dashboard version. Dashboard v2 explicitly sends false
+         * when editing existing shipment information.
+         */
+        sendEmail:
+            value.sendEmail !==
+            false,
     };
+}
+
+function parseRequest(
+    value: unknown,
+): AdminFulfillOrderRequest {
+    if (
+        !isRecord(
+            value,
+        )
+    ) {
+        throw new Error(
+            'The fulfillment request is invalid.',
+        );
+    }
+
+    const sessionId =
+        parseSessionId(
+            value.sessionId,
+        );
+
+    const action =
+        optionalString(
+            value.action,
+        ) ??
+        'save-fulfillment';
+
+    if (
+        action ===
+        'save-fulfillment'
+    ) {
+        return parseSaveFulfillmentRequest(
+            value,
+            sessionId,
+        );
+    }
+
+    if (
+        action ===
+        'resend-shipping-email'
+    ) {
+        return {
+            action,
+            sessionId,
+        };
+    }
+
+    if (
+        action ===
+        'mark-delivered'
+    ) {
+        return {
+            action,
+            sessionId,
+        };
+    }
+
+    throw new Error(
+        'The requested fulfillment action is invalid.',
+    );
 }
 
 function getOrderReference(
@@ -292,6 +382,155 @@ function jsonResponse(
     );
 }
 
+async function requireSandboxOrder(
+    sessionId: string,
+): Promise<OrderRecord> {
+    const order =
+        await getOrderBySessionId(
+            sessionId,
+        );
+
+    if (
+        !order ||
+        order.livemode
+    ) {
+        throw new Error(
+            'The Sandbox order could not be found.',
+        );
+    }
+
+    return order;
+}
+
+async function markSandboxOrderDelivered(
+    sessionId: string,
+): Promise<{
+    order:
+    OrderRecord;
+
+    changed:
+    boolean;
+}> {
+    const existing =
+        await requireSandboxOrder(
+            sessionId,
+        );
+
+    if (
+        existing.paymentStatus !==
+        'paid'
+    ) {
+        throw new Error(
+            'Only paid orders can be marked delivered.',
+        );
+    }
+
+    if (
+        existing
+            .fulfillmentStatus ===
+        'delivered'
+    ) {
+        return {
+            order:
+                existing,
+
+            changed:
+                false,
+        };
+    }
+
+    if (
+        existing
+            .fulfillmentStatus !==
+        'shipped' ||
+        !existing.fulfillment
+    ) {
+        throw new Error(
+            'Only shipped orders can be marked delivered.',
+        );
+    }
+
+    const now =
+        new Date()
+            .toISOString();
+
+    const nextOrder:
+        OrderRecord = {
+        ...existing,
+
+        fulfillmentStatus:
+            'delivered',
+
+        fulfillment: {
+            ...existing
+                .fulfillment,
+
+            deliveredAt:
+                now,
+
+            updatedAt:
+                now,
+        },
+
+        updatedAt:
+            now,
+    };
+
+    const store =
+        getStore(
+            'maxipawz-orders-test',
+            {
+                consistency:
+                    'strong',
+            },
+        );
+
+    await store.setJSON(
+        `session/${sessionId}`,
+        nextOrder,
+    );
+
+    return {
+        order:
+            nextOrder,
+
+        changed:
+            true,
+    };
+}
+
+function getShippingEmailMessage(
+    status:
+        'sent'
+        | 'skipped'
+        | 'failed',
+
+    resend:
+        boolean,
+): string {
+    if (
+        status ===
+        'sent'
+    ) {
+        return resend
+            ? 'Shipping confirmation email resent.'
+            : 'Order marked shipped and shipping confirmation email sent.';
+    }
+
+    if (
+        status ===
+        'failed'
+    ) {
+        return resend
+            ? 'The shipping confirmation email could not be resent. Check Resend.'
+            : 'Order marked shipped, but the shipping email failed. Check Resend.';
+    }
+
+    return resend
+        ? 'The shipping email was skipped by the current email configuration.'
+        : 'Order marked shipped. The shipping email was skipped by the current email configuration.';
+}
+
 export default async function handler(
     request: Request,
 ): Promise<Response> {
@@ -327,21 +566,157 @@ export default async function handler(
                 rawRequest,
             );
 
-        const order =
-            await saveManualFulfillment({
-                ...payload,
+        let order:
+            OrderRecord;
 
-                livemode:
-                    false,
-            });
+        let emailStatus:
+            'sent'
+            | 'skipped'
+            | 'failed' =
+            'skipped';
 
-        const emailStatus =
-            await sendShippingConfirmationEmail(
-                order,
-            );
+        let message:
+            string;
+
+        const action:
+            AdminOrderAction =
+            payload.action;
+
+        if (
+            payload.action ===
+            'save-fulfillment'
+        ) {
+            const existing =
+                await requireSandboxOrder(
+                    payload.sessionId,
+                );
+
+            if (
+                existing
+                    .fulfillmentStatus ===
+                'delivered'
+            ) {
+                throw new Error(
+                    'Delivered orders cannot have their shipment information edited.',
+                );
+            }
+
+            if (
+                existing
+                    .fulfillmentStatus ===
+                'cancelled'
+            ) {
+                throw new Error(
+                    'Cancelled orders cannot be fulfilled.',
+                );
+            }
+
+            order =
+                await saveManualFulfillment({
+                    sessionId:
+                        payload.sessionId,
+
+                    livemode:
+                        false,
+
+                    carrier:
+                        payload.carrier,
+
+                    service:
+                        payload.service,
+
+                    trackingNumber:
+                        payload
+                            .trackingNumber,
+
+                    trackingUrl:
+                        payload.trackingUrl,
+
+                    postageAmount:
+                        payload
+                            .postageAmount,
+                });
+
+            if (
+                payload.sendEmail
+            ) {
+                emailStatus =
+                    await sendShippingConfirmationEmail(
+                        order,
+                    );
+
+                message =
+                    getShippingEmailMessage(
+                        emailStatus,
+                        false,
+                    );
+            } else {
+                message =
+                    'Shipment information updated. No customer email was sent.';
+            }
+        } else if (
+            payload.action ===
+            'resend-shipping-email'
+        ) {
+            order =
+                await requireSandboxOrder(
+                    payload.sessionId,
+                );
+
+            const canSendShippingEmail =
+                (
+                    order
+                        .fulfillmentStatus ===
+                    'shipped' ||
+                    order
+                        .fulfillmentStatus ===
+                    'delivered'
+                ) &&
+                Boolean(
+                    order.fulfillment,
+                );
+
+            if (
+                !canSendShippingEmail
+            ) {
+                throw new Error(
+                    'A shipping email can be sent only after shipment information has been saved.',
+                );
+            }
+
+            emailStatus =
+                await sendShippingConfirmationEmail(
+                    order,
+                    {
+                        force:
+                            true,
+                    },
+                );
+
+            message =
+                getShippingEmailMessage(
+                    emailStatus,
+                    true,
+                );
+        } else {
+            const result =
+                await markSandboxOrderDelivered(
+                    payload.sessionId,
+                );
+
+            order =
+                result.order;
+
+            message =
+                result.changed
+                    ? 'Order marked delivered.'
+                    : 'Order was already marked delivered.';
+        }
 
         return jsonResponse({
             ok: true,
+
+            action,
 
             order:
                 toAdminOrder(
@@ -349,6 +724,8 @@ export default async function handler(
                 ),
 
             emailStatus,
+
+            message,
         });
     } catch (error) {
         if (
@@ -367,7 +744,7 @@ export default async function handler(
         }
 
         console.error(
-            'Admin fulfillment update failed.',
+            'Admin fulfillment action failed.',
             error,
         );
 
@@ -378,7 +755,7 @@ export default async function handler(
                 message:
                     error instanceof Error
                         ? error.message
-                        : 'The order could not be marked as shipped.',
+                        : 'The fulfillment action could not be completed.',
             },
             400,
         );

@@ -1,9 +1,11 @@
 import {
     useEffect,
+    useMemo,
     useState,
 } from 'preact/hooks';
 
 import type {
+    AdminFulfillOrderRequest,
     AdminFulfillOrderResponse,
     AdminOrder,
     AdminOrdersResponse,
@@ -15,6 +17,12 @@ import type {
 
 const ADMIN_TOKEN_KEY =
     'maxipawz-admin-token';
+
+type OrderFilter =
+    | 'all'
+    | 'needs-fulfillment'
+    | 'shipped'
+    | 'delivered';
 
 function RefreshIcon() {
     return (
@@ -56,6 +64,116 @@ function LogoutIcon() {
             <path d="M15 12H3" />
 
             <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+        </svg>
+    );
+}
+
+function SearchIcon() {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="size-5"
+            aria-hidden="true"
+        >
+            <circle
+                cx="11"
+                cy="11"
+                r="7"
+            />
+
+            <path d="m20 20-3.5-3.5" />
+        </svg>
+    );
+}
+
+function ChevronIcon({
+    expanded,
+}: {
+    expanded: boolean;
+}) {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={[
+                'size-4 transition-transform',
+                expanded
+                    ? 'rotate-180'
+                    : '',
+            ].join(' ')}
+            aria-hidden="true"
+        >
+            <path d="m6 9 6 6 6-6" />
+        </svg>
+    );
+}
+
+function EditIcon() {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="size-4"
+            aria-hidden="true"
+        >
+            <path d="M12 20h9" />
+
+            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" />
+        </svg>
+    );
+}
+
+function MailIcon() {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="size-4"
+            aria-hidden="true"
+        >
+            <rect
+                x="3"
+                y="5"
+                width="18"
+                height="14"
+                rx="2"
+            />
+
+            <path d="m3 7 9 6 9-6" />
+        </svg>
+    );
+}
+
+function DeliveredIcon() {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="size-4"
+            aria-hidden="true"
+        >
+            <path d="M20 6 9 17l-5-5" />
         </svg>
     );
 }
@@ -128,7 +246,9 @@ function formatAddress(
     const address =
         order.shippingAddress;
 
-    if (!address) {
+    if (
+        !address
+    ) {
         return 'Shipping address unavailable';
     }
 
@@ -160,24 +280,428 @@ function formatAddress(
         );
 }
 
+function formatStatusLabel(
+    value: string,
+): string {
+    return value
+        .split(
+            '-',
+        )
+        .map(
+            (
+                part,
+            ) =>
+                `${part
+                    .charAt(
+                        0,
+                    )
+                    .toUpperCase()}${part.slice(
+                        1,
+                    )}`,
+        )
+        .join(
+            ' ',
+        );
+}
+
+function PaymentBadge({
+    status,
+}: {
+    status:
+    AdminOrder[
+    'paymentStatus'
+    ];
+}) {
+    const className =
+        status ===
+            'paid'
+            ? 'bg-success-50 text-success-700'
+            : status ===
+                'failed'
+                ? 'bg-danger-50 text-danger-700'
+                : 'bg-accent-50 text-accent-700';
+
+    return (
+        <span
+            className={`rounded-full px-3 py-1 text-xs font-extrabold ${className}`}
+        >
+            {formatStatusLabel(
+                status,
+            )}
+        </span>
+    );
+}
+
+function FulfillmentBadge({
+    status,
+}: {
+    status:
+    AdminOrder[
+    'fulfillmentStatus'
+    ];
+}) {
+    const className =
+        status ===
+            'delivered'
+            ? 'bg-success-50 text-success-700'
+            : status ===
+                'shipped'
+                ? 'bg-brand-50 text-brand-700'
+                : status ===
+                    'cancelled'
+                    ? 'bg-danger-50 text-danger-700'
+                    : 'bg-accent-50 text-accent-700';
+
+    return (
+        <span
+            className={`rounded-full px-3 py-1 text-xs font-extrabold ${className}`}
+        >
+            {formatStatusLabel(
+                status,
+            )}
+        </span>
+    );
+}
+
+function OrderIdentity({
+    order,
+}: {
+    order:
+    AdminOrder;
+}) {
+    return (
+        <div className="min-w-0">
+            <p className="text-xs font-extrabold tracking-[0.08em] text-brand-700 uppercase">
+                {
+                    order.reference
+                }
+            </p>
+
+            <h2 className="mt-2 text-2xl text-ink-900">
+                {
+                    order.customer
+                        ?.name ??
+                    'Customer'
+                }
+            </h2>
+
+            <p className="mt-1 break-all text-sm text-ink-600">
+                {
+                    order.customer
+                        ?.email ??
+                    'Email unavailable'
+                }
+            </p>
+
+            <p className="mt-3 text-xs font-bold text-ink-500">
+                {formatDate(
+                    order.createdAt,
+                )}
+            </p>
+        </div>
+    );
+}
+
+function OrderDetails({
+    order,
+}: {
+    order:
+    AdminOrder;
+}) {
+    const itemCount =
+        order.items.reduce(
+            (
+                total,
+                item,
+            ) =>
+                total +
+                item.quantity,
+            0,
+        );
+
+    return (
+        <>
+            <div className="mt-5 grid gap-6 lg:grid-cols-2">
+                <div>
+                    <h3 className="text-sm font-extrabold text-ink-900">
+                        Items ({itemCount})
+                    </h3>
+
+                    <div className="mt-3 grid gap-2">
+                        {order.items.map(
+                            (
+                                item,
+                            ) => (
+                                <div
+                                    key={`${item.productSlug}-${item.variantId ?? 'default'}`}
+                                    className="flex justify-between gap-4 text-sm"
+                                >
+                                    <span className="text-ink-700">
+                                        {
+                                            item.quantity
+                                        }
+                                        {' × '}
+                                        {
+                                            item.productName
+                                        }
+                                        {item.variantLabel
+                                            ? ` — ${item.variantLabel}`
+                                            : ''}
+                                    </span>
+
+                                    <strong className="shrink-0 text-ink-900">
+                                        {formatMoney(
+                                            item.lineTotalAmount,
+                                            item.currency,
+                                        )}
+                                    </strong>
+                                </div>
+                            ),
+                        )}
+                    </div>
+                </div>
+
+                <div>
+                    <h3 className="text-sm font-extrabold text-ink-900">
+                        Shipping address
+                    </h3>
+
+                    <p className="mt-3 whitespace-pre-line text-sm leading-6 text-ink-600">
+                        {formatAddress(
+                            order,
+                        )}
+                    </p>
+                </div>
+            </div>
+
+            <dl className="mt-6 grid gap-2 rounded-2xl bg-cream-soft p-4 text-sm">
+                <div className="flex justify-between gap-4">
+                    <dt className="font-bold text-ink-600">
+                        Merchandise
+                    </dt>
+
+                    <dd className="font-black text-ink-900">
+                        {formatMoney(
+                            order.amountSubtotal,
+                            order.currency,
+                        )}
+                    </dd>
+                </div>
+
+                {order.amountDiscount >
+                    0 && (
+                        <div className="flex justify-between gap-4">
+                            <dt className="font-bold text-ink-600">
+                                Discount
+                            </dt>
+
+                            <dd className="font-black text-ink-900">
+                                −
+                                {formatMoney(
+                                    order.amountDiscount,
+                                    order.currency,
+                                )}
+                            </dd>
+                        </div>
+                    )}
+
+                <div className="flex justify-between gap-4">
+                    <dt className="font-bold text-ink-600">
+                        Shipping collected
+                    </dt>
+
+                    <dd className="font-black text-ink-900">
+                        {formatMoney(
+                            order.amountShipping,
+                            order.currency,
+                        )}
+                    </dd>
+                </div>
+
+                {order.fulfillment && (
+                    <div className="flex justify-between gap-4">
+                        <dt className="font-bold text-ink-600">
+                            Actual postage
+                        </dt>
+
+                        <dd className="font-black text-ink-900">
+                            {formatMoney(
+                                order
+                                    .fulfillment
+                                    .postageAmount,
+                                order.currency,
+                            )}
+                        </dd>
+                    </div>
+                )}
+
+                <div className="flex justify-between gap-4">
+                    <dt className="font-bold text-ink-600">
+                        Tax
+                    </dt>
+
+                    <dd className="font-black text-ink-900">
+                        {formatMoney(
+                            order.amountTax,
+                            order.currency,
+                        )}
+                    </dd>
+                </div>
+
+                <div className="flex justify-between gap-4 border-t border-sand pt-2">
+                    <dt className="font-black text-ink-900">
+                        Total
+                    </dt>
+
+                    <dd className="text-lg font-black text-ink-900">
+                        {formatMoney(
+                            order.amountTotal,
+                            order.currency,
+                        )}
+                    </dd>
+                </div>
+            </dl>
+        </>
+    );
+}
+
+function FulfillmentDetails({
+    order,
+}: {
+    order:
+    AdminOrder;
+}) {
+    const fulfillment =
+        order.fulfillment;
+
+    if (
+        !fulfillment
+    ) {
+        return null;
+    }
+
+    return (
+        <section className="mt-5 rounded-2xl border border-brand-200 bg-brand-50 p-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                    <p className="text-xs font-extrabold tracking-[0.07em] text-brand-700 uppercase">
+                        Shipment information
+                    </p>
+
+                    <p className="mt-2 font-extrabold text-ink-900">
+                        {
+                            fulfillment.carrier
+                        }
+                        {fulfillment.service
+                            ? ` — ${fulfillment.service}`
+                            : ''}
+                    </p>
+
+                    <p className="mt-2 text-sm leading-6 text-ink-700">
+                        Tracking:{' '}
+                        <strong>
+                            {
+                                fulfillment
+                                    .trackingNumber
+                            }
+                        </strong>
+                    </p>
+
+                    {fulfillment
+                        .trackingUrl && (
+                            <a
+                                href={
+                                    fulfillment
+                                        .trackingUrl
+                                }
+                                target="_blank"
+                                rel="noreferrer"
+                                className="mt-2 inline-flex text-sm font-extrabold text-brand-700 underline decoration-brand-300 underline-offset-4"
+                            >
+                                Open carrier tracking
+                            </a>
+                        )}
+                </div>
+
+                <dl className="grid shrink-0 gap-1 text-sm">
+                    <div className="flex gap-3 sm:justify-between">
+                        <dt className="font-bold text-ink-600">
+                            Postage:
+                        </dt>
+
+                        <dd className="font-black text-ink-900">
+                            {formatMoney(
+                                fulfillment
+                                    .postageAmount,
+                                order.currency,
+                            )}
+                        </dd>
+                    </div>
+
+                    <div className="flex gap-3 sm:justify-between">
+                        <dt className="font-bold text-ink-600">
+                            Shipped:
+                        </dt>
+
+                        <dd className="font-black text-ink-900">
+                            {formatDate(
+                                fulfillment
+                                    .shippedAt,
+                            )}
+                        </dd>
+                    </div>
+
+                    {fulfillment
+                        .deliveredAt && (
+                            <div className="flex gap-3 sm:justify-between">
+                                <dt className="font-bold text-ink-600">
+                                    Delivered:
+                                </dt>
+
+                                <dd className="font-black text-ink-900">
+                                    {formatDate(
+                                        fulfillment
+                                            .deliveredAt,
+                                    )}
+                                </dd>
+                            </div>
+                        )}
+                </dl>
+            </div>
+        </section>
+    );
+}
+
 interface FulfillmentFormProps {
     order:
     AdminOrder;
 
     token: string;
 
+    mode:
+    | 'create'
+    | 'edit';
+
     onUpdated:
     (
         order:
             AdminOrder,
     ) => void;
+
+    onSaved?:
+    () => void;
 }
 
 function FulfillmentForm({
     order,
     token,
+    mode,
     onUpdated,
+    onSaved,
 }: FulfillmentFormProps) {
+    const fulfillment =
+        order.fulfillment;
+
     const [
         carrier,
         setCarrier,
@@ -185,6 +709,8 @@ function FulfillmentForm({
         useState<
             OrderCarrier
         >(
+            fulfillment
+                ?.carrier ??
             'USPS',
         );
 
@@ -193,6 +719,8 @@ function FulfillmentForm({
         setService,
     ] =
         useState(
+            fulfillment
+                ?.service ??
             '',
         );
 
@@ -201,6 +729,8 @@ function FulfillmentForm({
         setTrackingNumber,
     ] =
         useState(
+            fulfillment
+                ?.trackingNumber ??
             '',
         );
 
@@ -209,6 +739,8 @@ function FulfillmentForm({
         setTrackingUrl,
     ] =
         useState(
+            fulfillment
+                ?.trackingUrl ??
             '',
         );
 
@@ -217,7 +749,17 @@ function FulfillmentForm({
         setPostage,
     ] =
         useState(
-            '',
+            typeof fulfillment
+                ?.postageAmount ===
+                'number'
+                ? (
+                    fulfillment
+                        .postageAmount /
+                    100
+                ).toFixed(
+                    2,
+                )
+                : '',
         );
 
     const [
@@ -268,6 +810,33 @@ function FulfillmentForm({
             '',
         );
 
+        const payload:
+            AdminFulfillOrderRequest = {
+            action:
+                'save-fulfillment',
+
+            sessionId:
+                order.sessionId,
+
+            carrier,
+
+            service,
+
+            trackingNumber,
+
+            trackingUrl,
+
+            postageAmount:
+                Math.round(
+                    postageNumber *
+                    100,
+                ),
+
+            sendEmail:
+                mode ===
+                'create',
+        };
+
         try {
             const response =
                 await fetch(
@@ -288,28 +857,13 @@ function FulfillmentForm({
                         },
 
                         body:
-                            JSON.stringify({
-                                sessionId:
-                                    order.sessionId,
-
-                                carrier,
-
-                                service,
-
-                                trackingNumber,
-
-                                trackingUrl,
-
-                                postageAmount:
-                                    Math.round(
-                                        postageNumber *
-                                        100,
-                                    ),
-                            }),
+                            JSON.stringify(
+                                payload,
+                            ),
                     },
                 );
 
-            const payload =
+            const result =
                 (await response
                     .json()
                     .catch(
@@ -320,42 +874,28 @@ function FulfillmentForm({
 
             if (
                 !response.ok ||
-                !payload ||
-                payload.ok !==
+                !result ||
+                result.ok !==
                 true
             ) {
                 throw new Error(
-                    payload &&
-                        payload.ok ===
+                    result &&
+                        result.ok ===
                         false
-                        ? payload.message
+                        ? result.message
                         : 'The order could not be updated.',
                 );
             }
 
-            onUpdated(
-                payload.order,
+            setMessage(
+                result.message,
             );
 
-            if (
-                payload.emailStatus ===
-                'sent'
-            ) {
-                setMessage(
-                    'Order marked shipped and shipping email sent.',
-                );
-            } else if (
-                payload.emailStatus ===
-                'failed'
-            ) {
-                setMessage(
-                    'Order marked shipped, but the shipping email failed. Check Resend.',
-                );
-            } else {
-                setMessage(
-                    'Order marked shipped. Shipping email was skipped by the current email configuration.',
-                );
-            }
+            onUpdated(
+                result.order,
+            );
+
+            onSaved?.();
         } catch (error) {
             setMessage(
                 error instanceof Error
@@ -535,8 +1075,18 @@ function FulfillmentForm({
             >
                 {busy
                     ? 'Saving…'
-                    : 'Mark Shipped & Email Customer'}
+                    : mode ===
+                        'create'
+                        ? 'Mark Shipped & Email Customer'
+                        : 'Save Shipment Changes'}
             </button>
+
+            {mode ===
+                'edit' && (
+                    <p className="text-xs font-bold leading-5 text-ink-600">
+                        Saving changes does not send another email. Use the separate Resend Shipping Email action after reviewing the updated information.
+                    </p>
+                )}
 
             {message && (
                 <p className="text-sm font-bold leading-6 text-ink-700">
@@ -550,58 +1100,332 @@ function FulfillmentForm({
 interface FulfilledOrderCardProps {
     order:
     AdminOrder;
+
+    token: string;
+
+    onUpdated:
+    (
+        order:
+            AdminOrder,
+    ) => void;
 }
 
 function FulfilledOrderCard({
     order,
+    token,
+    onUpdated,
 }: FulfilledOrderCardProps) {
+    const [
+        expanded,
+        setExpanded,
+    ] =
+        useState(
+            false,
+        );
+
+    const [
+        editing,
+        setEditing,
+    ] =
+        useState(
+            false,
+        );
+
+    const [
+        busyAction,
+        setBusyAction,
+    ] =
+        useState<
+            | 'resend'
+            | 'delivered'
+            | null
+        >(
+            null,
+        );
+
+    const [
+        actionMessage,
+        setActionMessage,
+    ] =
+        useState(
+            '',
+        );
+
+    async function runAction(
+        action:
+            | 'resend-shipping-email'
+            | 'mark-delivered',
+    ) {
+        setBusyAction(
+            action ===
+                'resend-shipping-email'
+                ? 'resend'
+                : 'delivered',
+        );
+
+        setActionMessage(
+            '',
+        );
+
+        const payload:
+            AdminFulfillOrderRequest = {
+            action,
+
+            sessionId:
+                order.sessionId,
+        };
+
+        try {
+            const response =
+                await fetch(
+                    '/api/admin/fulfill-order',
+                    {
+                        method:
+                            'POST',
+
+                        headers: {
+                            Authorization:
+                                `Bearer ${token}`,
+
+                            Accept:
+                                'application/json',
+
+                            'Content-Type':
+                                'application/json',
+                        },
+
+                        body:
+                            JSON.stringify(
+                                payload,
+                            ),
+                    },
+                );
+
+            const result =
+                (await response
+                    .json()
+                    .catch(
+                        () => null,
+                    )) as
+                | AdminFulfillOrderResponse
+                | null;
+
+            if (
+                !response.ok ||
+                !result ||
+                result.ok !==
+                true
+            ) {
+                throw new Error(
+                    result &&
+                        result.ok ===
+                        false
+                        ? result.message
+                        : 'The order action could not be completed.',
+                );
+            }
+
+            onUpdated(
+                result.order,
+            );
+
+            setActionMessage(
+                result.message,
+            );
+        } catch (error) {
+            setActionMessage(
+                error instanceof Error
+                    ? error.message
+                    : 'The order action failed.',
+            );
+        } finally {
+            setBusyAction(
+                null,
+            );
+        }
+    }
+
+    const canEdit =
+        order.fulfillmentStatus ===
+        'shipped';
+
+    const canMarkDelivered =
+        order.fulfillmentStatus ===
+        'shipped';
+
     return (
         <article className="rounded-4xl border border-sand bg-white-warm p-5 shadow-card sm:p-6">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-                <div className="min-w-0">
-                    <p className="text-xs font-extrabold tracking-[0.08em] text-brand-700 uppercase">
-                        {
-                            order.reference
-                        }
-                    </p>
+                <OrderIdentity
+                    order={
+                        order
+                    }
+                />
 
-                    <h2 className="mt-2 text-2xl text-ink-900">
-                        {
-                            order.customer
-                                ?.name ??
-                            'Customer'
-                        }
-                    </h2>
+                <div className="flex shrink-0 flex-col items-start gap-3 sm:items-end">
+                    <div className="flex flex-wrap gap-2">
+                        <PaymentBadge
+                            status={
+                                order.paymentStatus
+                            }
+                        />
 
-                    <p className="mt-1 break-all text-sm text-ink-600">
-                        {
-                            order.customer
-                                ?.email ??
-                            'Email unavailable'
-                        }
-                    </p>
+                        <FulfillmentBadge
+                            status={
+                                order
+                                    .fulfillmentStatus
+                            }
+                        />
+                    </div>
 
-                    <p className="mt-3 text-xs font-bold text-ink-500">
-                        {formatDate(
-                            order.createdAt,
-                        )}
-                    </p>
-                </div>
+                    <button
+                        type="button"
+                        className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-sm font-extrabold text-brand-800 transition hover:border-brand-400 hover:bg-brand-100"
+                        onClick={() => {
+                            setExpanded(
+                                (
+                                    current,
+                                ) =>
+                                    !current,
+                            );
 
-                <div className="flex shrink-0 flex-wrap gap-2">
-                    <span className="rounded-full bg-success-50 px-3 py-1 text-xs font-extrabold text-success-700">
-                        {
-                            order.paymentStatus
+                            if (
+                                expanded
+                            ) {
+                                setEditing(
+                                    false,
+                                );
+                            }
+                        }}
+                        aria-expanded={
+                            expanded
                         }
-                    </span>
+                    >
+                        {expanded
+                            ? 'Hide Details'
+                            : 'View Details'}
 
-                    <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-extrabold text-brand-700">
-                        {
-                            order.fulfillmentStatus
-                        }
-                    </span>
+                        <ChevronIcon
+                            expanded={
+                                expanded
+                            }
+                        />
+                    </button>
                 </div>
             </div>
+
+            {expanded && (
+                <div className="mt-5 border-t border-sand pt-5">
+                    <OrderDetails
+                        order={
+                            order
+                        }
+                    />
+
+                    <FulfillmentDetails
+                        order={
+                            order
+                        }
+                    />
+
+                    <div className="mt-5 flex flex-wrap gap-2">
+                        {canEdit && (
+                            <button
+                                type="button"
+                                className="inline-flex min-h-10 items-center gap-2 rounded-full border border-brand-300 bg-white-warm px-4 text-sm font-extrabold text-brand-800 transition hover:bg-brand-50"
+                                onClick={() => {
+                                    setEditing(
+                                        (
+                                            current,
+                                        ) =>
+                                            !current,
+                                    );
+                                }}
+                            >
+                                <EditIcon />
+
+                                {editing
+                                    ? 'Cancel Editing'
+                                    : 'Edit Shipment'}
+                            </button>
+                        )}
+
+                        <button
+                            type="button"
+                            disabled={
+                                busyAction !==
+                                null
+                            }
+                            className="inline-flex min-h-10 items-center gap-2 rounded-full border border-brand-300 bg-white-warm px-4 text-sm font-extrabold text-brand-800 transition hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-60"
+                            onClick={() => {
+                                void runAction(
+                                    'resend-shipping-email',
+                                );
+                            }}
+                        >
+                            <MailIcon />
+
+                            {busyAction ===
+                                'resend'
+                                ? 'Sending…'
+                                : 'Resend Shipping Email'}
+                        </button>
+
+                        {canMarkDelivered && (
+                            <button
+                                type="button"
+                                disabled={
+                                    busyAction !==
+                                    null
+                                }
+                                className="inline-flex min-h-10 items-center gap-2 rounded-full border border-success-100 bg-success-50 px-4 text-sm font-extrabold text-success-700 transition hover:bg-success-100 disabled:cursor-not-allowed disabled:opacity-60"
+                                onClick={() => {
+                                    void runAction(
+                                        'mark-delivered',
+                                    );
+                                }}
+                            >
+                                <DeliveredIcon />
+
+                                {busyAction ===
+                                    'delivered'
+                                    ? 'Updating…'
+                                    : 'Mark Delivered'}
+                            </button>
+                        )}
+                    </div>
+
+                    {editing && (
+                        <FulfillmentForm
+                            order={
+                                order
+                            }
+                            token={
+                                token
+                            }
+                            mode="edit"
+                            onUpdated={
+                                onUpdated
+                            }
+                            onSaved={() => {
+                                setEditing(
+                                    false,
+                                );
+
+                                setActionMessage(
+                                    'Shipment information updated.',
+                                );
+                            }}
+                        />
+                    )}
+
+                    {actionMessage && (
+                        <p className="mt-4 rounded-2xl border border-brand-200 bg-brand-50 p-3 text-sm font-bold leading-6 text-ink-700">
+                            {actionMessage}
+                        </p>
+                    )}
+                </div>
+            )}
         </article>
     );
 }
@@ -638,178 +1462,51 @@ function OrderCard({
                 order={
                     order
                 }
+                token={
+                    token
+                }
+                onUpdated={
+                    onUpdated
+                }
             />
         );
     }
 
-    const itemCount =
-        order.items.reduce(
-            (
-                total,
-                item,
-            ) =>
-                total +
-                item.quantity,
-            0,
-        );
-
     return (
         <article className="rounded-4xl border border-sand bg-white-warm p-5 shadow-card sm:p-6">
             <div className="flex flex-col gap-4 border-b border-sand pb-5 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                    <p className="text-xs font-extrabold tracking-[0.08em] text-brand-700 uppercase">
-                        {
-                            order.reference
-                        }
-                    </p>
-
-                    <h2 className="mt-2 text-2xl text-ink-900">
-                        {
-                            order.customer
-                                ?.name ??
-                            'Customer'
-                        }
-                    </h2>
-
-                    <p className="mt-1 break-all text-sm text-ink-600">
-                        {
-                            order.customer
-                                ?.email ??
-                            'Email unavailable'
-                        }
-                    </p>
-
-                    <p className="mt-3 text-xs font-bold text-ink-500">
-                        {formatDate(
-                            order.createdAt,
-                        )}
-                    </p>
-                </div>
+                <OrderIdentity
+                    order={
+                        order
+                    }
+                />
 
                 <div className="flex flex-wrap gap-2">
-                    <span className="rounded-full bg-success-50 px-3 py-1 text-xs font-extrabold text-success-700">
-                        {
+                    <PaymentBadge
+                        status={
                             order.paymentStatus
                         }
-                    </span>
+                    />
 
-                    <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-extrabold text-brand-700">
-                        {
-                            order.fulfillmentStatus
+                    <FulfillmentBadge
+                        status={
+                            order
+                                .fulfillmentStatus
                         }
-                    </span>
+                    />
                 </div>
             </div>
 
-            <div className="mt-5 grid gap-6 lg:grid-cols-2">
-                <div>
-                    <h3 className="text-sm font-extrabold text-ink-900">
-                        Items ({itemCount})
-                    </h3>
-
-                    <div className="mt-3 grid gap-2">
-                        {order.items.map(
-                            (
-                                item,
-                            ) => (
-                                <div
-                                    key={`${item.productSlug}-${item.variantId ?? 'default'}`}
-                                    className="flex justify-between gap-4 text-sm"
-                                >
-                                    <span className="text-ink-700">
-                                        {
-                                            item.quantity
-                                        }
-                                        {' × '}
-                                        {
-                                            item.productName
-                                        }
-                                        {item.variantLabel
-                                            ? ` — ${item.variantLabel}`
-                                            : ''}
-                                    </span>
-
-                                    <strong className="shrink-0 text-ink-900">
-                                        {formatMoney(
-                                            item.lineTotalAmount,
-                                            item.currency,
-                                        )}
-                                    </strong>
-                                </div>
-                            ),
-                        )}
-                    </div>
-                </div>
-
-                <div>
-                    <h3 className="text-sm font-extrabold text-ink-900">
-                        Shipping address
-                    </h3>
-
-                    <p className="mt-3 whitespace-pre-line text-sm leading-6 text-ink-600">
-                        {formatAddress(
-                            order,
-                        )}
-                    </p>
-                </div>
-            </div>
-
-            <dl className="mt-6 grid gap-2 rounded-2xl bg-cream-soft p-4 text-sm">
-                <div className="flex justify-between gap-4">
-                    <dt className="font-bold text-ink-600">
-                        Merchandise
-                    </dt>
-
-                    <dd className="font-black text-ink-900">
-                        {formatMoney(
-                            order.amountSubtotal,
-                            order.currency,
-                        )}
-                    </dd>
-                </div>
-
-                <div className="flex justify-between gap-4">
-                    <dt className="font-bold text-ink-600">
-                        Shipping collected
-                    </dt>
-
-                    <dd className="font-black text-ink-900">
-                        {formatMoney(
-                            order.amountShipping,
-                            order.currency,
-                        )}
-                    </dd>
-                </div>
-
-                <div className="flex justify-between gap-4">
-                    <dt className="font-bold text-ink-600">
-                        Tax
-                    </dt>
-
-                    <dd className="font-black text-ink-900">
-                        {formatMoney(
-                            order.amountTax,
-                            order.currency,
-                        )}
-                    </dd>
-                </div>
-
-                <div className="flex justify-between gap-4 border-t border-sand pt-2">
-                    <dt className="font-black text-ink-900">
-                        Total
-                    </dt>
-
-                    <dd className="text-lg font-black text-ink-900">
-                        {formatMoney(
-                            order.amountTotal,
-                            order.currency,
-                        )}
-                    </dd>
-                </div>
-            </dl>
+            <OrderDetails
+                order={
+                    order
+                }
+            />
 
             {order.paymentStatus ===
-                'paid' && (
+                'paid' &&
+                order.fulfillmentStatus !==
+                'cancelled' && (
                     <FulfillmentForm
                         order={
                             order
@@ -817,12 +1514,104 @@ function OrderCard({
                         token={
                             token
                         }
+                        mode="create"
                         onUpdated={
                             onUpdated
                         }
                     />
                 )}
         </article>
+    );
+}
+
+function matchesFilter(
+    order:
+        AdminOrder,
+
+    filter:
+        OrderFilter,
+): boolean {
+    if (
+        filter ===
+        'all'
+    ) {
+        return true;
+    }
+
+    if (
+        filter ===
+        'needs-fulfillment'
+    ) {
+        return (
+            order.paymentStatus ===
+            'paid' &&
+            (
+                order
+                    .fulfillmentStatus ===
+                'unfulfilled' ||
+                order
+                    .fulfillmentStatus ===
+                'processing'
+            )
+        );
+    }
+
+    return (
+        order
+            .fulfillmentStatus ===
+        filter
+    );
+}
+
+function matchesSearch(
+    order:
+        AdminOrder,
+
+    query:
+        string,
+): boolean {
+    const normalizedQuery =
+        query
+            .trim()
+            .toLowerCase();
+
+    if (
+        !normalizedQuery
+    ) {
+        return true;
+    }
+
+    const searchableText =
+        [
+            order.reference,
+            order.sessionId,
+            order.customer
+                ?.name,
+            order.customer
+                ?.email,
+            order.customer
+                ?.phone,
+            order.fulfillment
+                ?.trackingNumber,
+            order.fulfillment
+                ?.carrier,
+            order.shippingAddress
+                ?.city,
+            order.shippingAddress
+                ?.state,
+            order.shippingAddress
+                ?.postalCode,
+        ]
+            .filter(
+                Boolean,
+            )
+            .join(
+                ' ',
+            )
+            .toLowerCase();
+
+    return searchableText.includes(
+        normalizedQuery,
     );
 }
 
@@ -867,6 +1656,24 @@ export default function AdminOrders() {
     ] =
         useState(
             '',
+        );
+
+    const [
+        query,
+        setQuery,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        filter,
+        setFilter,
+    ] =
+        useState<
+            OrderFilter
+        >(
+            'needs-fulfillment',
         );
 
     async function loadOrders(
@@ -948,6 +1755,28 @@ export default function AdminOrders() {
         }
     }
 
+    function updateOrder(
+        updatedOrder:
+            AdminOrder,
+    ) {
+        setOrders(
+            (
+                current,
+            ) =>
+                current.map(
+                    (
+                        currentOrder,
+                    ) =>
+                        currentOrder
+                            .sessionId ===
+                            updatedOrder
+                                .sessionId
+                            ? updatedOrder
+                            : currentOrder,
+                ),
+        );
+    }
+
     useEffect(
         () => {
             const savedToken =
@@ -969,6 +1798,71 @@ export default function AdminOrders() {
         },
         [],
     );
+
+    const counts =
+        useMemo(
+            () => ({
+                all:
+                    orders.length,
+
+                needsFulfillment:
+                    orders.filter(
+                        (
+                            order,
+                        ) =>
+                            matchesFilter(
+                                order,
+                                'needs-fulfillment',
+                            ),
+                    ).length,
+
+                shipped:
+                    orders.filter(
+                        (
+                            order,
+                        ) =>
+                            order
+                                .fulfillmentStatus ===
+                            'shipped',
+                    ).length,
+
+                delivered:
+                    orders.filter(
+                        (
+                            order,
+                        ) =>
+                            order
+                                .fulfillmentStatus ===
+                            'delivered',
+                    ).length,
+            }),
+            [
+                orders,
+            ],
+        );
+
+    const visibleOrders =
+        useMemo(
+            () =>
+                orders.filter(
+                    (
+                        order,
+                    ) =>
+                        matchesFilter(
+                            order,
+                            filter,
+                        ) &&
+                        matchesSearch(
+                            order,
+                            query,
+                        ),
+                ),
+            [
+                orders,
+                filter,
+                query,
+            ],
+        );
 
     if (
         !token
@@ -1029,7 +1923,7 @@ export default function AdminOrders() {
                         disabled={
                             loading
                         }
-                        className="min-h-12 rounded-full bg-brand-500 px-5 font-extrabold text-white shadow-blue"
+                        className="min-h-12 rounded-full bg-brand-500 px-5 font-extrabold text-white shadow-blue disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         {loading
                             ? 'Loading…'
@@ -1045,6 +1939,63 @@ export default function AdminOrders() {
             </section>
         );
     }
+
+    const filters:
+        Array<{
+            value:
+            OrderFilter;
+
+            label:
+            string;
+
+            count:
+            number;
+        }> = [
+            {
+                value:
+                    'needs-fulfillment',
+
+                label:
+                    'Needs Fulfillment',
+
+                count:
+                    counts
+                        .needsFulfillment,
+            },
+
+            {
+                value:
+                    'shipped',
+
+                label:
+                    'Shipped',
+
+                count:
+                    counts.shipped,
+            },
+
+            {
+                value:
+                    'delivered',
+
+                label:
+                    'Delivered',
+
+                count:
+                    counts.delivered,
+            },
+
+            {
+                value:
+                    'all',
+
+                label:
+                    'All Orders',
+
+                count:
+                    counts.all,
+            },
+        ];
 
     return (
         <section>
@@ -1074,7 +2025,10 @@ export default function AdminOrders() {
                 <div className="flex gap-2">
                     <button
                         type="button"
-                        className="inline-flex items-center gap-2 rounded-full border border-brand-300 bg-white-warm px-4 py-2 text-sm font-extrabold text-brand-800 transition hover:border-brand-400 hover:bg-brand-50"
+                        disabled={
+                            loading
+                        }
+                        className="inline-flex items-center gap-2 rounded-full border border-brand-300 bg-white-warm px-4 py-2 text-sm font-extrabold text-brand-800 transition hover:border-brand-400 hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-60"
                         onClick={() => {
                             void loadOrders(
                                 token,
@@ -1083,7 +2037,9 @@ export default function AdminOrders() {
                     >
                         <RefreshIcon />
 
-                        Refresh
+                        {loading
+                            ? 'Refreshing…'
+                            : 'Refresh'}
                     </button>
 
                     <button
@@ -1105,6 +2061,14 @@ export default function AdminOrders() {
                             setOrders(
                                 [],
                             );
+
+                            setQuery(
+                                '',
+                            );
+
+                            setFilter(
+                                'needs-fulfillment',
+                            );
                         }}
                     >
                         <LogoutIcon />
@@ -1114,22 +2078,108 @@ export default function AdminOrders() {
                 </div>
             </div>
 
+            <div className="mb-6 rounded-3xl border border-sand bg-white-warm p-4 shadow-soft">
+                <label className="relative block">
+                    <span className="sr-only">
+                        Search orders
+                    </span>
+
+                    <span className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-ink-500">
+                        <SearchIcon />
+                    </span>
+
+                    <input
+                        type="search"
+                        className="form-control pl-12"
+                        placeholder="Search reference, customer, email, or tracking…"
+                        value={
+                            query
+                        }
+                        onInput={(
+                            event,
+                        ) => {
+                            setQuery(
+                                event
+                                    .currentTarget
+                                    .value,
+                            );
+                        }}
+                    />
+                </label>
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                    {filters.map(
+                        (
+                            option,
+                        ) => {
+                            const selected =
+                                filter ===
+                                option.value;
+
+                            return (
+                                <button
+                                    key={
+                                        option.value
+                                    }
+                                    type="button"
+                                    aria-pressed={
+                                        selected
+                                    }
+                                    className={[
+                                        'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-extrabold transition',
+                                        selected
+                                            ? 'border-brand-500 bg-brand-500 text-white shadow-blue'
+                                            : 'border-brand-200 bg-brand-50 text-brand-800 hover:border-brand-400',
+                                    ].join(' ')}
+                                    onClick={() => {
+                                        setFilter(
+                                            option.value,
+                                        );
+                                    }}
+                                >
+                                    {
+                                        option.label
+                                    }
+
+                                    <span
+                                        className={[
+                                            'rounded-full px-2 py-0.5 text-xs',
+                                            selected
+                                                ? 'bg-white/20 text-white'
+                                                : 'bg-white-warm text-brand-700',
+                                        ].join(' ')}
+                                    >
+                                        {
+                                            option.count
+                                        }
+                                    </span>
+                                </button>
+                            );
+                        },
+                    )}
+                </div>
+            </div>
+
             {error && (
                 <p className="mb-5 rounded-2xl border border-danger-100 bg-danger-50 p-4 text-sm font-bold text-danger-700">
                     {error}
                 </p>
             )}
 
-            {orders.length ===
+            {visibleOrders.length ===
                 0 ? (
                 <div className="rounded-[2.5rem] border border-sand bg-white-warm p-8 text-center shadow-card">
                     <h2 className="text-2xl text-ink-900">
-                        No Sandbox orders yet.
+                        No matching orders.
                     </h2>
+
+                    <p className="mt-3 text-sm leading-6 text-ink-600">
+                        Try another search or fulfillment filter.
+                    </p>
                 </div>
             ) : (
                 <div className="grid gap-4">
-                    {orders.map(
+                    {visibleOrders.map(
                         (
                             order,
                         ) => (
@@ -1143,26 +2193,9 @@ export default function AdminOrders() {
                                 token={
                                     token
                                 }
-                                onUpdated={(
-                                    updatedOrder,
-                                ) => {
-                                    setOrders(
-                                        (
-                                            current,
-                                        ) =>
-                                            current.map(
-                                                (
-                                                    currentOrder,
-                                                ) =>
-                                                    currentOrder
-                                                        .sessionId ===
-                                                        updatedOrder
-                                                            .sessionId
-                                                        ? updatedOrder
-                                                        : currentOrder,
-                                            ),
-                                    );
-                                }}
+                                onUpdated={
+                                    updateOrder
+                                }
                             />
                         ),
                     )}

@@ -27,6 +27,14 @@ export type ShippingEmailResult =
     | 'skipped'
     | 'failed';
 
+export interface SendShippingConfirmationOptions {
+    /**
+     * Sends another copy even when the original shipping
+     * confirmation was already delivered successfully.
+     */
+    force?: boolean;
+}
+
 function getDeliveryStore(
     livemode: boolean,
 ) {
@@ -47,19 +55,41 @@ function getDeliveryKey(
     return `customer-shipping-confirmation/${sessionId}`;
 }
 
+function getIdempotencyKey(
+    sessionId: string,
+    attemptCount: number,
+    force: boolean,
+): string {
+    if (
+        force
+    ) {
+        return `customer-shipping-confirmation/${sessionId}/attempt-${attemptCount}`;
+    }
+
+    return `customer-shipping-confirmation/${sessionId}/initial`;
+}
+
 export async function sendShippingConfirmationEmail(
     order:
         OrderRecord,
+
+    options:
+        SendShippingConfirmationOptions = {},
 ): Promise<ShippingEmailResult> {
     const config =
         getEmailRuntimeConfig();
+
+    const hasShipped =
+        order.fulfillmentStatus ===
+        'shipped' ||
+        order.fulfillmentStatus ===
+        'delivered';
 
     if (
         !config.enabled ||
         order.paymentStatus !==
         'paid' ||
-        order.fulfillmentStatus !==
-        'shipped' ||
+        !hasShipped ||
         !order.fulfillment
     ) {
         return 'skipped';
@@ -72,7 +102,9 @@ export async function sendShippingConfirmationEmail(
             : order.customer
                 ?.email;
 
-    if (!recipient) {
+    if (
+        !recipient
+    ) {
         console.warn(
             'Shipping confirmation email skipped because no recipient email is available.',
             {
@@ -105,12 +137,17 @@ export async function sendShippingConfirmationEmail(
         | EmailDeliveryRecord
         | null;
 
+    const force =
+        options.force ===
+        true;
+
     if (
         existing
             ?.status ===
-        'sent'
+        'sent' &&
+        !force
     ) {
-        return 'sent';
+        return 'skipped';
     }
 
     const content =
@@ -137,6 +174,13 @@ export async function sendShippingConfirmationEmail(
             0
         ) +
         1;
+
+    const idempotencyKey =
+        getIdempotencyKey(
+            order.sessionId,
+            attemptCount,
+            force,
+        );
 
     try {
         const result =
@@ -191,11 +235,20 @@ export async function sendShippingConfirmationEmail(
                                     ? 'live'
                                     : 'test',
                         },
+
+                        {
+                            name:
+                                'delivery_attempt',
+
+                            value:
+                                String(
+                                    attemptCount,
+                                ),
+                        },
                     ],
                 },
                 {
-                    idempotencyKey:
-                        `customer-shipping-confirmation/${order.sessionId}`,
+                    idempotencyKey,
                 },
             );
 

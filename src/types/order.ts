@@ -99,6 +99,8 @@ export interface OrderFulfillment {
 
   shippedAt: string;
 
+  deliveredAt?: string;
+
   updatedAt: string;
 }
 
