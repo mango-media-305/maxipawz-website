@@ -5,52 +5,38 @@ import type {
     OrderRecord,
 } from '../../types/order';
 
+import {
+    buildBrandedEmailShell,
+    buildEmailSiteUrl,
+    buildWebsiteButton,
+    escapeEmailHtml,
+} from './branding';
+
 export interface EmailContent {
     subject: string;
-    html: string;
-    text: string;
-}
 
-function escapeHtml(
-    value: string,
-): string {
-    return value
-        .replaceAll(
-            '&',
-            '&amp;',
-        )
-        .replaceAll(
-            '<',
-            '&lt;',
-        )
-        .replaceAll(
-            '>',
-            '&gt;',
-        )
-        .replaceAll(
-            '"',
-            '&quot;',
-        )
-        .replaceAll(
-            "'",
-            '&#039;',
-        );
+    html: string;
+
+    text: string;
 }
 
 function formatMoney(
     amount: number,
+
     currency: string,
 ): string {
     return new Intl.NumberFormat(
         'en-US',
         {
-            style: 'currency',
+            style:
+                'currency',
 
             currency:
                 currency.toUpperCase(),
         },
     ).format(
-        amount / 100,
+        amount /
+        100,
     );
 }
 
@@ -63,14 +49,17 @@ function getOrderReference(
                 /^cs_(?:test|live)_/,
                 '',
             )
-            .slice(-10)
+            .slice(
+                -10,
+            )
             .toUpperCase();
 
     return `MPZ-${suffix}`;
 }
 
 function getShippingDetails(
-    session: Stripe.Checkout.Session,
+    session:
+        Stripe.Checkout.Session,
 ) {
     return (
         session
@@ -81,18 +70,23 @@ function getShippingDetails(
 }
 
 function getCustomerName(
-    session: Stripe.Checkout.Session,
+    session:
+        Stripe.Checkout.Session,
 ): string {
     const name =
         getShippingDetails(
             session,
-        )?.name?.trim();
+        )
+            ?.name
+            ?.trim();
 
-    return name || 'there';
+    return name ||
+        'there';
 }
 
 function formatShippingAddressText(
-    session: Stripe.Checkout.Session,
+    session:
+        Stripe.Checkout.Session,
 ): string {
     const shippingDetails =
         getShippingDetails(
@@ -107,13 +101,18 @@ function formatShippingAddressText(
         address,
     } = shippingDetails;
 
-    const cityLine = [
-        address.city,
-        address.state,
-        address.postal_code,
-    ]
-        .filter(Boolean)
-        .join(' ');
+    const cityLine =
+        [
+            address.city,
+            address.state,
+            address.postal_code,
+        ]
+            .filter(
+                Boolean,
+            )
+            .join(
+                ' ',
+            );
 
     return [
         shippingDetails.name,
@@ -122,14 +121,19 @@ function formatShippingAddressText(
         cityLine,
         address.country,
     ]
-        .filter(Boolean)
-        .join('\n');
+        .filter(
+            Boolean,
+        )
+        .join(
+            '\n',
+        );
 }
 
 function formatShippingAddressHtml(
-    session: Stripe.Checkout.Session,
+    session:
+        Stripe.Checkout.Session,
 ): string {
-    return escapeHtml(
+    return escapeEmailHtml(
         formatShippingAddressText(
             session,
         ),
@@ -140,9 +144,12 @@ function formatShippingAddressHtml(
 }
 
 function getItemLabel(
-    item: OrderItem,
+    item:
+        OrderItem,
 ): string {
-    if (!item.variantLabel) {
+    if (
+        !item.variantLabel
+    ) {
         return item.productName;
     }
 
@@ -150,62 +157,81 @@ function getItemLabel(
 }
 
 function buildItemsText(
-    order: OrderRecord,
+    order:
+        OrderRecord,
 ): string {
     return order.items
         .map(
-            (item) =>
+            (
+                item,
+            ) =>
                 `${item.quantity} × ${getItemLabel(
                     item,
                 )} — ${formatMoney(
                     item.unitAmount *
                     item.quantity,
+
                     item.currency,
                 )}`,
         )
-        .join('\n');
+        .join(
+            '\n',
+        );
 }
 
 function buildItemsHtml(
-    order: OrderRecord,
+    order:
+        OrderRecord,
 ): string {
     return order.items
         .map(
-            (item) => {
+            (
+                item,
+            ) => {
                 const label =
-                    escapeHtml(
+                    escapeEmailHtml(
                         getItemLabel(
                             item,
                         ),
                     );
 
                 const total =
-                    escapeHtml(
+                    escapeEmailHtml(
                         formatMoney(
                             item.unitAmount *
                             item.quantity,
+
                             item.currency,
                         ),
                     );
 
                 return `
           <tr>
-            <td style="padding:12px 0;border-bottom:1px solid #ecdab7;color:#3f2f29;font-size:14px;line-height:1.5;">
-              <strong>${item.quantity} × ${label}</strong>
+            <td
+              style="padding:12px 0;border-bottom:1px solid #ecdab7;color:#3f2f29;font-size:14px;line-height:1.5;"
+            >
+              <strong>
+                ${item.quantity} × ${label}
+              </strong>
             </td>
 
-            <td style="padding:12px 0;border-bottom:1px solid #ecdab7;color:#3f2f29;font-size:14px;line-height:1.5;text-align:right;white-space:nowrap;">
+            <td
+              style="padding:12px 0;border-bottom:1px solid #ecdab7;color:#3f2f29;font-size:14px;line-height:1.5;text-align:right;white-space:nowrap;"
+            >
               ${total}
             </td>
           </tr>
         `;
             },
         )
-        .join('');
+        .join(
+            '',
+        );
 }
 
 function buildTotalsText(
-    order: OrderRecord,
+    order:
+        OrderRecord,
 ): string {
     const lines = [
         `Merchandise subtotal: ${formatMoney(
@@ -215,7 +241,8 @@ function buildTotalsText(
     ];
 
     if (
-        order.amountDiscount > 0
+        order.amountDiscount >
+        0
     ) {
         lines.push(
             `Discount: -${formatMoney(
@@ -246,15 +273,22 @@ function buildTotalsText(
         )}`,
     );
 
-    return lines.join('\n');
+    return lines.join(
+        '\n',
+    );
 }
 
 function buildTotalsHtml(
-    order: OrderRecord,
+    order:
+        OrderRecord,
 ): string {
-    const rows: Array<
-        [string, string]
-    > = [
+    const rows:
+        Array<
+            [
+                string,
+                string,
+            ]
+        > = [
             [
                 'Merchandise subtotal',
 
@@ -266,7 +300,8 @@ function buildTotalsHtml(
         ];
 
     if (
-        order.amountDiscount > 0
+        order.amountDiscount >
+        0
     ) {
         rows.push([
             'Discount',
@@ -312,119 +347,46 @@ function buildTotalsHtml(
                     label,
                     value,
                 ],
+
                 index,
             ) => {
                 const isLast =
                     index ===
-                    rows.length - 1;
+                    rows.length -
+                    1;
 
                 return `
           <tr>
-            <td style="padding:${isLast ? '14px 0 0' : '5px 0'};color:${isLast ? '#3f2f29' : '#725c50'};font-size:${isLast ? '17px' : '14px'};font-weight:${isLast ? '800' : '600'};">
-              ${escapeHtml(label)}
+            <td
+              style="padding:${isLast ? '14px 0 0' : '5px 0'};color:${isLast ? '#3f2f29' : '#725c50'};font-size:${isLast ? '17px' : '14px'};font-weight:${isLast ? '800' : '600'};"
+            >
+              ${escapeEmailHtml(
+                    label,
+                )}
             </td>
 
-            <td style="padding:${isLast ? '14px 0 0' : '5px 0'};color:#3f2f29;font-size:${isLast ? '19px' : '14px'};font-weight:${isLast ? '900' : '700'};text-align:right;">
-              ${escapeHtml(value)}
+            <td
+              style="padding:${isLast ? '14px 0 0' : '5px 0'};color:#3f2f29;font-size:${isLast ? '19px' : '14px'};font-weight:${isLast ? '900' : '700'};text-align:right;"
+            >
+              ${escapeEmailHtml(
+                    value,
+                )}
             </td>
           </tr>
         `;
             },
         )
-        .join('');
-}
-
-function emailShell(
-    content: string,
-    testMode: boolean,
-): string {
-    const testBanner =
-        testMode
-            ? `
-        <div style="background:#fff3e8;color:#9a3e00;padding:12px 18px;text-align:center;font-size:13px;font-weight:800;">
-          STRIPE SANDBOX TEST — NO REAL PAYMENT WAS PROCESSED
-        </div>
-      `
-            : '';
-
-    return `
-    <!doctype html>
-    <html lang="en">
-      <head>
-        <meta charset="utf-8" />
-        <meta
-          name="viewport"
-          content="width=device-width,initial-scale=1"
-        />
-        <title>MaxiPawz Store</title>
-      </head>
-
-      <body style="margin:0;padding:0;background:#fff8dc;font-family:Arial,Helvetica,sans-serif;color:#3f2f29;">
-        <div style="display:none;max-height:0;overflow:hidden;">
-          Your MaxiPawz order update.
-        </div>
-
-        <table
-          role="presentation"
-          width="100%"
-          cellspacing="0"
-          cellpadding="0"
-          border="0"
-          style="background:#fff8dc;"
-        >
-          <tr>
-            <td align="center" style="padding:32px 16px;">
-              <table
-                role="presentation"
-                width="100%"
-                cellspacing="0"
-                cellpadding="0"
-                border="0"
-                style="max-width:620px;background:#ffffff;border:1px solid #ecdab7;border-radius:28px;overflow:hidden;"
-              >
-                <tr>
-                  <td>
-                    ${testBanner}
-                  </td>
-                </tr>
-
-                <tr>
-                  <td style="padding:30px 30px 18px;text-align:center;">
-                    <div style="font-size:29px;line-height:1;font-weight:900;color:#ff6600;">
-                      MAXI
-                      <span style="color:#008aff;">
-                        PAWZ
-                      </span>
-                    </div>
-
-                    <div style="margin-top:7px;font-size:11px;letter-spacing:1.8px;font-weight:800;color:#725c50;">
-                      HAPPY PETS • HAPPY LIFE
-                    </div>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td style="padding:0 30px 34px;">
-                    ${content}
-                  </td>
-                </tr>
-              </table>
-
-              <div style="max-width:620px;padding:18px 10px 0;color:#846f63;font-size:12px;line-height:1.6;text-align:center;">
-                MaxiPawz Store<br />
-                Made for pets. Built with care.
-              </div>
-            </td>
-          </tr>
-        </table>
-      </body>
-    </html>
-  `;
+        .join(
+            '',
+        );
 }
 
 export function buildCustomerOrderConfirmation(
-    session: Stripe.Checkout.Session,
-    order: OrderRecord,
+    session:
+        Stripe.Checkout.Session,
+
+    order:
+        OrderRecord,
 ): EmailContent {
     const customerName =
         getCustomerName(
@@ -444,32 +406,58 @@ export function buildCustomerOrderConfirmation(
     const subject =
         `${testPrefix}We received your MaxiPawz order — ${orderReference}`;
 
+    const homeUrl =
+        buildEmailSiteUrl(
+            '/',
+        );
+
     const html =
-        emailShell(
-            `
-        <h1 style="margin:12px 0 12px;font-size:28px;line-height:1.15;color:#3f2f29;">
-          Thanks, ${escapeHtml(
+        buildBrandedEmailShell({
+            testMode:
+                !order.livemode,
+
+            testBannerText:
+                'STRIPE SANDBOX TEST — NO REAL PAYMENT WAS PROCESSED',
+
+            preheader:
+                `We received your MaxiPawz order ${orderReference}.`,
+
+            content: `
+        <h1
+          style="margin:4px 0 12px;font-size:28px;line-height:1.2;color:#3f2f29;"
+        >
+          Thanks, ${escapeEmailHtml(
                 customerName,
             )}! 🐾
         </h1>
 
-        <p style="margin:0;color:#725c50;font-size:16px;line-height:1.7;">
+        <p
+          style="margin:0;color:#725c50;font-size:16px;line-height:1.7;"
+        >
           We received your MaxiPawz order. We'll use this email address for important order and shipping updates.
         </p>
 
-        <div style="margin:24px 0;padding:16px 18px;background:#eef8ff;border:1px solid #b7ddff;border-radius:18px;">
-          <div style="font-size:11px;letter-spacing:1px;font-weight:800;color:#0069b8;">
+        <div
+          style="margin:24px 0;padding:16px 18px;background:#eef8ff;border:1px solid #b7ddff;border-radius:18px;"
+        >
+          <div
+            style="font-size:11px;letter-spacing:1px;font-weight:800;color:#0069b8;"
+          >
             ORDER REFERENCE
           </div>
 
-          <div style="margin-top:5px;font-size:20px;font-weight:900;color:#3f2f29;">
-            ${escapeHtml(
+          <div
+            style="margin-top:5px;font-size:20px;font-weight:900;color:#3f2f29;"
+          >
+            ${escapeEmailHtml(
                 orderReference,
             )}
           </div>
         </div>
 
-        <h2 style="margin:25px 0 8px;font-size:18px;color:#3f2f29;">
+        <h2
+          style="margin:25px 0 8px;font-size:18px;color:#3f2f29;"
+        >
           Order summary
         </h2>
 
@@ -498,22 +486,32 @@ export function buildCustomerOrderConfirmation(
             )}
         </table>
 
-        <h2 style="margin:28px 0 8px;font-size:18px;color:#3f2f29;">
+        <h2
+          style="margin:28px 0 8px;font-size:18px;color:#3f2f29;"
+        >
           Shipping to
         </h2>
 
-        <div style="padding:15px 17px;background:#fff8dc;border-radius:16px;color:#725c50;font-size:14px;line-height:1.7;">
+        <div
+          style="padding:15px 17px;background:#fff8dc;border-radius:16px;color:#725c50;font-size:14px;line-height:1.7;"
+        >
           ${formatShippingAddressHtml(
                 session,
             )}
         </div>
 
-        <p style="margin:26px 0 0;color:#725c50;font-size:13px;line-height:1.7;">
+        ${buildWebsiteButton(
+                'Visit MaxiPawz',
+                '/',
+            )}
+
+        <p
+          style="margin:26px 0 0;color:#725c50;font-size:13px;line-height:1.7;"
+        >
           This is your MaxiPawz order confirmation. Payment receipts and refund receipts are handled separately by Stripe.
         </p>
       `,
-            !order.livemode,
-        );
+        });
 
     const text = `
 MaxiPawz Store
@@ -533,19 +531,27 @@ ${buildTotalsText(order)}
 SHIPPING TO
 ${formatShippingAddressText(session)}
 
+Visit MaxiPawz:
+${homeUrl}
+
 This is your MaxiPawz order confirmation. Payment receipts and refund receipts are handled separately by Stripe.
 `.trim();
 
     return {
         subject,
+
         html,
+
         text,
     };
 }
 
 export function buildInternalNewOrderNotification(
-    session: Stripe.Checkout.Session,
-    order: OrderRecord,
+    session:
+        Stripe.Checkout.Session,
+
+    order:
+        OrderRecord,
 ): EmailContent {
     const orderReference =
         getOrderReference(
@@ -567,40 +573,72 @@ export function buildInternalNewOrderNotification(
         `${testPrefix}New MaxiPawz order — ${orderReference}`;
 
     const html =
-        emailShell(
-            `
-        <h1 style="margin:12px 0 12px;font-size:28px;color:#3f2f29;">
+        buildBrandedEmailShell({
+            testMode:
+                !order.livemode,
+
+            testBannerText:
+                'STRIPE SANDBOX TEST — NO REAL PAYMENT WAS PROCESSED',
+
+            preheader:
+                `New MaxiPawz order ${orderReference}.`,
+
+            content: `
+        <h1
+            style="margin:4px 0 12px;font-size:28px;color:#3f2f29;"
+        >
             New order received 🐾
         </h1>
 
-        <div style="margin:20px 0;padding:16px 18px;background:#eef8ff;border:1px solid #b7ddff;border-radius:18px;">
-            <div style="font-size:13px;line-height:1.8;color:#3f2f29;">
-                <strong>Reference:</strong>
-                ${escapeHtml(
+        <div
+            style="margin:20px 0;padding:16px 18px;background:#eef8ff;border:1px solid #b7ddff;border-radius:18px;"
+        >
+            <div
+                style="font-size:13px;line-height:1.8;color:#3f2f29;"
+            >
+                <strong>
+                Reference:
+                </strong>
+
+                ${escapeEmailHtml(
                     orderReference,
                 )}
+
                 <br />
 
-                <strong>Stripe Session:</strong>
-                ${escapeHtml(
+                <strong>
+                Stripe Session:
+                </strong>
+
+                ${escapeEmailHtml(
                     session.id,
                 )}
+
                 <br />
 
-                <strong>Customer:</strong>
-                ${escapeHtml(
+                <strong>
+                Customer:
+                </strong>
+
+                ${escapeEmailHtml(
                     customerEmail,
                 )}
+
                 <br />
 
-                <strong>Payment:</strong>
-                ${escapeHtml(
+                <strong>
+                Payment:
+                </strong>
+
+                ${escapeEmailHtml(
                     order.paymentStatus,
                 )}
             </div>
         </div>
 
-        <h2 style="margin:25px 0 8px;font-size:18px;color:#3f2f29;">
+        <h2
+            style="margin:25px 0 8px;font-size:18px;color:#3f2f29;"
+        >
             Items
         </h2>
 
@@ -612,8 +650,8 @@ export function buildInternalNewOrderNotification(
             border="0"
         >
             ${buildItemsHtml(
-                order,
-            )}
+                    order,
+                )}
         </table>
 
         <table
@@ -629,18 +667,21 @@ export function buildInternalNewOrderNotification(
             )}
         </table>
 
-        <h2 style="margin:28px 0 8px;font-size:18px;color:#3f2f29;">
+        <h2
+            style="margin:28px 0 8px;font-size:18px;color:#3f2f29;"
+        >
             Shipping address
         </h2>
 
-        <div style="padding:15px 17px;background:#fff8dc;border-radius:16px;color:#725c50;font-size:14px;line-height:1.7;">
+        <div
+            style="padding:15px 17px;background:#fff8dc;border-radius:16px;color:#725c50;font-size:14px;line-height:1.7;"
+        >
             ${formatShippingAddressHtml(
                 session,
             )}
         </div>
         `,
-            !order.livemode,
-        );
+        });
 
     const text = `
 NEW MAXIPAWZ ORDER
@@ -661,7 +702,9 @@ ${formatShippingAddressText(session)}
 
     return {
         subject,
+
         html,
+
         text,
     };
 }
