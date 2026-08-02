@@ -7,6 +7,9 @@ import type {
     OrderPaymentStatus,
     OrderRefundRecord,
     OrderRefundStatus,
+    OrderReturnReason,
+    OrderReturnRecord,
+    OrderReturnStatus,
     OrderShippingAddress,
     OrderStatus,
 } from './order';
@@ -40,6 +43,18 @@ export interface AdminOrder {
 
     refunds:
     OrderRefundRecord[];
+
+    /**
+     * Optional for compatibility with responses produced by
+     * fulfillment functions until Dashboard Checkpoint B.
+     */
+    returnStatus?:
+    OrderReturnStatus;
+
+    activeReturnId?: string;
+
+    returns?:
+    OrderReturnRecord[];
 
     customer?:
     OrderCustomer;
@@ -160,3 +175,119 @@ export interface AdminFulfillOrderErrorResponse {
 export type AdminFulfillOrderResponse =
     | AdminFulfillOrderSuccessResponse
     | AdminFulfillOrderErrorResponse;
+
+export type AdminReturnAction =
+    | 'start-return'
+    | 'approve-return'
+    | 'reject-return'
+    | 'mark-return-received'
+    | 'confirm-refund-synced'
+    | 'close-return';
+
+export interface AdminReturnItemInput {
+    productSlug: string;
+
+    variantId?: string;
+
+    quantity: number;
+}
+
+export interface AdminStartReturnRequest {
+    action:
+    'start-return';
+
+    sessionId: string;
+
+    reason:
+    OrderReturnReason;
+
+    items:
+    AdminReturnItemInput[];
+
+    expectedRefundAmount: number;
+
+    customerMessage?: string;
+
+    internalNotes?: string;
+
+    policyException: boolean;
+}
+
+export interface AdminApproveReturnRequest {
+    action:
+    'approve-return';
+
+    sessionId: string;
+
+    returnDeadline: string;
+
+    decisionMessage: string;
+}
+
+export interface AdminRejectReturnRequest {
+    action:
+    'reject-return';
+
+    sessionId: string;
+
+    decisionMessage: string;
+}
+
+export interface AdminMarkReturnReceivedRequest {
+    action:
+    'mark-return-received';
+
+    sessionId: string;
+
+    conditionNotes?: string;
+}
+
+export interface AdminConfirmRefundSyncedRequest {
+    action:
+    'confirm-refund-synced';
+
+    sessionId: string;
+}
+
+export interface AdminCloseReturnRequest {
+    action:
+    'close-return';
+
+    sessionId: string;
+}
+
+export type AdminReturnOrderRequest =
+    | AdminStartReturnRequest
+    | AdminApproveReturnRequest
+    | AdminRejectReturnRequest
+    | AdminMarkReturnReceivedRequest
+    | AdminConfirmRefundSyncedRequest
+    | AdminCloseReturnRequest;
+
+export interface AdminReturnOrderSuccessResponse {
+    ok: true;
+
+    action:
+    AdminReturnAction;
+
+    order:
+    AdminOrder;
+
+    returnRecord:
+    OrderReturnRecord;
+
+    emailStatus:
+    AdminEmailStatus;
+
+    message: string;
+}
+
+export interface AdminReturnOrderErrorResponse {
+    ok: false;
+
+    message: string;
+}
+
+export type AdminReturnOrderResponse =
+    | AdminReturnOrderSuccessResponse
+    | AdminReturnOrderErrorResponse;
