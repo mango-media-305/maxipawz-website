@@ -60,24 +60,6 @@ export type OrderRefundEntryStatus =
   | 'canceled'
   | 'unknown';
 
-export type OrderReturnStatus =
-  | 'none'
-  | 'under-review'
-  | 'awaiting-return'
-  | 'rejected'
-  | 'refund-pending'
-  | 'refunded'
-  | 'closed';
-
-export type OrderReturnReason =
-  | 'changed-mind'
-  | 'damaged'
-  | 'defective'
-  | 'wrong-item'
-  | 'missing-item'
-  | 'not-as-described'
-  | 'other';
-
 export interface OrderItem {
   productSlug: string;
 
@@ -184,95 +166,6 @@ export interface OrderRefundRecord {
   updatedAt: string;
 }
 
-export interface OrderReturnItem {
-  productSlug: string;
-
-  variantId?: string;
-
-  productName: string;
-
-  variantLabel?: string;
-
-  quantity: number;
-}
-
-export interface OrderReturnRecord {
-  returnId: string;
-
-  status:
-  OrderReturnStatus;
-
-  reason:
-  OrderReturnReason;
-
-  items:
-  OrderReturnItem[];
-
-  /**
-   * Expected refund associated with this return.
-   *
-   * Stored in cents. The actual financial refund is still
-   * controlled and recorded by Stripe.
-   */
-  expectedRefundAmount: number;
-
-  /**
-   * Amount already refunded before this return was opened.
-   *
-   * This lets MaxiPawz determine whether a later Stripe
-   * refund belongs to this return.
-   */
-  refundBaselineAmount: number;
-
-  /**
-   * The final day of the standard 30-day eligibility window.
-   */
-  returnWindowEndsAt: string;
-
-  policyException: boolean;
-
-  /**
-   * Customer's original explanation or request.
-   */
-  customerMessage?: string;
-
-  /**
-   * Private MaxiPawz notes. Never included in customer email.
-   */
-  internalNotes?: string;
-
-  /**
-   * Customer-facing approval or rejection explanation.
-   */
-  decisionMessage?: string;
-
-  /**
-   * Optional return mailing deadline selected by MaxiPawz.
-   *
-   * Stored as YYYY-MM-DD.
-   */
-  returnDeadline?: string;
-
-  /**
-   * Internal condition or inspection notes.
-   */
-  conditionNotes?: string;
-
-  requestedAt: string;
-
-  approvedAt?: string;
-
-  rejectedAt?: string;
-
-  receivedAt?: string;
-
-  refundedAt?: string;
-
-  closedAt?: string;
-
-  updatedAt: string;
-}
-
 export interface OrderRecord {
   version: 1;
 
@@ -330,26 +223,25 @@ export interface OrderRecord {
   refundStatus:
   OrderRefundStatus;
 
+  /**
+   * Total amount from refunds whose Stripe status
+   * is succeeded.
+   */
   amountRefunded: number;
 
+  /**
+   * Total amount currently pending or requiring action.
+   */
   amountRefundPending: number;
 
+  /**
+   * Amount not already succeeded, pending, or requiring
+   * action in Stripe.
+   */
   amountRefundable: number;
 
   refunds:
   OrderRefundRecord[];
-
-  /**
-   * Optional during migration so orders created before
-   * Return Management v1 remain readable.
-   */
-  returnStatus?:
-  OrderReturnStatus;
-
-  activeReturnId?: string;
-
-  returns?:
-  OrderReturnRecord[];
 
   items:
   OrderItem[];

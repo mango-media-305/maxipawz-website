@@ -89,17 +89,6 @@ function toAdminOrder(
             order.refunds ??
             [],
 
-        returnStatus:
-            order.returnStatus ??
-            'none',
-
-        activeReturnId:
-            order.activeReturnId,
-
-        returns:
-            order.returns ??
-            [],
-
         customer:
             order.customer,
 

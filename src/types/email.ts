@@ -1,8 +1,7 @@
 export type TransactionalEmailKind =
     | 'customer-order-confirmation'
     | 'internal-new-order'
-    | 'customer-shipping-confirmation'
-    | 'customer-return-update';
+    | 'customer-shipping-confirmation';
 
 export type EmailDeliveryStatus =
     | 'sent'
