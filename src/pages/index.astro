@@ -9,11 +9,11 @@ import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
 import ShieldCheckBold from 'phosphor-astro/ShieldCheckBold.astro';
 import ShoppingBagOpenBold from 'phosphor-astro/ShoppingBagOpenBold.astro';
 import SparkleBold from 'phosphor-astro/SparkleBold.astro';
-import SuitcaseRollingBold from 'phosphor-astro/SuitcaseRollingBold.astro';
 
 import maxipawzLogo from '../assets/brand/maxipawz-horizontal-logo.webp';
-import playAndEnrichmentImage from '../assets/categories/play-and-enrichment.webp';
-import walkAndTravelImage from '../assets/categories/walk-and-travel.webp';
+import maxiHeroImage from '../assets/home/maxi-1.webp';
+import maxiPlayImage from '../assets/home/maxi-2.webp';
+import maxiGuideImage from '../assets/home/maxi-3.webp';
 
 import BrandStorySection from '@components/home/BrandStorySection.astro';
 import LaunchSignup from '@components/home/LaunchSignup.astro';
@@ -27,498 +27,726 @@ import { isStoreLive } from '../config/storefront';
 import { siteConfig } from '../config/site';
 import { lifestyleCategories } from '../data/homepage';
 
-const homeURL = new URL('/', Astro.site ?? new URL(siteConfig.url)).toString();
+const homeURL = new URL(
+    '/',
+    Astro.site ?? new URL(siteConfig.url),
+).toString();
 
-const logoURL = new URL(maxipawzLogo.src, homeURL).toString();
+const logoURL = new URL(
+    maxipawzLogo.src,
+    homeURL,
+).toString();
 
-const socialProfiles = Object.values(siteConfig.social).filter((profile): profile is string =>
-  Boolean(profile),
+const socialProfiles = Object.values(
+    siteConfig.social,
+).filter(
+    (profile): profile is string =>
+        Boolean(profile),
 );
 
 const onlineStoreData = {
-  '@type': 'Organization',
-  '@id': `${homeURL}#organization`,
+    '@type': 'Organization',
+    '@id': `${homeURL}#organization`,
 
-  additionalType: 'https://schema.org/OnlineStore',
+    additionalType:
+        'https://schema.org/OnlineStore',
 
-  name: siteConfig.name,
-  alternateName: siteConfig.shortName,
+    name: siteConfig.name,
+    alternateName: siteConfig.shortName,
 
-  url: homeURL,
-  logo: logoURL,
-
-  description: siteConfig.description,
-  slogan: siteConfig.slogan,
-
-  location: {
-    '@type': 'VirtualLocation',
     url: homeURL,
-  },
+    logo: logoURL,
 
-  knowsAbout: [
-    'Pet toys',
-    'Pet enrichment',
-    'Dog accessories',
-    'Pet travel',
-    'Pet hydration',
-    'Pet comfort',
-    'Everyday pet care',
-  ],
+    description: siteConfig.description,
+    slogan: siteConfig.slogan,
 
-  ...(socialProfiles.length > 0
-    ? {
-        sameAs: socialProfiles,
-      }
-    : {}),
+    location: {
+        '@type': 'VirtualLocation',
+        url: homeURL,
+    },
 
-  ...(isStoreLive
-    ? {
-        hasOfferCatalog: {
-          '@type': 'OfferCatalog',
-          name: 'MaxiPawz pet products',
+    knowsAbout: [
+        'Pet toys',
+        'Pet enrichment',
+        'Dog accessories',
+        'Pet travel',
+        'Pet hydration',
+        'Pet comfort',
+        'Everyday pet care',
+    ],
 
-          itemListElement: lifestyleCategories.map((category) => ({
-            '@type': 'OfferCatalog',
-            name: category.title,
-          })),
-        },
-      }
-    : {}),
+    ...(socialProfiles.length > 0
+        ? {
+              sameAs: socialProfiles,
+          }
+        : {}),
+
+    ...(isStoreLive
+        ? {
+              hasOfferCatalog: {
+                  '@type': 'OfferCatalog',
+
+                  name:
+                      'MaxiPawz pet products',
+
+                  itemListElement:
+                      lifestyleCategories.map(
+                          (category) => ({
+                              '@type':
+                                  'OfferCatalog',
+
+                              name:
+                                  category.title,
+                          }),
+                      ),
+              },
+          }
+        : {}),
 };
 
 const structuredData = {
-  '@context': 'https://schema.org',
+    '@context': 'https://schema.org',
 
-  '@graph': [
-    {
-      '@type': 'WebSite',
-      '@id': `${homeURL}#website`,
+    '@graph': [
+        {
+            '@type': 'WebSite',
+            '@id': `${homeURL}#website`,
 
-      url: homeURL,
-      name: siteConfig.name,
-      alternateName: siteConfig.shortName,
+            url: homeURL,
+            name: siteConfig.name,
+            alternateName:
+                siteConfig.shortName,
 
-      description: siteConfig.description,
-      inLanguage: 'en-US',
+            description:
+                siteConfig.description,
 
-      publisher: {
-        '@id': `${homeURL}#organization`,
-      },
-    },
+            inLanguage: 'en-US',
 
-    onlineStoreData,
-  ],
+            publisher: {
+                '@id': `${homeURL}#organization`,
+            },
+        },
+
+        onlineStoreData,
+    ],
 };
 
 const heroHighlights = [
-  'Thoughtful product categories',
-  'Practical pet guidance',
-  'A secure shopping experience',
+    'Thoughtful product categories',
+    'Practical pet guidance',
+    'A secure shopping experience',
 ];
 
 const benefits = [
-  {
-    icon: ShieldCheckBold,
+    {
+        icon: ShieldCheckBold,
 
-    title: 'Selected with purpose',
+        title: 'Selected with purpose',
 
-    description:
-      'We consider usefulness, play value, comfort, portability, quality, and how each product fits into everyday pet life.',
-  },
+        description:
+            'We consider usefulness, play value, comfort, portability, quality, and how each product fits into everyday pet life.',
+    },
 
-  {
-    icon: PawPrintBold,
+    {
+        icon: PawPrintBold,
 
-    title: 'Made for real routines',
+        title: 'Made for real routines',
 
-    description:
-      'MaxiPawz is being built around the moments pet owners experience every day—from playtime to walks, travel, feeding, and rest.',
-  },
+        description:
+            'MaxiPawz is being built around the moments pet owners experience every day—from playtime to walks, travel, feeding, and rest.',
+    },
 
-  {
-    icon: HeartBold,
+    {
+        icon: HeartBold,
 
-    title: 'Inspired by Maxi',
+        title: 'Inspired by Maxi',
 
-    description:
-      'Our perspective comes from caring for Maxi and learning which products make pets happy while making life easier for their people.',
-  },
+        description:
+            'Our perspective comes from caring for Maxi and learning which products make pets happy while making life easier for their people.',
+    },
 ];
 
 const currentActions = [
-  {
-    icon: ConfettiBold,
+    {
+        icon: ConfettiBold,
 
-    eyebrow: 'Discover',
+        eyebrow: 'Discover',
 
-    title: 'Preview the collection',
+        title: 'Preview the collection',
 
-    description:
-      'Explore the product categories and everyday pet moments that are shaping the first MaxiPawz collection.',
+        description:
+            'Explore the product categories and everyday pet moments that are shaping the first MaxiPawz collection.',
 
-    href: '/#shop-by-lifestyle',
+        href: '/#shop-by-lifestyle',
 
-    linkLabel: 'Explore categories',
-  },
+        linkLabel:
+            'Explore categories',
+    },
 
-  {
-    icon: SparkleBold,
+    {
+        icon: SparkleBold,
 
-    eyebrow: 'Learn',
+        eyebrow: 'Learn',
 
-    title: 'Use our pet guides',
+        title: 'Use our pet guides',
 
-    description:
-      'Read practical guidance about toys, enrichment, travel, hydration, comfort, accessories, and everyday routines.',
+        description:
+            'Read practical guidance about toys, enrichment, travel, hydration, comfort, accessories, and everyday routines.',
 
-    href: '/pet-guides',
+        href: '/pet-guides',
 
-    linkLabel: 'Read pet guides',
-  },
+        linkLabel:
+            'Read pet guides',
+    },
 
-  {
-    icon: HeartBold,
+    {
+        icon: HeartBold,
 
-    eyebrow: 'Join',
+        eyebrow: 'Join',
 
-    title: 'Get first access',
+        title: 'Get first access',
 
-    description:
-      'Join the MaxiPawz pack for launch updates, new products, useful guidance, and occasional subscriber offers.',
+        description:
+            'Join the MaxiPawz pack for launch updates, new products, useful guidance, and occasional subscriber offers.',
 
-    href: '/#join-the-pack',
+        href: '/#join-the-pack',
 
-    linkLabel: 'Join the pack',
-  },
+        linkLabel:
+            'Join the pack',
+    },
 ];
 ---
 
 <BaseLayout
-  title="Online Pet Toys & Everyday Essentials"
-  description="Discover thoughtful pet toys, accessories, travel gear, hydration essentials, and practical pet guides from MaxiPawz Store."
-  image={maxipawzLogo.src}
-  imageAlt="MaxiPawz Store logo"
-  structuredData={structuredData}
+    title="Online Pet Toys & Everyday Essentials"
+    description="Discover thoughtful pet toys, accessories, travel gear, hydration essentials, and practical pet guides from MaxiPawz Store."
+    image={maxipawzLogo.src}
+    imageAlt="MaxiPawz Store logo"
+    structuredData={structuredData}
 >
-  <!-- Hero -->
-  <section class="relative overflow-hidden">
-    <div
-      class="pointer-events-none absolute -top-40 -left-40 size-128 rounded-full bg-brand-300/25 blur-3xl"
-      aria-hidden="true"
-    >
-    </div>
-
-    <div
-      class="pointer-events-none absolute top-16 -right-48 size-136 rounded-full bg-accent-300/25 blur-3xl"
-      aria-hidden="true"
-    >
-    </div>
-
-    <div
-      class="site-container-wide grid items-center gap-10 py-12 sm:py-14 lg:grid-cols-[0.92fr_1.08fr] lg:gap-14 lg:py-18"
-    >
-      <div class="relative z-10 max-w-2xl">
-        <Badge variant={isStoreLive ? 'brand' : 'accent'} size="md">
-          <PawPrintBold slot="icon" aria-hidden="true" />
-
-          {isStoreLive ? 'Find their next MaxiPawz favorite' : 'Built for real pet life'}
-        </Badge>
-
-        <h1 class="mt-6 max-w-3xl text-5xl text-ink-900 sm:text-6xl lg:text-7xl">
-          Better everyday moments start with
-          <span class="text-brand-gradient">
-            {' '}the right pet essentials.
-          </span>
-        </h1>
-
-        <p class="mt-6 max-w-2xl text-lg leading-8 text-ink-600 sm:text-xl">
-          {
-            isStoreLive
-              ? 'Discover thoughtfully selected products for play, walks, travel, hydration, feeding, comfort, care, and everyday life together.'
-              : 'MaxiPawz is building a thoughtful online destination for pet toys, accessories, travel gear, hydration products, and useful everyday supplies. While our first collection takes shape, explore practical guides and discover what is ahead.'
-          }
-        </p>
-
-        <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-          {
-            isStoreLive ? (
-              <>
-                <Button
-                  href="/shop"
-                  variant="primary"
-                  size="lg"
-                  iconPosition="left"
-                  class="w-full sm:w-auto"
-                >
-                  <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
-                  Shop the Collection
-                </Button>
-
-                <Button
-                  href="/pet-guides"
-                  variant="secondary"
-                  size="lg"
-                  iconPosition="right"
-                  class="w-full sm:w-auto"
-                >
-                  <ArrowRightBold slot="icon" aria-hidden="true" />
-                  Explore Pet Guides
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  href="/#shop-by-lifestyle"
-                  variant="primary"
-                  size="lg"
-                  iconPosition="left"
-                  class="w-full sm:w-auto"
-                >
-                  <ConfettiBold slot="icon" aria-hidden="true" />
-                  Explore What Is Coming
-                </Button>
-
-                <Button
-                  href="/pet-guides"
-                  variant="secondary"
-                  size="lg"
-                  iconPosition="right"
-                  class="w-full sm:w-auto"
-                >
-                  <ArrowRightBold slot="icon" aria-hidden="true" />
-                  Read Pet Guides
-                </Button>
-              </>
-            )
-          }
+    <!-- Hero -->
+    <section class="relative overflow-hidden">
+        <div
+            class="pointer-events-none absolute -top-40 -left-40 size-128 rounded-full bg-brand-300/25 blur-3xl"
+            aria-hidden="true"
+        >
         </div>
 
         <div
-          class="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold text-ink-600"
-          aria-label="MaxiPawz highlights"
-        >
-          {
-            heroHighlights.map((highlight) => (
-              <span class="inline-flex items-center gap-2">
-                <CheckCircleFill class="size-5 shrink-0 text-brand-500" aria-hidden="true" />
-
-                {highlight}
-              </span>
-            ))
-          }
-        </div>
-      </div>
-
-      <!-- Hero visual -->
-      <div class="relative z-10 grid gap-4 sm:grid-cols-[1.15fr_0.85fr]">
-        <article
-          class="relative min-h-120 overflow-hidden rounded-card-lg border border-sand bg-white-warm shadow-card sm:min-h-140"
-        >
-          <Image
-            src={"/images/home/maxi-1.webp"}
-            width="1200"
-            height="800"
-            alt="Maxi, the dog who inspired MaxiPawz Store"
-            class="absolute inset-0 size-full object-cover object-center"
-            loading="eager"
-            fetchpriority="high"
-            widths={[480, 720, 960]}
-            sizes="(min-width: 1024px) 38vw, (min-width: 640px) 58vw, 100vw"
-            quality={88}
-          />
-
-          <div
-            class="absolute inset-0 bg-linear-to-t from-ink-950/80 via-ink-950/10 to-transparent"
+            class="pointer-events-none absolute top-16 -right-48 size-136 rounded-full bg-accent-300/25 blur-3xl"
             aria-hidden="true"
-          >
-          </div>
-
-          <div class="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8">
-            <Badge variant="accent" size="sm">
-              <HeartBold slot="icon" aria-hidden="true" />
-
-              Meet Maxi
-            </Badge>
-
-            <h2 class="mt-4 max-w-md text-3xl text-white sm:text-4xl">
-              The happy face behind the MaxiPawz name.
-            </h2>
-
-            <p class="mt-3 max-w-md leading-7 text-white/85">
-              Real experiences with Maxi inspired a store focused on joy, usefulness, comfort, and
-              stronger everyday moments with pets.
-            </p>
-          </div>
-        </article>
-
-        <div class="grid gap-4 sm:grid-rows-2">
-          <a
-            href="/#shop-by-lifestyle"
-            class="group relative min-h-56 overflow-hidden rounded-card border border-brand-200 bg-brand-50 shadow-card transition hover:-translate-y-1 hover:shadow-card-hover"
-          >
-            <Image
-              src={"/images/home/maxi-2.webp"}
-              width="1200"
-              height="800"
-              alt="Dog enjoying a playful enrichment activity"
-              class="absolute inset-0 size-full object-cover"
-              loading="eager"
-              widths={[320, 480, 640]}
-              sizes="(min-width: 640px) 25vw, 100vw"
-              quality={85}
-            />
-
-            <div
-              class="absolute inset-0 bg-linear-to-t from-ink-950/80 via-ink-950/15 to-transparent"
-              aria-hidden="true"
-            >
-            </div>
-
-            <div class="absolute inset-x-0 bottom-0 p-5 text-white">
-              <span class="text-sm font-extrabold text-accent-200"> Play & enrichment </span>
-
-              <h2 class="mt-1 text-2xl text-white">Products that make playtime count.</h2>
-
-              <span class="mt-3 inline-flex items-center gap-2 text-sm font-extrabold">
-                Preview the category
-
-                <ArrowRightBold
-                  class="size-4 transition group-hover:translate-x-1"
-                  aria-hidden="true"
-                />
-              </span>
-            </div>
-          </a>
-
-          <a
-            href="/pet-guides"
-            class="group relative min-h-56 overflow-hidden rounded-card border border-accent-200 bg-accent-50 shadow-card transition hover:-translate-y-1 hover:shadow-card-hover"
-          >
-            <Image
-              src={"/images/home/maxi-3.webp"}
-              width="1200"
-              height="800"
-              alt="Dog prepared for a walk and outdoor adventure"
-              class="absolute inset-0 size-full object-cover"
-              loading="lazy"
-              widths={[320, 480, 640]}
-              sizes="(min-width: 640px) 25vw, 100vw"
-              quality={85}
-            />
-
-            <div
-              class="absolute inset-0 bg-linear-to-t from-ink-950/80 via-ink-950/15 to-transparent"
-              aria-hidden="true"
-            >
-            </div>
-
-            <div class="absolute inset-x-0 bottom-0 p-5 text-white">
-              <span class="text-sm font-extrabold text-brand-200"> Practical guidance </span>
-
-              <h2 class="mt-1 text-2xl text-white">Helpful ideas for everyday pet life.</h2>
-
-              <span class="mt-3 inline-flex items-center gap-2 text-sm font-extrabold">
-                Explore pet guides
-
-                <ArrowRightBold
-                  class="size-4 transition group-hover:translate-x-1"
-                  aria-hidden="true"
-                />
-              </span>
-            </div>
-          </a>
+        >
         </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- Brand promises -->
-  <section class="border-y border-sand bg-white-warm/65" aria-labelledby="why-maxipawz-title">
-    <h2 id="why-maxipawz-title" class="sr-only">Why MaxiPawz</h2>
-
-    <div class="site-container grid gap-2 py-6 sm:py-8 md:grid-cols-3 md:gap-4">
-      {
-        benefits.map(({ icon: Icon, title, description }) => (
-          <article class="flex gap-4 rounded-3xl p-4 transition hover:bg-cream sm:p-5">
-            <span
-              class="grid size-11 shrink-0 place-items-center rounded-2xl bg-brand-100 text-brand-700 sm:size-12"
-              aria-hidden="true"
+        <div
+            class="site-container-wide grid items-center gap-10 py-12 sm:py-14 lg:grid-cols-[0.92fr_1.08fr] lg:gap-14 lg:py-18"
+        >
+            <div
+                class="relative z-10 max-w-2xl"
             >
-              <Icon class="size-5 sm:size-6" />
-            </span>
-
-            <div class="min-w-0">
-              <h3 class="interface-heading text-lg">{title}</h3>
-
-              <p class="mt-2 text-sm leading-6 text-ink-600">{description}</p>
-            </div>
-          </article>
-        ))
-      }
-    </div>
-  </section>
-
-  <!-- Functional prelaunch section -->
-  {
-    !isStoreLive && (
-      <section class="section-spacing" aria-labelledby="useful-now-title">
-        <div class="site-container">
-          <div class="mx-auto max-w-4xl text-center">
-            <Badge variant="brand" size="md" class="mx-auto">
-              <SparkleBold slot="icon" aria-hidden="true" />
-              Useful from day one
-            </Badge>
-
-            <h2 id="useful-now-title" class="section-title mx-auto mt-5 text-4xl sm:text-5xl">
-              Explore MaxiPawz before the first collection arrives.
-            </h2>
-
-            <p class="section-description mx-auto mt-4">
-              The store is still growing, but there is already plenty to discover. Learn about the
-              brand, preview our future categories, explore practical guidance, and join the launch
-              list.
-            </p>
-          </div>
-
-          <div class="mt-10 grid gap-5 lg:mt-12 lg:grid-cols-3">
-            {currentActions.map(({ icon: Icon, eyebrow, title, description, href, linkLabel }) => (
-              <a href={href} class="surface-card-interactive group flex h-full flex-col p-6 sm:p-7">
-                <span
-                  class="grid size-12 place-items-center rounded-2xl bg-brand-100 text-brand-700"
-                  aria-hidden="true"
+                <Badge
+                    variant={isStoreLive
+                        ? 'brand'
+                        : 'accent'}
+                    size="md"
                 >
-                  <Icon class="size-6" />
-                </span>
+                    <PawPrintBold
+                        slot="icon"
+                        aria-hidden="true"
+                    />
 
-                <span class="mt-6 text-sm font-extrabold uppercase tracking-[0.14em] text-accent-700">
-                  {eyebrow}
-                </span>
+                    {
+                        isStoreLive
+                            ? 'Find their next MaxiPawz favorite'
+                            : 'Built for real pet life'
+                    }
+                </Badge>
 
-                <h3 class="mt-2 text-2xl">{title}</h3>
+                <h1
+                    class="mt-6 max-w-3xl text-5xl text-ink-900 sm:text-6xl lg:text-7xl"
+                >
+                    Better everyday moments
+                    start with
 
-                <p class="mt-3 flex-1 leading-7 text-ink-600">{description}</p>
+                    <span
+                        class="text-brand-gradient"
+                    >
+                        {' '}the right pet essentials.
+                    </span>
+                </h1>
 
-                <span class="mt-6 inline-flex items-center gap-2 font-extrabold text-brand-700">
-                  {linkLabel}
+                <p
+                    class="mt-6 max-w-2xl text-lg leading-8 text-ink-600 sm:text-xl"
+                >
+                    {
+                        isStoreLive
+                            ? 'Discover thoughtfully selected products for play, walks, travel, hydration, feeding, comfort, care, and everyday life together.'
+                            : 'MaxiPawz is building a thoughtful online destination for pet toys, accessories, travel gear, hydration products, and useful everyday supplies. While our first collection takes shape, explore practical guides and discover what is ahead.'
+                    }
+                </p>
 
-                  <ArrowRightBold
-                    class="size-5 transition group-hover:translate-x-1"
-                    aria-hidden="true"
-                  />
-                </span>
-              </a>
-            ))}
-          </div>
+                <div
+                    class="mt-8 flex flex-col gap-3 sm:flex-row"
+                >
+                    {
+                        isStoreLive ? (
+                            <>
+                                <Button
+                                    href="/shop"
+                                    variant="primary"
+                                    size="lg"
+                                    iconPosition="left"
+                                    class="w-full sm:w-auto"
+                                >
+                                    <ShoppingBagOpenBold
+                                        slot="icon"
+                                        aria-hidden="true"
+                                    />
+
+                                    Shop the Collection
+                                </Button>
+
+                                <Button
+                                    href="/pet-guides"
+                                    variant="secondary"
+                                    size="lg"
+                                    iconPosition="right"
+                                    class="w-full sm:w-auto"
+                                >
+                                    <ArrowRightBold
+                                        slot="icon"
+                                        aria-hidden="true"
+                                    />
+
+                                    Explore Pet Guides
+                                </Button>
+                            </>
+                        ) : (
+                            <>
+                                <Button
+                                    href="/#shop-by-lifestyle"
+                                    variant="primary"
+                                    size="lg"
+                                    iconPosition="left"
+                                    class="w-full sm:w-auto"
+                                >
+                                    <ConfettiBold
+                                        slot="icon"
+                                        aria-hidden="true"
+                                    />
+
+                                    Explore What Is Coming
+                                </Button>
+
+                                <Button
+                                    href="/pet-guides"
+                                    variant="secondary"
+                                    size="lg"
+                                    iconPosition="right"
+                                    class="w-full sm:w-auto"
+                                >
+                                    <ArrowRightBold
+                                        slot="icon"
+                                        aria-hidden="true"
+                                    />
+
+                                    Read Pet Guides
+                                </Button>
+                            </>
+                        )
+                    }
+                </div>
+
+                <div
+                    class="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold text-ink-600"
+                    aria-label="MaxiPawz highlights"
+                >
+                    {
+                        heroHighlights.map(
+                            (highlight) => (
+                                <span
+                                    class="inline-flex items-center gap-2"
+                                >
+                                    <CheckCircleFill
+                                        class="size-5 shrink-0 text-brand-500"
+                                        aria-hidden="true"
+                                    />
+
+                                    {highlight}
+                                </span>
+                            ),
+                        )
+                    }
+                </div>
+            </div>
+
+            <!-- Hero visual -->
+            <div
+                class="relative z-10 grid gap-4 sm:grid-cols-[1.15fr_0.85fr]"
+            >
+                <article
+                    class="relative min-h-120 overflow-hidden rounded-card-lg border border-sand bg-white-warm shadow-card sm:min-h-140"
+                >
+                    <Image
+                        src={maxiHeroImage}
+                        alt="Maxi, the dog who inspired MaxiPawz Store"
+                        class="absolute inset-0 size-full object-cover object-center"
+                        loading="eager"
+                        fetchpriority="high"
+                        widths={[
+                            360,
+                            480,
+                            640,
+                            800,
+                            960,
+                        ]}
+                        sizes="(min-width: 1280px) 560px, (min-width: 1024px) 43vw, (min-width: 640px) 58vw, calc(100vw - 2rem)"
+                        quality={80}
+                    />
+
+                    <div
+                        class="absolute inset-0 bg-linear-to-t from-ink-950/80 via-ink-950/10 to-transparent"
+                        aria-hidden="true"
+                    >
+                    </div>
+
+                    <div
+                        class="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8"
+                    >
+                        <Badge
+                            variant="accent"
+                            size="sm"
+                        >
+                            <HeartBold
+                                slot="icon"
+                                aria-hidden="true"
+                            />
+
+                            Meet Maxi
+                        </Badge>
+
+                        <h2
+                            class="mt-4 max-w-md text-3xl text-white sm:text-4xl"
+                        >
+                            The happy face behind
+                            the MaxiPawz name.
+                        </h2>
+
+                        <p
+                            class="mt-3 max-w-md leading-7 text-white/85"
+                        >
+                            Real experiences with
+                            Maxi inspired a store
+                            focused on joy,
+                            usefulness, comfort,
+                            and stronger everyday
+                            moments with pets.
+                        </p>
+                    </div>
+                </article>
+
+                <div
+                    class="grid gap-4 sm:grid-rows-2"
+                >
+                    <a
+                        href="/#shop-by-lifestyle"
+                        class="group relative min-h-56 overflow-hidden rounded-card border border-brand-200 bg-brand-50 shadow-card transition hover:-translate-y-1 hover:shadow-card-hover"
+                    >
+                        <Image
+                            src={maxiPlayImage}
+                            alt="Dog enjoying a playful enrichment activity"
+                            class="absolute inset-0 size-full object-cover"
+                            loading="lazy"
+                            fetchpriority="low"
+                            widths={[
+                                240,
+                                320,
+                                480,
+                                640,
+                            ]}
+                            sizes="(min-width: 1280px) 260px, (min-width: 1024px) 20vw, (min-width: 640px) 35vw, calc(100vw - 2rem)"
+                            quality={78}
+                        />
+
+                        <div
+                            class="absolute inset-0 bg-linear-to-t from-ink-950/80 via-ink-950/15 to-transparent"
+                            aria-hidden="true"
+                        >
+                        </div>
+
+                        <div
+                            class="absolute inset-x-0 bottom-0 p-5 text-white"
+                        >
+                            <span
+                                class="text-sm font-extrabold text-accent-200"
+                            >
+                                Play & enrichment
+                            </span>
+
+                            <h2
+                                class="mt-1 text-2xl text-white"
+                            >
+                                Products that make
+                                playtime count.
+                            </h2>
+
+                            <span
+                                class="mt-3 inline-flex items-center gap-2 text-sm font-extrabold"
+                            >
+                                Preview the category
+
+                                <ArrowRightBold
+                                    class="size-4 transition group-hover:translate-x-1"
+                                    aria-hidden="true"
+                                />
+                            </span>
+                        </div>
+                    </a>
+
+                    <a
+                        href="/pet-guides"
+                        class="group relative min-h-56 overflow-hidden rounded-card border border-accent-200 bg-accent-50 shadow-card transition hover:-translate-y-1 hover:shadow-card-hover"
+                    >
+                        <Image
+                            src={maxiGuideImage}
+                            alt="Dog prepared for a walk and outdoor adventure"
+                            class="absolute inset-0 size-full object-cover"
+                            loading="lazy"
+                            fetchpriority="low"
+                            widths={[
+                                240,
+                                320,
+                                480,
+                                640,
+                            ]}
+                            sizes="(min-width: 1280px) 260px, (min-width: 1024px) 20vw, (min-width: 640px) 35vw, calc(100vw - 2rem)"
+                            quality={78}
+                        />
+
+                        <div
+                            class="absolute inset-0 bg-linear-to-t from-ink-950/80 via-ink-950/15 to-transparent"
+                            aria-hidden="true"
+                        >
+                        </div>
+
+                        <div
+                            class="absolute inset-x-0 bottom-0 p-5 text-white"
+                        >
+                            <span
+                                class="text-sm font-extrabold text-brand-200"
+                            >
+                                Practical guidance
+                            </span>
+
+                            <h2
+                                class="mt-1 text-2xl text-white"
+                            >
+                                Helpful ideas for
+                                everyday pet life.
+                            </h2>
+
+                            <span
+                                class="mt-3 inline-flex items-center gap-2 text-sm font-extrabold"
+                            >
+                                Explore pet guides
+
+                                <ArrowRightBold
+                                    class="size-4 transition group-hover:translate-x-1"
+                                    aria-hidden="true"
+                                />
+                            </span>
+                        </div>
+                    </a>
+                </div>
+            </div>
         </div>
-      </section>
-    )
-  }
+    </section>
 
-  <ShopByLifestyle />
+    <!-- Brand promises -->
+    <section
+        class="border-y border-sand bg-white-warm/65"
+        aria-labelledby="why-maxipawz-title"
+    >
+        <h2
+            id="why-maxipawz-title"
+            class="sr-only"
+        >
+            Why MaxiPawz
+        </h2>
 
-  <BrandStorySection />
+        <div
+            class="site-container grid gap-2 py-6 sm:py-8 md:grid-cols-3 md:gap-4"
+        >
+            {
+                benefits.map(
+                    ({
+                        icon: Icon,
+                        title,
+                        description,
+                    }) => (
+                        <article
+                            class="flex gap-4 rounded-3xl p-4 transition hover:bg-cream sm:p-5"
+                        >
+                            <span
+                                class="grid size-11 shrink-0 place-items-center rounded-2xl bg-brand-100 text-brand-700 sm:size-12"
+                                aria-hidden="true"
+                            >
+                                <Icon
+                                    class="size-5 sm:size-6"
+                                />
+                            </span>
 
-  <PetGuidesPreview />
+                            <div
+                                class="min-w-0"
+                            >
+                                <h3
+                                    class="interface-heading text-lg"
+                                >
+                                    {title}
+                                </h3>
 
-  <LaunchSignup />
+                                <p
+                                    class="mt-2 text-sm leading-6 text-ink-600"
+                                >
+                                    {
+                                        description
+                                    }
+                                </p>
+                            </div>
+                        </article>
+                    ),
+                )
+            }
+        </div>
+    </section>
+
+    <!-- Functional prelaunch section -->
+    {
+        !isStoreLive && (
+            <section
+                class="section-spacing"
+                aria-labelledby="useful-now-title"
+            >
+                <div
+                    class="site-container"
+                >
+                    <div
+                        class="mx-auto max-w-4xl text-center"
+                    >
+                        <Badge
+                            variant="brand"
+                            size="md"
+                            class="mx-auto"
+                        >
+                            <SparkleBold
+                                slot="icon"
+                                aria-hidden="true"
+                            />
+
+                            Useful from day one
+                        </Badge>
+
+                        <h2
+                            id="useful-now-title"
+                            class="section-title mx-auto mt-5 text-4xl sm:text-5xl"
+                        >
+                            Explore MaxiPawz before
+                            the first collection
+                            arrives.
+                        </h2>
+
+                        <p
+                            class="section-description mx-auto mt-4"
+                        >
+                            The store is still
+                            growing, but there is
+                            already plenty to
+                            discover. Learn about
+                            the brand, preview our
+                            future categories,
+                            explore practical
+                            guidance, and join the
+                            launch list.
+                        </p>
+                    </div>
+
+                    <div
+                        class="mt-10 grid gap-5 lg:mt-12 lg:grid-cols-3"
+                    >
+                        {
+                            currentActions.map(
+                                ({
+                                    icon: Icon,
+                                    eyebrow,
+                                    title,
+                                    description,
+                                    href,
+                                    linkLabel,
+                                }) => (
+                                    <a
+                                        href={
+                                            href
+                                        }
+                                        class="surface-card-interactive group flex h-full flex-col p-6 sm:p-7"
+                                    >
+                                        <span
+                                            class="grid size-12 place-items-center rounded-2xl bg-brand-100 text-brand-700"
+                                            aria-hidden="true"
+                                        >
+                                            <Icon
+                                                class="size-6"
+                                            />
+                                        </span>
+
+                                        <span
+                                            class="mt-6 text-sm font-extrabold uppercase tracking-[0.14em] text-accent-700"
+                                        >
+                                            {
+                                                eyebrow
+                                            }
+                                        </span>
+
+                                        <h3
+                                            class="mt-2 text-2xl"
+                                        >
+                                            {title}
+                                        </h3>
+
+                                        <p
+                                            class="mt-3 flex-1 leading-7 text-ink-600"
+                                        >
+                                            {
+                                                description
+                                            }
+                                        </p>
+
+                                        <span
+                                            class="mt-6 inline-flex items-center gap-2 font-extrabold text-brand-700"
+                                        >
+                                            {
+                                                linkLabel
+                                            }
+
+                                            <ArrowRightBold
+                                                class="size-5 transition group-hover:translate-x-1"
+                                                aria-hidden="true"
+                                            />
+                                        </span>
+                                    </a>
+                                ),
+                            )
+                        }
+                    </div>
+                </div>
+            </section>
+        )
+    }
+
+    <ShopByLifestyle />
+
+    <BrandStorySection />
+
+    <PetGuidesPreview />
+
+    <LaunchSignup />
 </BaseLayout>
