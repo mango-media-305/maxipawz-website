@@ -1,13 +1,16 @@
 ---
 const analyticsEnabled =
     import.meta.env.PROD &&
-    import.meta.env.PUBLIC_ANALYTICS_ENABLED === 'true';
+    import.meta.env.PUBLIC_ANALYTICS_ENABLED ===
+        'true';
 
 const gaMeasurementId =
-    import.meta.env.PUBLIC_GA_MEASUREMENT_ID?.trim() ?? '';
+    import.meta.env.PUBLIC_GA_MEASUREMENT_ID?.trim() ??
+    '';
 
 const clarityProjectId =
-    import.meta.env.PUBLIC_CLARITY_PROJECT_ID?.trim() ?? '';
+    import.meta.env.PUBLIC_CLARITY_PROJECT_ID?.trim() ??
+    '';
 
 const gaEnabled =
     analyticsEnabled &&
@@ -16,71 +19,248 @@ const gaEnabled =
 const clarityEnabled =
     analyticsEnabled &&
     clarityProjectId.length > 0;
-
-const gaScriptUrl =
-    `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(
-        gaMeasurementId,
-    )}`;
 ---
 
 {
-    gaEnabled && (
-        <>
+    (gaEnabled || clarityEnabled) && (
         <script
             is:inline
-            async
-            src={gaScriptUrl}
+            define:vars={{
+                gaEnabled,
+                clarityEnabled,
+                gaMeasurementId,
+                clarityProjectId,
+            }}
         >
-        </script>
+            (() => {
+                if (
+                    window.__maxipawzAnalyticsBootstrapped
+                ) {
+                    return;
+                }
 
-        <script
-            is:inline
-            define:vars={{ gaMeasurementId }}
-        >
-            window.dataLayer = window.dataLayer || [];
+                window.__maxipawzAnalyticsBootstrapped =
+                    true;
 
-            window.gtag =
-            window.gtag ||
-            function () {
-                window.dataLayer.push(arguments);
-            };
+                /*
+                 * Create the GA4 queue immediately.
+                 *
+                 * Events can safely be recorded before the
+                 * external Google script finishes loading.
+                 * Google will process the queued commands
+                 * when gtag.js becomes available.
+                 */
+                if (gaEnabled) {
+                    window.dataLayer =
+                        window.dataLayer || [];
 
-            window.gtag('js', new Date());
+                    window.gtag =
+                        window.gtag ||
+                        function () {
+                            window.dataLayer.push(
+                                arguments,
+                            );
+                        };
 
-            window.gtag('config', gaMeasurementId, {
-            send_page_view: true,
-            });
-        </script>
-        </>
-    )
-}
+                    window.gtag(
+                        'js',
+                        new Date(),
+                    );
 
-{
-    clarityEnabled && (
-        <script
-        is:inline
-        define:vars={{ clarityProjectId }}
-        >
-        (function (c, l, a, r, i, t, y) {
-            c[a] =
-            c[a] ||
-            function () {
-                (c[a].q = c[a].q || []).push(arguments);
-            };
+                    window.gtag(
+                        'config',
+                        gaMeasurementId,
+                        {
+                            send_page_view: true,
+                            transport_type:
+                                'beacon',
+                        },
+                    );
+                }
 
-            t = l.createElement(r);
-            t.async = 1;
-            t.src = 'https://www.clarity.ms/tag/' + i;
+                /*
+                 * Create the Microsoft Clarity queue
+                 * immediately.
+                 *
+                 * This allows custom events such as
+                 * newsletterSignup and contactFormSubmit
+                 * to be queued before the external Clarity
+                 * script finishes loading.
+                 */
+                if (clarityEnabled) {
+                    window.clarity =
+                        window.clarity ||
+                        function () {
+                            (
+                                window.clarity.q =
+                                    window
+                                        .clarity
+                                        .q ||
+                                    []
+                            ).push(
+                                arguments,
+                            );
+                        };
+                }
 
-            y = l.getElementsByTagName(r)[0];
-            y.parentNode.insertBefore(t, y);
-        })(
-            window,
-            document,
-            'clarity',
-            'script',
-            clarityProjectId,
-        );
+                let vendorsLoaded = false;
+
+                const interactionEvents = [
+                    'pointerdown',
+                    'touchstart',
+                    'keydown',
+                    'scroll',
+                ];
+
+                const removeInteractionListeners =
+                    () => {
+                        interactionEvents.forEach(
+                            (eventName) => {
+                                window.removeEventListener(
+                                    eventName,
+                                    loadAnalyticsVendors,
+                                );
+                            },
+                        );
+                    };
+
+                function loadGoogleAnalytics() {
+                    if (
+                        !gaEnabled ||
+                        document.getElementById(
+                            'maxipawz-ga4-script',
+                        )
+                    ) {
+                        return;
+                    }
+
+                    const script =
+                        document.createElement(
+                            'script',
+                        );
+
+                    script.id =
+                        'maxipawz-ga4-script';
+
+                    script.async = true;
+
+                    script.src =
+                        'https://www.googletagmanager.com/gtag/js?id=' +
+                        encodeURIComponent(
+                            gaMeasurementId,
+                        );
+
+                    document.head.appendChild(
+                        script,
+                    );
+                }
+
+                function loadMicrosoftClarity() {
+                    if (
+                        !clarityEnabled ||
+                        document.getElementById(
+                            'maxipawz-clarity-script',
+                        )
+                    ) {
+                        return;
+                    }
+
+                    const script =
+                        document.createElement(
+                            'script',
+                        );
+
+                    script.id =
+                        'maxipawz-clarity-script';
+
+                    script.async = true;
+
+                    script.src =
+                        'https://www.clarity.ms/tag/' +
+                        encodeURIComponent(
+                            clarityProjectId,
+                        );
+
+                    document.head.appendChild(
+                        script,
+                    );
+                }
+
+                function loadAnalyticsVendors() {
+                    if (vendorsLoaded) {
+                        return;
+                    }
+
+                    vendorsLoaded = true;
+
+                    removeInteractionListeners();
+
+                    loadGoogleAnalytics();
+                    loadMicrosoftClarity();
+                }
+
+                function scheduleAnalyticsLoad() {
+                    if (vendorsLoaded) {
+                        return;
+                    }
+
+                    if (
+                        'requestIdleCallback' in window
+                    ) {
+                        window.requestIdleCallback(
+                            loadAnalyticsVendors,
+                            {
+                                timeout: 2500,
+                            },
+                        );
+
+                        return;
+                    }
+
+                    window.setTimeout(
+                        loadAnalyticsVendors,
+                        1200,
+                    );
+                }
+
+                /*
+                 * Load immediately after meaningful visitor
+                 * interaction so GA4 and Clarity can begin
+                 * processing without waiting for idle time.
+                 */
+                interactionEvents.forEach(
+                    (eventName) => {
+                        window.addEventListener(
+                            eventName,
+                            loadAnalyticsVendors,
+                            {
+                                once: true,
+                                passive: true,
+                            },
+                        );
+                    },
+                );
+
+                /*
+                 * Visitors who do not interact still receive
+                 * analytics after the page has completed
+                 * loading and the browser has idle capacity.
+                 */
+                if (
+                    document.readyState ===
+                    'complete'
+                ) {
+                    scheduleAnalyticsLoad();
+                } else {
+                    window.addEventListener(
+                        'load',
+                        scheduleAnalyticsLoad,
+                        {
+                            once: true,
+                        },
+                    );
+                }
+            })();
         </script>
     )
 }
