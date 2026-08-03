@@ -1,47 +1,71 @@
 ---
+import type { ImageMetadata } from 'astro';
 import { Image } from 'astro:assets';
-
 
 import logoImage from '../../assets/brand/maxipawz-horizontal-logo.webp';
 import markImage from '../../assets/brand/maxipawz-mark.webp';
 import mascotImage from '../../assets/brand/maxipawz-mascot.webp';
-import maxi from "../../assets/home/maxi-1.webp";
+import maxiImage from '../../assets/home/maxi-1.webp';
 
-interface Props {
-  variant?: 'logo' | 'mark' | 'mascot';
-  class?: string;
-  eager?: boolean;
+type BrandLogoVariant = 'logo' | 'mark' | 'mascot' | 'maxi';
+
+interface BrandImage {
+  src: ImageMetadata;
+  alt: string;
 }
 
-const { variant = 'logo', class: className = '', eager = false } = Astro.props;
+interface Props {
+  variant?: BrandLogoVariant;
+  class?: string;
+  eager?: boolean;
+  decorative?: boolean;
+  alt?: string;
+  quality?: number;
+}
 
-const imageByVariant = {
+const {
+  variant = 'logo',
+  class: className = '',
+  eager = false,
+  decorative = false,
+  alt,
+  quality = 90,
+} = Astro.props;
+
+const imageByVariant: Record<BrandLogoVariant, BrandImage> = {
   logo: {
     src: logoImage,
     alt: 'MaxiPawz Store',
   },
+
   mark: {
     src: markImage,
     alt: 'MaxiPawz',
   },
+
   mascot: {
     src: mascotImage,
     alt: 'MaxiPawz dog mascot',
   },
+
   maxi: {
-    src: maxi,
-    alt: 'MaxiPawz dog Maxi',
+    src: maxiImage,
+    alt: 'Maxi, the dog who inspired MaxiPawz Store',
   },
 };
 
 const selectedImage = imageByVariant[variant];
+
+const finalAlt = decorative ? '' : (alt ?? selectedImage.alt);
 ---
 
 <Image
   src={selectedImage.src}
-  alt={selectedImage.alt}
+  alt={finalAlt}
   class={className}
   loading={eager ? 'eager' : 'lazy'}
   fetchpriority={eager ? 'high' : 'auto'}
-  quality={90}
+  quality={quality}
+  aria-hidden={decorative ? 'true' : undefined}
+  role={decorative ? 'presentation' : undefined}
 />
