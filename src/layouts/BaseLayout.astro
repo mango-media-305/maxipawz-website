@@ -12,132 +12,448 @@ import SiteHeader from '@components/layout/SiteHeader.astro';
 
 import { siteConfig } from '../config/site';
 
-type StructuredData = Record<string, unknown> | Array<Record<string, unknown>>;
+type StructuredData =
+    | Record<string, unknown>
+    | Array<Record<string, unknown>>;
+
+type SocialType =
+    | 'website'
+    | 'article';
+
+interface SocialImageConfig {
+    src: string;
+    alt: string;
+}
 
 interface Props {
-  title: string;
-  description: string;
-  image?: string;
-  imageAlt?: string;
-  noIndex?: boolean;
-  hideSiteChrome?: boolean;
-  structuredData?: StructuredData;
+    title: string;
+    description: string;
+
+    image?: string;
+    imageAlt?: string;
+    imageType?: string;
+    imageWidth?: number;
+    imageHeight?: number;
+
+    socialType?: SocialType;
+
+    publishedAt?: string;
+    modifiedAt?: string;
+    articleSection?: string;
+
+    noIndex?: boolean;
+    hideSiteChrome?: boolean;
+
+    structuredData?: StructuredData;
 }
 
 const {
-  title,
-  description,
-  image,
-  imageAlt = 'MaxiPawz Store',
-  noIndex = false,
-  hideSiteChrome = false,
-  structuredData,
+    title,
+    description,
+
+    image,
+    imageAlt,
+    imageType,
+    imageWidth,
+    imageHeight,
+
+    socialType = 'website',
+
+    publishedAt,
+    modifiedAt,
+    articleSection,
+
+    noIndex = false,
+    hideSiteChrome = false,
+
+    structuredData,
 } = Astro.props;
 
-const environmentNoIndex = import.meta.env.PUBLIC_ROBOTS_NOINDEX === 'true';
+const environmentNoIndex =
+    import.meta.env.PUBLIC_ROBOTS_NOINDEX ===
+    'true';
 
-const shouldNoIndex = noIndex || environmentNoIndex;
+const shouldNoIndex =
+    noIndex || environmentNoIndex;
 
-const fullTitle = title === siteConfig.name ? title : `${title} | ${siteConfig.name}`;
+const fullTitle =
+    title === siteConfig.name
+        ? title
+        : `${title} | ${siteConfig.name}`;
 
 const canonicalURL = Astro.site
-  ? new URL(Astro.url.pathname, Astro.site)
-  : new URL(Astro.url.pathname, Astro.url);
+    ? new URL(
+          Astro.url.pathname,
+          Astro.site,
+      )
+    : new URL(
+          Astro.url.pathname,
+          Astro.url,
+      );
 
-const socialImageURL = image ? new URL(image, canonicalURL).toString() : undefined;
+const normalizedPath =
+    Astro.url.pathname === '/'
+        ? '/'
+        : Astro.url.pathname.replace(
+              /\/+$/,
+              '',
+          );
+
+/*
+ * Centralized OG-image assignments for the most important
+ * website URLs.
+ *
+ * These route assignments intentionally take precedence over
+ * older image props that may still be present in individual
+ * pages, such as the homepage logo image.
+ */
+const socialImageByPath: Record<
+    string,
+    SocialImageConfig
+> = {
+    '/': {
+        src: '/images/og/home.webp',
+
+        alt:
+            'MaxiPawz Store — thoughtful pet toys, accessories, essentials, and practical pet guides.',
+    },
+
+    '/pet-guides': {
+        src:
+            '/images/og/pet-guides.webp',
+
+        alt:
+            'MaxiPawz Pet Guides — practical guidance for everyday pet life.',
+    },
+
+    '/about': {
+        src: '/images/og/about.webp',
+
+        alt:
+            'About MaxiPawz Store — made for pets and built by two friends who love them.',
+    },
+
+    '/contact': {
+        src: '/images/og/contact.webp',
+
+        alt:
+            'Contact MaxiPawz Store with a question, suggestion, or support request.',
+    },
+
+    '/faq': {
+        src: '/images/og/faq.webp',
+
+        alt:
+            'MaxiPawz frequently asked questions and helpful answers.',
+    },
+
+    '/product-safety': {
+        src:
+            '/images/og/product-safety.webp',
+
+        alt:
+            'MaxiPawz guidance for choosing and using pet products responsibly.',
+    },
+
+    '/shop': {
+        src: '/images/og/shop.webp',
+
+        alt:
+            'Explore pet toys, accessories, travel gear, hydration products, and everyday essentials from MaxiPawz Store.',
+    },
+};
+
+const mappedSocialImage =
+    socialImageByPath[normalizedPath];
+
+/*
+ * Priority:
+ *
+ * 1. Important route assignment.
+ * 2. Explicit image supplied by the page or layout.
+ * 3. Universal MaxiPawz fallback image.
+ */
+const resolvedImage =
+    mappedSocialImage?.src ??
+    image ??
+    '/images/og/default.webp';
+
+const resolvedImageAlt =
+    mappedSocialImage?.alt ??
+    imageAlt ??
+    'MaxiPawz Store — Happy Pets, Happy Life.';
+
+const socialImageURL = new URL(
+    resolvedImage,
+    canonicalURL,
+).toString();
+
+const isManagedOgImage =
+    resolvedImage.startsWith(
+        '/images/og/',
+    );
+
+const resolvedImageType =
+    imageType ??
+    (isManagedOgImage
+        ? 'image/webp'
+        : undefined);
+
+const resolvedImageWidth =
+    imageWidth ??
+    (isManagedOgImage ? 1200 : undefined);
+
+const resolvedImageHeight =
+    imageHeight ??
+    (isManagedOgImage ? 630 : undefined);
 
 const robotsContent = shouldNoIndex
-  ? 'noindex, nofollow'
-  : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
+    ? 'noindex, nofollow'
+    : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
 ---
 
 <!doctype html>
+
 <html lang={siteConfig.language}>
-  <head>
-    <meta charset="UTF-8" />
+    <head>
+        <meta charset="UTF-8" />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1"
+        />
 
-    <meta name="generator" content={Astro.generator} />
+        <meta
+            name="generator"
+            content={Astro.generator}
+        />
 
-    <title>{fullTitle}</title>
+        <title>{fullTitle}</title>
 
-    <meta name="description" content={description} />
+        <meta
+            name="description"
+            content={description}
+        />
 
-    <meta name="robots" content={robotsContent} />
+        <meta
+            name="robots"
+            content={robotsContent}
+        />
 
-    <meta name="theme-color" content="#008aff" />
+        <meta
+            name="theme-color"
+            content="#008aff"
+        />
 
-    <link rel="canonical" href={canonicalURL} />
+        <link
+            rel="canonical"
+            href={canonicalURL}
+        />
 
-    <link rel="sitemap" href="/sitemap-index.xml" />
+        <link
+            rel="sitemap"
+            href="/sitemap-index.xml"
+        />
 
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link
+            rel="icon"
+            type="image/svg+xml"
+            href="/favicon.svg"
+        />
 
-    <link
-      rel="preload"
-      href="/fonts/skia/Skia.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin="anonymous"
-    />
+        <link
+            rel="preload"
+            href="/fonts/skia/Skia.woff2"
+            as="font"
+            type="font/woff2"
+            crossorigin="anonymous"
+        />
 
-    <meta property="og:type" content="website" />
+        <!-- Open Graph -->
+        <meta
+            property="og:type"
+            content={socialType}
+        />
 
-    <meta property="og:site_name" content={siteConfig.name} />
+        <meta
+            property="og:site_name"
+            content={siteConfig.name}
+        />
 
-    <meta property="og:locale" content={siteConfig.locale} />
+        <meta
+            property="og:locale"
+            content={siteConfig.locale}
+        />
 
-    <meta property="og:title" content={fullTitle} />
+        <meta
+            property="og:title"
+            content={fullTitle}
+        />
 
-    <meta property="og:description" content={description} />
+        <meta
+            property="og:description"
+            content={description}
+        />
 
-    <meta property="og:url" content={canonicalURL} />
+        <meta
+            property="og:url"
+            content={canonicalURL}
+        />
 
-    {socialImageURL && <meta property="og:image" content={socialImageURL} />}
+        <meta
+            property="og:image"
+            content={socialImageURL}
+        />
 
-    {socialImageURL && <meta property="og:image:alt" content={imageAlt} />}
+        <meta
+            property="og:image:secure_url"
+            content={socialImageURL}
+        />
 
-    <meta name="twitter:card" content={socialImageURL ? 'summary_large_image' : 'summary'} />
+        {
+            resolvedImageType && (
+                <meta
+                    property="og:image:type"
+                    content={
+                        resolvedImageType
+                    }
+                />
+            )
+        }
 
-    <meta name="twitter:title" content={fullTitle} />
+        {
+            resolvedImageWidth && (
+                <meta
+                    property="og:image:width"
+                    content={String(
+                        resolvedImageWidth,
+                    )}
+                />
+            )
+        }
 
-    <meta name="twitter:description" content={description} />
+        {
+            resolvedImageHeight && (
+                <meta
+                    property="og:image:height"
+                    content={String(
+                        resolvedImageHeight,
+                    )}
+                />
+            )
+        }
 
-    {socialImageURL && <meta name="twitter:image" content={socialImageURL} />}
+        <meta
+            property="og:image:alt"
+            content={resolvedImageAlt}
+        />
 
-    {socialImageURL && <meta name="twitter:image:alt" content={imageAlt} />}
+        <!-- Article metadata -->
+        {
+            socialType ===
+                'article' &&
+                publishedAt && (
+                    <meta
+                        property="article:published_time"
+                        content={
+                            publishedAt
+                        }
+                    />
+                )
+        }
 
-    {
-      structuredData && (
-        <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
-      )
-    }
+        {
+            socialType ===
+                'article' &&
+                modifiedAt && (
+                    <meta
+                        property="article:modified_time"
+                        content={
+                            modifiedAt
+                        }
+                    />
+                )
+        }
 
-    <Analytics />
-  </head>
+        {
+            socialType ===
+                'article' &&
+                articleSection && (
+                    <meta
+                        property="article:section"
+                        content={
+                            articleSection
+                        }
+                    />
+                )
+        }
 
-  <body>
-    <a
-      href="#main-content"
-      class="fixed top-3 left-3 z-100 -translate-y-24 rounded-full bg-brand-700 px-5 py-3 font-bold text-white shadow-blue transition focus:translate-y-0"
-    >
-      Skip to main content
-    </a>
+        <!-- Twitter / X -->
+        <meta
+            name="twitter:card"
+            content="summary_large_image"
+        />
 
-    {
-      !hideSiteChrome && (
-        <>
-          <AnnouncementBar />
-          <SiteHeader />
-        </>
-      )
-    }
+        <meta
+            name="twitter:title"
+            content={fullTitle}
+        />
 
-    <main id="main-content">
-      <slot />
-    </main>
+        <meta
+            name="twitter:description"
+            content={description}
+        />
 
-    {!hideSiteChrome && <SiteFooter />}
-  </body>
+        <meta
+            name="twitter:image"
+            content={socialImageURL}
+        />
+
+        <meta
+            name="twitter:image:alt"
+            content={resolvedImageAlt}
+        />
+
+        {
+            structuredData && (
+                <script
+                    type="application/ld+json"
+                    set:html={JSON.stringify(
+                        structuredData,
+                    )}
+                />
+            )
+        }
+
+        <Analytics />
+    </head>
+
+    <body>
+        <a
+            href="#main-content"
+            class="fixed top-3 left-3 z-100 -translate-y-24 rounded-full bg-brand-700 px-5 py-3 font-bold text-white shadow-blue transition focus:translate-y-0"
+        >
+            Skip to main content
+        </a>
+
+        {
+            !hideSiteChrome && (
+                <>
+                    <AnnouncementBar />
+
+                    <SiteHeader />
+                </>
+            )
+        }
+
+        <main id="main-content">
+            <slot />
+        </main>
+
+        {
+            !hideSiteChrome && (
+                <SiteFooter />
+            )
+        }
+    </body>
 </html>

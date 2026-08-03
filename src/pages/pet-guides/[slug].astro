@@ -38,7 +38,8 @@ export const getStaticPaths = (() => {
     }));
 }) satisfies GetStaticPaths;
 
-const { guide } = Astro.props as Props;
+const { guide } =
+    Astro.props as Props;
 
 const iconByGuide: Record<
     PetGuideIcon,
@@ -64,7 +65,9 @@ const tableOfContents =
 
 const siteURL =
     Astro.site ??
-    new URL('https://maxipawz.com');
+    new URL(
+        'https://maxipawz.com',
+    );
 
 const homeURL = new URL(
     '/',
@@ -86,6 +89,18 @@ const logoURL = new URL(
     siteURL,
 ).toString();
 
+const guideSocialImage =
+    `/images/og/guides/${guide.slug}.webp`;
+
+const guideSocialImageURL =
+    new URL(
+        guideSocialImage,
+        siteURL,
+    ).toString();
+
+const guideSocialImageAlt =
+    `${guide.title} — MaxiPawz Pet Guide.`;
+
 const organizationID =
     `${homeURL}#organization`;
 
@@ -93,17 +108,21 @@ const guideText = [
     guide.title,
     guide.description,
     guide.introduction,
+
     ...guide.learningPoints,
 
     ...guide.sections.flatMap(
         (section) => [
             section.title,
+
             ...section.paragraphs,
+
             ...(section.points ?? []),
 
             ...(section.tip
                 ? [
                       section.tip.title,
+
                       section.tip
                           .description,
                   ]
@@ -131,6 +150,7 @@ const organizationStructuredData = {
 
     logo: {
         '@type': 'ImageObject',
+
         url: logoURL,
     },
 };
@@ -147,6 +167,18 @@ const articleStructuredData = {
     description:
         guide.seoDescription,
 
+    image: {
+        '@type': 'ImageObject',
+
+        url: guideSocialImageURL,
+
+        width: 1200,
+        height: 630,
+
+        caption:
+            guideSocialImageAlt,
+    },
+
     articleSection:
         guide.eyebrow,
 
@@ -162,11 +194,13 @@ const articleStructuredData = {
 
     mainEntityOfPage: {
         '@type': 'WebPage',
+
         '@id': guideURL,
     },
 
     isPartOf: {
         '@type': 'CollectionPage',
+
         '@id': petGuidesURL,
 
         name:
@@ -238,6 +272,7 @@ const formattedUpdatedAt =
             month: 'long',
             day: 'numeric',
             year: 'numeric',
+
             timeZone: 'UTC',
         },
     ).format(
@@ -252,6 +287,11 @@ const formattedUpdatedAt =
     description={guide.description}
     seoTitle={guide.seoTitle}
     seoDescription={guide.seoDescription}
+    image={guideSocialImage}
+    imageAlt={guideSocialImageAlt}
+    publishedAt={guide.publishedAt}
+    modifiedAt={guide.updatedAt}
+    articleSection={guide.eyebrow}
     eyebrow={guide.eyebrow}
     readingTime={guide.readingTime}
     updatedAt={formattedUpdatedAt}

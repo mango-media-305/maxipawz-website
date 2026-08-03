@@ -29,6 +29,13 @@ interface Props {
     seoTitle?: string;
     seoDescription?: string;
 
+    image: string;
+    imageAlt: string;
+
+    publishedAt: string;
+    modifiedAt: string;
+    articleSection: string;
+
     eyebrow?: string;
     readingTime?: string;
 
@@ -48,6 +55,13 @@ const {
     seoTitle,
     seoDescription,
 
+    image,
+    imageAlt,
+
+    publishedAt,
+    modifiedAt,
+    articleSection,
+
     eyebrow = 'MaxiPawz Pet Guide',
     readingTime = '6 min read',
 
@@ -60,7 +74,8 @@ const {
     structuredData,
 } = Astro.props;
 
-const pageTitle = seoTitle ?? title;
+const pageTitle =
+    seoTitle ?? title;
 
 const pageDescription =
     seoDescription ?? description;
@@ -69,6 +84,15 @@ const pageDescription =
 <BaseLayout
     title={pageTitle}
     description={pageDescription}
+    image={image}
+    imageAlt={imageAlt}
+    imageType="image/webp"
+    imageWidth={1200}
+    imageHeight={630}
+    socialType="article"
+    publishedAt={publishedAt}
+    modifiedAt={modifiedAt}
+    articleSection={articleSection}
     noIndex={noIndex}
     structuredData={structuredData}
 >
@@ -153,7 +177,9 @@ const pageDescription =
 
                     {
                         updatedAt && (
-                            <span class="inline-flex items-center gap-2">
+                            <span
+                                class="inline-flex items-center gap-2"
+                            >
                                 <CheckCircleBold
                                     class="size-5 text-brand-500"
                                     aria-hidden="true"
@@ -165,6 +191,7 @@ const pageDescription =
                                     }
                                 >
                                     Updated{' '}
+
                                     {updatedAt}
                                 </time>
                             </span>
@@ -237,8 +264,10 @@ const pageDescription =
                                                     class="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-brand-100 text-[0.65rem] text-brand-800"
                                                     aria-hidden="true"
                                                 >
-                                                    {index +
-                                                        1}
+                                                    {
+                                                        index +
+                                                        1
+                                                    }
                                                 </span>
 
                                                 <span>
