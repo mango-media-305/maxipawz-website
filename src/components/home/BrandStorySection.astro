@@ -4,6 +4,7 @@ import CheckCircleBold from 'phosphor-astro/CheckCircleBold.astro';
 import HeartBold from 'phosphor-astro/HeartBold.astro';
 import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
 import ShoppingBagOpenBold from 'phosphor-astro/ShoppingBagOpenBold.astro';
+import SparkleBold from 'phosphor-astro/SparkleBold.astro';
 import UsersThreeBold from 'phosphor-astro/UsersThreeBold.astro';
 
 import BrandLogo from '../brand/BrandLogo.astro';
@@ -18,10 +19,7 @@ import {
   type BrandStoryPrincipleIcon,
 } from '../../data/homepage';
 
-const iconByPrinciple: Record<
-  BrandStoryPrincipleIcon,
-  typeof PawPrintBold
-> = {
+const iconByPrinciple: Record<BrandStoryPrincipleIcon, typeof PawPrintBold> = {
   experience: PawPrintBold,
   purpose: CheckCircleBold,
   community: UsersThreeBold,
@@ -30,201 +28,777 @@ const iconByPrinciple: Record<
 
 <section
   id="our-story"
-  class="section-spacing relative overflow-hidden bg-ink-950 text-white"
+  class="brand-story-editorial section-spacing relative isolate overflow-hidden bg-ink-950 text-white"
   aria-labelledby="brand-story-title"
+  data-brand-story-section
 >
   <div
-    class="pointer-events-none absolute -top-32 -left-24 size-80 rounded-full bg-brand-500/20 blur-3xl"
+    class="brand-story-editorial__pattern pointer-events-none absolute inset-0"
     aria-hidden="true"
   >
   </div>
 
   <div
-    class="pointer-events-none absolute -right-24 -bottom-32 size-96 rounded-full bg-accent-500/20 blur-3xl"
+    class="brand-story-editorial__glow pointer-events-none absolute -top-40 -left-32"
+    data-brand-story-parallax
+    data-brand-story-parallax-speed="0.035"
     aria-hidden="true"
   >
+    <div class="size-96 rounded-full bg-brand-500/24 blur-3xl"></div>
   </div>
 
   <div
-    class="site-container relative grid items-center gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-14"
+    class="brand-story-editorial__glow pointer-events-none absolute -right-32 -bottom-44"
+    data-brand-story-parallax
+    data-brand-story-parallax-speed="0.055"
+    aria-hidden="true"
   >
-    <!-- Maxi artwork -->
-    <div class="relative mx-auto w-full max-w-md">
-      <div
-        class="pointer-events-none absolute inset-8 -z-10 rounded-full bg-linear-to-br from-brand-400/40 via-white/10 to-accent-400/40 blur-3xl"
-        aria-hidden="true"
-      >
+    <div class="size-112 rounded-full bg-accent-500/20 blur-3xl"></div>
+  </div>
+
+  <div
+    class="brand-story-editorial__paw brand-story-editorial__paw--one pointer-events-none absolute top-[10%] right-[7%] hidden text-brand-300/25 lg:block"
+    aria-hidden="true"
+  >
+    <PawPrintBold class="size-16 rotate-12" />
+  </div>
+
+  <div
+    class="brand-story-editorial__paw brand-story-editorial__paw--two pointer-events-none absolute bottom-[10%] left-[4%] hidden text-accent-300/22 lg:block"
+    aria-hidden="true"
+  >
+    <PawPrintBold class="size-12 -rotate-12" />
+  </div>
+
+  <div class="site-container relative z-10">
+    <div
+      class="mb-10 flex flex-col gap-5 border-b border-white/10 pb-8 sm:mb-12 sm:flex-row sm:items-end sm:justify-between"
+      data-brand-story-reveal
+    >
+      <div>
+        <Badge variant="accent" size="md">
+          <SparkleBold slot="icon" aria-hidden="true" />
+
+          {brandStory.eyebrow}
+        </Badge>
+
+        <p class="mt-4 max-w-xl text-sm font-extrabold uppercase tracking-[0.18em] text-white/55">
+          Meet Maxi · Discover our story
+        </p>
       </div>
 
-      <div
-        class="relative overflow-hidden rounded-card-lg border border-white/15 bg-linear-to-br from-brand-500/25 via-white/10 to-accent-500/20 p-2 shadow-2xl shadow-black/25 backdrop-blur sm:p-3"
-      >
-        <div
-          class="aspect-9/16 overflow-hidden rounded-card bg-cream-soft"
-        >
-          <BrandLogo
-            variant="maxi"
-            class="size-full object-cover"
-          />
-        </div>
+      <p class="max-w-md text-sm leading-6 text-white/60 sm:text-right">
+        A pet store shaped by real experience, everyday routines, and the dog who inspired it all.
+      </p>
+    </div>
 
-        <div
-          class="mt-2 rounded-3xl border border-white/10 bg-ink-950/80 p-4 sm:mt-3 sm:p-5"
-        >
-          <div class="flex items-center gap-3">
-            <span
-              class="grid size-11 shrink-0 place-items-center rounded-2xl bg-accent-500 text-ink-950 shadow-orange"
+    <div class="grid items-center gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16 xl:gap-20">
+      <!-- Layered Maxi artwork -->
+      <div
+        class="brand-story-visual-parallax relative mx-auto w-full max-w-lg lg:mx-0"
+        data-brand-story-parallax
+        data-brand-story-parallax-speed="0.025"
+        data-brand-story-reveal="left"
+        style="--brand-story-reveal-delay: 80ms;"
+      >
+        <div class="brand-story-visual-shell relative" data-brand-story-tilt-root>
+          <div class="brand-story-visual-surface relative" data-brand-story-tilt-surface>
+            <div
+              class="brand-story-visual-halo pointer-events-none absolute inset-10 -z-10 rounded-full bg-linear-to-br from-brand-400/45 via-white/10 to-accent-400/45 blur-3xl"
               aria-hidden="true"
             >
-              <PawPrintBold class="size-5" />
+            </div>
+
+            <div
+              class="brand-story-visual-frame relative overflow-hidden rounded-card-lg border border-white/15 bg-linear-to-br from-brand-500/25 via-white/10 to-accent-500/20 p-2 shadow-2xl shadow-black/30 backdrop-blur sm:p-3"
+            >
+              <div
+                class="brand-story-visual-art relative aspect-9/14 overflow-hidden rounded-card bg-cream-soft"
+              >
+                <BrandLogo variant="maxi" class="brand-story-visual-image size-full object-cover" />
+
+                <div
+                  class="brand-story-visual-vignette pointer-events-none absolute inset-0"
+                  aria-hidden="true"
+                >
+                </div>
+
+                <div
+                  class="absolute top-5 left-5 rounded-full border border-white/45 bg-ink-950/55 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-white backdrop-blur-md"
+                >
+                  The original MaxiPawz
+                </div>
+              </div>
+
+              <div class="mt-2 rounded-3xl border border-white/10 bg-ink-950/88 p-4 sm:mt-3 sm:p-5">
+                <div class="flex items-center gap-3">
+                  <span
+                    class="grid size-11 shrink-0 place-items-center rounded-2xl bg-accent-500 text-ink-950 shadow-orange"
+                    aria-hidden="true"
+                  >
+                    <PawPrintBold class="size-5" />
+                  </span>
+
+                  <div class="min-w-0">
+                    <p class="font-display text-xl leading-tight text-white sm:text-2xl">
+                      Meet Maxi.
+                    </p>
+
+                    <p class="mt-1 text-sm leading-5 text-white/70">
+                      Our dog, our mascot, and the inspiration behind MaxiPawz.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <span
+              class="brand-story-floating-mark brand-story-floating-mark--logo absolute -top-4 -right-2 z-20 grid size-16 rotate-6 place-items-center rounded-3xl border-4 border-ink-950 bg-white-warm shadow-blue sm:-right-5 sm:size-20"
+              aria-hidden="true"
+            >
+              <BrandLogo variant="mark" class="size-10 object-contain sm:size-12" />
             </span>
 
-            <div class="min-w-0">
-              <p
-                class="font-display text-xl leading-tight text-white sm:text-2xl"
-              >
-                Meet Maxi.
+            <span
+              class="brand-story-floating-mark brand-story-floating-mark--mascot absolute -bottom-4 -left-2 z-20 grid size-14 -rotate-6 place-items-center rounded-[1.25rem] border-4 border-ink-950 bg-brand-500 text-ink-950 shadow-orange sm:-left-5 sm:size-16"
+              aria-hidden="true"
+            >
+              <BrandLogo variant="mascot" class="size-10 object-contain sm:size-12" />
+            </span>
+
+            <div
+              class="brand-story-floating-note absolute top-[23%] -left-4 z-20 hidden max-w-44 -rotate-3 rounded-3xl border border-white/15 bg-ink-900/90 p-4 shadow-card backdrop-blur-md sm:block lg:-left-8"
+              aria-hidden="true"
+            >
+              <p class="text-xs font-black uppercase tracking-[0.14em] text-brand-300">
+                Where it began
               </p>
 
-              <p
-                class="mt-1 text-sm leading-5 text-white/70"
-              >
-                Our dog, our mascot, and the inspiration behind
-                MaxiPawz.
+              <p class="mt-2 text-sm font-bold leading-5 text-white/85">
+                Real life with Maxi shaped the idea behind the store.
               </p>
+            </div>
+
+            <div
+              class="brand-story-spotlight pointer-events-none absolute inset-0 z-30 rounded-card-lg"
+              aria-hidden="true"
+            >
             </div>
           </div>
         </div>
       </div>
 
-      <span
-        class="absolute -top-3 -right-2 grid size-16 rotate-6 place-items-center rounded-3xl border-4 border-ink-950 bg-white-warm shadow-blue sm:-right-4 sm:size-20"
-        aria-hidden="true"
-      >
-        <BrandLogo
-          variant="mark"
-          class="size-10 object-contain sm:size-12"
-        />
-      </span>
+      <!-- Story copy -->
+      <div class="mx-auto w-full max-w-2xl lg:mx-0">
+        <div data-brand-story-reveal="right" style="--brand-story-reveal-delay: 120ms;">
+          <h2
+            id="brand-story-title"
+            class="section-title max-w-2xl text-4xl text-white sm:text-5xl lg:text-[3.65rem]"
+          >
+            The dog behind the name—and the{' '}
 
-      <span
-        class="absolute -bottom-3 -left-2 grid size-14 -rotate-6 place-items-center rounded-[1.25rem] border-4 border-ink-950 bg-brand-500 text-ink-950 shadow-orange sm:-left-4 sm:size-16"
-        aria-hidden="true"
-      >
-        <BrandLogo
-          variant="mascot"
-          class="size-10 object-contain sm:size-12"
-        />
-      </span>
-    </div>
+            <span class="brand-story-accent-text text-accent-300"> heart behind our store. </span>
+          </h2>
 
-    <!-- Story copy -->
-    <div class="mx-auto w-full max-w-2xl lg:mx-0">
-      <h2
-        id="brand-story-title"
-        class="section-title mt-5 max-w-xl text-4xl text-white sm:text-5xl lg:text-[3.5rem]"
-      >
-        The dog behind the name—and the{' '}
-        <span class="text-accent-300">
-          heart behind our store.
-        </span>
-      </h2>
+          <p
+            class="mt-6 max-w-xl border-l-4 border-accent-400 pl-5 text-lg font-bold leading-8 text-white/92 sm:text-xl"
+          >
+            {brandStory.introduction}
+          </p>
+        </div>
 
-      <div
-        class="mt-6 max-w-xl space-y-4 text-base leading-7 text-white/75 sm:text-lg sm:leading-8"
-      >
-        <p>{brandStory.introduction}</p>
-
-        <p>{brandStory.experience}</p>
-
-        <p>{brandStory.community}</p>
-      </div>
-
-      <div class="mt-8 grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        {
-          brandStoryPrinciples.map((principle) => {
-            const Icon = iconByPrinciple[principle.icon];
-
-            return (
-              <article
-                class="group flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 transition duration-200 hover:border-white/20 hover:bg-white/10 sm:gap-4 sm:p-5"
-              >
-                <span
-                  class="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-500 text-white shadow-blue transition duration-200 group-hover:scale-105 sm:size-11 sm:rounded-2xl"
-                  aria-hidden="true"
-                >
-                  <Icon class="size-5" />
-                </span>
-
-                <div class="min-w-0">
-                  <h3 class="text-lg text-white sm:text-xl">
-                    {principle.title}
-                  </h3>
-
-                  <p
-                    class="mt-1 text-sm leading-6 text-white/65"
-                  >
-                    {principle.description}
-                  </p>
-                </div>
-              </article>
-            );
-          })
-        }
-      </div>
-
-      <div
-        class="mt-8 flex flex-col gap-3 sm:flex-row"
-      >
-        <Button
-          href="/about"
-          variant="primary"
-          size="lg"
-          iconPosition="right"
-          class="w-full sm:w-auto"
+        <div
+          class="mt-6 max-w-xl space-y-4 text-base leading-7 text-white/72 sm:text-lg sm:leading-8"
+          data-brand-story-reveal="right"
+          style="--brand-story-reveal-delay: 180ms;"
         >
-          <ArrowRightBold
-            slot="icon"
-            aria-hidden="true"
-          />
+          <p>{brandStory.experience}</p>
 
-          Meet Maxi
-        </Button>
+          <p>{brandStory.community}</p>
+        </div>
 
-        {
-          isStoreLive ? (
-            <Button
-              href="/shop"
-              variant="secondary"
-              size="lg"
-              iconPosition="right"
-              class="w-full sm:w-auto"
-            >
-              <ShoppingBagOpenBold
-                slot="icon"
+        <div
+          class="brand-story-cta mt-8 overflow-hidden rounded-card border border-white/12 bg-linear-to-br from-white/9 via-white/5.5 to-brand-500/12 p-5 shadow-card backdrop-blur-md sm:p-6"
+          data-brand-story-reveal="right"
+          style={`--brand-story-reveal-delay: ${240 + brandStoryPrinciples.length * 80 + 50}ms;`}
+        >
+          <div class="relative z-10">
+            <div class="flex items-start gap-3">
+              <span
+                class="grid size-10 shrink-0 place-items-center rounded-2xl bg-accent-500 text-ink-950 shadow-orange"
                 aria-hidden="true"
-              />
+              >
+                <HeartBold class="size-5" />
+              </span>
 
-              Explore the Shop
-            </Button>
-          ) : (
-            <Button
-              href="/#join-the-pack"
-              variant="secondary"
-              size="lg"
-              iconPosition="right"
-              class="w-full sm:w-auto"
-            >
-              <HeartBold
-                slot="icon"
-                aria-hidden="true"
-              />
+              <div>
+                <p class="font-display text-xl text-white sm:text-2xl">
+                  More than a mascot. This is where the story starts.
+                </p>
 
-              Join the Pack
-            </Button>
-          )
-        }
+                <p class="mt-2 max-w-xl text-sm leading-6 text-white/65 sm:text-base">
+                  Learn how Maxi, two friends, and a shared love for pets became the foundation of
+                  MaxiPawz.
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-5 flex flex-col gap-3 sm:flex-row">
+              <Button
+                href="/about"
+                variant="primary"
+                size="lg"
+                iconPosition="right"
+                class="w-full sm:w-auto"
+              >
+                <ArrowRightBold slot="icon" aria-hidden="true" />
+
+                Meet Maxi & Our Story
+              </Button>
+
+              {
+                isStoreLive ? (
+                  <Button
+                    href="/shop"
+                    variant="secondary"
+                    size="lg"
+                    iconPosition="right"
+                    class="w-full sm:w-auto"
+                  >
+                    <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
+                    Explore the Shop
+                  </Button>
+                ) : (
+                  <Button
+                    href="/#join-the-pack"
+                    variant="secondary"
+                    size="lg"
+                    iconPosition="right"
+                    class="w-full sm:w-auto"
+                  >
+                    <HeartBold slot="icon" aria-hidden="true" />
+                    Join the Pack
+                  </Button>
+                )
+              }
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </section>
+
+<style>
+  .brand-story-editorial {
+    --brand-story-parallax-y: 0px;
+    --brand-story-tilt-x: 0deg;
+    --brand-story-tilt-y: 0deg;
+    --brand-story-tilt-scale: 1;
+    --brand-story-spotlight-x: 50%;
+    --brand-story-spotlight-y: 50%;
+  }
+
+  .brand-story-editorial__pattern {
+    background-image:
+      linear-gradient(rgb(255 255 255 / 3%) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 3%) 1px, transparent 1px);
+
+    background-size: 3.5rem 3.5rem;
+
+    mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+
+    opacity: 0.45;
+  }
+
+  [data-brand-story-parallax] {
+    transform: translate3d(0, var(--brand-story-parallax-y), 0);
+
+    will-change: transform;
+  }
+
+  .brand-story-editorial__glow {
+    animation: brand-story-glow-drift 11s ease-in-out infinite;
+  }
+
+  .brand-story-editorial__glow:nth-of-type(3) {
+    animation-delay: -5s;
+    animation-direction: reverse;
+  }
+
+  .brand-story-editorial__paw {
+    animation: brand-story-paw-float 7.5s ease-in-out infinite;
+
+    will-change: transform;
+  }
+
+  .brand-story-editorial__paw--two {
+    animation-delay: -3.5s;
+    animation-direction: reverse;
+  }
+
+  .brand-story-visual-shell {
+    perspective: 1250px;
+  }
+
+  .brand-story-visual-surface {
+    transform: rotateX(var(--brand-story-tilt-x)) rotateY(var(--brand-story-tilt-y))
+      scale(var(--brand-story-tilt-scale));
+
+    transform-style: preserve-3d;
+
+    transition: transform 260ms var(--ease-friendly);
+
+    will-change: transform;
+  }
+
+  .brand-story-visual-frame {
+    transform: translateZ(0);
+
+    transition:
+      border-color 260ms var(--ease-friendly),
+      box-shadow 260ms var(--ease-friendly);
+  }
+
+  .brand-story-visual-shell:hover .brand-story-visual-frame {
+    border-color: rgb(255 255 255 / 24%);
+
+    box-shadow: 0 38px 85px -38px rgb(0 0 0 / 72%);
+  }
+
+  .brand-story-visual-image {
+    transform: scale(1.035);
+
+    transition:
+      transform 800ms var(--ease-friendly),
+      filter 800ms var(--ease-friendly);
+  }
+
+  .brand-story-visual-shell:hover .brand-story-visual-image {
+    transform: scale(1.075);
+
+    filter: saturate(1.05) contrast(1.02);
+  }
+
+  .brand-story-visual-vignette {
+    background:
+      linear-gradient(to top, rgb(33 23 17 / 28%), transparent 38%),
+      linear-gradient(to bottom, rgb(255 255 255 / 8%), transparent 20%);
+  }
+
+  .brand-story-spotlight {
+    background: radial-gradient(
+      circle 15rem at var(--brand-story-spotlight-x) var(--brand-story-spotlight-y),
+      rgb(255 255 255 / 20%),
+      transparent 68%
+    );
+
+    opacity: 0;
+
+    transition: opacity 220ms ease;
+  }
+
+  .brand-story-visual-shell:hover .brand-story-spotlight {
+    opacity: 1;
+  }
+
+  .brand-story-floating-mark,
+  .brand-story-floating-note {
+    animation: brand-story-card-float 5.8s ease-in-out infinite;
+
+    will-change: transform;
+  }
+
+  .brand-story-floating-mark--mascot {
+    animation-delay: -2.6s;
+    animation-direction: reverse;
+  }
+
+  .brand-story-floating-note {
+    animation-delay: -1.4s;
+  }
+
+  .brand-story-accent-text {
+    background: linear-gradient(110deg, #ffae66 0%, #ff8433 45%, #8ed3ff 100%);
+
+    background-clip: text;
+    color: transparent;
+  }
+
+  .brand-story-principle {
+    position: relative;
+    overflow: hidden;
+
+    transition:
+      transform 220ms var(--ease-friendly),
+      border-color 220ms var(--ease-friendly),
+      background-color 220ms var(--ease-friendly);
+  }
+
+  .brand-story-principle::after {
+    position: absolute;
+    inset: 0;
+
+    background: linear-gradient(105deg, transparent, rgb(255 255 255 / 7%), transparent);
+
+    content: '';
+    opacity: 0;
+    pointer-events: none;
+
+    transform: translateX(-70%);
+
+    transition:
+      opacity 260ms ease,
+      transform 650ms var(--ease-friendly);
+  }
+
+  .brand-story-principle:hover {
+    transform: translateX(0.3rem);
+
+    border-color: rgb(142 211 255 / 28%);
+
+    background-color: rgb(255 255 255 / 8%);
+  }
+
+  .brand-story-principle:hover::after {
+    opacity: 1;
+    transform: translateX(70%);
+  }
+
+  .brand-story-principle__icon {
+    transition: transform 220ms var(--ease-bounce-soft);
+  }
+
+  .brand-story-principle:hover .brand-story-principle__icon {
+    transform: rotate(4deg) scale(1.06);
+  }
+
+  .brand-story-cta {
+    position: relative;
+  }
+
+  .brand-story-cta::before {
+    position: absolute;
+    top: -7rem;
+    right: -5rem;
+
+    width: 17rem;
+    height: 17rem;
+
+    border-radius: 9999px;
+
+    background: rgb(0 138 255 / 18%);
+
+    content: '';
+    filter: blur(2.5rem);
+    pointer-events: none;
+  }
+
+  .brand-story-cta::after {
+    position: absolute;
+    bottom: -8rem;
+    left: 15%;
+
+    width: 16rem;
+    height: 16rem;
+
+    border-radius: 9999px;
+
+    background: rgb(255 102 0 / 16%);
+
+    content: '';
+    filter: blur(2.5rem);
+    pointer-events: none;
+  }
+
+  .brand-story-motion-ready [data-brand-story-reveal] {
+    opacity: 0;
+
+    transform: translate3d(0, 1.75rem, 0) scale(0.985);
+
+    transition:
+      opacity 680ms var(--ease-friendly) var(--brand-story-reveal-delay, 0ms),
+      transform 680ms var(--ease-friendly) var(--brand-story-reveal-delay, 0ms);
+
+    will-change: opacity, transform;
+  }
+
+  .brand-story-motion-ready [data-brand-story-reveal='left'] {
+    transform: translate3d(-2rem, 0, 0) scale(0.985);
+  }
+
+  .brand-story-motion-ready [data-brand-story-reveal='right'] {
+    transform: translate3d(2rem, 0, 0) scale(0.985);
+  }
+
+  .brand-story-motion-ready [data-brand-story-reveal].is-brand-story-visible {
+    opacity: 1;
+
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  @keyframes brand-story-glow-drift {
+    0%,
+    100% {
+      transform: translate3d(0, var(--brand-story-parallax-y), 0) scale(1);
+    }
+
+    50% {
+      transform: translate3d(1rem, calc(var(--brand-story-parallax-y) - 1rem), 0) scale(1.06);
+    }
+  }
+
+  @keyframes brand-story-paw-float {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) rotate(-4deg);
+    }
+
+    50% {
+      transform: translate3d(0.45rem, -0.8rem, 0) rotate(5deg);
+    }
+  }
+
+  @keyframes brand-story-card-float {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) rotate(-2deg);
+    }
+
+    50% {
+      transform: translate3d(0.25rem, -0.55rem, 0) rotate(2deg);
+    }
+  }
+
+  @media (max-width: 767px), (hover: none), (pointer: coarse) {
+    .brand-story-visual-shell {
+      perspective: none;
+    }
+
+    .brand-story-visual-surface {
+      transform: none !important;
+      will-change: auto;
+    }
+
+    .brand-story-spotlight {
+      display: none;
+    }
+
+    .brand-story-principle:hover {
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-brand-story-parallax],
+    .brand-story-editorial__glow,
+    .brand-story-editorial__paw,
+    .brand-story-floating-mark,
+    .brand-story-floating-note,
+    .brand-story-visual-surface,
+    .brand-story-visual-image,
+    .brand-story-principle,
+    .brand-story-principle::after,
+    .brand-story-principle__icon,
+    .brand-story-motion-ready [data-brand-story-reveal] {
+      animation: none !important;
+      transform: none !important;
+      transition: none !important;
+    }
+
+    .brand-story-motion-ready [data-brand-story-reveal] {
+      opacity: 1 !important;
+    }
+
+    .brand-story-spotlight {
+      display: none !important;
+    }
+  }
+</style>
+
+<script>
+  const initializeBrandStorySections = (): void => {
+    const sections = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-brand-story-section]'),
+    );
+
+    for (const section of sections) {
+      if (section.dataset.brandStoryInitialized === 'true') {
+        continue;
+      }
+
+      section.dataset.brandStoryInitialized = 'true';
+
+      const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+      const reducedMotion = reducedMotionQuery.matches;
+
+      const revealElements = Array.from(
+        section.querySelectorAll<HTMLElement>('[data-brand-story-reveal]'),
+      );
+
+      if (!reducedMotion && 'IntersectionObserver' in window) {
+        section.classList.add('brand-story-motion-ready');
+
+        const revealObserver = new IntersectionObserver(
+          (entries, observer) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) {
+                continue;
+              }
+
+              entry.target.classList.add('is-brand-story-visible');
+
+              observer.unobserve(entry.target);
+            }
+          },
+          {
+            rootMargin: '0px 0px -8% 0px',
+
+            threshold: 0.1,
+          },
+        );
+
+        window.requestAnimationFrame(() => {
+          for (const element of revealElements) {
+            revealObserver.observe(element);
+          }
+        });
+      } else {
+        for (const element of revealElements) {
+          element.classList.add('is-brand-story-visible');
+        }
+      }
+
+      const parallaxElements = Array.from(
+        section.querySelectorAll<HTMLElement>('[data-brand-story-parallax]'),
+      );
+
+      let parallaxFrame = 0;
+
+      const updateParallax = (): void => {
+        parallaxFrame = 0;
+
+        const sectionRect = section.getBoundingClientRect();
+
+        const viewportCenter = window.innerHeight / 2;
+
+        const sectionCenter = sectionRect.top + sectionRect.height / 2;
+
+        const distanceFromCenter = sectionCenter - viewportCenter;
+
+        for (const element of parallaxElements) {
+          const speed = Number(element.dataset.brandStoryParallaxSpeed ?? '0.03');
+
+          const offset = Math.max(-48, Math.min(48, -distanceFromCenter * speed));
+
+          element.style.setProperty('--brand-story-parallax-y', `${offset.toFixed(2)}px`);
+        }
+      };
+
+      const requestParallaxUpdate = (): void => {
+        if (parallaxFrame !== 0) {
+          return;
+        }
+
+        parallaxFrame = window.requestAnimationFrame(updateParallax);
+      };
+
+      if (!reducedMotion && parallaxElements.length > 0) {
+        updateParallax();
+
+        window.addEventListener('scroll', requestParallaxUpdate, {
+          passive: true,
+        });
+
+        window.addEventListener('resize', requestParallaxUpdate, {
+          passive: true,
+        });
+      }
+
+      const supportsFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+      if (reducedMotion || !supportsFinePointer) {
+        continue;
+      }
+
+      const tiltRoot = section.querySelector<HTMLElement>('[data-brand-story-tilt-root]');
+
+      const tiltSurface = section.querySelector<HTMLElement>('[data-brand-story-tilt-surface]');
+
+      if (!tiltRoot || !tiltSurface) {
+        continue;
+      }
+
+      let tiltFrame = 0;
+      let pointerX = 0;
+      let pointerY = 0;
+
+      const renderTilt = (): void => {
+        tiltFrame = 0;
+
+        const rect = tiltRoot.getBoundingClientRect();
+
+        if (rect.width === 0 || rect.height === 0) {
+          return;
+        }
+
+        const normalizedX = (pointerX - rect.left) / rect.width - 0.5;
+
+        const normalizedY = (pointerY - rect.top) / rect.height - 0.5;
+
+        const rotateY = normalizedX * 5;
+        const rotateX = normalizedY * -4.5;
+
+        tiltSurface.style.setProperty('--brand-story-tilt-x', `${rotateX.toFixed(2)}deg`);
+
+        tiltSurface.style.setProperty('--brand-story-tilt-y', `${rotateY.toFixed(2)}deg`);
+
+        tiltSurface.style.setProperty('--brand-story-tilt-scale', '1.008');
+
+        tiltSurface.style.setProperty('--brand-story-spotlight-x', `${(normalizedX + 0.5) * 100}%`);
+
+        tiltSurface.style.setProperty('--brand-story-spotlight-y', `${(normalizedY + 0.5) * 100}%`);
+      };
+
+      const handlePointerMove = (event: PointerEvent): void => {
+        pointerX = event.clientX;
+        pointerY = event.clientY;
+
+        if (tiltFrame === 0) {
+          tiltFrame = window.requestAnimationFrame(renderTilt);
+        }
+      };
+
+      const resetTilt = (): void => {
+        if (tiltFrame !== 0) {
+          window.cancelAnimationFrame(tiltFrame);
+
+          tiltFrame = 0;
+        }
+
+        tiltSurface.style.setProperty('--brand-story-tilt-x', '0deg');
+
+        tiltSurface.style.setProperty('--brand-story-tilt-y', '0deg');
+
+        tiltSurface.style.setProperty('--brand-story-tilt-scale', '1');
+
+        tiltSurface.style.setProperty('--brand-story-spotlight-x', '50%');
+
+        tiltSurface.style.setProperty('--brand-story-spotlight-y', '50%');
+      };
+
+      tiltRoot.addEventListener('pointermove', handlePointerMove, {
+        passive: true,
+      });
+
+      tiltRoot.addEventListener('pointerleave', resetTilt);
+
+      tiltRoot.addEventListener('blur', resetTilt, true);
+    }
+  };
+
+  initializeBrandStorySections();
+
+  document.addEventListener('astro:page-load', initializeBrandStorySections);
+</script>
