@@ -1,0 +1,369 @@
+<style is:global>
+    .home-motion-scope {
+        --motion-parallax-y: 0px;
+        --motion-rotate-x: 0deg;
+        --motion-rotate-y: 0deg;
+        --motion-scale: 1;
+        --spotlight-x: 50%;
+        --spotlight-y: 50%;
+    }
+
+    .home-motion-scope .motion-parallax {
+        transform: translate3d(0, var(--motion-parallax-y), 0);
+        will-change: transform;
+    }
+
+    .home-motion-scope .motion-gradient-text {
+        background-size: 220% 220%;
+        animation: home-gradient-drift 8s ease-in-out infinite;
+    }
+
+    .home-motion-scope .motion-float {
+        animation: home-float 7s ease-in-out infinite;
+        will-change: transform;
+    }
+
+    .home-motion-scope .motion-float-slow {
+        animation-duration: 9s;
+    }
+
+    .home-motion-scope .motion-float-reverse {
+        animation-direction: reverse;
+    }
+
+    .home-motion-scope .motion-bob {
+        animation: home-bob 4.8s ease-in-out infinite;
+        will-change: transform;
+    }
+
+    .home-motion-scope .motion-tilt-shell {
+        perspective: 1200px;
+    }
+
+    .home-motion-scope .motion-tilt-surface {
+        position: relative;
+        transform: rotateX(var(--motion-rotate-x)) rotateY(var(--motion-rotate-y))
+        scale(var(--motion-scale));
+        transform-style: preserve-3d;
+        transition: transform 240ms var(--ease-friendly);
+        will-change: transform;
+    }
+
+    .home-motion-scope .motion-tilt-surface::after {
+        position: absolute;
+        z-index: 30;
+        inset: 0;
+        border-radius: inherit;
+        background: radial-gradient(
+        circle 18rem at var(--spotlight-x) var(--spotlight-y),
+        rgb(255 255 255 / 24%),
+        transparent 65%
+        );
+        content: '';
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 220ms ease;
+    }
+
+    .home-motion-scope [data-tilt-root]:hover .motion-tilt-surface::after {
+        opacity: 1;
+    }
+
+    .home-motion-scope .motion-image-lift {
+        transition:
+        transform 700ms var(--ease-friendly),
+        filter 700ms var(--ease-friendly);
+    }
+
+    .home-motion-scope .group:hover .motion-image-lift,
+    .home-motion-scope .group:focus-visible .motion-image-lift {
+        transform: scale(1.035);
+        filter: saturate(1.06) contrast(1.02);
+    }
+
+    .home-motion-scope .motion-pulse-ring {
+        position: relative;
+    }
+
+    .home-motion-scope .motion-pulse-ring::before {
+        position: absolute;
+        inset: -0.35rem;
+        border: 1px solid rgb(255 102 0 / 34%);
+        border-radius: inherit;
+        content: '';
+        opacity: 0;
+        animation: home-pulse-ring 3.6s ease-out infinite;
+        pointer-events: none;
+    }
+
+    html.has-home-motion .home-motion-scope [data-reveal] {
+        opacity: 0;
+        transform: translate3d(0, 1.6rem, 0) scale(0.985);
+        transition:
+        opacity 650ms var(--ease-friendly) var(--reveal-delay, 0ms),
+        transform 650ms var(--ease-friendly) var(--reveal-delay, 0ms);
+        will-change: opacity, transform;
+    }
+
+    html.has-home-motion .home-motion-scope [data-reveal='left'] {
+        transform: translate3d(-1.75rem, 0, 0) scale(0.985);
+    }
+
+    html.has-home-motion .home-motion-scope [data-reveal='right'] {
+        transform: translate3d(1.75rem, 0, 0) scale(0.985);
+    }
+
+    html.has-home-motion .home-motion-scope [data-reveal].is-visible {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    @keyframes home-gradient-drift {
+        0%,
+        100% {
+        background-position: 0% 50%;
+        }
+
+        50% {
+        background-position: 100% 50%;
+        }
+    }
+
+    @keyframes home-float {
+        0%,
+        100% {
+        transform: translate3d(0, 0, 0) rotate(-4deg);
+        }
+
+        50% {
+        transform: translate3d(0.4rem, -1rem, 0) rotate(5deg);
+        }
+    }
+
+    @keyframes home-bob {
+        0%,
+        100% {
+        transform: translate3d(0, 0, 0) rotate(-2deg);
+        }
+
+        50% {
+        transform: translate3d(0, -0.55rem, 0) rotate(2deg);
+        }
+    }
+
+    @keyframes home-pulse-ring {
+        0% {
+        opacity: 0;
+        transform: scale(0.92);
+        }
+
+        18% {
+        opacity: 0.55;
+        }
+
+        72%,
+        100% {
+        opacity: 0;
+        transform: scale(1.2);
+        }
+    }
+
+    @media (max-width: 767px), (hover: none), (pointer: coarse) {
+        .home-motion-scope .motion-tilt-shell {
+        perspective: none;
+        }
+
+        .home-motion-scope .motion-tilt-surface {
+        transform: none !important;
+        }
+
+        .home-motion-scope .motion-tilt-surface::after {
+        display: none;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .home-motion-scope .motion-gradient-text,
+        .home-motion-scope .motion-float,
+        .home-motion-scope .motion-bob,
+        .home-motion-scope .motion-pulse-ring::before {
+        animation: none !important;
+        }
+
+        .home-motion-scope .motion-parallax,
+        .home-motion-scope .motion-tilt-surface,
+        .home-motion-scope .motion-image-lift,
+        .home-motion-scope [data-reveal] {
+        transform: none !important;
+        transition: none !important;
+        }
+
+        .home-motion-scope [data-reveal] {
+        opacity: 1 !important;
+        }
+    }
+</style>
+
+<script>
+    const initializeHomeMotion = (): void => {
+        const root = document.querySelector<HTMLElement>('[data-home-motion]');
+
+        if (!root || root.dataset.motionInitialized === 'true') {
+        return;
+        }
+
+        root.dataset.motionInitialized = 'true';
+
+        const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+        if (reducedMotionQuery.matches) {
+        return;
+        }
+
+        document.documentElement.classList.add('has-home-motion');
+
+        const revealElements = Array.from(root.querySelectorAll<HTMLElement>('[data-reveal]'));
+
+        if ('IntersectionObserver' in window) {
+        const revealObserver = new IntersectionObserver(
+            (entries, observer) => {
+            for (const entry of entries) {
+                if (!entry.isIntersecting) {
+                continue;
+                }
+
+                entry.target.classList.add('is-visible');
+                observer.unobserve(entry.target);
+            }
+            },
+            {
+            rootMargin: '0px 0px -10% 0px',
+            threshold: 0.12,
+            },
+        );
+
+        for (const element of revealElements) {
+            revealObserver.observe(element);
+        }
+        } else {
+        for (const element of revealElements) {
+            element.classList.add('is-visible');
+        }
+        }
+
+        const parallaxElements = Array.from(root.querySelectorAll<HTMLElement>('[data-parallax]'));
+
+        let parallaxFrame = 0;
+
+        const updateParallax = (): void => {
+        parallaxFrame = 0;
+
+        const viewportCenter = window.innerHeight / 2;
+
+        for (const element of parallaxElements) {
+            const rect = element.getBoundingClientRect();
+            const elementCenter = rect.top + rect.height / 2;
+            const speed = Number(element.dataset.parallaxSpeed ?? '0.04');
+
+            const offset = Math.max(-72, Math.min(72, -(elementCenter - viewportCenter) * speed));
+
+            element.style.setProperty('--motion-parallax-y', `${offset.toFixed(2)}px`);
+        }
+        };
+
+        const requestParallaxUpdate = (): void => {
+        if (parallaxFrame !== 0) {
+            return;
+        }
+
+        parallaxFrame = window.requestAnimationFrame(updateParallax);
+        };
+
+        if (parallaxElements.length > 0) {
+        updateParallax();
+
+        window.addEventListener('scroll', requestParallaxUpdate, {
+            passive: true,
+        });
+
+        window.addEventListener('resize', requestParallaxUpdate, {
+            passive: true,
+        });
+        }
+
+        const supportsFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+        if (!supportsFinePointer) {
+        return;
+        }
+
+        const tiltRoots = Array.from(root.querySelectorAll<HTMLElement>('[data-tilt-root]'));
+
+        for (const tiltRoot of tiltRoots) {
+        const surface = tiltRoot.querySelector<HTMLElement>('[data-tilt-surface]');
+
+        if (!surface) {
+            continue;
+        }
+
+        const strength = Number(tiltRoot.dataset.tiltStrength ?? '3.5');
+
+        let tiltFrame = 0;
+        let pointerX = 0;
+        let pointerY = 0;
+
+        const renderTilt = (): void => {
+            tiltFrame = 0;
+
+            const rect = tiltRoot.getBoundingClientRect();
+
+            const normalizedX = (pointerX - rect.left) / rect.width - 0.5;
+            const normalizedY = (pointerY - rect.top) / rect.height - 0.5;
+
+            const rotateY = normalizedX * strength * 2;
+            const rotateX = normalizedY * strength * -2;
+
+            surface.style.setProperty('--motion-rotate-x', `${rotateX.toFixed(2)}deg`);
+            surface.style.setProperty('--motion-rotate-y', `${rotateY.toFixed(2)}deg`);
+            surface.style.setProperty('--motion-scale', '1.008');
+
+            surface.style.setProperty('--spotlight-x', `${((normalizedX + 0.5) * 100).toFixed(1)}%`);
+
+            surface.style.setProperty('--spotlight-y', `${((normalizedY + 0.5) * 100).toFixed(1)}%`);
+        };
+
+        const handlePointerMove = (event: PointerEvent): void => {
+            pointerX = event.clientX;
+            pointerY = event.clientY;
+
+            if (tiltFrame === 0) {
+            tiltFrame = window.requestAnimationFrame(renderTilt);
+            }
+        };
+
+        const resetTilt = (): void => {
+            if (tiltFrame !== 0) {
+            window.cancelAnimationFrame(tiltFrame);
+            tiltFrame = 0;
+            }
+
+            surface.style.setProperty('--motion-rotate-x', '0deg');
+            surface.style.setProperty('--motion-rotate-y', '0deg');
+            surface.style.setProperty('--motion-scale', '1');
+            surface.style.setProperty('--spotlight-x', '50%');
+            surface.style.setProperty('--spotlight-y', '50%');
+        };
+
+        tiltRoot.addEventListener('pointermove', handlePointerMove, {
+            passive: true,
+        });
+
+        tiltRoot.addEventListener('pointerleave', resetTilt);
+        tiltRoot.addEventListener('blur', resetTilt, true);
+        }
+    };
+
+    initializeHomeMotion();
+
+    document.addEventListener('astro:page-load', initializeHomeMotion);
+</script>
