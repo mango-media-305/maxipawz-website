@@ -214,18 +214,6 @@ const revealDelay = 220 + index * 85;
             >
             <slot name="icon" />
             </span>
-
-            <span
-            class:list={[
-                'rounded-full border px-3 py-1.5 text-xs font-black tracking-[0.12em]',
-                usesDarkOverlay
-                ? 'border-white/20 bg-white/10 text-white/85 backdrop-blur-sm'
-                : numberClasses[tone],
-            ]}
-            aria-hidden="true"
-            >
-            {cardNumber}
-            </span>
         </div>
 
         <div class="mt-auto pt-12">
