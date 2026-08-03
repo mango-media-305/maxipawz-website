@@ -19,6 +19,7 @@ interface Props {
     backgroundImage?: ImageMetadata;
     backgroundPosition?: CategoryBackgroundPosition;
     backgroundOverlay?: CategoryBackgroundOverlay;
+    index?: number;
     class?: string;
 }
 
@@ -31,52 +32,74 @@ const {
     backgroundImage,
     backgroundPosition = 'center',
     backgroundOverlay = 'light',
+    index = 0,
     class: className = '',
 } = Astro.props;
 
-const toneClasses: Record<
-    LifestyleCategoryTone,
-    string
-> = {
+const toneClasses: Record<LifestyleCategoryTone, string> = {
     brand: [
         'border-brand-200',
-        'bg-linear-to-br from-brand-50 via-white-warm to-brand-100/70',
+        'bg-linear-to-br from-brand-50 via-white-warm to-brand-100/75',
         'hover:border-brand-300',
         'focus-visible:border-brand-400',
     ].join(' '),
 
     accent: [
         'border-accent-200',
-        'bg-linear-to-br from-accent-50 via-white-warm to-accent-100/70',
+        'bg-linear-to-br from-accent-50 via-white-warm to-accent-100/75',
         'hover:border-accent-300',
         'focus-visible:border-accent-400',
     ].join(' '),
 
     sand: [
         'border-sand-dark/70',
-        'bg-linear-to-br from-cream-soft via-white-warm to-sand/65',
+        'bg-linear-to-br from-cream-soft via-white-warm to-sand/70',
         'hover:border-sand-dark',
         'focus-visible:border-sand-dark',
     ].join(' '),
 };
 
-const iconClasses: Record<
-    LifestyleCategoryTone,
-    string
-> = {
+const iconClasses: Record<LifestyleCategoryTone, string> = {
     brand: 'bg-brand-500 text-white shadow-blue',
 
-    accent:
-        'bg-accent-500 text-ink-950 shadow-orange',
+    accent: 'bg-accent-500 text-ink-950 shadow-orange',
 
-    sand:
-        'bg-ink-800 text-white shadow-soft',
+    sand: 'bg-ink-800 text-white shadow-soft',
 };
 
-const positionClasses: Record<
-    CategoryBackgroundPosition,
-    string
-> = {
+const accentBarClasses: Record<LifestyleCategoryTone, string> = {
+    brand: 'from-brand-300 via-brand-500 to-accent-400',
+
+    accent: 'from-accent-300 via-accent-500 to-brand-400',
+
+    sand: 'from-sand-dark via-ink-500 to-brand-400',
+};
+
+const numberClasses: Record<LifestyleCategoryTone, string> = {
+    brand: 'border-brand-200 bg-brand-50/90 text-brand-800',
+
+    accent: 'border-accent-200 bg-accent-50/90 text-accent-800',
+
+    sand: 'border-sand-dark/55 bg-cream/90 text-ink-700',
+};
+
+const eyebrowClasses: Record<LifestyleCategoryTone, string> = {
+    brand: 'text-brand-700',
+    accent: 'text-accent-700',
+    sand: 'text-ink-600',
+};
+
+const linkClasses: Record<LifestyleCategoryTone, string> = {
+    brand:
+        'text-brand-700 hover:bg-brand-100/80 hover:text-brand-800 group-focus-visible:bg-brand-100/80 group-focus-visible:text-brand-800',
+
+    accent:
+        'text-accent-800 hover:bg-accent-100/80 hover:text-accent-900 group-focus-visible:bg-accent-100/80 group-focus-visible:text-accent-900',
+
+    sand: 'text-ink-700 hover:bg-sand/60 hover:text-ink-900 group-focus-visible:bg-sand/60 group-focus-visible:text-ink-900',
+};
+
+const positionClasses: Record<CategoryBackgroundPosition, string> = {
     center: 'object-center',
     top: 'object-top',
     bottom: 'object-bottom',
@@ -84,65 +107,62 @@ const positionClasses: Record<
     right: 'object-right',
 };
 
-const overlayClasses: Record<
-    CategoryBackgroundOverlay,
-    string
-> = {
-    light:
-        'bg-linear-to-b from-white-warm/55 via-white-warm/78 to-white-warm/96',
+const overlayClasses: Record<CategoryBackgroundOverlay, string> = {
+    light: 'bg-linear-to-b from-white-warm/35 via-white-warm/72 to-white-warm/98',
 
-    medium:
-        'bg-linear-to-b from-cream-soft/62 via-cream-soft/82 to-cream-soft/97',
+    medium: 'bg-linear-to-b from-cream-soft/45 via-cream-soft/76 to-cream-soft/98',
 
-    dark:
-        'bg-linear-to-b from-ink-950/35 via-ink-950/72 to-ink-950/96',
+    dark: 'bg-linear-to-b from-ink-950/20 via-ink-950/68 to-ink-950/97',
 };
 
-const overlayInteractionClasses: Record<
-    CategoryBackgroundOverlay,
-    string
-> = {
-    light:
-        'group-hover:opacity-65 group-focus-visible:opacity-65',
+const overlayInteractionClasses: Record<CategoryBackgroundOverlay, string> = {
+    light: 'group-hover:opacity-70 group-focus-visible:opacity-70',
 
-    medium:
-        'group-hover:opacity-58 group-focus-visible:opacity-58',
+    medium: 'group-hover:opacity-72 group-focus-visible:opacity-72',
 
-    dark:
-        'group-hover:opacity-75 group-focus-visible:opacity-75',
+    dark: 'group-hover:opacity-82 group-focus-visible:opacity-82',
 };
 
-const usesDarkOverlay =
-    Boolean(backgroundImage) &&
-    backgroundOverlay === 'dark';
+const usesDarkOverlay = Boolean(backgroundImage) && backgroundOverlay === 'dark';
+
+const cardNumber = String(index + 1).padStart(2, '0');
+
+const revealDelay = 220 + index * 85;
 ---
 
-<article class="h-full">
+<article
+    class="category-card h-full"
+    data-category-reveal
+    style={`--category-reveal-delay: ${revealDelay}ms;`}
+>
     <a
         href={href}
         class:list={[
-        'group relative isolate flex h-full cursor-pointer flex-col overflow-hidden rounded-card border p-5 shadow-sm',
-        'transition duration-300 hover:-translate-y-1 hover:shadow-card',
-        'focus-visible:-translate-y-1 focus-visible:outline-none focus-visible:ring-4',
-        'focus-visible:ring-brand-300 focus-visible:ring-offset-2',
-        'focus-visible:ring-offset-cream-soft focus-visible:shadow-card',
+        'category-card__surface group relative isolate flex h-full min-h-88 cursor-pointer flex-col overflow-hidden rounded-card border p-5 shadow-sm sm:p-6',
+        'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-300',
+        'focus-visible:ring-offset-2 focus-visible:ring-offset-cream-soft',
         toneClasses[tone],
         className,
         ]}
+        data-category-interactive
     >
+        <span
+        class:list={[
+            'category-card__accent absolute inset-x-0 top-0 z-20 h-1 bg-linear-to-r',
+            accentBarClasses[tone],
+        ]}
+        aria-hidden="true"
+        >
+        </span>
+
         {
-        backgroundImage && (
+        backgroundImage ? (
             <>
             <Image
                 src={backgroundImage}
                 alt=""
                 class:list={[
-                'absolute inset-0 size-full object-cover',
-                'opacity-85 saturate-90',
-                'transition-[transform,opacity,filter] duration-500 ease-out',
-                'group-hover:scale-110 group-hover:opacity-100 group-hover:saturate-110',
-                'group-focus-visible:scale-110 group-focus-visible:opacity-100',
-                'group-focus-visible:saturate-110',
+                'category-card__image absolute inset-0 size-full object-cover opacity-90 saturate-90',
                 positionClasses[backgroundPosition],
                 ]}
                 widths={[320, 480, 640, 800]}
@@ -154,82 +174,280 @@ const usesDarkOverlay =
 
             <div
                 class:list={[
-                'pointer-events-none absolute inset-0',
-                'transition-opacity duration-500 ease-out',
+                'category-card__overlay pointer-events-none absolute inset-0 z-1 transition-opacity duration-500 ease-out',
                 overlayClasses[backgroundOverlay],
                 overlayInteractionClasses[backgroundOverlay],
                 ]}
                 aria-hidden="true"
-            >
-            </div>
+            ></div>
+            </>
+        ) : (
+            <>
+            <div
+                class="category-card__orb category-card__orb--one pointer-events-none absolute -top-16 -right-12 size-44 rounded-full bg-white/75 blur-2xl"
+                aria-hidden="true"
+            ></div>
+
+            <div
+                class="category-card__orb category-card__orb--two pointer-events-none absolute -bottom-20 -left-14 size-48 rounded-full bg-brand-200/25 blur-3xl"
+                aria-hidden="true"
+            ></div>
             </>
         )
         }
 
-        {
-        !backgroundImage && (
-            <div
-            class="pointer-events-none absolute -top-14 -right-14 size-36 rounded-full bg-white/65 blur-2xl transition duration-300 group-hover:scale-125 group-focus-visible:scale-125"
-            aria-hidden="true"
-            >
-            </div>
-        )
-        }
+        <div
+        class="category-card__spotlight pointer-events-none absolute inset-0 z-2"
+        aria-hidden="true"
+        >
+        </div>
 
         <div class="relative z-10 flex h-full flex-col">
-        <span
+        <div class="flex items-start justify-between gap-4">
+            <span
             class:list={[
-            'grid size-12 shrink-0 place-items-center rounded-2xl transition duration-300',
-            'group-hover:rotate-3 group-hover:scale-105',
-            'group-focus-visible:rotate-3 group-focus-visible:scale-105',
-            'sm:size-14',
-            '[&>svg]:size-6 sm:[&>svg]:size-7',
-            iconClasses[tone],
+                'category-card__icon grid size-12 shrink-0 place-items-center rounded-2xl sm:size-14',
+                '[&>svg]:size-6 sm:[&>svg]:size-7',
+                iconClasses[tone],
             ]}
             aria-hidden="true"
-        >
+            >
             <slot name="icon" />
-        </span>
+            </span>
 
-        <h3
+            <span
             class:list={[
-            'mt-5 text-xl sm:text-2xl',
-            usesDarkOverlay
-                ? 'text-white'
-                : 'text-ink-900',
+                'rounded-full border px-3 py-1.5 text-xs font-black tracking-[0.12em]',
+                usesDarkOverlay
+                ? 'border-white/20 bg-white/10 text-white/85 backdrop-blur-sm'
+                : numberClasses[tone],
             ]}
-        >
+            aria-hidden="true"
+            >
+            {cardNumber}
+            </span>
+        </div>
+
+        <div class="mt-auto pt-12">
+            <span
+            class:list={[
+                'text-xs font-black uppercase tracking-[0.16em]',
+                usesDarkOverlay ? 'text-white/70' : eyebrowClasses[tone],
+            ]}
+            >
+            Pet lifestyle
+            </span>
+
+            <h3
+            class:list={[
+                'mt-2 text-2xl sm:text-3xl',
+                usesDarkOverlay ? 'text-white' : 'text-ink-900',
+            ]}
+            >
             {title}
-        </h3>
+            </h3>
 
-        <p
+            <p
             class:list={[
-            'mt-3 flex-1 text-sm leading-6',
-            usesDarkOverlay
-                ? 'text-white/80'
-                : 'text-ink-600',
+                'mt-3 flex-1 text-sm leading-6 sm:text-base sm:leading-7',
+                usesDarkOverlay ? 'text-white/82' : 'text-ink-600',
             ]}
-        >
+            >
             {description}
-        </p>
+            </p>
 
-        <span
+            <span
             class:list={[
-            'mt-5 inline-flex w-fit items-center gap-2 rounded-full font-extrabold',
-            'transition duration-200',
-            'group-hover:gap-3 group-focus-visible:gap-3',
-            usesDarkOverlay
-                ? 'text-white group-hover:text-accent-200 group-focus-visible:text-accent-200'
-                : 'text-brand-700 group-hover:text-brand-800 group-focus-visible:text-brand-800',
+                'category-card__link -ml-3 mt-5 inline-flex w-fit items-center gap-2 rounded-full px-3 py-2 font-extrabold',
+                usesDarkOverlay
+                ? 'text-white hover:bg-white/12 hover:text-accent-200 group-focus-visible:bg-white/12 group-focus-visible:text-accent-200'
+                : linkClasses[tone],
             ]}
-        >
+            >
             <span>{linkLabel}</span>
 
-            <ArrowRightBold
-            class="size-4"
-            aria-hidden="true"
-            />
-        </span>
+            <ArrowRightBold class="category-card__arrow size-4" aria-hidden="true" />
+            </span>
+        </div>
         </div>
     </a>
 </article>
+
+<style>
+    .category-card__surface {
+        --card-lift: 0px;
+        --card-rotate-x: 0deg;
+        --card-rotate-y: 0deg;
+        --card-image-x: 0px;
+        --card-image-y: 0px;
+        --card-image-scale: 1.08;
+        --card-spotlight-x: 50%;
+        --card-spotlight-y: 50%;
+
+        transform: perspective(1100px) translate3d(0, var(--card-lift), 0) rotateX(var(--card-rotate-x))
+        rotateY(var(--card-rotate-y));
+
+        transform-style: preserve-3d;
+
+        transition:
+        transform 280ms var(--ease-friendly),
+        border-color 240ms var(--ease-friendly),
+        box-shadow 280ms var(--ease-friendly);
+
+        will-change: transform;
+    }
+
+    .category-card__surface::before {
+        position: absolute;
+        z-index: 3;
+        inset: -25% auto -25% -55%;
+        width: 42%;
+
+        background: linear-gradient(
+        105deg,
+        transparent 0%,
+        rgb(255 255 255 / 8%) 30%,
+        rgb(255 255 255 / 38%) 50%,
+        rgb(255 255 255 / 8%) 70%,
+        transparent 100%
+        );
+
+        content: '';
+        pointer-events: none;
+
+        transform: translate3d(-160%, 0, 0) skewX(-12deg);
+
+        transition: transform 850ms var(--ease-friendly);
+    }
+
+    .category-card__surface:hover,
+    .category-card__surface:focus-visible {
+        --card-lift: -6px;
+        --card-image-scale: 1.14;
+
+        box-shadow: var(--shadow-card-hover);
+    }
+
+    .category-card__surface:hover::before,
+    .category-card__surface:focus-visible::before {
+        transform: translate3d(500%, 0, 0) skewX(-12deg);
+    }
+
+    .category-card__image {
+        transform: translate3d(var(--card-image-x), var(--card-image-y), 0)
+        scale(var(--card-image-scale));
+
+        transition:
+        transform 650ms var(--ease-friendly),
+        filter 650ms var(--ease-friendly),
+        opacity 650ms var(--ease-friendly);
+
+        will-change: transform;
+    }
+
+    .category-card__surface:hover .category-card__image,
+    .category-card__surface:focus-visible .category-card__image {
+        filter: saturate(1.08) contrast(1.03);
+        opacity: 1;
+    }
+
+    .category-card__spotlight {
+        background: radial-gradient(
+        circle 14rem at var(--card-spotlight-x) var(--card-spotlight-y),
+        rgb(255 255 255 / 24%),
+        transparent 68%
+        );
+
+        opacity: 0;
+
+        transition: opacity 220ms ease;
+    }
+
+    .category-card__surface:hover .category-card__spotlight,
+    .category-card__surface:focus-visible .category-card__spotlight {
+        opacity: 1;
+    }
+
+    .category-card__icon {
+        transform: translateZ(2rem);
+
+        transition:
+        transform 260ms var(--ease-bounce-soft),
+        box-shadow 260ms var(--ease-friendly);
+    }
+
+    .category-card__surface:hover .category-card__icon,
+    .category-card__surface:focus-visible .category-card__icon {
+        transform: translateZ(2.4rem) rotate(4deg) scale(1.06);
+    }
+
+    .category-card__link {
+        transition:
+        gap 200ms var(--ease-friendly),
+        color 200ms var(--ease-friendly),
+        background-color 200ms var(--ease-friendly);
+    }
+
+    .category-card__surface:hover .category-card__link,
+    .category-card__surface:focus-visible .category-card__link {
+        gap: 0.75rem;
+    }
+
+    .category-card__arrow {
+        transition: transform 200ms var(--ease-friendly);
+    }
+
+    .category-card__surface:hover .category-card__arrow,
+    .category-card__surface:focus-visible .category-card__arrow {
+        transform: translateX(0.2rem);
+    }
+
+    .category-card__orb {
+        transition: transform 650ms var(--ease-friendly);
+    }
+
+    .category-card__surface:hover .category-card__orb--one,
+    .category-card__surface:focus-visible .category-card__orb--one {
+        transform: translate3d(-0.6rem, 0.6rem, 0) scale(1.12);
+    }
+
+    .category-card__surface:hover .category-card__orb--two,
+    .category-card__surface:focus-visible .category-card__orb--two {
+        transform: translate3d(0.6rem, -0.6rem, 0) scale(1.1);
+    }
+
+    @media (hover: none), (pointer: coarse) {
+        .category-card__surface {
+        transform: none;
+        will-change: auto;
+        }
+
+        .category-card__surface:hover {
+        --card-lift: 0px;
+        --card-image-scale: 1.08;
+        }
+
+        .category-card__spotlight,
+        .category-card__surface::before {
+        display: none;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .category-card__surface,
+        .category-card__surface::before,
+        .category-card__image,
+        .category-card__icon,
+        .category-card__link,
+        .category-card__arrow,
+        .category-card__orb {
+        transform: none !important;
+        transition: none !important;
+        }
+
+        .category-card__spotlight,
+        .category-card__surface::before {
+        display: none !important;
+        }
+    }
+</style>
