@@ -17,17 +17,27 @@ interface StorefrontState {
     mobileNote: string;
 }
 
-const configuredMode = import.meta.env.PUBLIC_STOREFRONT_MODE;
+const configuredMode =
+    import.meta.env.PUBLIC_STOREFRONT_MODE;
 
 export const storefrontMode: StorefrontMode =
-    configuredMode === 'live' ? 'live' : 'prelaunch';
+    configuredMode === 'live'
+        ? 'live'
+        : 'prelaunch';
 
-const storefrontStates: Record<StorefrontMode, StorefrontState> = {
+const storefrontStates: Record<
+    StorefrontMode,
+    StorefrontState
+> = {
     prelaunch: {
         announcement: {
-            message: 'Join the MaxiPawz pack—new pet favorites are coming.',
+            message:
+                'Explore practical pet guides and get first access to the MaxiPawz collection.',
+
             href: '/#join-the-pack',
-            ariaLabel: 'Join the MaxiPawz launch list',
+
+            ariaLabel:
+                'Join the MaxiPawz launch list for first access',
         },
 
         headerAction: {
@@ -36,15 +46,18 @@ const storefrontStates: Record<StorefrontMode, StorefrontState> = {
         },
 
         mobileNote:
-            'Be first to hear about our launch, new products, useful pet tips, and special offers.',
+            'Explore helpful pet guidance and join the pack for launch updates, new products, and occasional offers.',
     },
 
     live: {
         announcement: {
             message:
                 'Toys, accessories, and everyday essentials for happier pet moments.',
+
             href: '/shop',
-            ariaLabel: 'Shop MaxiPawz pet products',
+
+            ariaLabel:
+                'Shop MaxiPawz pet products',
         },
 
         headerAction: null,
@@ -54,7 +67,11 @@ const storefrontStates: Record<StorefrontMode, StorefrontState> = {
     },
 };
 
-export const storefrontState = storefrontStates[storefrontMode];
+export const storefrontState =
+    storefrontStates[storefrontMode];
 
-export const isStoreLive = storefrontMode === 'live';
-export const isStorePrelaunch = storefrontMode === 'prelaunch';
+export const isStoreLive =
+    storefrontMode === 'live';
+
+export const isStorePrelaunch =
+    storefrontMode === 'prelaunch';

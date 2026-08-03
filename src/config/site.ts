@@ -1,9 +1,15 @@
+const configuredSiteUrl =
+  import.meta.env.PUBLIC_SITE_URL ?? 'https://maxi-pawz.netlify.app';
+
 export const siteConfig = {
   name: 'MaxiPawz Store',
   shortName: 'MaxiPawz',
+  url: configuredSiteUrl,
 
   description:
-    'A joyful pet store for toys, accessories, travel gear, hydration essentials, and everyday supplies.',
+    'A joyful online pet store for thoughtfully selected toys, accessories, travel gear, hydration essentials, and everyday supplies.',
+
+  slogan: 'Happy Pets • Happy Life',
 
   language: 'en',
   locale: 'en_US',
@@ -11,9 +17,9 @@ export const siteConfig = {
   country: 'US',
 
   social: {
-    instagram: '',
-    facebook: '',
-    tiktok: '',
+    instagram: 'https://www.instagram.com/maxipawzstore/',
+    facebook: 'https://www.facebook.com/maxipawzstore/',
+    tiktok: 'https://www.tiktok.com/@maxipawzstore',
   },
 } as const;
 

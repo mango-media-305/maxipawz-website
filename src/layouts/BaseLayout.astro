@@ -10,21 +10,43 @@ import SiteHeader from '@components/layout/SiteHeader.astro';
 
 import { siteConfig } from '../config/site';
 
+type StructuredData = Record<string, unknown> | Array<Record<string, unknown>>;
+
 interface Props {
   title: string;
   description: string;
   image?: string;
+  imageAlt?: string;
   noIndex?: boolean;
   hideSiteChrome?: boolean;
+  structuredData?: StructuredData;
 }
 
-const { title, description, image, noIndex = false, hideSiteChrome = false } = Astro.props;
+const {
+  title,
+  description,
+  image,
+  imageAlt = 'MaxiPawz Store',
+  noIndex = false,
+  hideSiteChrome = false,
+  structuredData,
+} = Astro.props;
+
+const environmentNoIndex = import.meta.env.PUBLIC_ROBOTS_NOINDEX === 'true';
+
+const shouldNoIndex = noIndex || environmentNoIndex;
 
 const fullTitle = title === siteConfig.name ? title : `${title} | ${siteConfig.name}`;
 
 const canonicalURL = Astro.site
   ? new URL(Astro.url.pathname, Astro.site)
   : new URL(Astro.url.pathname, Astro.url);
+
+const socialImageURL = image ? new URL(image, canonicalURL).toString() : undefined;
+
+const robotsContent = shouldNoIndex
+  ? 'noindex, nofollow'
+  : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
 ---
 
 <!doctype html>
@@ -40,9 +62,13 @@ const canonicalURL = Astro.site
 
     <meta name="description" content={description} />
 
+    <meta name="robots" content={robotsContent} />
+
     <meta name="theme-color" content="#008aff" />
 
     <link rel="canonical" href={canonicalURL} />
+
+    <link rel="sitemap" href="/sitemap-index.xml" />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
@@ -53,8 +79,6 @@ const canonicalURL = Astro.site
       type="font/woff2"
       crossorigin="anonymous"
     />
-
-    {noIndex && <meta name="robots" content="noindex, nofollow" />}
 
     <meta property="og:type" content="website" />
 
@@ -68,21 +92,31 @@ const canonicalURL = Astro.site
 
     <meta property="og:url" content={canonicalURL} />
 
-    {image && <meta property="og:image" content={image} />}
+    {socialImageURL && <meta property="og:image" content={socialImageURL} />}
 
-    <meta name="twitter:card" content="summary_large_image" />
+    {socialImageURL && <meta property="og:image:alt" content={imageAlt} />}
+
+    <meta name="twitter:card" content={socialImageURL ? 'summary_large_image' : 'summary'} />
 
     <meta name="twitter:title" content={fullTitle} />
 
     <meta name="twitter:description" content={description} />
 
-    {image && <meta name="twitter:image" content={image} />}
+    {socialImageURL && <meta name="twitter:image" content={socialImageURL} />}
+
+    {socialImageURL && <meta name="twitter:image:alt" content={imageAlt} />}
+
+    {
+      structuredData && (
+        <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+      )
+    }
   </head>
 
   <body>
     <a
       href="#main-content"
-      class="fixed top-3 left-3 z-[100] -translate-y-24 rounded-full bg-brand-700 px-5 py-3 font-bold text-white shadow-blue transition focus:translate-y-0"
+      class="fixed top-3 left-3 z-100 -translate-y-24 rounded-full bg-brand-700 px-5 py-3 font-bold text-white shadow-blue transition focus:translate-y-0"
     >
       Skip to main content
     </a>
