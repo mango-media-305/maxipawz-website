@@ -25,10 +25,18 @@ type StructuredData =
 interface Props {
     title: string;
     description: string;
+
+    seoTitle?: string;
+    seoDescription?: string;
+
     eyebrow?: string;
     readingTime?: string;
+
     updatedAt?: string;
+    updatedAtISO?: string;
+
     sections: GuideSectionLink[];
+
     noIndex?: boolean;
     structuredData?: StructuredData;
 }
@@ -36,237 +44,357 @@ interface Props {
 const {
     title,
     description,
+
+    seoTitle,
+    seoDescription,
+
     eyebrow = 'MaxiPawz Pet Guide',
     readingTime = '6 min read',
+
     updatedAt,
+    updatedAtISO,
+
     sections,
+
     noIndex = false,
     structuredData,
 } = Astro.props;
+
+const pageTitle = seoTitle ?? title;
+
+const pageDescription =
+    seoDescription ?? description;
 ---
 
 <BaseLayout
-    title={title}
-    description={description}
+    title={pageTitle}
+    description={pageDescription}
     noIndex={noIndex}
     structuredData={structuredData}
 >
     <!-- Article hero -->
     <section class="relative overflow-hidden">
         <div
-        class="pointer-events-none absolute -top-40 -left-40 size-128 rounded-full bg-brand-300/25 blur-3xl"
-        aria-hidden="true"
+            class="pointer-events-none absolute -top-40 -left-40 size-128 rounded-full bg-brand-300/25 blur-3xl"
+            aria-hidden="true"
         >
         </div>
 
         <div
-        class="pointer-events-none absolute top-6 -right-48 size-136 rounded-full bg-accent-300/25 blur-3xl"
-        aria-hidden="true"
+            class="pointer-events-none absolute top-6 -right-48 size-136 rounded-full bg-accent-300/25 blur-3xl"
+            aria-hidden="true"
         >
         </div>
 
-        <div class="site-container relative py-10 sm:py-12 lg:py-16">
-        <a
-            href="/pet-guides"
-            class="inline-flex items-center gap-2 rounded-full text-sm font-extrabold text-brand-700 transition hover:gap-3 hover:text-brand-800"
+        <div
+            class="site-container relative py-10 sm:py-12 lg:py-16"
         >
-            <ArrowRightBold class="size-4 rotate-180" aria-hidden="true" />
+            <a
+                href="/pet-guides"
+                class="inline-flex items-center gap-2 rounded-full text-sm font-extrabold text-brand-700 transition hover:gap-3 hover:text-brand-800"
+            >
+                <ArrowRightBold
+                    class="size-4 rotate-180"
+                    aria-hidden="true"
+                />
 
-            Back to Pet Guides
-        </a>
+                Back to Pet Guides
+            </a>
 
-        <div class="mt-8 max-w-4xl">
-            <Badge variant="accent" size="md">
-            <PawPrintBold slot="icon" aria-hidden="true" />
+            <div class="mt-8 max-w-4xl">
+                <Badge
+                    variant="accent"
+                    size="md"
+                >
+                    <PawPrintBold
+                        slot="icon"
+                        aria-hidden="true"
+                    />
 
-            {eyebrow}
-            </Badge>
+                    {eyebrow}
+                </Badge>
 
-            <h1 class="mt-6 max-w-4xl text-5xl text-ink-900 sm:text-6xl lg:text-7xl">
-            {title}
-            </h1>
+                <h1
+                    class="mt-6 max-w-4xl text-5xl text-ink-900 sm:text-6xl lg:text-7xl"
+                >
+                    {title}
+                </h1>
 
-            <p class="mt-6 max-w-3xl text-lg leading-8 text-ink-600 sm:text-xl">
-            {description}
-            </p>
+                <p
+                    class="mt-6 max-w-3xl text-lg leading-8 text-ink-600 sm:text-xl"
+                >
+                    {description}
+                </p>
 
-            <div class="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold text-ink-500">
-            <span class="inline-flex items-center gap-2">
-                <SparkleBold class="size-5 text-brand-500" aria-hidden="true" />
+                <div
+                    class="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold text-ink-500"
+                >
+                    <span
+                        class="inline-flex items-center gap-2"
+                    >
+                        <SparkleBold
+                            class="size-5 text-brand-500"
+                            aria-hidden="true"
+                        />
 
-                {readingTime}
-            </span>
+                        {readingTime}
+                    </span>
 
-            <span class="inline-flex items-center gap-2">
-            <HeartBold
-                class="size-5 text-brand-500"
-                aria-hidden="true"
-            />
+                    <span
+                        class="inline-flex items-center gap-2"
+                    >
+                        <HeartBold
+                            class="size-5 text-brand-500"
+                            aria-hidden="true"
+                        />
 
-            Published by MaxiPawz Store
-            </span>
+                        Published by MaxiPawz Store
+                    </span>
 
-            {
-                updatedAt && (
-                <span class="inline-flex items-center gap-2">
-                    <CheckCircleBold class="size-5 text-brand-500" aria-hidden="true" />
-                    Updated {updatedAt}
-                </span>
-                )
-            }
+                    {
+                        updatedAt && (
+                            <span class="inline-flex items-center gap-2">
+                                <CheckCircleBold
+                                    class="size-5 text-brand-500"
+                                    aria-hidden="true"
+                                />
 
-            <span class="inline-flex items-center gap-2">
-                <PawPrintBold class="size-5 text-brand-500" aria-hidden="true" />
+                                <time
+                                    datetime={
+                                        updatedAtISO
+                                    }
+                                >
+                                    Updated{' '}
+                                    {updatedAt}
+                                </time>
+                            </span>
+                        )
+                    }
 
-                Practical, general guidance
-            </span>
+                    <span
+                        class="inline-flex items-center gap-2"
+                    >
+                        <PawPrintBold
+                            class="size-5 text-brand-500"
+                            aria-hidden="true"
+                        />
+
+                        Practical, general guidance
+                    </span>
+                </div>
             </div>
-        </div>
         </div>
     </section>
 
     <!-- Article body -->
-    <section class="border-y border-sand bg-white-warm/70">
+    <section
+        class="border-y border-sand bg-white-warm/70"
+    >
         <div
-        class="site-container grid gap-8 py-10 sm:py-12 lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-14 lg:py-16"
+            class="site-container grid gap-8 py-10 sm:py-12 lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-14 lg:py-16"
         >
-        <!-- Table of contents -->
-        <aside class="lg:order-2">
-            <div
-            class="rounded-card border border-brand-200 bg-brand-50/80 p-5 shadow-sm lg:sticky lg:top-28"
-            >
-            <div class="flex items-center gap-3">
-                <span
-                class="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-500 text-white shadow-blue"
-                aria-hidden="true"
+            <!-- Table of contents -->
+            <aside class="lg:order-2">
+                <div
+                    class="rounded-card border border-brand-200 bg-brand-50/80 p-5 shadow-sm lg:sticky lg:top-28"
                 >
-                <PawPrintBold class="size-5" />
-                </span>
-
-                <h2 class="text-lg text-ink-900">In this guide</h2>
-            </div>
-
-            <nav class="mt-5" aria-label="Guide sections">
-                <ol class="grid gap-2">
-                {
-                    sections.map((section, index) => (
-                    <li>
-                        <a
-                        href={`#${section.id}`}
-                        class="group flex items-start gap-3 rounded-xl px-3 py-2.5 text-sm font-bold leading-5 text-ink-600 transition hover:bg-white-warm hover:text-brand-800"
-                        >
+                    <div
+                        class="flex items-center gap-3"
+                    >
                         <span
-                            class="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-brand-100 text-[0.65rem] text-brand-800"
+                            class="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-500 text-white shadow-blue"
                             aria-hidden="true"
                         >
-                            {index + 1}
+                            <PawPrintBold
+                                class="size-5"
+                            />
                         </span>
 
-                        <span>{section.label}</span>
-                        </a>
-                    </li>
-                    ))
-                }
-                </ol>
-            </nav>
+                        <h2
+                            class="text-lg text-ink-900"
+                        >
+                            In this guide
+                        </h2>
+                    </div>
 
-            <div class="mt-5 rounded-2xl border border-accent-200 bg-accent-50 p-4">
-                <CheckCircleBold class="size-6 text-accent-600" aria-hidden="true" />
+                    <nav
+                        class="mt-5"
+                        aria-label="Guide sections"
+                    >
+                        <ol class="grid gap-2">
+                            {
+                                sections.map(
+                                    (
+                                        section,
+                                        index,
+                                    ) => (
+                                        <li>
+                                            <a
+                                                href={`#${section.id}`}
+                                                class="group flex items-start gap-3 rounded-xl px-3 py-2.5 text-sm font-bold leading-5 text-ink-600 transition hover:bg-white-warm hover:text-brand-800"
+                                            >
+                                                <span
+                                                    class="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-brand-100 text-[0.65rem] text-brand-800"
+                                                    aria-hidden="true"
+                                                >
+                                                    {index +
+                                                        1}
+                                                </span>
 
-                <p class="mt-3 text-xs leading-5 text-ink-600">
-                These guides provide general educational information. Contact a qualified veterinarian
-                or another appropriate professional for medical, nutritional, behavioral, or safety
-                concerns specific to your dog.
-                </p>
-            </div>
-            </div>
-        </aside>
+                                                <span>
+                                                    {
+                                                        section.label
+                                                    }
+                                                </span>
+                                            </a>
+                                        </li>
+                                    ),
+                                )
+                            }
+                        </ol>
+                    </nav>
 
-        <!-- Article content -->
-        <article class="min-w-0 lg:order-1">
-            <slot />
-        </article>
+                    <div
+                        class="mt-5 rounded-2xl border border-accent-200 bg-accent-50 p-4"
+                    >
+                        <CheckCircleBold
+                            class="size-6 text-accent-600"
+                            aria-hidden="true"
+                        />
+
+                        <p
+                            class="mt-3 text-xs leading-5 text-ink-600"
+                        >
+                            These guides provide
+                            general educational
+                            information. Contact a
+                            qualified veterinarian
+                            or another appropriate
+                            professional for
+                            medical, nutritional,
+                            behavioral, or safety
+                            concerns specific to
+                            your dog.
+                        </p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Article content -->
+            <article
+                class="min-w-0 lg:order-1"
+            >
+                <slot />
+            </article>
         </div>
     </section>
 
     <!-- Article CTA -->
     <section class="section-spacing">
         <div class="site-container">
-        <div
-            class="relative overflow-hidden rounded-[2.25rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 text-center shadow-card sm:p-8 lg:p-10"
-        >
             <div
-            class="pointer-events-none absolute -top-24 -right-20 size-64 rounded-full bg-brand-300/25 blur-3xl"
-            aria-hidden="true"
+                class="relative overflow-hidden rounded-card-lg border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 text-center shadow-card sm:p-8 lg:p-10"
             >
-            </div>
-
-            <div
-            class="pointer-events-none absolute -bottom-24 -left-20 size-64 rounded-full bg-accent-300/25 blur-3xl"
-            aria-hidden="true"
-            >
-            </div>
-
-            <div class="relative mx-auto max-w-3xl">
-            <Badge variant="brand" size="md" class="mx-auto">
-                <HeartBold slot="icon" aria-hidden="true" />
-
-                Keep Exploring
-            </Badge>
-
-            <h2 class="section-title mx-auto mt-5 text-4xl sm:text-5xl">
-                Better choices begin with understanding your dog.
-            </h2>
-
-            <p class="section-description mx-auto mt-4">
-                {
-                isStoreLive
-                    ? 'Use our guides alongside the MaxiPawz collection to find products that suit your dog’s size, personality, habits, and everyday routines.'
-                    : 'Join the pack for new guides, launch updates, product news, and more lessons inspired by life with Maxi.'
-                }
-            </p>
-
-            <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-                <Button
-                href="/pet-guides"
-                variant="secondary"
-                size="lg"
-                iconPosition="left"
-                class="w-full sm:w-auto"
+                <div
+                    class="pointer-events-none absolute -top-24 -right-20 size-64 rounded-full bg-brand-300/25 blur-3xl"
+                    aria-hidden="true"
                 >
-                <ArrowRightBold slot="icon" class="rotate-180" aria-hidden="true" />
+                </div>
 
-                More Pet Guides
-                </Button>
+                <div
+                    class="pointer-events-none absolute -bottom-24 -left-20 size-64 rounded-full bg-accent-300/25 blur-3xl"
+                    aria-hidden="true"
+                >
+                </div>
 
-                {
-                isStoreLive ? (
-                    <Button
-                    href="/shop"
-                    variant="primary"
-                    size="lg"
-                    iconPosition="right"
-                    class="w-full sm:w-auto"
+                <div
+                    class="relative mx-auto max-w-3xl"
+                >
+                    <Badge
+                        variant="brand"
+                        size="md"
+                        class="mx-auto"
                     >
-                    <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
-                    Explore the Shop
-                    </Button>
-                ) : (
-                    <Button
-                    href="/#join-the-pack"
-                    variant="primary"
-                    size="lg"
-                    iconPosition="right"
-                    class="w-full sm:w-auto"
+                        <HeartBold
+                            slot="icon"
+                            aria-hidden="true"
+                        />
+
+                        Keep Exploring
+                    </Badge>
+
+                    <h2
+                        class="section-title mx-auto mt-5 text-4xl sm:text-5xl"
                     >
-                    <ArrowRightBold slot="icon" aria-hidden="true" />
-                    Join the Pack
-                    </Button>
-                )
-                }
+                        Better choices begin with
+                        understanding your dog.
+                    </h2>
+
+                    <p
+                        class="section-description mx-auto mt-4"
+                    >
+                        {
+                            isStoreLive
+                                ? 'Use our guides alongside the MaxiPawz collection to find products that suit your dog’s size, personality, habits, and everyday routines.'
+                                : 'Join the pack for new guides, launch updates, product news, and more lessons inspired by life with Maxi.'
+                        }
+                    </p>
+
+                    <div
+                        class="mt-8 flex flex-col justify-center gap-3 sm:flex-row"
+                    >
+                        <Button
+                            href="/pet-guides"
+                            variant="secondary"
+                            size="lg"
+                            iconPosition="left"
+                            class="w-full sm:w-auto"
+                        >
+                            <ArrowRightBold
+                                slot="icon"
+                                class="rotate-180"
+                                aria-hidden="true"
+                            />
+
+                            More Pet Guides
+                        </Button>
+
+                        {
+                            isStoreLive ? (
+                                <Button
+                                    href="/shop"
+                                    variant="primary"
+                                    size="lg"
+                                    iconPosition="right"
+                                    class="w-full sm:w-auto"
+                                >
+                                    <ShoppingBagOpenBold
+                                        slot="icon"
+                                        aria-hidden="true"
+                                    />
+
+                                    Explore the Shop
+                                </Button>
+                            ) : (
+                                <Button
+                                    href="/#join-the-pack"
+                                    variant="primary"
+                                    size="lg"
+                                    iconPosition="right"
+                                    class="w-full sm:w-auto"
+                                >
+                                    <ArrowRightBold
+                                        slot="icon"
+                                        aria-hidden="true"
+                                    />
+
+                                    Join the Pack
+                                </Button>
+                            )
+                        }
+                    </div>
+                </div>
             </div>
-            </div>
-        </div>
         </div>
     </section>
 </BaseLayout>
