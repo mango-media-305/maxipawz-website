@@ -15,19 +15,19 @@ import GuideArticleLayout from '@layouts/GuideArticleLayout.astro';
 import { petGuides, type PetGuide, type PetGuideIcon } from '../../data/pet-guides';
 
 interface Props {
-  guide: PetGuide;
+    guide: PetGuide;
 }
 
 export const getStaticPaths = (() => {
-  return petGuides.map((guide) => ({
-    params: {
-      slug: guide.slug,
-    },
+    return petGuides.map((guide) => ({
+        params: {
+        slug: guide.slug,
+        },
 
-    props: {
-      guide,
-    },
-  }));
+        props: {
+        guide,
+        },
+    }));
 }) satisfies GetStaticPaths;
 
 const { guide } = Astro.props as Props;
@@ -48,6 +48,94 @@ const tableOfContents = guide.sections.map((section) => ({
     id: section.id,
     label: section.title,
 }));
+
+const siteURL =
+    Astro.site ??
+    new URL('https://maxipawz.com');
+
+const guideURL = new URL(
+    guide.href,
+    siteURL,
+).toString();
+
+const articleStructuredData = {
+    '@type': 'Article',
+
+    '@id': `${guideURL}#article`,
+
+    headline: guide.title,
+
+    description: guide.description,
+
+    datePublished: guide.publishedAt,
+
+    dateModified: guide.updatedAt,
+
+    mainEntityOfPage: {
+        '@type': 'WebPage',
+        '@id': guideURL,
+    },
+
+    author: {
+        '@type': 'Organization',
+        name: 'MaxiPawz Store',
+        url: new URL('/', siteURL).toString(),
+    },
+
+    publisher: {
+        '@type': 'Organization',
+        name: 'MaxiPawz Store',
+        url: new URL('/', siteURL).toString(),
+    },
+};
+
+const breadcrumbStructuredData = {
+    '@type': 'BreadcrumbList',
+
+    itemListElement: [
+        {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: new URL('/', siteURL).toString(),
+        },
+
+        {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Pet Guides',
+        item: new URL(
+            '/pet-guides',
+            siteURL,
+        ).toString(),
+        },
+
+        {
+        '@type': 'ListItem',
+        position: 3,
+        name: guide.title,
+        item: guideURL,
+        },
+    ],
+};
+
+const structuredData = {
+    '@context': 'https://schema.org',
+
+    '@graph': [
+        articleStructuredData,
+        breadcrumbStructuredData,
+    ],
+};
+
+const formattedUpdatedAt =
+    new Intl.DateTimeFormat('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+    }).format(
+        new Date(`${guide.updatedAt}T12:00:00`),
+    );
 ---
 
 <GuideArticleLayout
@@ -55,9 +143,10 @@ const tableOfContents = guide.sections.map((section) => ({
     description={guide.description}
     eyebrow={guide.eyebrow}
     readingTime={guide.readingTime}
-    updatedAt={guide.updatedAt}
+    updatedAt={formattedUpdatedAt}
     sections={tableOfContents}
-    noIndex={true}
+    noIndex={!guide.indexable}
+    structuredData={structuredData}
 >
     <!-- Article introduction -->
     <div

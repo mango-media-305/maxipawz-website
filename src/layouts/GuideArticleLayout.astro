@@ -18,6 +18,10 @@ interface GuideSectionLink {
     label: string;
 }
 
+type StructuredData =
+    | Record<string, unknown>
+    | Array<Record<string, unknown>>;
+
 interface Props {
     title: string;
     description: string;
@@ -26,6 +30,7 @@ interface Props {
     updatedAt?: string;
     sections: GuideSectionLink[];
     noIndex?: boolean;
+    structuredData?: StructuredData;
 }
 
 const {
@@ -35,11 +40,17 @@ const {
     readingTime = '6 min read',
     updatedAt,
     sections,
-    noIndex = true,
+    noIndex = false,
+    structuredData,
 } = Astro.props;
 ---
 
-<BaseLayout title={title} description={description} noIndex={noIndex}>
+<BaseLayout
+    title={title}
+    description={description}
+    noIndex={noIndex}
+    structuredData={structuredData}
+>
     <!-- Article hero -->
     <section class="relative overflow-hidden">
         <div
@@ -84,6 +95,15 @@ const {
                 <SparkleBold class="size-5 text-brand-500" aria-hidden="true" />
 
                 {readingTime}
+            </span>
+
+            <span class="inline-flex items-center gap-2">
+            <HeartBold
+                class="size-5 text-brand-500"
+                aria-hidden="true"
+            />
+
+            Published by MaxiPawz Store
             </span>
 
             {
