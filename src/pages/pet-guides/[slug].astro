@@ -13,6 +13,7 @@ import SuitcaseRollingBold from 'phosphor-astro/SuitcaseRollingBold.astro';
 
 import maxipawzLogo from '../../assets/brand/maxipawz-horizontal-logo.webp';
 
+import GuideShareBar from '@components/guides/GuideShareBar.astro';
 import GuideArticleLayout from '@layouts/GuideArticleLayout.astro';
 
 import {
@@ -52,14 +53,14 @@ const iconByGuide: Record<
     accessories: ShoppingBagOpenBold,
 };
 
-const GuideIcon = iconByGuide[guide.icon];
+const GuideIcon =
+    iconByGuide[guide.icon];
 
-const tableOfContents = guide.sections.map(
-    (section) => ({
+const tableOfContents =
+    guide.sections.map((section) => ({
         id: section.id,
         label: section.title,
-    }),
-);
+    }));
 
 const siteURL =
     Astro.site ??
@@ -94,17 +95,21 @@ const guideText = [
     guide.introduction,
     ...guide.learningPoints,
 
-    ...guide.sections.flatMap((section) => [
-        section.title,
-        ...section.paragraphs,
-        ...(section.points ?? []),
-        ...(section.tip
-            ? [
-                  section.tip.title,
-                  section.tip.description,
-              ]
-            : []),
-    ]),
+    ...guide.sections.flatMap(
+        (section) => [
+            section.title,
+            ...section.paragraphs,
+            ...(section.points ?? []),
+
+            ...(section.tip
+                ? [
+                      section.tip.title,
+                      section.tip
+                          .description,
+                  ]
+                : []),
+        ],
+    ),
 
     guide.closingTitle,
     guide.closingDescription,
@@ -139,17 +144,21 @@ const articleStructuredData = {
 
     headline: guide.title,
 
-    description: guide.seoDescription,
+    description:
+        guide.seoDescription,
 
-    articleSection: guide.eyebrow,
+    articleSection:
+        guide.eyebrow,
 
     wordCount,
 
     inLanguage: 'en-US',
 
-    datePublished: guide.publishedAt,
+    datePublished:
+        guide.publishedAt,
 
-    dateModified: guide.updatedAt,
+    dateModified:
+        guide.updatedAt,
 
     mainEntityOfPage: {
         '@type': 'WebPage',
@@ -159,7 +168,10 @@ const articleStructuredData = {
     isPartOf: {
         '@type': 'CollectionPage',
         '@id': petGuidesURL,
-        name: 'MaxiPawz Pet Guides',
+
+        name:
+            'MaxiPawz Pet Guides',
+
         url: petGuidesURL,
     },
 
@@ -209,7 +221,8 @@ const breadcrumbStructuredData = {
 };
 
 const structuredData = {
-    '@context': 'https://schema.org',
+    '@context':
+        'https://schema.org',
 
     '@graph': [
         organizationStructuredData,
@@ -219,12 +232,15 @@ const structuredData = {
 };
 
 const formattedUpdatedAt =
-    new Intl.DateTimeFormat('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-        timeZone: 'UTC',
-    }).format(
+    new Intl.DateTimeFormat(
+        'en-US',
+        {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+            timeZone: 'UTC',
+        },
+    ).format(
         new Date(
             `${guide.updatedAt}T12:00:00Z`,
         ),
@@ -265,13 +281,17 @@ const formattedUpdatedAt =
             {
                 guide.learningPoints.map(
                     (point) => (
-                        <div class="flex items-start gap-3 rounded-2xl border border-sand/80 bg-white-warm/80 p-4">
+                        <div
+                            class="flex items-start gap-3 rounded-2xl border border-sand/80 bg-white-warm/80 p-4"
+                        >
                             <CheckCircleFill
                                 class="mt-0.5 size-5 shrink-0 text-brand-500"
                                 aria-hidden="true"
                             />
 
-                            <p class="text-sm font-bold leading-6 text-ink-700">
+                            <p
+                                class="text-sm font-bold leading-6 text-ink-700"
+                            >
                                 {point}
                             </p>
                         </div>
@@ -280,6 +300,12 @@ const formattedUpdatedAt =
             }
         </div>
     </div>
+
+    <GuideShareBar
+        guideTitle={guide.title}
+        guideSlug={guide.slug}
+        guideURL={guideURL}
+    />
 
     <!-- Guide sections -->
     {
@@ -290,33 +316,45 @@ const formattedUpdatedAt =
                     class="mt-12 scroll-mt-32"
                     aria-labelledby={`${section.id}-title`}
                 >
-                    <div class="flex items-start gap-4">
+                    <div
+                        class="flex items-start gap-4"
+                    >
                         <span
                             class:list={[
                                 'grid size-12 shrink-0 place-items-center rounded-2xl',
 
-                                index % 2 === 0
+                                index % 2 ===
+                                0
                                     ? 'bg-brand-500 text-white shadow-blue'
                                     : 'bg-accent-500 text-ink-950 shadow-orange',
                             ]}
                             aria-hidden="true"
                         >
-                            <span class="text-sm font-black">
-                                {String(
-                                    index + 1,
-                                ).padStart(
-                                    2,
-                                    '0',
-                                )}
+                            <span
+                                class="text-sm font-black"
+                            >
+                                {
+                                    String(
+                                        index +
+                                            1,
+                                    ).padStart(
+                                        2,
+                                        '0',
+                                    )
+                                }
                             </span>
                         </span>
 
-                        <div class="min-w-0">
+                        <div
+                            class="min-w-0"
+                        >
                             <p
                                 class:list={[
                                     'text-xs font-extrabold tracking-[0.09em] uppercase',
 
-                                    index % 2 === 0
+                                    index %
+                                        2 ===
+                                    0
                                         ? 'text-brand-700'
                                         : 'text-accent-700',
                                 ]}
@@ -328,7 +366,9 @@ const formattedUpdatedAt =
                                 id={`${section.id}-title`}
                                 class="mt-2 text-3xl text-ink-900 sm:text-4xl"
                             >
-                                {section.title}
+                                {
+                                    section.title
+                                }
                             </h2>
                         </div>
                     </div>
@@ -338,7 +378,9 @@ const formattedUpdatedAt =
                     >
                         {
                             section.paragraphs.map(
-                                (paragraph) => (
+                                (
+                                    paragraph,
+                                ) => (
                                     <p>
                                         {
                                             paragraph
@@ -353,38 +395,48 @@ const formattedUpdatedAt =
                         section.points &&
                             section.points
                                 .length > 0 && (
-                                <ul class="mt-7 grid gap-3">
-                                    {section.points.map(
-                                        (
-                                            point,
-                                        ) => (
-                                            <li class="flex items-start gap-3 rounded-2xl border border-sand bg-cream-soft p-4 text-sm font-bold leading-6 text-ink-700">
-                                                <CheckCircleFill
-                                                    class="mt-0.5 size-5 shrink-0 text-brand-500"
-                                                    aria-hidden="true"
-                                                />
+                                <ul
+                                    class="mt-7 grid gap-3"
+                                >
+                                    {
+                                        section.points.map(
+                                            (
+                                                point,
+                                            ) => (
+                                                <li
+                                                    class="flex items-start gap-3 rounded-2xl border border-sand bg-cream-soft p-4 text-sm font-bold leading-6 text-ink-700"
+                                                >
+                                                    <CheckCircleFill
+                                                        class="mt-0.5 size-5 shrink-0 text-brand-500"
+                                                        aria-hidden="true"
+                                                    />
 
-                                                <span>
-                                                    {
-                                                        point
-                                                    }
-                                                </span>
-                                            </li>
-                                        ),
-                                    )}
+                                                    <span>
+                                                        {
+                                                            point
+                                                        }
+                                                    </span>
+                                                </li>
+                                            ),
+                                        )
+                                    }
                                 </ul>
                             )
                     }
 
                     {
                         section.tip && (
-                            <aside class="mt-7 rounded-4xl border border-accent-200 bg-linear-to-br from-accent-50 via-white-warm to-brand-50 p-5 sm:p-6">
+                            <aside
+                                class="mt-7 rounded-4xl border border-accent-200 bg-linear-to-br from-accent-50 via-white-warm to-brand-50 p-5 sm:p-6"
+                            >
                                 <HeartBold
                                     class="size-8 text-accent-500"
                                     aria-hidden="true"
                                 />
 
-                                <h3 class="mt-4 text-2xl text-ink-900">
+                                <h3
+                                    class="mt-4 text-2xl text-ink-900"
+                                >
                                     {
                                         section
                                             .tip
@@ -392,7 +444,9 @@ const formattedUpdatedAt =
                                     }
                                 </h3>
 
-                                <p class="mt-3 text-base leading-7 text-ink-600">
+                                <p
+                                    class="mt-3 text-base leading-7 text-ink-600"
+                                >
                                     {
                                         section
                                             .tip
@@ -433,21 +487,28 @@ const formattedUpdatedAt =
 
     <!-- Related guides -->
     {
-        guide.relatedLinks.length > 0 && (
+        guide.relatedLinks.length >
+            0 && (
             <section
                 class="mt-12"
                 aria-labelledby="related-guides-title"
             >
-                <div class="flex items-center gap-4">
+                <div
+                    class="flex items-center gap-4"
+                >
                     <span
                         class="grid size-12 shrink-0 place-items-center rounded-2xl bg-accent-500 text-ink-950 shadow-orange"
                         aria-hidden="true"
                     >
-                        <PawPrintBold class="size-6" />
+                        <PawPrintBold
+                            class="size-6"
+                        />
                     </span>
 
                     <div>
-                        <p class="text-xs font-extrabold uppercase tracking-[0.09em] text-accent-700">
+                        <p
+                            class="text-xs font-extrabold uppercase tracking-[0.09em] text-accent-700"
+                        >
                             Continue Learning
                         </p>
 
@@ -461,40 +522,63 @@ const formattedUpdatedAt =
                     </div>
                 </div>
 
-                <div class="mt-7 grid gap-4">
-                    {guide.relatedLinks.map(
-                        (relatedLink) => (
-                            <a
-                                href={
-                                    relatedLink.href
-                                }
-                                class="group rounded-3xl border border-sand bg-white-warm p-5 shadow-soft transition hover:-translate-y-1 hover:border-brand-300 hover:shadow-card sm:p-6"
-                            >
-                                <div class="flex items-start justify-between gap-5">
-                                    <div class="min-w-0">
-                                        <h3 class="text-xl text-ink-900 sm:text-2xl">
-                                            {
-                                                relatedLink.title
-                                            }
-                                        </h3>
-
-                                        <p class="mt-3 max-w-2xl text-sm leading-6 text-ink-600 sm:text-base sm:leading-7">
-                                            {
-                                                relatedLink.description
-                                            }
-                                        </p>
-                                    </div>
-
-                                    <span
-                                        class="grid size-10 shrink-0 place-items-center rounded-full bg-brand-100 text-brand-700 transition group-hover:translate-x-1 group-hover:bg-brand-500 group-hover:text-white"
-                                        aria-hidden="true"
+                <div
+                    class="mt-7 grid gap-4"
+                >
+                    {
+                        guide.relatedLinks.map(
+                            (
+                                relatedLink,
+                            ) => (
+                                <a
+                                    href={
+                                        relatedLink.href
+                                    }
+                                    class="group rounded-3xl border border-sand bg-white-warm p-5 shadow-soft transition hover:-translate-y-1 hover:border-brand-300 hover:shadow-card sm:p-6"
+                                    data-guide-related-link
+                                    data-related-href={
+                                        relatedLink.href
+                                    }
+                                    data-related-title={
+                                        relatedLink.title
+                                    }
+                                >
+                                    <div
+                                        class="flex items-start justify-between gap-5"
                                     >
-                                        <ArrowRightBold class="size-5" />
-                                    </span>
-                                </div>
-                            </a>
-                        ),
-                    )}
+                                        <div
+                                            class="min-w-0"
+                                        >
+                                            <h3
+                                                class="text-xl text-ink-900 sm:text-2xl"
+                                            >
+                                                {
+                                                    relatedLink.title
+                                                }
+                                            </h3>
+
+                                            <p
+                                                class="mt-3 max-w-2xl text-sm leading-6 text-ink-600 sm:text-base sm:leading-7"
+                                            >
+                                                {
+                                                    relatedLink.description
+                                                }
+                                            </p>
+                                        </div>
+
+                                        <span
+                                            class="grid size-10 shrink-0 place-items-center rounded-full bg-brand-100 text-brand-700 transition group-hover:translate-x-1 group-hover:bg-brand-500 group-hover:text-white"
+                                            aria-hidden="true"
+                                        >
+                                            <ArrowRightBold
+                                                class="size-5"
+                                            />
+                                        </span>
+                                    </div>
+                                </a>
+                            ),
+                        )
+                    }
                 </div>
             </section>
         )
