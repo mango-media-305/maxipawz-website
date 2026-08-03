@@ -1,31 +1,31 @@
 ---
-import AnalyticsEvent from '@components/analytics/AnalyticsEvent.astro';
-
 import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
 import CheckCircleFill from 'phosphor-astro/CheckCircleFill.astro';
 import HeartBold from 'phosphor-astro/HeartBold.astro';
 import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
 
+import AnalyticsEvent from '@components/analytics/AnalyticsEvent.astro';
 import Badge from '@components/ui/Badge.astro';
 import Button from '@components/ui/Button.astro';
 import BaseLayout from '@layouts/BaseLayout.astro';
 ---
 
 <BaseLayout
-    title="Message Received"
-    description="Your message has been submitted to MaxiPawz."
+    title="Welcome to the Pack"
+    description="Your MaxiPawz launch-list subscription was received successfully."
     noIndex={true}
 >
     <AnalyticsEvent
         name="generate_lead"
-        clarityName="contactFormSubmit"
+        clarityName="newsletterSignup"
         parameters={{
-            lead_source: 'contact_form',
+        lead_source: 'launch_list',
         }}
     />
+
     <section
         class="relative flex min-h-[70vh] items-center overflow-hidden py-16 sm:py-20"
-        aria-labelledby="contact-success-title"
+        aria-labelledby="join-success-title"
     >
         <div
         class="pointer-events-none absolute -top-40 -left-40 size-128 rounded-full bg-brand-300/25 blur-3xl"
@@ -53,37 +53,25 @@ import BaseLayout from '@layouts/BaseLayout.astro';
             <Badge variant="brand" size="md" class="mx-auto mt-7">
             <HeartBold slot="icon" aria-hidden="true" />
 
-            Message Received
+            Welcome to the Pack
             </Badge>
 
             <h1
-            id="contact-success-title"
+            id="join-success-title"
             class="mx-auto mt-6 max-w-2xl text-4xl text-ink-900 sm:text-5xl lg:text-6xl"
             >
-            Thank you for reaching out to MaxiPawz.
+            You are officially part of the MaxiPawz pack.
             </h1>
 
             <p class="mx-auto mt-5 max-w-xl text-base leading-7 text-ink-600 sm:text-lg sm:leading-8">
-            Your message was submitted successfully. We appreciate your interest, feedback, and
-            support as the MaxiPawz community grows.
+            Your information was submitted successfully. We will keep you updated as the first
+            MaxiPawz collection takes shape.
             </p>
 
             <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Button
-                href="/"
-                variant="primary"
-                size="lg"
-                iconPosition="right"
-                class="w-full sm:w-auto"
-            >
-                <ArrowRightBold slot="icon" aria-hidden="true" />
-
-                Return Home
-            </Button>
-
-            <Button
                 href="/pet-guides"
-                variant="secondary"
+                variant="primary"
                 size="lg"
                 iconPosition="right"
                 class="w-full sm:w-auto"
@@ -92,16 +80,19 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 
                 Explore Pet Guides
             </Button>
-            </div>
 
-            <a
-            href="/contact"
-            class="mt-7 inline-flex items-center gap-2 rounded-full text-sm font-extrabold text-brand-700 transition hover:gap-3 hover:text-brand-800"
+            <Button
+                href="/"
+                variant="secondary"
+                size="lg"
+                iconPosition="right"
+                class="w-full sm:w-auto"
             >
-            Send another message
+                <ArrowRightBold slot="icon" aria-hidden="true" />
 
-            <HeartBold class="size-4" aria-hidden="true" />
-            </a>
+                Return Home
+            </Button>
+            </div>
         </div>
         </div>
     </section>

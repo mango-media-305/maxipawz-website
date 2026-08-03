@@ -1,0 +1,106 @@
+---
+type AnalyticsParameter =
+    | string
+    | number
+    | boolean;
+
+interface Props {
+    name: string;
+
+    parameters?: Record<
+        string,
+        AnalyticsParameter
+    >;
+
+    clarityName?: string;
+}
+
+const {
+    name,
+    parameters = {},
+    clarityName = name,
+} = Astro.props;
+
+const analyticsEnabled =
+    import.meta.env.PROD &&
+    import.meta.env.PUBLIC_ANALYTICS_ENABLED === 'true';
+
+const gaEnabled =
+    analyticsEnabled &&
+    Boolean(
+        import.meta.env.PUBLIC_GA_MEASUREMENT_ID?.trim(),
+    );
+
+const clarityEnabled =
+    analyticsEnabled &&
+    Boolean(
+        import.meta.env.PUBLIC_CLARITY_PROJECT_ID?.trim(),
+    );
+---
+
+{
+    (gaEnabled || clarityEnabled) && (
+        <script
+        is:inline
+        define:vars={{
+            eventName: name,
+            eventParameters: parameters,
+            clarityEventName: clarityName,
+            gaEnabled,
+            clarityEnabled,
+        }}
+        >
+        const storageKey = [
+            'maxipawz',
+            'analytics',
+            window.location.pathname,
+            eventName,
+            clarityEventName,
+        ].join(':');
+
+        let alreadyTracked = false;
+
+        try {
+            alreadyTracked =
+            window.sessionStorage.getItem(
+                storageKey,
+            ) === '1';
+        } catch {
+            alreadyTracked = false;
+        }
+
+        if (!alreadyTracked) {
+            if (
+            gaEnabled &&
+            typeof window.gtag === 'function'
+            ) {
+            window.gtag(
+                'event',
+                eventName,
+                eventParameters,
+            );
+            }
+
+            if (
+            clarityEnabled &&
+            typeof window.clarity === 'function'
+            ) {
+            window.clarity(
+                'event',
+                clarityEventName,
+            );
+            }
+
+            try {
+            window.sessionStorage.setItem(
+                storageKey,
+                '1',
+            );
+            } catch {
+            // Analytics should never interfere
+            // with the visitor experience.
+            }
+        }
+        </script>
+    )
+}

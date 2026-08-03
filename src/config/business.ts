@@ -24,7 +24,7 @@ export const businessConfig = {
     mailingAddress: '',
 
     policyEffectiveDate: 'July 27, 2026',
-    policyLastUpdated: 'July 27, 2026',
+    policyLastUpdated: 'August 2, 2026',
 
     policyStage: 'prelaunch',
 

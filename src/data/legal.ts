@@ -80,7 +80,7 @@ export const privacyPolicy: LegalDocument = {
     description:
         'Learn what information MaxiPawz currently collects, why it is used, and the choices available to website visitors.',
     introduction:
-        `This Privacy Policy explains how ${businessDisplayName} handles information submitted through this prelaunch website. It reflects the website’s current forms and functionality and must be reviewed again before ecommerce checkout, analytics, advertising tools, or additional customer services are enabled.`,
+    `This Privacy Policy explains how ${businessDisplayName} handles information submitted through this prelaunch website and information processed through website analytics and experience-measurement services. It reflects the website’s current forms and functionality and must be reviewed again before ecommerce checkout, advertising tools, or additional customer services are enabled.`,
     icon: 'privacy',
     tone: 'brand',
     ...sharedPolicyDetails,
@@ -186,15 +186,30 @@ export const privacyPolicy: LegalDocument = {
         {
             id: 'cookies-and-analytics',
 
-            title: '7. Cookies and analytics',
+            title:
+                '7. Cookies, analytics, and website experience measurement',
 
             paragraphs: [
-                'The current website code does not include advertising pixels or a third-party analytics platform.',
+                'The website uses Google Analytics 4 to help us understand how visitors discover and use MaxiPawz. Google Analytics may process information such as pages viewed, approximate geographic area, device and browser information, referring sources, interactions, and general website usage patterns.',
 
-                'The hosting and security infrastructure may use technical storage or similar mechanisms that are necessary to deliver, secure, and operate the website.',
+                'The website uses Microsoft Clarity to help us understand how visitors interact with website pages through tools such as session recordings, heatmaps, interaction measurements, and diagnostic information.',
 
-                'This policy and any required consent controls will be updated before nonessential analytics, advertising tools, or additional tracking technologies are introduced.',
+                'These services may use cookies, local storage, identifiers, or similar technologies. Information is processed under the applicable policies and settings of Google and Microsoft.',
+
+                'MaxiPawz uses this information to understand website performance, improve navigation and content, identify technical or usability problems, and measure actions such as successful launch-list and contact-form submissions.',
             ],
+
+            bullets: [
+                'Page views and navigation patterns.',
+                'General device, browser, and technical information.',
+                'Referring websites and marketing sources.',
+                'Approximate geographic information.',
+                'Clicks, scrolling, and website interaction patterns.',
+                'Successful form-completion events without including the submitted form contents in analytics event parameters.',
+            ],
+
+            notice:
+                'Do not submit highly sensitive information through website forms. MaxiPawz does not intentionally send names, email addresses, message contents, payment information, or other directly identifying form-field values to Google Analytics or Microsoft Clarity as custom analytics events.',
         },
 
         {

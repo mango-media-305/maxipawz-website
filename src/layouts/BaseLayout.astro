@@ -1,4 +1,6 @@
 ---
+import Analytics from '@components/analytics/Analytics.astro';
+
 import '@fontsource-variable/nunito-sans/wght.css';
 
 import '@styles/global.css';
@@ -111,6 +113,8 @@ const robotsContent = shouldNoIndex
         <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
       )
     }
+
+    <Analytics />
   </head>
 
   <body>
