@@ -60,14 +60,31 @@ export function isProductCategorySlug(
     );
 }
 
+const sandboxCatalogEnabled =
+    import.meta.env.PUBLIC_SANDBOX_CATALOG_CHECKOUT ===
+    'true';
+
+function isProductVisible(
+    product: Product,
+): boolean {
+    return (
+        sandboxCatalogEnabled ||
+        !product.isDemo
+    );
+}
+
 export function getAllProducts(): Product[] {
-    return sortProducts(products);
+    return sortProducts(
+        products.filter(isProductVisible),
+    );
 }
 
 export function getActiveProducts(): Product[] {
     return sortProducts(
         products.filter(
-            (product) => product.status === 'active',
+            (product) =>
+                product.status === 'active' &&
+                isProductVisible(product),
         ),
     );
 }
