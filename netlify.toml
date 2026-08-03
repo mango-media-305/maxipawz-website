@@ -13,11 +13,68 @@
 [context.branch-deploy.environment]
   PUBLIC_ROBOTS_NOINDEX = "true"
 
+[build.processing.html]
+  pretty_urls = true
+
 [dev]
   command = "npm run dev"
   targetPort = 4321
   port = 8888
   autoLaunch = false
+
+
+# ---------------------------------------------------------
+# PRODUCTION DOMAIN NORMALIZATION
+# ---------------------------------------------------------
+
+# Redirect the default Netlify production hostname to the
+# canonical MaxiPawz domain.
+
+[[redirects]]
+  from = "http://maxipawzprod.netlify.app/*"
+  to = "https://maxipawz.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://maxipawzprod.netlify.app/*"
+  to = "https://maxipawz.com/:splat"
+  status = 301
+  force = true
+
+# Redirect the public main-branch Netlify hostname to the
+# canonical production domain.
+
+[[redirects]]
+  from = "http://main--maxipawzprod.netlify.app/*"
+  to = "https://maxipawz.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://main--maxipawzprod.netlify.app/*"
+  to = "https://maxipawz.com/:splat"
+  status = 301
+  force = true
+
+
+# ---------------------------------------------------------
+# LEGACY AND TYPO REPAIRS
+# ---------------------------------------------------------
+
+# Preserve visits and links using the previously misspelled
+# launch-list confirmation route.
+
+[[redirects]]
+  from = "/join/sucess"
+  to = "/join/success"
+  status = 301
+  force = true
+
+
+# ---------------------------------------------------------
+# GLOBAL SECURITY HEADERS
+# ---------------------------------------------------------
 
 [[headers]]
   for = "/*"
@@ -27,3 +84,72 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     X-Frame-Options = "SAMEORIGIN"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Strict-Transport-Security = "max-age=31536000"
+
+
+# ---------------------------------------------------------
+# IMMUTABLE ASTRO BUILD ASSETS
+# ---------------------------------------------------------
+
+# Astro-generated assets include content hashes in their
+# filenames, so they can safely be cached for one year.
+
+[[headers]]
+  for = "/_astro/*"
+
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+
+# ---------------------------------------------------------
+# PUBLIC FONTS
+# ---------------------------------------------------------
+
+# Fonts do not currently use hashed filenames, so use a
+# shorter cache lifetime with background revalidation.
+
+[[headers]]
+  for = "/fonts/*"
+
+  [headers.values]
+    Cache-Control = "public, max-age=2592000, stale-while-revalidate=86400"
+
+
+# ---------------------------------------------------------
+# PUBLIC IMAGES
+# ---------------------------------------------------------
+
+# Images under public/images do not necessarily have hashed
+# filenames. Cache them for thirty days rather than forever.
+
+[[headers]]
+  for = "/images/*"
+
+  [headers.values]
+    Cache-Control = "public, max-age=2592000, stale-while-revalidate=86400"
+
+
+# ---------------------------------------------------------
+# SEARCH ENGINE CONTROL FILES
+# ---------------------------------------------------------
+
+# Search-engine control files should always be revalidated
+# so changes become visible quickly.
+
+[[headers]]
+  for = "/robots.txt"
+
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/sitemap-index.xml"
+
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/sitemap-0.xml"
+
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
