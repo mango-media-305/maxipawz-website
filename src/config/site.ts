@@ -1,9 +1,12 @@
+import { businessConfig } from './business';
+
 const configuredSiteUrl =
-  import.meta.env.PUBLIC_SITE_URL ?? 'https://maxi-pawz.netlify.app';
+  import.meta.env.PUBLIC_SITE_URL?.trim() ||
+  'https://maxipawz.com';
 
 export const siteConfig = {
-  name: 'MaxiPawz Store',
-  shortName: 'MaxiPawz',
+  name: businessConfig.publicName,
+  shortName: businessConfig.shortName,
   url: configuredSiteUrl,
 
   description:
