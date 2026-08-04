@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "The official MaxiPawz Store e-commerce storefront for pet toys and accessories.",
+  "description": "The official Maxi Pawz Store e-commerce storefront for pet toys and accessories.",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",

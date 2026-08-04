@@ -20,7 +20,7 @@ export const charityConfig = {
         false,
 
     disclosure:
-        'Any future optional contribution will be identified separately from merchandise, tax, and shipping charges. MaxiPawz will not represent a contribution as tax-deductible unless the partner, payment structure, receipts, and applicable legal requirements have been confirmed.',
+        'Any future optional contribution will be identified separately from merchandise, tax, and shipping charges. Maxi Pawz will not represent a contribution as tax-deductible unless the partner, payment structure, receipts, and applicable legal requirements have been confirmed.',
 } as const;
 
 export const charityPartnershipReady =

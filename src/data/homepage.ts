@@ -168,13 +168,13 @@ export const brandStory = {
         'The dog behind the name—and the heart behind our store.',
 
     introduction:
-        'Maxi is our dog, our daily companion, and the inspiration behind the MaxiPawz mascot and everything this store represents.',
+        'Maxi is our dog, our daily companion, and the inspiration behind the Maxi Pawz mascot and everything this store represents.',
 
     experience:
         'Raising Maxi from puppyhood gave us firsthand experience choosing toys, collars, walking accessories, portable water bottles, comfort products, and everyday essentials. Over time, we learned which products create excitement, which ones make daily routines easier, and which ones truly earn a place in a dog owner’s home.',
 
     community:
-        'Maxi inspired the beginning, and our friends helped the idea grow. Their encouragement, feedback, creativity, and belief in the vision helped us take MaxiPawz from zero to hero.',
+        'Maxi inspired the beginning, and our friends helped the idea grow. Their encouragement, feedback, creativity, and belief in the vision helped us take Maxi Pawz from zero to hero.',
 } as const;
 
 export const brandStoryPrinciples: BrandStoryPrinciple[] = [

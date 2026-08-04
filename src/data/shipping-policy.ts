@@ -55,7 +55,7 @@ export const shippingPolicyDocument:
         'Orders and Delivery',
 
     description:
-        'Review MaxiPawz shipping destinations, shipping estimates, free-shipping eligibility, tracking, and delivery information.',
+        'Review Maxi Pawz shipping destinations, shipping estimates, free-shipping eligibility, tracking, and delivery information.',
 
     introduction:
         `${businessDisplayName} currently uses this policy as a draft while the storefront and Stripe Sandbox checkout are being prepared for commercial launch.`,
@@ -86,7 +86,7 @@ export const shippingPolicyDocument:
                 '1. Shipping destinations',
 
             paragraphs: [
-                `MaxiPawz is configured to accept shipping addresses within the ${shippingConfig.destinationLabel}.`,
+                `Maxi Pawz is configured to accept shipping addresses within the ${shippingConfig.destinationLabel}.`,
 
                 'International shipping and delivery to separately coded United States territories are not included in the current checkout configuration.',
             ],
@@ -103,17 +103,17 @@ export const shippingPolicyDocument:
                 `For eligible orders below ${formatAmount(
                     shippingConfig
                         .freeShippingThresholdAmount,
-                )}, MaxiPawz calculates a standard-shipping estimate based on the order's shipping weight and destination category.`,
+                )}, Maxi Pawz calculates a standard-shipping estimate based on the order's shipping weight and destination category.`,
 
                 'The shipping charge for the order is displayed during checkout before payment is completed.',
             ],
 
             bullets: [
-                'MaxiPawz does not currently use a single fixed standard-shipping charge.',
+                'Maxi Pawz does not currently use a single fixed standard-shipping charge.',
 
                 'The checkout shipping charge is an estimate and is not represented as a live USPS, UPS, FedEx, or other carrier quote.',
 
-                'The actual postage MaxiPawz later pays to fulfill an order may be higher or lower than the checkout shipping charge.',
+                'The actual postage Maxi Pawz later pays to fulfill an order may be higher or lower than the checkout shipping charge.',
 
                 'Customers are not charged an additional amount solely because actual postage later differs from the shipping charge accepted during checkout.',
 
@@ -134,7 +134,7 @@ export const shippingPolicyDocument:
                         .freeShippingThresholdAmount,
                 )} or more.`,
 
-                'When an eligible order receives free standard shipping, MaxiPawz absorbs the applicable fulfillment shipping expense.',
+                'When an eligible order receives free standard shipping, Maxi Pawz absorbs the applicable fulfillment shipping expense.',
             ],
 
             bullets: [
@@ -176,7 +176,7 @@ export const shippingPolicyDocument:
                 '5. Shipping carrier and fulfillment',
 
             paragraphs: [
-                'MaxiPawz may select an appropriate available carrier and service when fulfilling a standard-shipping order.',
+                'Maxi Pawz may select an appropriate available carrier and service when fulfilling a standard-shipping order.',
 
                 'Carrier selection may depend on package size, package weight, destination, service availability, delivery expectations, and shipping cost.',
 
@@ -194,7 +194,7 @@ export const shippingPolicyDocument:
             paragraphs: [
                 'Customers are responsible for reviewing the recipient name, street address, apartment or unit information, city, state, and postal code before completing checkout.',
 
-                `Contact MaxiPawz through the ${businessConfig.contactLabel} promptly if an address correction is needed.`,
+                `Contact Maxi Pawz through the ${businessConfig.contactLabel} promptly if an address correction is needed.`,
 
                 'An address change cannot be guaranteed after an order has entered fulfillment or has been transferred to a carrier.',
             ],
@@ -224,11 +224,11 @@ export const shippingPolicyDocument:
                 '8. Delayed, damaged, incomplete, or missing shipments',
 
             paragraphs: [
-                `Contact MaxiPawz through the ${businessConfig.contactLabel} promptly when a shipment appears delayed, damaged, incomplete, misdirected, or marked delivered but cannot be located.`,
+                `Contact Maxi Pawz through the ${businessConfig.contactLabel} promptly when a shipment appears delayed, damaged, incomplete, misdirected, or marked delivered but cannot be located.`,
 
                 'Keep the product, packaging, shipping container, shipping label, photographs, tracking information, and order records while the issue is reviewed.',
 
-                'MaxiPawz may need to review carrier information, delivery records, photographs, inventory records, or other relevant documentation before determining the appropriate response.',
+                'Maxi Pawz may need to review carrier information, delivery records, photographs, inventory records, or other relevant documentation before determining the appropriate response.',
             ],
         },
 
@@ -241,7 +241,7 @@ export const shippingPolicyDocument:
 
             paragraphs: [
                 charityConfig.planned
-                    ? 'MaxiPawz is considering a future option that would allow customers to add a separate voluntary contribution benefiting a local animal shelter.'
+                    ? 'Maxi Pawz is considering a future option that would allow customers to add a separate voluntary contribution benefiting a local animal shelter.'
                     : 'No animal-shelter contribution program is currently planned.',
 
                 charityConfig.disclosure,
@@ -288,12 +288,12 @@ export const shippingPolicyDocument:
                 '/faq',
 
             description:
-                'Find general information about MaxiPawz orders and products.',
+                'Find general information about Maxi Pawz orders and products.',
         },
 
         {
             label:
-                'Contact MaxiPawz',
+                'Contact Maxi Pawz',
 
             href:
                 businessConfig

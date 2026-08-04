@@ -28,7 +28,7 @@
 # ---------------------------------------------------------
 
 # Redirect the default Netlify production hostname to the
-# canonical MaxiPawz domain.
+# canonical Maxi Pawz domain.
 
 [[redirects]]
   from = "http://maxipawzprod.netlify.app/*"

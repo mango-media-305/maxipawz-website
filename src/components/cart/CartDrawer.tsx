@@ -232,7 +232,7 @@ export default function CartDrawer() {
 
                         <div>
                             <p className="text-xs font-extrabold tracking-[0.08em] text-brand-700 uppercase">
-                                MaxiPawz Cart
+                                Maxi Pawz Cart
                             </p>
 
                             <h2

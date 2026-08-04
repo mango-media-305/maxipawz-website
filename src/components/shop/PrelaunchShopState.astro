@@ -12,115 +12,115 @@ import { prelaunchCollectionHighlights } from '../../data/shop';
 ---
 
 <section
-    id="join-the-shop-updates"
-    class="section-spacing scroll-mt-28"
-    aria-labelledby="prelaunch-shop-title"
+  id="join-the-shop-updates"
+  class="section-spacing scroll-mt-28"
+  aria-labelledby="prelaunch-shop-title"
 >
-    <div class="site-container">
-        <div
-        class="relative grid overflow-hidden rounded-[2.5rem] bg-ink-950 text-white shadow-card lg:grid-cols-[0.9fr_1.1fr]"
-        >
-        <div
-            class="pointer-events-none absolute -top-28 -left-24 size-80 rounded-full bg-brand-500/25 blur-3xl"
-            aria-hidden="true"
-        >
+  <div class="site-container">
+    <div
+      class="relative grid overflow-hidden rounded-[2.5rem] bg-ink-950 text-white shadow-card lg:grid-cols-[0.9fr_1.1fr]"
+    >
+      <div
+        class="pointer-events-none absolute -top-28 -left-24 size-80 rounded-full bg-brand-500/25 blur-3xl"
+        aria-hidden="true"
+      >
+      </div>
+
+      <div
+        class="pointer-events-none absolute -right-28 -bottom-32 size-96 rounded-full bg-accent-500/20 blur-3xl"
+        aria-hidden="true"
+      >
+      </div>
+
+      <!-- Main message -->
+      <div class="relative flex flex-col justify-center p-6 sm:p-8 lg:p-10">
+        <Badge variant="accent" size="md">
+          <SparkleBold slot="icon" aria-hidden="true" />
+
+          Opening in the Future
+        </Badge>
+
+        <h2 id="prelaunch-shop-title" class="mt-6 max-w-xl text-4xl text-white sm:text-5xl">
+          Be here when the Maxi Pawz collection opens.
+        </h2>
+
+        <p class="mt-5 max-w-xl text-base leading-7 text-white/75 sm:text-lg sm:leading-8">
+          We are preparing the product selection, shopping experience, and checkout process
+          carefully before opening the store.
+        </p>
+
+        <p class="mt-4 max-w-xl text-sm leading-6 text-white/60">
+          Join the pack to hear about launch news, product updates, helpful pet guides, and new
+          additions as Maxi Pawz grows.
+        </p>
+
+        <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+          <Button
+            href="/#join-the-pack"
+            variant="primary"
+            size="lg"
+            iconPosition="right"
+            class="w-full sm:w-auto"
+          >
+            <HeartBold slot="icon" aria-hidden="true" />
+
+            Join the Pack
+          </Button>
+
+          <Button
+            href="/pet-guides"
+            variant="secondary"
+            size="lg"
+            iconPosition="right"
+            class="w-full sm:w-auto"
+          >
+            <ArrowRightBold slot="icon" aria-hidden="true" />
+
+            Explore Pet Guides
+          </Button>
         </div>
+      </div>
 
-        <div
-            class="pointer-events-none absolute -right-28 -bottom-32 size-96 rounded-full bg-accent-500/20 blur-3xl"
+      <!-- Collection preparation -->
+      <div
+        class="relative border-t border-white/10 bg-white/5 p-6 sm:p-8 lg:border-t-0 lg:border-l lg:p-10"
+      >
+        <div class="flex items-start gap-4">
+          <span
+            class="grid size-12 shrink-0 place-items-center rounded-2xl bg-white/10 text-accent-300"
             aria-hidden="true"
-        >
-        </div>
+          >
+            <PawPrintBold class="size-6" />
+          </span>
 
-        <!-- Main message -->
-        <div class="relative flex flex-col justify-center p-6 sm:p-8 lg:p-10">
-            <Badge variant="accent" size="md">
-            <SparkleBold slot="icon" aria-hidden="true" />
-
-            Opening in the Future
-            </Badge>
-
-            <h2 id="prelaunch-shop-title" class="mt-6 max-w-xl text-4xl text-white sm:text-5xl">
-            Be here when the MaxiPawz collection opens.
-            </h2>
-
-            <p class="mt-5 max-w-xl text-base leading-7 text-white/75 sm:text-lg sm:leading-8">
-            We are preparing the product selection, shopping experience, and checkout process
-            carefully before opening the store.
+          <div>
+            <p class="text-xs font-extrabold tracking-[0.09em] text-accent-300 uppercase">
+              What we are building
             </p>
 
-            <p class="mt-4 max-w-xl text-sm leading-6 text-white/60">
-            Join the pack to hear about launch news, product updates, helpful pet guides, and new
-            additions as MaxiPawz grows.
-            </p>
-
-            <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Button
-                href="/#join-the-pack"
-                variant="primary"
-                size="lg"
-                iconPosition="right"
-                class="w-full sm:w-auto"
-            >
-                <HeartBold slot="icon" aria-hidden="true" />
-
-                Join the Pack
-            </Button>
-
-            <Button
-                href="/pet-guides"
-                variant="secondary"
-                size="lg"
-                iconPosition="right"
-                class="w-full sm:w-auto"
-            >
-                <ArrowRightBold slot="icon" aria-hidden="true" />
-
-                Explore Pet Guides
-            </Button>
-            </div>
+            <h3 class="mt-2 text-2xl text-white sm:text-3xl">More than a product grid.</h3>
+          </div>
         </div>
 
-        <!-- Collection preparation -->
-        <div
-            class="relative border-t border-white/10 bg-white/5 p-6 sm:p-8 lg:border-t-0 lg:border-l lg:p-10"
-        >
-            <div class="flex items-start gap-4">
-            <span
-                class="grid size-12 shrink-0 place-items-center rounded-2xl bg-white/10 text-accent-300"
-                aria-hidden="true"
-            >
-                <PawPrintBold class="size-6" />
-            </span>
+        <div class="mt-6 grid gap-3">
+          {
+            prelaunchCollectionHighlights.map((highlight) => (
+              <article class="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-4">
+                <CheckCircleFill
+                  class="mt-0.5 size-5 shrink-0 text-accent-300"
+                  aria-hidden="true"
+                />
 
-            <div>
-                <p class="text-xs font-extrabold tracking-[0.09em] text-accent-300 uppercase">
-                What we are building
-                </p>
+                <div>
+                  <h4 class="text-base text-white">{highlight.title}</h4>
 
-                <h3 class="mt-2 text-2xl text-white sm:text-3xl">More than a product grid.</h3>
-            </div>
-            </div>
-
-            <div class="mt-6 grid gap-3">
-            {
-                prelaunchCollectionHighlights.map((highlight) => (
-                <article class="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <CheckCircleFill
-                    class="mt-0.5 size-5 shrink-0 text-accent-300"
-                    aria-hidden="true"
-                    />
-
-                    <div>
-                    <h4 class="text-base text-white">{highlight.title}</h4>
-
-                    <p class="mt-1 text-sm leading-6 text-white/65">{highlight.description}</p>
-                    </div>
-                </article>
-                ))
-            }
-            </div>
+                  <p class="mt-1 text-sm leading-6 text-white/65">{highlight.description}</p>
+                </div>
+              </article>
+            ))
+          }
         </div>
-        </div>
+      </div>
     </div>
+  </div>
 </section>

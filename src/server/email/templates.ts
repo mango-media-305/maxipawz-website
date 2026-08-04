@@ -283,12 +283,10 @@ function buildTotalsHtml(
         OrderRecord,
 ): string {
     const rows:
-        Array<
-            [
-                string,
-                string,
-            ]
-        > = [
+        [
+            string,
+            string,
+        ][] = [
             [
                 'Merchandise subtotal',
 
@@ -404,7 +402,7 @@ export function buildCustomerOrderConfirmation(
             : '[SANDBOX] ';
 
     const subject =
-        `${testPrefix}We received your MaxiPawz order — ${orderReference}`;
+        `${testPrefix}We received your Maxi Pawz order — ${orderReference}`;
 
     const homeUrl =
         buildEmailSiteUrl(
@@ -420,7 +418,7 @@ export function buildCustomerOrderConfirmation(
                 'STRIPE SANDBOX TEST — NO REAL PAYMENT WAS PROCESSED',
 
             preheader:
-                `We received your MaxiPawz order ${orderReference}.`,
+                `We received your Maxi Pawz order ${orderReference}.`,
 
             content: `
         <h1
@@ -434,7 +432,7 @@ export function buildCustomerOrderConfirmation(
         <p
           style="margin:0;color:#725c50;font-size:16px;line-height:1.7;"
         >
-          We received your MaxiPawz order. We'll use this email address for important order and shipping updates.
+          We received your Maxi Pawz order. We'll use this email address for important order and shipping updates.
         </p>
 
         <div
@@ -501,25 +499,25 @@ export function buildCustomerOrderConfirmation(
         </div>
 
         ${buildWebsiteButton(
-                'Visit MaxiPawz',
+                'Visit Maxi Pawz',
                 '/',
             )}
 
         <p
           style="margin:26px 0 0;color:#725c50;font-size:13px;line-height:1.7;"
         >
-          This is your MaxiPawz order confirmation. Payment receipts and refund receipts are handled separately by Stripe.
+          This is your Maxi Pawz order confirmation. Payment receipts and refund receipts are handled separately by Stripe.
         </p>
       `,
         });
 
     const text = `
-MaxiPawz Store
+Maxi Pawz Store
 HAPPY PETS • HAPPY LIFE
 
 Thanks, ${customerName}!
 
-We received your MaxiPawz order.
+We received your Maxi Pawz order.
 
 Order reference: ${orderReference}
 
@@ -531,10 +529,10 @@ ${buildTotalsText(order)}
 SHIPPING TO
 ${formatShippingAddressText(session)}
 
-Visit MaxiPawz:
+Visit Maxi Pawz:
 ${homeUrl}
 
-This is your MaxiPawz order confirmation. Payment receipts and refund receipts are handled separately by Stripe.
+This is your Maxi Pawz order confirmation. Payment receipts and refund receipts are handled separately by Stripe.
 `.trim();
 
     return {
@@ -570,7 +568,7 @@ export function buildInternalNewOrderNotification(
             : '[SANDBOX] ';
 
     const subject =
-        `${testPrefix}New MaxiPawz order — ${orderReference}`;
+        `${testPrefix}New Maxi Pawz order — ${orderReference}`;
 
     const html =
         buildBrandedEmailShell({
@@ -581,7 +579,7 @@ export function buildInternalNewOrderNotification(
                 'STRIPE SANDBOX TEST — NO REAL PAYMENT WAS PROCESSED',
 
             preheader:
-                `New MaxiPawz order ${orderReference}.`,
+                `New Maxi Pawz order ${orderReference}.`,
 
             content: `
         <h1
@@ -601,8 +599,8 @@ export function buildInternalNewOrderNotification(
                 </strong>
 
                 ${escapeEmailHtml(
-                    orderReference,
-                )}
+                orderReference,
+            )}
 
                 <br />
 
@@ -611,8 +609,8 @@ export function buildInternalNewOrderNotification(
                 </strong>
 
                 ${escapeEmailHtml(
-                    session.id,
-                )}
+                session.id,
+            )}
 
                 <br />
 
@@ -621,8 +619,8 @@ export function buildInternalNewOrderNotification(
                 </strong>
 
                 ${escapeEmailHtml(
-                    customerEmail,
-                )}
+                customerEmail,
+            )}
 
                 <br />
 
@@ -631,8 +629,8 @@ export function buildInternalNewOrderNotification(
                 </strong>
 
                 ${escapeEmailHtml(
-                    order.paymentStatus,
-                )}
+                order.paymentStatus,
+            )}
             </div>
         </div>
 
@@ -650,8 +648,8 @@ export function buildInternalNewOrderNotification(
             border="0"
         >
             ${buildItemsHtml(
-                    order,
-                )}
+                order,
+            )}
         </table>
 
         <table

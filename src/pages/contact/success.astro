@@ -12,97 +12,97 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 ---
 
 <BaseLayout
-    title="Message Received"
-    description="Your message has been submitted to MaxiPawz."
-    noIndex={true}
+  title="Message Received"
+  description="Your message has been submitted to Maxi Pawz."
+  noIndex={true}
 >
-    <AnalyticsEvent
-        name="generate_lead"
-        clarityName="contactFormSubmit"
-        parameters={{
-            lead_source: 'contact_form',
-        }}
-    />
-    <section
-        class="relative flex min-h-[70vh] items-center overflow-hidden py-16 sm:py-20"
-        aria-labelledby="contact-success-title"
+  <AnalyticsEvent
+    name="generate_lead"
+    clarityName="contactFormSubmit"
+    parameters={{
+      lead_source: 'contact_form',
+    }}
+  />
+  <section
+    class="relative flex min-h-[70vh] items-center overflow-hidden py-16 sm:py-20"
+    aria-labelledby="contact-success-title"
+  >
+    <div
+      class="pointer-events-none absolute -top-40 -left-40 size-128 rounded-full bg-brand-300/25 blur-3xl"
+      aria-hidden="true"
     >
-        <div
-        class="pointer-events-none absolute -top-40 -left-40 size-128 rounded-full bg-brand-300/25 blur-3xl"
-        aria-hidden="true"
+    </div>
+
+    <div
+      class="pointer-events-none absolute -right-40 -bottom-40 size-136 rounded-full bg-accent-300/25 blur-3xl"
+      aria-hidden="true"
+    >
+    </div>
+
+    <div class="site-container relative">
+      <div
+        class="mx-auto max-w-3xl overflow-hidden rounded-[2.5rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 text-center shadow-card sm:p-8 lg:p-12"
+      >
+        <span
+          class="mx-auto grid size-20 place-items-center rounded-full bg-success-100 text-success-700 shadow-soft"
+          aria-hidden="true"
         >
-        </div>
+          <CheckCircleFill class="size-10" />
+        </span>
 
-        <div
-        class="pointer-events-none absolute -right-40 -bottom-40 size-136 rounded-full bg-accent-300/25 blur-3xl"
-        aria-hidden="true"
+        <Badge variant="brand" size="md" class="mx-auto mt-7">
+          <HeartBold slot="icon" aria-hidden="true" />
+
+          Message Received
+        </Badge>
+
+        <h1
+          id="contact-success-title"
+          class="mx-auto mt-6 max-w-2xl text-4xl text-ink-900 sm:text-5xl lg:text-6xl"
         >
+          Thank you for reaching out to Maxi Pawz.
+        </h1>
+
+        <p class="mx-auto mt-5 max-w-xl text-base leading-7 text-ink-600 sm:text-lg sm:leading-8">
+          Your message was submitted successfully. We appreciate your interest, feedback, and
+          support as the Maxi Pawz community grows.
+        </p>
+
+        <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <Button
+            href="/"
+            variant="primary"
+            size="lg"
+            iconPosition="right"
+            class="w-full sm:w-auto"
+          >
+            <ArrowRightBold slot="icon" aria-hidden="true" />
+
+            Return Home
+          </Button>
+
+          <Button
+            href="/pet-guides"
+            variant="secondary"
+            size="lg"
+            iconPosition="right"
+            class="w-full sm:w-auto"
+          >
+            <PawPrintBold slot="icon" aria-hidden="true" />
+
+            Explore Pet Guides
+          </Button>
         </div>
 
-        <div class="site-container relative">
-        <div
-            class="mx-auto max-w-3xl overflow-hidden rounded-[2.5rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 text-center shadow-card sm:p-8 lg:p-12"
+        <a
+          href="/contact"
+          class="mt-7 inline-flex items-center gap-2 rounded-full text-sm font-extrabold text-brand-700 transition hover:gap-3 hover:text-brand-800"
         >
-            <span
-            class="mx-auto grid size-20 place-items-center rounded-full bg-success-100 text-success-700 shadow-soft"
-            aria-hidden="true"
-            >
-            <CheckCircleFill class="size-10" />
-            </span>
+          Send another message
 
-            <Badge variant="brand" size="md" class="mx-auto mt-7">
-            <HeartBold slot="icon" aria-hidden="true" />
-
-            Message Received
-            </Badge>
-
-            <h1
-            id="contact-success-title"
-            class="mx-auto mt-6 max-w-2xl text-4xl text-ink-900 sm:text-5xl lg:text-6xl"
-            >
-            Thank you for reaching out to MaxiPawz.
-            </h1>
-
-            <p class="mx-auto mt-5 max-w-xl text-base leading-7 text-ink-600 sm:text-lg sm:leading-8">
-            Your message was submitted successfully. We appreciate your interest, feedback, and
-            support as the MaxiPawz community grows.
-            </p>
-
-            <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Button
-                href="/"
-                variant="primary"
-                size="lg"
-                iconPosition="right"
-                class="w-full sm:w-auto"
-            >
-                <ArrowRightBold slot="icon" aria-hidden="true" />
-
-                Return Home
-            </Button>
-
-            <Button
-                href="/pet-guides"
-                variant="secondary"
-                size="lg"
-                iconPosition="right"
-                class="w-full sm:w-auto"
-            >
-                <PawPrintBold slot="icon" aria-hidden="true" />
-
-                Explore Pet Guides
-            </Button>
-            </div>
-
-            <a
-            href="/contact"
-            class="mt-7 inline-flex items-center gap-2 rounded-full text-sm font-extrabold text-brand-700 transition hover:gap-3 hover:text-brand-800"
-            >
-            Send another message
-
-            <HeartBold class="size-4" aria-hidden="true" />
-            </a>
-        </div>
-        </div>
-    </section>
+          <HeartBold class="size-4" aria-hidden="true" />
+        </a>
+      </div>
+    </div>
+  </section>
 </BaseLayout>

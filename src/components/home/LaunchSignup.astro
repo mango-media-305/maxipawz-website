@@ -13,1034 +13,1031 @@ import Button from '../ui/Button.astro';
 ---
 
 <section
-    id="join-the-pack"
-    class="launch-signup section-spacing relative isolate scroll-mt-28 overflow-hidden border-b border-sand/70"
-    aria-labelledby="join-the-pack-title"
-    data-launch-signup
+  id="join-the-pack"
+  class="launch-signup section-spacing relative isolate scroll-mt-28 overflow-hidden border-b border-sand/70"
+  aria-labelledby="join-the-pack-title"
+  data-launch-signup
 >
-    <div class="launch-signup__pattern pointer-events-none absolute inset-0" aria-hidden="true"></div>
+  <div class="launch-signup__pattern pointer-events-none absolute inset-0" aria-hidden="true"></div>
 
+  <div
+    class="launch-signup__parallax pointer-events-none absolute -top-32 -left-28"
+    data-launch-parallax
+    data-launch-parallax-speed="0.035"
+    aria-hidden="true"
+  >
     <div
-        class="launch-signup__parallax pointer-events-none absolute -top-32 -left-28"
-        data-launch-parallax
-        data-launch-parallax-speed="0.035"
-        aria-hidden="true"
+      class="launch-signup__orb launch-signup__orb--blue size-96 rounded-full bg-brand-300/24 blur-3xl"
     >
-        <div
-        class="launch-signup__orb launch-signup__orb--blue size-96 rounded-full bg-brand-300/24 blur-3xl"
-        >
-        </div>
     </div>
+  </div>
 
+  <div
+    class="launch-signup__parallax pointer-events-none absolute -right-32 -bottom-24"
+    data-launch-parallax
+    data-launch-parallax-speed="0.052"
+    aria-hidden="true"
+  >
     <div
-        class="launch-signup__parallax pointer-events-none absolute -right-32 -bottom-24"
-        data-launch-parallax
-        data-launch-parallax-speed="0.052"
-        aria-hidden="true"
+      class="launch-signup__orb launch-signup__orb--orange size-104 rounded-full bg-accent-300/22 blur-3xl"
     >
-        <div
-        class="launch-signup__orb launch-signup__orb--orange size-104 rounded-full bg-accent-300/22 blur-3xl"
-        >
-        </div>
     </div>
+  </div>
 
-    <span
-        class="launch-signup__floating-paw launch-signup__floating-paw--one pointer-events-none absolute top-[13%] right-[5%] hidden text-brand-300/32 lg:block"
-        aria-hidden="true"
+  <span
+    class="launch-signup__floating-paw launch-signup__floating-paw--one pointer-events-none absolute top-[13%] right-[5%] hidden text-brand-300/32 lg:block"
+    aria-hidden="true"
+  >
+    <PawPrintBold class="size-14 rotate-12" />
+  </span>
+
+  <span
+    class="launch-signup__floating-paw launch-signup__floating-paw--two pointer-events-none absolute bottom-[10%] left-[4%] hidden text-accent-300/28 lg:block"
+    aria-hidden="true"
+  >
+    <PawPrintBold class="size-11 -rotate-12" />
+  </span>
+
+  <div class="site-container relative z-10">
+    <div
+      class="launch-signup__shell relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-ink-950 shadow-2xl shadow-ink-950/20"
+      data-launch-reveal
     >
-        <PawPrintBold class="size-14 rotate-12" />
-    </span>
-
-    <span
-        class="launch-signup__floating-paw launch-signup__floating-paw--two pointer-events-none absolute bottom-[10%] left-[4%] hidden text-accent-300/28 lg:block"
+      <div
+        class="launch-signup__shell-glow launch-signup__shell-glow--blue pointer-events-none absolute -top-40 -left-36 size-112 rounded-full bg-brand-500/28 blur-3xl"
         aria-hidden="true"
-    >
-        <PawPrintBold class="size-11 -rotate-12" />
-    </span>
+      >
+      </div>
 
-    <div class="site-container relative z-10">
-        <div
-        class="launch-signup__shell relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-ink-950 shadow-2xl shadow-ink-950/20"
-        data-launch-reveal
-        >
-        <div
-            class="launch-signup__shell-glow launch-signup__shell-glow--blue pointer-events-none absolute -top-40 -left-36 size-112 rounded-full bg-brand-500/28 blur-3xl"
-            aria-hidden="true"
-        >
-        </div>
+      <div
+        class="launch-signup__shell-glow launch-signup__shell-glow--orange pointer-events-none absolute -right-36 -bottom-44 size-120 rounded-full bg-accent-500/22 blur-3xl"
+        aria-hidden="true"
+      >
+      </div>
 
-        <div
-            class="launch-signup__shell-glow launch-signup__shell-glow--orange pointer-events-none absolute -right-36 -bottom-44 size-120 rounded-full bg-accent-500/22 blur-3xl"
-            aria-hidden="true"
-        >
-        </div>
-
-        <div
-            class="launch-signup__grid relative grid min-h-168 overflow-hidden lg:grid-cols-[0.92fr_1.08fr]"
-        >
-            <!--
+      <div
+        class="launch-signup__grid relative grid min-h-168 overflow-hidden lg:grid-cols-[0.92fr_1.08fr]"
+      >
+        <!--
             Full-grid background image.
 
             The image is decorative, so it intentionally uses an empty
             alternative description.
             -->
-            <div
-            class="launch-signup__background pointer-events-none absolute inset-0 z-0 overflow-hidden"
+        <div
+          class="launch-signup__background pointer-events-none absolute inset-0 z-0 overflow-hidden"
+          aria-hidden="true"
+        >
+          <Image
+            src={launchSignupBackground}
+            alt=""
+            class="launch-signup__background-image absolute inset-0 size-full object-cover"
+            widths={[640, 960, 1280, 1600, 1920]}
+            sizes="(min-width: 1280px) 1280px, (min-width: 1024px) calc(100vw - 2rem), calc(100vw - 2rem)"
+            loading="lazy"
+            quality={82}
+          />
+
+          <div class="launch-signup__background-wash absolute inset-0" aria-hidden="true"></div>
+        </div>
+
+        <!-- Conversion copy -->
+        <div
+          class="launch-signup__copy-panel relative z-10 flex flex-col justify-end overflow-hidden p-6 sm:p-8 lg:p-10 xl:p-12"
+          data-launch-reveal="left"
+          style="--launch-reveal-delay: 80ms;"
+        >
+          <div
+            class="launch-signup__left-pattern pointer-events-none absolute inset-0"
             aria-hidden="true"
+          >
+          </div>
+
+          <div
+            class="launch-signup__copy-glow pointer-events-none absolute -bottom-28 -left-24 size-80 rounded-full bg-accent-500/18 blur-3xl"
+            aria-hidden="true"
+          >
+          </div>
+
+          <div class="relative z-10 max-w-xl">
+            <p
+              class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-ink-950/35 px-4 py-2 text-xs font-black uppercase tracking-[0.15em] text-accent-200 backdrop-blur-md"
             >
-            <Image
-                src={launchSignupBackground}
-                alt=""
-                class="launch-signup__background-image absolute inset-0 size-full object-cover"
-                widths={[640, 960, 1280, 1600, 1920]}
-                sizes="(min-width: 1280px) 1280px, (min-width: 1024px) calc(100vw - 2rem), calc(100vw - 2rem)"
-                loading="lazy"
-                quality={82}
-            />
+              <HeartBold class="size-4" aria-hidden="true" />
 
-            <div class="launch-signup__background-wash absolute inset-0" aria-hidden="true"></div>
-            </div>
+              Join the Pack
+            </p>
 
-            <!-- Conversion copy -->
-            <div
-            class="launch-signup__copy-panel relative z-10 flex flex-col justify-end overflow-hidden p-6 sm:p-8 lg:p-10 xl:p-12"
+            <h2
+              id="join-the-pack-title"
+              class="mt-6 max-w-xl text-3xl text-white sm:text-4xl lg:text-[2.8rem]"
+            >
+              Be first to discover what is coming to Maxi Pawz.
+            </h2>
+
+            <p class="mt-5 max-w-xl text-base leading-7 text-white/78 sm:text-lg sm:leading-8">
+              Join the Maxi Pawz pack for launch updates, new products, helpful pet guides, and
+              occasional subscriber-only offers.
+            </p>
+          </div>
+
+          <div
+            class="launch-signup__brand-note relative z-10 mt-10 flex items-center gap-4 rounded-3xl border border-white/15 bg-ink-950/38 p-4 shadow-card backdrop-blur-md sm:p-5"
             data-launch-reveal="left"
-            style="--launch-reveal-delay: 80ms;"
-            >
-            <div
-                class="launch-signup__left-pattern pointer-events-none absolute inset-0"
-                aria-hidden="true"
-            >
-            </div>
-
-            <div
-                class="launch-signup__copy-glow pointer-events-none absolute -bottom-28 -left-24 size-80 rounded-full bg-accent-500/18 blur-3xl"
-                aria-hidden="true"
-            >
-            </div>
-
-            <div class="relative z-10 max-w-xl">
-                <p
-                class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-ink-950/35 px-4 py-2 text-xs font-black uppercase tracking-[0.15em] text-accent-200 backdrop-blur-md"
-                >
-                <HeartBold class="size-4" aria-hidden="true" />
-
-                Join the Pack
-                </p>
-
-                <h2
-                id="join-the-pack-title"
-                class="mt-6 max-w-xl text-3xl text-white sm:text-4xl lg:text-[2.8rem]"
-                >
-                Be first to discover what is coming to MaxiPawz.
-                </h2>
-
-                <p class="mt-5 max-w-xl text-base leading-7 text-white/78 sm:text-lg sm:leading-8">
-                Join the MaxiPawz pack for launch updates, new products, helpful pet guides, and
-                occasional subscriber-only offers.
-                </p>
-            </div>
-
-            <div
-                class="launch-signup__brand-note relative z-10 mt-10 flex items-center gap-4 rounded-3xl border border-white/15 bg-ink-950/38 p-4 shadow-card backdrop-blur-md sm:p-5"
-                data-launch-reveal="left"
-                style="--launch-reveal-delay: 270ms;"
-            >
-                <span
-                class="launch-signup__mascot grid size-16 shrink-0 place-items-center overflow-hidden rounded-full border-4 border-white/12 bg-cream-soft shadow-orange sm:size-20"
-                aria-hidden="true"
-                >
-                <BrandLogo variant="mascot" class="size-full object-contain p-1" />
-                </span>
-
-                <div>
-                <p class="font-display text-xl text-white sm:text-2xl">Happy pets. Happy life.</p>
-
-                <p class="mt-1 text-sm leading-6 text-white/68">
-                    Friendly updates from a store built around pets and the people who love them.
-                </p>
-                </div>
-            </div>
-            </div>
-
-            <!-- Form side -->
-            <div
-            class="launch-signup__form-panel relative z-10 flex items-center p-5 sm:p-7 lg:p-9 xl:p-12"
-            data-launch-reveal="right"
-            style="--launch-reveal-delay: 140ms;"
-            >
-            <div
-                class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,rgba(0,138,255,0.12),transparent_18rem),radial-gradient(circle_at_10%_90%,rgba(255,102,0,0.12),transparent_20rem)]"
-                aria-hidden="true"
-            >
-            </div>
-
+            style="--launch-reveal-delay: 270ms;"
+          >
             <span
-                class="launch-signup__floating-mark pointer-events-none absolute top-5 right-5 z-20 hidden size-20 rotate-6 place-items-center rounded-3xl border border-brand-200 bg-white-warm/90 p-3 shadow-blue backdrop-blur-md sm:grid"
-                aria-hidden="true"
+              class="launch-signup__mascot grid size-16 shrink-0 place-items-center overflow-hidden rounded-full border-4 border-white/12 bg-cream-soft shadow-orange sm:size-20"
+              aria-hidden="true"
             >
-                <BrandLogo variant="mark" class="size-full object-contain" />
+              <BrandLogo variant="mascot" class="size-full object-contain p-1" />
             </span>
 
-            <div
-                class="launch-signup__tilt-root relative z-10 mx-auto w-full"
-                data-launch-tilt-root
-            >
-                <div class="launch-signup__tilt-surface" data-launch-tilt-surface>
-                <form
-                    name="maxipawz-launch-list"
-                    action="/join/success"
-                    method="POST"
-                    data-netlify="true"
-                    netlify-honeypot="bot-field"
-                    class="launch-signup__form surface-card relative overflow-hidden p-5 sm:p-7 lg:p-8"
-                    data-launch-form
+            <div>
+              <p class="font-display text-xl text-white sm:text-2xl">Happy pets. Happy life.</p>
+
+              <p class="mt-1 text-sm leading-6 text-white/68">
+                Friendly updates from a store built around pets and the people who love them.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form side -->
+        <div
+          class="launch-signup__form-panel relative z-10 flex items-center p-5 sm:p-7 lg:p-9 xl:p-12"
+          data-launch-reveal="right"
+          style="--launch-reveal-delay: 140ms;"
+        >
+          <div
+            class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,rgba(0,138,255,0.12),transparent_18rem),radial-gradient(circle_at_10%_90%,rgba(255,102,0,0.12),transparent_20rem)]"
+            aria-hidden="true"
+          >
+          </div>
+
+          <span
+            class="launch-signup__floating-mark pointer-events-none absolute top-5 right-5 z-20 hidden size-20 rotate-6 place-items-center rounded-3xl border border-brand-200 bg-white-warm/90 p-3 shadow-blue backdrop-blur-md sm:grid"
+            aria-hidden="true"
+          >
+            <BrandLogo variant="mark" class="size-full object-contain" />
+          </span>
+
+          <div class="launch-signup__tilt-root relative z-10 mx-auto w-full" data-launch-tilt-root>
+            <div class="launch-signup__tilt-surface" data-launch-tilt-surface>
+              <form
+                name="maxipawz-launch-list"
+                action="/join/success"
+                method="POST"
+                data-netlify="true"
+                netlify-honeypot="bot-field"
+                class="launch-signup__form surface-card relative overflow-hidden p-5 sm:p-7 lg:p-8"
+                data-launch-form
+              >
+                <input type="hidden" name="form-name" value="maxipawz-launch-list" />
+
+                <p hidden>
+                  <label>
+                    Do not fill out this field:
+
+                    <input name="bot-field" tabindex="-1" autocomplete="off" />
+                  </label>
+                </p>
+
+                <div
+                  class="launch-signup__form-spotlight pointer-events-none absolute inset-0 z-0"
+                  aria-hidden="true"
                 >
-                    <input type="hidden" name="form-name" value="maxipawz-launch-list" />
-
-                    <p hidden>
-                    <label>
-                        Do not fill out this field:
-
-                        <input name="bot-field" tabindex="-1" autocomplete="off" />
-                    </label>
-                    </p>
-
-                    <div
-                    class="launch-signup__form-spotlight pointer-events-none absolute inset-0 z-0"
-                    aria-hidden="true"
-                    >
-                    </div>
-
-                    <div
-                    class="pointer-events-none absolute -top-20 -right-16 size-56 rounded-full bg-brand-200/25 blur-3xl"
-                    aria-hidden="true"
-                    >
-                    </div>
-
-                    <div
-                    class="pointer-events-none absolute -bottom-24 -left-20 size-64 rounded-full bg-accent-200/25 blur-3xl"
-                    aria-hidden="true"
-                    >
-                    </div>
-
-                    <div class="relative z-10">
-                    <div class="flex items-start gap-4 pr-0 sm:pr-20">
-                        <h3 class="mt-2 text-2xl text-ink-900 sm:text-3xl">
-                            Become part of the MaxiPawz pack.
-                        </h3>
-                    </div>
-
-                    <p class="mt-5 leading-7 text-ink-600">
-                        Tell us where to send your MaxiPawz updates. Your first name is optional, but
-                        your email address is required.
-                    </p>
-
-                    <div class="mt-7 grid gap-5 sm:grid-cols-2">
-                        <div class="launch-signup__field">
-                        <div class="flex items-center justify-between gap-3">
-                            <label for="launch-first-name" class="form-label"> First name </label>
-
-                            <span class="text-xs font-bold text-ink-400"> Optional </span>
-                        </div>
-
-                        <input
-                            id="launch-first-name"
-                            name="first-name"
-                            type="text"
-                            autocomplete="given-name"
-                            class="launch-signup__input form-control"
-                            placeholder="Your first name"
-                            maxlength="80"
-                            data-launch-field
-                        />
-
-                        <p class="mt-2 text-xs leading-5 text-ink-500">
-                            Helps us make your updates feel a little more personal.
-                        </p>
-                        </div>
-
-                        <div class="launch-signup__field">
-                        <label for="launch-email" class="form-label"> Email address </label>
-
-                        <input
-                            id="launch-email"
-                            name="email"
-                            type="email"
-                            inputmode="email"
-                            autocomplete="email"
-                            spellcheck="false"
-                            class="launch-signup__input form-control"
-                            placeholder="you@example.com"
-                            aria-describedby="launch-email-help"
-                            required
-                            data-launch-field
-                        />
-
-                        <p id="launch-email-help" class="mt-2 text-xs leading-5 text-ink-500">
-                            Enter the email address you check most often.
-                        </p>
-                        </div>
-                    </div>
-
-                    <div class="mt-6 rounded-3xl border border-brand-200/70 bg-brand-50/75 p-4">
-                        <div class="flex items-start gap-3">
-                        <CheckCircleBold
-                            class="mt-0.5 size-5 shrink-0 text-brand-700"
-                            aria-hidden="true"
-                        />
-
-                        <p class="text-sm leading-6 text-ink-600">
-                            Friendly updates only. We will not flood your inbox, and you can unsubscribe
-                            at any time.
-                        </p>
-                        </div>
-                    </div>
-
-                    <div class="mt-6">
-                        <Button
-                        type="submit"
-                        variant="primary"
-                        size="lg"
-                        fullWidth={true}
-                        iconPosition="right"
-                        >
-                        <ArrowRightBold slot="icon" aria-hidden="true" />
-
-                        <span data-launch-submit-label> Join the Pack </span>
-                        </Button>
-                    </div>
-
-                    <p class="sr-only" aria-live="polite" data-launch-form-status></p>
-
-                    <p class="mt-4 text-center text-xs leading-5 text-ink-500">
-                        By joining, you agree to receive MaxiPawz launch and marketing emails.
-                    </p>
-                    </div>
-                </form>
                 </div>
+
+                <div
+                  class="pointer-events-none absolute -top-20 -right-16 size-56 rounded-full bg-brand-200/25 blur-3xl"
+                  aria-hidden="true"
+                >
+                </div>
+
+                <div
+                  class="pointer-events-none absolute -bottom-24 -left-20 size-64 rounded-full bg-accent-200/25 blur-3xl"
+                  aria-hidden="true"
+                >
+                </div>
+
+                <div class="relative z-10">
+                  <div class="flex items-start gap-4 pr-0 sm:pr-20">
+                    <h3 class="mt-2 text-2xl text-ink-900 sm:text-3xl">
+                      Become part of the Maxi Pawz pack.
+                    </h3>
+                  </div>
+
+                  <p class="mt-5 leading-7 text-ink-600">
+                    Tell us where to send your Maxi Pawz updates. Your first name is optional, but
+                    your email address is required.
+                  </p>
+
+                  <div class="mt-7 grid gap-5 sm:grid-cols-2">
+                    <div class="launch-signup__field">
+                      <div class="flex items-center justify-between gap-3">
+                        <label for="launch-first-name" class="form-label"> First name </label>
+
+                        <span class="text-xs font-bold text-ink-400"> Optional </span>
+                      </div>
+
+                      <input
+                        id="launch-first-name"
+                        name="first-name"
+                        type="text"
+                        autocomplete="given-name"
+                        class="launch-signup__input form-control"
+                        placeholder="Your first name"
+                        maxlength="80"
+                        data-launch-field
+                      />
+
+                      <p class="mt-2 text-xs leading-5 text-ink-500">
+                        Helps us make your updates feel a little more personal.
+                      </p>
+                    </div>
+
+                    <div class="launch-signup__field">
+                      <label for="launch-email" class="form-label"> Email address </label>
+
+                      <input
+                        id="launch-email"
+                        name="email"
+                        type="email"
+                        inputmode="email"
+                        autocomplete="email"
+                        spellcheck="false"
+                        class="launch-signup__input form-control"
+                        placeholder="you@example.com"
+                        aria-describedby="launch-email-help"
+                        required
+                        data-launch-field
+                      />
+
+                      <p id="launch-email-help" class="mt-2 text-xs leading-5 text-ink-500">
+                        Enter the email address you check most often.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="mt-6 rounded-3xl border border-brand-200/70 bg-brand-50/75 p-4">
+                    <div class="flex items-start gap-3">
+                      <CheckCircleBold
+                        class="mt-0.5 size-5 shrink-0 text-brand-700"
+                        aria-hidden="true"
+                      />
+
+                      <p class="text-sm leading-6 text-ink-600">
+                        Friendly updates only. We will not flood your inbox, and you can unsubscribe
+                        at any time.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="mt-6">
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      size="lg"
+                      fullWidth={true}
+                      iconPosition="right"
+                    >
+                      <ArrowRightBold slot="icon" aria-hidden="true" />
+
+                      <span data-launch-submit-label> Join the Pack </span>
+                    </Button>
+                  </div>
+
+                  <p class="sr-only" aria-live="polite" data-launch-form-status></p>
+
+                  <p class="mt-4 text-center text-xs leading-5 text-ink-500">
+                    By joining, you agree to receive Maxi Pawz launch and marketing emails.
+                  </p>
+                </div>
+              </form>
             </div>
-            </div>
+          </div>
         </div>
-        </div>
+      </div>
     </div>
+  </div>
 </section>
 
 <style>
-    .launch-signup {
-        --launch-parallax-y: 0px;
-        --launch-tilt-x: 0deg;
-        --launch-tilt-y: 0deg;
-        --launch-tilt-scale: 1;
-        --launch-spotlight-x: 50%;
-        --launch-spotlight-y: 50%;
+  .launch-signup {
+    --launch-parallax-y: 0px;
+    --launch-tilt-x: 0deg;
+    --launch-tilt-y: 0deg;
+    --launch-tilt-scale: 1;
+    --launch-spotlight-x: 50%;
+    --launch-spotlight-y: 50%;
 
-        background: linear-gradient(
-        180deg,
-        rgb(255 253 244 / 82%) 0%,
-        rgb(255 248 220 / 94%) 52%,
-        rgb(248 237 200 / 68%) 100%
-        );
-    }
+    background: linear-gradient(
+      180deg,
+      rgb(255 253 244 / 82%) 0%,
+      rgb(255 248 220 / 94%) 52%,
+      rgb(248 237 200 / 68%) 100%
+    );
+  }
 
-    .launch-signup__pattern {
-        background-image:
-        radial-gradient(circle at 18% 25%, rgb(0 138 255 / 8%), transparent 24rem),
-        radial-gradient(circle at 85% 72%, rgb(255 102 0 / 8%), transparent 26rem),
-        radial-gradient(circle, rgb(53 39 31 / 7%) 1px, transparent 1px);
+  .launch-signup__pattern {
+    background-image:
+      radial-gradient(circle at 18% 25%, rgb(0 138 255 / 8%), transparent 24rem),
+      radial-gradient(circle at 85% 72%, rgb(255 102 0 / 8%), transparent 26rem),
+      radial-gradient(circle, rgb(53 39 31 / 7%) 1px, transparent 1px);
 
-        background-size:
-        auto,
-        auto,
-        2.25rem 2.25rem;
+    background-size:
+      auto,
+      auto,
+      2.25rem 2.25rem;
 
-        -webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
 
-        mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
 
-        opacity: 0.72;
-    }
+    opacity: 0.72;
+  }
 
-    .launch-signup__parallax {
-        transform: translate3d(0, var(--launch-parallax-y), 0);
+  .launch-signup__parallax {
+    transform: translate3d(0, var(--launch-parallax-y), 0);
 
-        will-change: transform;
-    }
+    will-change: transform;
+  }
 
-    .launch-signup__orb {
-        animation: launch-orb-drift 11s ease-in-out infinite;
-        will-change: transform;
-    }
+  .launch-signup__orb {
+    animation: launch-orb-drift 11s ease-in-out infinite;
+    will-change: transform;
+  }
 
-    .launch-signup__orb--orange {
-        animation-delay: -5s;
-        animation-direction: reverse;
-    }
+  .launch-signup__orb--orange {
+    animation-delay: -5s;
+    animation-direction: reverse;
+  }
 
-    .launch-signup__floating-paw {
-        animation: launch-paw-float 7s ease-in-out infinite;
-        will-change: transform;
-    }
+  .launch-signup__floating-paw {
+    animation: launch-paw-float 7s ease-in-out infinite;
+    will-change: transform;
+  }
 
-    .launch-signup__floating-paw--two {
-        animation-delay: -3.5s;
-        animation-direction: reverse;
-    }
+  .launch-signup__floating-paw--two {
+    animation-delay: -3.5s;
+    animation-direction: reverse;
+  }
 
-    .launch-signup__shell {
-        background:
-        radial-gradient(circle at 10% 10%, rgb(0 138 255 / 22%), transparent 23rem),
-        radial-gradient(circle at 34% 100%, rgb(255 102 0 / 17%), transparent 25rem), #211711;
-    }
+  .launch-signup__shell {
+    background:
+      radial-gradient(circle at 10% 10%, rgb(0 138 255 / 22%), transparent 23rem),
+      radial-gradient(circle at 34% 100%, rgb(255 102 0 / 17%), transparent 25rem), #211711;
+  }
 
-    .launch-signup__shell-glow {
-        animation: launch-shell-glow 10s ease-in-out infinite;
-    }
+  .launch-signup__shell-glow {
+    animation: launch-shell-glow 10s ease-in-out infinite;
+  }
 
-    .launch-signup__shell-glow--orange {
-        animation-delay: -4.5s;
-        animation-direction: reverse;
-    }
+  .launch-signup__shell-glow--orange {
+    animation-delay: -4.5s;
+    animation-direction: reverse;
+  }
 
-    /*
+  /*
     * Ken Burns background
     *
     * The image stays at a deliberately low opacity so it adds atmosphere
     * without competing with the conversion copy or signup form.
     */
-    .launch-signup__background {
-        background-color: #211711;
-    }
+  .launch-signup__background {
+    background-color: #211711;
+  }
 
-    .launch-signup__background-image {
-        object-position: center 46%;
-        opacity: 0.88;
+  .launch-signup__background-image {
+    object-position: center 46%;
+    opacity: 0.88;
 
-        transform: translate3d(-1.5%, 0, 0) scale(1.06);
+    transform: translate3d(-1.5%, 0, 0) scale(1.06);
 
-        animation: launch-ken-burns 20s ease-in-out infinite alternate;
+    animation: launch-ken-burns 20s ease-in-out infinite alternate;
 
-        filter: saturate(0.92) contrast(1.03);
-        will-change: transform;
-    }
+    filter: saturate(0.92) contrast(1.03);
+    will-change: transform;
+  }
 
-    .launch-signup__background-wash {
-        background:
-        linear-gradient(
-            90deg,
-            rgb(33 23 17 / 52%) 0%,
-            rgb(33 23 17 / 28%) 46%,
-            rgb(255 253 250 / 8%) 58%,
-            rgb(255 253 250 / 18%) 100%
-        ),
-        linear-gradient(180deg, rgb(33 23 17 / 10%) 0%, rgb(33 23 17 / 22%) 100%);
-    }
+  .launch-signup__background-wash {
+    background:
+      linear-gradient(
+        90deg,
+        rgb(33 23 17 / 52%) 0%,
+        rgb(33 23 17 / 28%) 46%,
+        rgb(255 253 250 / 8%) 58%,
+        rgb(255 253 250 / 18%) 100%
+      ),
+      linear-gradient(180deg, rgb(33 23 17 / 10%) 0%, rgb(33 23 17 / 22%) 100%);
+  }
 
-    /*
+  /*
     * The left panel uses a translucent dark gradient. This allows the
     * background photo to remain visible while keeping the white text legible.
     */
-    .launch-signup__copy-panel {
-        background:
-        linear-gradient(
-            180deg,
-            rgb(33 23 17 / 18%) 0%,
-            rgb(33 23 17 / 48%) 46%,
-            rgb(33 23 17 / 86%) 100%
-        ),
-        linear-gradient(90deg, rgb(33 23 17 / 35%), rgb(33 23 17 / 8%));
-    }
+  .launch-signup__copy-panel {
+    background:
+      linear-gradient(
+        180deg,
+        rgb(33 23 17 / 18%) 0%,
+        rgb(33 23 17 / 48%) 46%,
+        rgb(33 23 17 / 86%) 100%
+      ),
+      linear-gradient(90deg, rgb(33 23 17 / 35%), rgb(33 23 17 / 8%));
+  }
 
-    /*
+  /*
     * The form panel remains light, but it is not completely opaque. A small
     * amount of the background image can still show through.
     */
-    .launch-signup__form-panel {
-        background: linear-gradient(
-        145deg,
-        rgb(238 248 255 / 92%) 0%,
-        rgb(255 253 250 / 91%) 52%,
-        rgb(255 245 235 / 90%) 100%
-        );
+  .launch-signup__form-panel {
+    background: linear-gradient(
+      145deg,
+      rgb(238 248 255 / 92%) 0%,
+      rgb(255 253 250 / 91%) 52%,
+      rgb(255 245 235 / 90%) 100%
+    );
 
-        -webkit-backdrop-filter: blur(3px);
-        backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+  }
+
+  .launch-signup__left-pattern {
+    background-image:
+      linear-gradient(rgb(255 255 255 / 3%) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 3%) 1px, transparent 1px);
+
+    background-size: 3rem 3rem;
+
+    -webkit-mask-image: linear-gradient(to bottom right, black, transparent 76%);
+
+    mask-image: linear-gradient(to bottom right, black, transparent 76%);
+
+    opacity: 0.65;
+  }
+
+  .launch-signup__brand-note {
+    transition:
+      transform 240ms var(--ease-friendly),
+      border-color 240ms var(--ease-friendly),
+      background-color 240ms var(--ease-friendly);
+  }
+
+  .launch-signup__brand-note:hover {
+    transform: translateY(-0.25rem);
+
+    border-color: rgb(255 174 102 / 30%);
+    background-color: rgb(33 23 17 / 52%);
+  }
+
+  .launch-signup__mascot {
+    animation: launch-mascot-bob 5s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  .launch-signup__floating-mark {
+    animation: launch-mark-float 5.5s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  .launch-signup__tilt-root {
+    perspective: 1200px;
+  }
+
+  .launch-signup__tilt-surface {
+    transform: rotateX(var(--launch-tilt-x)) rotateY(var(--launch-tilt-y))
+      scale(var(--launch-tilt-scale));
+
+    transform-style: preserve-3d;
+
+    transition: transform 260ms var(--ease-friendly);
+    will-change: transform;
+  }
+
+  .launch-signup__form {
+    background: rgb(255 254 249 / 92%);
+
+    transform: translateZ(0);
+
+    transition:
+      border-color 240ms var(--ease-friendly),
+      box-shadow 260ms var(--ease-friendly);
+  }
+
+  .launch-signup__tilt-root:hover .launch-signup__form {
+    border-color: rgb(0 138 255 / 28%);
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .launch-signup__form-spotlight {
+    background: radial-gradient(
+      circle 17rem at var(--launch-spotlight-x) var(--launch-spotlight-y),
+      rgb(255 255 255 / 48%),
+      transparent 68%
+    );
+
+    opacity: 0;
+    transition: opacity 220ms ease;
+  }
+
+  .launch-signup__tilt-root:hover .launch-signup__form-spotlight {
+    opacity: 1;
+  }
+
+  .launch-signup__input {
+    transition:
+      border-color 180ms var(--ease-friendly),
+      box-shadow 180ms var(--ease-friendly),
+      background-color 180ms var(--ease-friendly),
+      transform 180ms var(--ease-friendly);
+  }
+
+  .launch-signup__input:hover {
+    border-color: rgb(0 138 255 / 38%);
+  }
+
+  .launch-signup__input:focus {
+    transform: translateY(-1px);
+  }
+
+  .launch-signup__input.is-valid {
+    border-color: rgb(34 169 104 / 55%);
+    background-color: rgb(239 252 245 / 72%);
+
+    box-shadow: 0 0 0 4px rgb(34 169 104 / 10%);
+  }
+
+  .launch-signup__input.is-invalid {
+    border-color: rgb(220 69 69 / 70%);
+    background-color: rgb(255 241 241 / 82%);
+
+    box-shadow: 0 0 0 4px rgb(220 69 69 / 11%);
+  }
+
+  .launch-signup__form.is-submitting {
+    pointer-events: none;
+  }
+
+  .launch-signup__form button[type='submit']:disabled {
+    cursor: wait;
+    opacity: 0.72;
+  }
+
+  .launch-signup__form.is-submitting button[type='submit'] {
+    animation: launch-submit-pulse 1.25s ease-in-out infinite;
+  }
+
+  .launch-signup-motion-ready [data-launch-reveal] {
+    opacity: 0;
+
+    transform: translate3d(0, 1.7rem, 0) scale(0.985);
+
+    transition:
+      opacity 680ms var(--ease-friendly) var(--launch-reveal-delay, 0ms),
+      transform 680ms var(--ease-friendly) var(--launch-reveal-delay, 0ms);
+
+    will-change: opacity, transform;
+  }
+
+  .launch-signup-motion-ready [data-launch-reveal='left'] {
+    transform: translate3d(-2rem, 0, 0) scale(0.985);
+  }
+
+  .launch-signup-motion-ready [data-launch-reveal='right'] {
+    transform: translate3d(2rem, 0, 0) scale(0.985);
+  }
+
+  .launch-signup-motion-ready [data-launch-reveal].is-launch-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  @keyframes launch-ken-burns {
+    0% {
+      transform: translate3d(-1.5%, 0, 0) scale(1.06);
     }
 
-    .launch-signup__left-pattern {
-        background-image:
-        linear-gradient(rgb(255 255 255 / 3%) 1px, transparent 1px),
-        linear-gradient(90deg, rgb(255 255 255 / 3%) 1px, transparent 1px);
-
-        background-size: 3rem 3rem;
-
-        -webkit-mask-image: linear-gradient(to bottom right, black, transparent 76%);
-
-        mask-image: linear-gradient(to bottom right, black, transparent 76%);
-
-        opacity: 0.65;
+    50% {
+      transform: translate3d(0.5%, -1%, 0) scale(1.11);
     }
 
-    .launch-signup__brand-note {
-        transition:
-        transform 240ms var(--ease-friendly),
-        border-color 240ms var(--ease-friendly),
-        background-color 240ms var(--ease-friendly);
+    100% {
+      transform: translate3d(2%, -1.5%, 0) scale(1.16);
+    }
+  }
+
+  @keyframes launch-orb-drift {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) scale(1);
     }
 
-    .launch-signup__brand-note:hover {
-        transform: translateY(-0.25rem);
+    50% {
+      transform: translate3d(1rem, -1rem, 0) scale(1.06);
+    }
+  }
 
-        border-color: rgb(255 174 102 / 30%);
-        background-color: rgb(33 23 17 / 52%);
+  @keyframes launch-shell-glow {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) scale(1);
     }
 
-    .launch-signup__mascot {
-        animation: launch-mascot-bob 5s ease-in-out infinite;
-        will-change: transform;
+    50% {
+      transform: translate3d(1.1rem, -0.8rem, 0) scale(1.07);
+    }
+  }
+
+  @keyframes launch-paw-float {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) rotate(-4deg);
     }
 
-    .launch-signup__floating-mark {
-        animation: launch-mark-float 5.5s ease-in-out infinite;
-        will-change: transform;
+    50% {
+      transform: translate3d(0.45rem, -0.75rem, 0) rotate(5deg);
+    }
+  }
+
+  @keyframes launch-mascot-bob {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) rotate(-2deg);
     }
 
+    50% {
+      transform: translate3d(0, -0.35rem, 0) rotate(2deg);
+    }
+  }
+
+  @keyframes launch-mark-float {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) rotate(6deg);
+    }
+
+    50% {
+      transform: translate3d(0.25rem, -0.5rem, 0) rotate(10deg);
+    }
+  }
+
+  @keyframes launch-submit-pulse {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+
+    50% {
+      transform: scale(0.985);
+    }
+  }
+
+  @media (max-width: 1023px) {
+    .launch-signup__grid {
+      min-height: 0;
+    }
+
+    .launch-signup__copy-panel {
+      min-height: 34rem;
+
+      background: linear-gradient(
+        180deg,
+        rgb(33 23 17 / 18%) 0%,
+        rgb(33 23 17 / 58%) 52%,
+        rgb(33 23 17 / 90%) 100%
+      );
+    }
+
+    .launch-signup__background-image {
+      object-position: 44% center;
+    }
+  }
+
+  @media (hover: none), (pointer: coarse) {
     .launch-signup__tilt-root {
-        perspective: 1200px;
+      perspective: none;
     }
 
     .launch-signup__tilt-surface {
-        transform: rotateX(var(--launch-tilt-x)) rotateY(var(--launch-tilt-y))
-        scale(var(--launch-tilt-scale));
-
-        transform-style: preserve-3d;
-
-        transition: transform 260ms var(--ease-friendly);
-        will-change: transform;
-    }
-
-    .launch-signup__form {
-        background: rgb(255 254 249 / 92%);
-
-        transform: translateZ(0);
-
-        transition:
-        border-color 240ms var(--ease-friendly),
-        box-shadow 260ms var(--ease-friendly);
-    }
-
-    .launch-signup__tilt-root:hover .launch-signup__form {
-        border-color: rgb(0 138 255 / 28%);
-        box-shadow: var(--shadow-card-hover);
+      transform: none !important;
+      will-change: auto;
     }
 
     .launch-signup__form-spotlight {
-        background: radial-gradient(
-        circle 17rem at var(--launch-spotlight-x) var(--launch-spotlight-y),
-        rgb(255 255 255 / 48%),
-        transparent 68%
-        );
-
-        opacity: 0;
-        transition: opacity 220ms ease;
+      display: none;
     }
 
-    .launch-signup__tilt-root:hover .launch-signup__form-spotlight {
-        opacity: 1;
+    .launch-signup__brand-note:hover {
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .launch-signup__background-image {
+      animation: none !important;
+
+      transform: scale(1.08) !important;
     }
 
-    .launch-signup__input {
-        transition:
-        border-color 180ms var(--ease-friendly),
-        box-shadow 180ms var(--ease-friendly),
-        background-color 180ms var(--ease-friendly),
-        transform 180ms var(--ease-friendly);
-    }
-
-    .launch-signup__input:hover {
-        border-color: rgb(0 138 255 / 38%);
-    }
-
-    .launch-signup__input:focus {
-        transform: translateY(-1px);
-    }
-
-    .launch-signup__input.is-valid {
-        border-color: rgb(34 169 104 / 55%);
-        background-color: rgb(239 252 245 / 72%);
-
-        box-shadow: 0 0 0 4px rgb(34 169 104 / 10%);
-    }
-
-    .launch-signup__input.is-invalid {
-        border-color: rgb(220 69 69 / 70%);
-        background-color: rgb(255 241 241 / 82%);
-
-        box-shadow: 0 0 0 4px rgb(220 69 69 / 11%);
-    }
-
-    .launch-signup__form.is-submitting {
-        pointer-events: none;
-    }
-
-    .launch-signup__form button[type='submit']:disabled {
-        cursor: wait;
-        opacity: 0.72;
-    }
-
-    .launch-signup__form.is-submitting button[type='submit'] {
-        animation: launch-submit-pulse 1.25s ease-in-out infinite;
+    .launch-signup__parallax,
+    .launch-signup__orb,
+    .launch-signup__floating-paw,
+    .launch-signup__shell-glow,
+    .launch-signup__brand-note,
+    .launch-signup__mascot,
+    .launch-signup__floating-mark,
+    .launch-signup__tilt-surface,
+    .launch-signup__input,
+    .launch-signup__form button[type='submit'],
+    .launch-signup-motion-ready [data-launch-reveal] {
+      animation: none !important;
+      transform: none !important;
+      transition: none !important;
     }
 
     .launch-signup-motion-ready [data-launch-reveal] {
-        opacity: 0;
-
-        transform: translate3d(0, 1.7rem, 0) scale(0.985);
-
-        transition:
-        opacity 680ms var(--ease-friendly) var(--launch-reveal-delay, 0ms),
-        transform 680ms var(--ease-friendly) var(--launch-reveal-delay, 0ms);
-
-        will-change: opacity, transform;
+      opacity: 1 !important;
     }
 
-    .launch-signup-motion-ready [data-launch-reveal='left'] {
-        transform: translate3d(-2rem, 0, 0) scale(0.985);
+    .launch-signup__form-spotlight {
+      display: none !important;
     }
-
-    .launch-signup-motion-ready [data-launch-reveal='right'] {
-        transform: translate3d(2rem, 0, 0) scale(0.985);
-    }
-
-    .launch-signup-motion-ready [data-launch-reveal].is-launch-visible {
-        opacity: 1;
-        transform: translate3d(0, 0, 0) scale(1);
-    }
-
-    @keyframes launch-ken-burns {
-        0% {
-        transform: translate3d(-1.5%, 0, 0) scale(1.06);
-        }
-
-        50% {
-        transform: translate3d(0.5%, -1%, 0) scale(1.11);
-        }
-
-        100% {
-        transform: translate3d(2%, -1.5%, 0) scale(1.16);
-        }
-    }
-
-    @keyframes launch-orb-drift {
-        0%,
-        100% {
-        transform: translate3d(0, 0, 0) scale(1);
-        }
-
-        50% {
-        transform: translate3d(1rem, -1rem, 0) scale(1.06);
-        }
-    }
-
-    @keyframes launch-shell-glow {
-        0%,
-        100% {
-        transform: translate3d(0, 0, 0) scale(1);
-        }
-
-        50% {
-        transform: translate3d(1.1rem, -0.8rem, 0) scale(1.07);
-        }
-    }
-
-    @keyframes launch-paw-float {
-        0%,
-        100% {
-        transform: translate3d(0, 0, 0) rotate(-4deg);
-        }
-
-        50% {
-        transform: translate3d(0.45rem, -0.75rem, 0) rotate(5deg);
-        }
-    }
-
-    @keyframes launch-mascot-bob {
-        0%,
-        100% {
-        transform: translate3d(0, 0, 0) rotate(-2deg);
-        }
-
-        50% {
-        transform: translate3d(0, -0.35rem, 0) rotate(2deg);
-        }
-    }
-
-    @keyframes launch-mark-float {
-        0%,
-        100% {
-        transform: translate3d(0, 0, 0) rotate(6deg);
-        }
-
-        50% {
-        transform: translate3d(0.25rem, -0.5rem, 0) rotate(10deg);
-        }
-    }
-
-    @keyframes launch-submit-pulse {
-        0%,
-        100% {
-        transform: scale(1);
-        }
-
-        50% {
-        transform: scale(0.985);
-        }
-    }
-
-    @media (max-width: 1023px) {
-        .launch-signup__grid {
-        min-height: 0;
-        }
-
-        .launch-signup__copy-panel {
-        min-height: 34rem;
-
-        background: linear-gradient(
-            180deg,
-            rgb(33 23 17 / 18%) 0%,
-            rgb(33 23 17 / 58%) 52%,
-            rgb(33 23 17 / 90%) 100%
-        );
-        }
-
-        .launch-signup__background-image {
-        object-position: 44% center;
-        }
-    }
-
-    @media (hover: none), (pointer: coarse) {
-        .launch-signup__tilt-root {
-        perspective: none;
-        }
-
-        .launch-signup__tilt-surface {
-        transform: none !important;
-        will-change: auto;
-        }
-
-        .launch-signup__form-spotlight {
-        display: none;
-        }
-
-        .launch-signup__brand-note:hover {
-        transform: none;
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .launch-signup__background-image {
-        animation: none !important;
-
-        transform: scale(1.08) !important;
-        }
-
-        .launch-signup__parallax,
-        .launch-signup__orb,
-        .launch-signup__floating-paw,
-        .launch-signup__shell-glow,
-        .launch-signup__brand-note,
-        .launch-signup__mascot,
-        .launch-signup__floating-mark,
-        .launch-signup__tilt-surface,
-        .launch-signup__input,
-        .launch-signup__form button[type='submit'],
-        .launch-signup-motion-ready [data-launch-reveal] {
-        animation: none !important;
-        transform: none !important;
-        transition: none !important;
-        }
-
-        .launch-signup-motion-ready [data-launch-reveal] {
-        opacity: 1 !important;
-        }
-
-        .launch-signup__form-spotlight {
-        display: none !important;
-        }
-    }
+  }
 </style>
 
 <script>
-    const initializeLaunchSignupSections = (): void => {
-        const sections = Array.from(document.querySelectorAll<HTMLElement>('[data-launch-signup]'));
+  const initializeLaunchSignupSections = (): void => {
+    const sections = Array.from(document.querySelectorAll<HTMLElement>('[data-launch-signup]'));
 
-        for (const section of sections) {
-        if (section.dataset.launchSignupInitialized === 'true') {
-            continue;
-        }
+    for (const section of sections) {
+      if (section.dataset.launchSignupInitialized === 'true') {
+        continue;
+      }
 
-        section.dataset.launchSignupInitialized = 'true';
+      section.dataset.launchSignupInitialized = 'true';
 
-        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        const revealElements = Array.from(
-            section.querySelectorAll<HTMLElement>('[data-launch-reveal]'),
+      const revealElements = Array.from(
+        section.querySelectorAll<HTMLElement>('[data-launch-reveal]'),
+      );
+
+      if (!reducedMotion && 'IntersectionObserver' in window) {
+        section.classList.add('launch-signup-motion-ready');
+
+        const revealObserver = new IntersectionObserver(
+          (entries, observer) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) {
+                continue;
+              }
+
+              entry.target.classList.add('is-launch-visible');
+
+              observer.unobserve(entry.target);
+            }
+          },
+          {
+            rootMargin: '0px 0px -8% 0px',
+            threshold: 0.1,
+          },
         );
 
-        if (!reducedMotion && 'IntersectionObserver' in window) {
-            section.classList.add('launch-signup-motion-ready');
+        window.requestAnimationFrame(() => {
+          for (const element of revealElements) {
+            revealObserver.observe(element);
+          }
+        });
+      } else {
+        for (const element of revealElements) {
+          element.classList.add('is-launch-visible');
+        }
+      }
 
-            const revealObserver = new IntersectionObserver(
-            (entries, observer) => {
-                for (const entry of entries) {
-                if (!entry.isIntersecting) {
-                    continue;
-                }
+      const parallaxElements = Array.from(
+        section.querySelectorAll<HTMLElement>('[data-launch-parallax]'),
+      );
 
-                entry.target.classList.add('is-launch-visible');
+      let parallaxFrame = 0;
 
-                observer.unobserve(entry.target);
-                }
-            },
-            {
-                rootMargin: '0px 0px -8% 0px',
-                threshold: 0.1,
-            },
-            );
+      const updateParallax = (): void => {
+        parallaxFrame = 0;
 
-            window.requestAnimationFrame(() => {
-            for (const element of revealElements) {
-                revealObserver.observe(element);
-            }
-            });
-        } else {
-            for (const element of revealElements) {
-            element.classList.add('is-launch-visible');
-            }
+        const sectionRect = section.getBoundingClientRect();
+
+        const viewportCenter = window.innerHeight / 2;
+
+        const sectionCenter = sectionRect.top + sectionRect.height / 2;
+
+        const distanceFromCenter = sectionCenter - viewportCenter;
+
+        for (const element of parallaxElements) {
+          const speed = Number(element.dataset.launchParallaxSpeed ?? '0.03');
+
+          const offset = Math.max(-42, Math.min(42, -distanceFromCenter * speed));
+
+          element.style.setProperty('--launch-parallax-y', `${offset.toFixed(2)}px`);
+        }
+      };
+
+      const requestParallaxUpdate = (): void => {
+        if (parallaxFrame !== 0) {
+          return;
         }
 
-        const parallaxElements = Array.from(
-            section.querySelectorAll<HTMLElement>('[data-launch-parallax]'),
-        );
+        parallaxFrame = window.requestAnimationFrame(updateParallax);
+      };
 
-        let parallaxFrame = 0;
+      if (!reducedMotion && parallaxElements.length > 0) {
+        updateParallax();
 
-        const updateParallax = (): void => {
-            parallaxFrame = 0;
-
-            const sectionRect = section.getBoundingClientRect();
-
-            const viewportCenter = window.innerHeight / 2;
-
-            const sectionCenter = sectionRect.top + sectionRect.height / 2;
-
-            const distanceFromCenter = sectionCenter - viewportCenter;
-
-            for (const element of parallaxElements) {
-            const speed = Number(element.dataset.launchParallaxSpeed ?? '0.03');
-
-            const offset = Math.max(-42, Math.min(42, -distanceFromCenter * speed));
-
-            element.style.setProperty('--launch-parallax-y', `${offset.toFixed(2)}px`);
-            }
-        };
-
-        const requestParallaxUpdate = (): void => {
-            if (parallaxFrame !== 0) {
-            return;
-            }
-
-            parallaxFrame = window.requestAnimationFrame(updateParallax);
-        };
-
-        if (!reducedMotion && parallaxElements.length > 0) {
-            updateParallax();
-
-            window.addEventListener('scroll', requestParallaxUpdate, {
-            passive: true,
-            });
-
-            window.addEventListener('resize', requestParallaxUpdate, {
-            passive: true,
-            });
-        }
-
-        const form = section.querySelector<HTMLFormElement>('[data-launch-form]');
-
-        if (form) {
-            const submitButton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
-
-            const submitLabel = form.querySelector<HTMLElement>('[data-launch-submit-label]');
-
-            const formStatus = form.querySelector<HTMLElement>('[data-launch-form-status]');
-
-            const fields = Array.from(form.querySelectorAll<HTMLInputElement>('[data-launch-field]'));
-
-            const updateFieldState = (field: HTMLInputElement): void => {
-            const hasValue = field.value.trim().length > 0;
-
-            const isValid = field.validity.valid;
-
-            field.classList.toggle('is-valid', hasValue && isValid);
-
-            if (isValid) {
-                field.classList.remove('is-invalid');
-
-                field.removeAttribute('aria-invalid');
-            }
-            };
-
-            for (const field of fields) {
-            field.addEventListener('invalid', () => {
-                field.classList.add('is-invalid');
-
-                field.classList.remove('is-valid');
-
-                field.setAttribute('aria-invalid', 'true');
-            });
-
-            field.addEventListener('input', () => {
-                updateFieldState(field);
-            });
-
-            field.addEventListener('blur', () => {
-                updateFieldState(field);
-            });
-            }
-
-            const resetSubmittingState = (): void => {
-            form.classList.remove('is-submitting');
-
-            form.removeAttribute('aria-busy');
-
-            if (submitButton) {
-                submitButton.disabled = false;
-
-                submitButton.removeAttribute('aria-busy');
-            }
-
-            if (submitLabel) {
-                submitLabel.textContent = 'Join the Pack';
-            }
-
-            if (formStatus) {
-                formStatus.textContent = '';
-            }
-            };
-
-            form.addEventListener('submit', () => {
-            if (!form.checkValidity()) {
-                return;
-            }
-
-            form.classList.add('is-submitting');
-
-            form.setAttribute('aria-busy', 'true');
-
-            if (submitLabel) {
-                submitLabel.textContent = 'Joining the pack…';
-            }
-
-            if (formStatus) {
-                formStatus.textContent = 'Submitting your information.';
-            }
-
-            window.setTimeout(() => {
-                if (submitButton) {
-                submitButton.disabled = true;
-
-                submitButton.setAttribute('aria-busy', 'true');
-                }
-            }, 0);
-
-            window.setTimeout(resetSubmittingState, 12000);
-            });
-        }
-
-        const supportsFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-
-        if (reducedMotion || !supportsFinePointer) {
-            continue;
-        }
-
-        const tiltRoot = section.querySelector<HTMLElement>('[data-launch-tilt-root]');
-
-        const tiltSurface = section.querySelector<HTMLElement>('[data-launch-tilt-surface]');
-
-        if (!tiltRoot || !tiltSurface) {
-            continue;
-        }
-
-        let tiltFrame = 0;
-        let pointerX = 0;
-        let pointerY = 0;
-
-        const renderTilt = (): void => {
-            tiltFrame = 0;
-
-            const rect = tiltRoot.getBoundingClientRect();
-
-            if (rect.width === 0 || rect.height === 0) {
-            return;
-            }
-
-            const normalizedX = (pointerX - rect.left) / rect.width - 0.5;
-
-            const normalizedY = (pointerY - rect.top) / rect.height - 0.5;
-
-            const rotateY = normalizedX * 3.8;
-
-            const rotateX = normalizedY * -3.2;
-
-            tiltSurface.style.setProperty('--launch-tilt-x', `${rotateX.toFixed(2)}deg`);
-
-            tiltSurface.style.setProperty('--launch-tilt-y', `${rotateY.toFixed(2)}deg`);
-
-            tiltSurface.style.setProperty('--launch-tilt-scale', '1.006');
-
-            tiltSurface.style.setProperty('--launch-spotlight-x', `${(normalizedX + 0.5) * 100}%`);
-
-            tiltSurface.style.setProperty('--launch-spotlight-y', `${(normalizedY + 0.5) * 100}%`);
-        };
-
-        const handlePointerMove = (event: PointerEvent): void => {
-            pointerX = event.clientX;
-            pointerY = event.clientY;
-
-            if (tiltFrame === 0) {
-            tiltFrame = window.requestAnimationFrame(renderTilt);
-            }
-        };
-
-        const resetTilt = (): void => {
-            if (tiltFrame !== 0) {
-            window.cancelAnimationFrame(tiltFrame);
-
-            tiltFrame = 0;
-            }
-
-            tiltSurface.style.setProperty('--launch-tilt-x', '0deg');
-
-            tiltSurface.style.setProperty('--launch-tilt-y', '0deg');
-
-            tiltSurface.style.setProperty('--launch-tilt-scale', '1');
-
-            tiltSurface.style.setProperty('--launch-spotlight-x', '50%');
-
-            tiltSurface.style.setProperty('--launch-spotlight-y', '50%');
-        };
-
-        tiltRoot.addEventListener('pointermove', handlePointerMove, {
-            passive: true,
+        window.addEventListener('scroll', requestParallaxUpdate, {
+          passive: true,
         });
 
-        tiltRoot.addEventListener('pointerleave', resetTilt);
+        window.addEventListener('resize', requestParallaxUpdate, {
+          passive: true,
+        });
+      }
 
-        tiltRoot.addEventListener('blur', resetTilt, true);
+      const form = section.querySelector<HTMLFormElement>('[data-launch-form]');
+
+      if (form) {
+        const submitButton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+
+        const submitLabel = form.querySelector<HTMLElement>('[data-launch-submit-label]');
+
+        const formStatus = form.querySelector<HTMLElement>('[data-launch-form-status]');
+
+        const fields = Array.from(form.querySelectorAll<HTMLInputElement>('[data-launch-field]'));
+
+        const updateFieldState = (field: HTMLInputElement): void => {
+          const hasValue = field.value.trim().length > 0;
+
+          const isValid = field.validity.valid;
+
+          field.classList.toggle('is-valid', hasValue && isValid);
+
+          if (isValid) {
+            field.classList.remove('is-invalid');
+
+            field.removeAttribute('aria-invalid');
+          }
+        };
+
+        for (const field of fields) {
+          field.addEventListener('invalid', () => {
+            field.classList.add('is-invalid');
+
+            field.classList.remove('is-valid');
+
+            field.setAttribute('aria-invalid', 'true');
+          });
+
+          field.addEventListener('input', () => {
+            updateFieldState(field);
+          });
+
+          field.addEventListener('blur', () => {
+            updateFieldState(field);
+          });
         }
-    };
 
-    initializeLaunchSignupSections();
+        const resetSubmittingState = (): void => {
+          form.classList.remove('is-submitting');
 
-    document.addEventListener('astro:page-load', initializeLaunchSignupSections);
+          form.removeAttribute('aria-busy');
+
+          if (submitButton) {
+            submitButton.disabled = false;
+
+            submitButton.removeAttribute('aria-busy');
+          }
+
+          if (submitLabel) {
+            submitLabel.textContent = 'Join the Pack';
+          }
+
+          if (formStatus) {
+            formStatus.textContent = '';
+          }
+        };
+
+        form.addEventListener('submit', () => {
+          if (!form.checkValidity()) {
+            return;
+          }
+
+          form.classList.add('is-submitting');
+
+          form.setAttribute('aria-busy', 'true');
+
+          if (submitLabel) {
+            submitLabel.textContent = 'Joining the pack…';
+          }
+
+          if (formStatus) {
+            formStatus.textContent = 'Submitting your information.';
+          }
+
+          window.setTimeout(() => {
+            if (submitButton) {
+              submitButton.disabled = true;
+
+              submitButton.setAttribute('aria-busy', 'true');
+            }
+          }, 0);
+
+          window.setTimeout(resetSubmittingState, 12000);
+        });
+      }
+
+      const supportsFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+      if (reducedMotion || !supportsFinePointer) {
+        continue;
+      }
+
+      const tiltRoot = section.querySelector<HTMLElement>('[data-launch-tilt-root]');
+
+      const tiltSurface = section.querySelector<HTMLElement>('[data-launch-tilt-surface]');
+
+      if (!tiltRoot || !tiltSurface) {
+        continue;
+      }
+
+      let tiltFrame = 0;
+      let pointerX = 0;
+      let pointerY = 0;
+
+      const renderTilt = (): void => {
+        tiltFrame = 0;
+
+        const rect = tiltRoot.getBoundingClientRect();
+
+        if (rect.width === 0 || rect.height === 0) {
+          return;
+        }
+
+        const normalizedX = (pointerX - rect.left) / rect.width - 0.5;
+
+        const normalizedY = (pointerY - rect.top) / rect.height - 0.5;
+
+        const rotateY = normalizedX * 3.8;
+
+        const rotateX = normalizedY * -3.2;
+
+        tiltSurface.style.setProperty('--launch-tilt-x', `${rotateX.toFixed(2)}deg`);
+
+        tiltSurface.style.setProperty('--launch-tilt-y', `${rotateY.toFixed(2)}deg`);
+
+        tiltSurface.style.setProperty('--launch-tilt-scale', '1.006');
+
+        tiltSurface.style.setProperty('--launch-spotlight-x', `${(normalizedX + 0.5) * 100}%`);
+
+        tiltSurface.style.setProperty('--launch-spotlight-y', `${(normalizedY + 0.5) * 100}%`);
+      };
+
+      const handlePointerMove = (event: PointerEvent): void => {
+        pointerX = event.clientX;
+        pointerY = event.clientY;
+
+        if (tiltFrame === 0) {
+          tiltFrame = window.requestAnimationFrame(renderTilt);
+        }
+      };
+
+      const resetTilt = (): void => {
+        if (tiltFrame !== 0) {
+          window.cancelAnimationFrame(tiltFrame);
+
+          tiltFrame = 0;
+        }
+
+        tiltSurface.style.setProperty('--launch-tilt-x', '0deg');
+
+        tiltSurface.style.setProperty('--launch-tilt-y', '0deg');
+
+        tiltSurface.style.setProperty('--launch-tilt-scale', '1');
+
+        tiltSurface.style.setProperty('--launch-spotlight-x', '50%');
+
+        tiltSurface.style.setProperty('--launch-spotlight-y', '50%');
+      };
+
+      tiltRoot.addEventListener('pointermove', handlePointerMove, {
+        passive: true,
+      });
+
+      tiltRoot.addEventListener('pointerleave', resetTilt);
+
+      tiltRoot.addEventListener('blur', resetTilt, true);
+    }
+  };
+
+  initializeLaunchSignupSections();
+
+  document.addEventListener('astro:page-load', initializeLaunchSignupSections);
 </script>

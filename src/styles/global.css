@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
 /*
- * MaxiPawz primary typeface
+ * Maxi Pawz primary typeface
  *
  * Place the licensed font file at:
  * public/fonts/skia/Skia.woff2
@@ -15,7 +15,7 @@
 }
 
 /*
- * MaxiPawz design tokens
+ * Maxi Pawz design tokens
  *
  * Brand:
  * Blue:   #008aff
@@ -38,7 +38,7 @@
     'Segoe UI', sans-serif;
 
   /*
-        * MaxiPawz blue
+        * Maxi Pawz blue
         *
         * The exact brand blue is brand-500.
         */
@@ -55,7 +55,7 @@
   --color-brand-950: #072a4d;
 
   /*
-        * MaxiPawz orange
+        * Maxi Pawz orange
         *
         * The exact brand orange is accent-500.
         */
@@ -356,7 +356,7 @@
 }
 
 /*
- * Reusable MaxiPawz components
+ * Reusable Maxi Pawz components
  *
  * These classes provide a consistent visual foundation while still allowing
  * Tailwind utility classes to be used for page-specific styling.
@@ -469,7 +469,7 @@
         * Orange is used for primary shopping actions.
         *
         * Dark text is intentional because it creates stronger contrast than white
-        * on the exact MaxiPawz orange.
+        * on the exact Maxi Pawz orange.
         */
   .button-primary {
     display: inline-flex;

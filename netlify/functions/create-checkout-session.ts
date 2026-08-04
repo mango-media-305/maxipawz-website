@@ -31,7 +31,7 @@ export default async function handler(
                 'checkout-disabled',
 
             message:
-                'The legacy hosted Checkout endpoint has been retired. MaxiPawz now uses carrier-calculated Embedded Checkout.',
+                'The legacy hosted Checkout endpoint has been retired. Maxi Pawz now uses carrier-calculated Embedded Checkout.',
         },
         {
             status:

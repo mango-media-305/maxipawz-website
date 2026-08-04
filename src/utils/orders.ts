@@ -1499,7 +1499,7 @@ export async function saveStripeRefundSnapshot(
 
   if (!order) {
     throw new Error(
-      'No MaxiPawz order matches the refunded Stripe PaymentIntent.',
+      'No Maxi Pawz order matches the refunded Stripe PaymentIntent.',
     );
   }
 
@@ -1537,7 +1537,7 @@ export async function saveStripeRefundSnapshot(
 
     if (!existing) {
       throw new Error(
-        'The MaxiPawz order disappeared while its refund was being synchronized.',
+        'The Maxi Pawz order disappeared while its refund was being synchronized.',
       );
     }
 

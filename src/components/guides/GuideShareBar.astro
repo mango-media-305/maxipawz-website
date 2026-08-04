@@ -4,314 +4,314 @@ import LinkSimpleBold from 'phosphor-astro/LinkSimpleBold.astro';
 import ShareNetworkBold from 'phosphor-astro/ShareNetworkBold.astro';
 
 interface Props {
-    guideTitle: string;
-    guideSlug: string;
-    guideURL: string;
+  guideTitle: string;
+  guideSlug: string;
+  guideURL: string;
 }
 
 const { guideTitle, guideSlug, guideURL } = Astro.props;
 
-const emailSubject = `Helpful MaxiPawz guide: ${guideTitle}`;
+const emailSubject = `Helpful Maxi Pawz guide: ${guideTitle}`;
 
 const emailBody = [
-    'I thought you might find this MaxiPawz guide helpful:',
-    '',
-    guideTitle,
-    guideURL,
+  'I thought you might find this Maxi Pawz guide helpful:',
+  '',
+  guideTitle,
+  guideURL,
 ].join('\n');
 
 const emailHref = `mailto:?subject=${encodeURIComponent(
-    emailSubject,
+  emailSubject,
 )}&body=${encodeURIComponent(emailBody)}`;
 
 const headingID = `share-guide-${guideSlug}`;
 ---
 
 <section
-    class="mt-8 rounded-4xl border border-brand-200 bg-white-warm p-5 shadow-soft sm:p-6"
-    aria-labelledby={headingID}
-    data-guide-share-root
-    data-guide-slug={guideSlug}
-    data-guide-title={guideTitle}
-    data-guide-url={guideURL}
+  class="mt-8 rounded-4xl border border-brand-200 bg-white-warm p-5 shadow-soft sm:p-6"
+  aria-labelledby={headingID}
+  data-guide-share-root
+  data-guide-slug={guideSlug}
+  data-guide-title={guideTitle}
+  data-guide-url={guideURL}
 >
-    <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-        <div class="max-w-xl">
-        <p class="text-xs font-extrabold uppercase tracking-[0.09em] text-brand-700">
-            Help Another Pet Parent
-        </p>
+  <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+    <div class="max-w-xl">
+      <p class="text-xs font-extrabold uppercase tracking-[0.09em] text-brand-700">
+        Help Another Pet Parent
+      </p>
 
-        <h2 id={headingID} class="mt-2 text-2xl text-ink-900 sm:text-3xl">Share this guide</h2>
+      <h2 id={headingID} class="mt-2 text-2xl text-ink-900 sm:text-3xl">Share this guide</h2>
 
-        <p class="mt-3 text-sm leading-6 text-ink-600 sm:text-base sm:leading-7">
-            Know someone who could use these tips? Send them this MaxiPawz guide.
-        </p>
-        </div>
-
-        <span
-        class="grid size-14 shrink-0 place-items-center rounded-2xl bg-brand-100 text-brand-700"
-        aria-hidden="true"
-        >
-        <ShareNetworkBold class="size-7" />
-        </span>
+      <p class="mt-3 text-sm leading-6 text-ink-600 sm:text-base sm:leading-7">
+        Know someone who could use these tips? Send them this Maxi Pawz guide.
+      </p>
     </div>
 
-    <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-        <button
-        type="button"
-        class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-brand-700 bg-brand-500 px-5 text-sm font-extrabold text-white shadow-blue transition hover:-translate-y-0.5 hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-200"
-        data-guide-share-method="native"
-        >
-        <ShareNetworkBold class="size-5" aria-hidden="true" />
-
-        Share Guide
-        </button>
-
-        <button
-        type="button"
-        class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-brand-200 bg-brand-50 px-5 text-sm font-extrabold text-brand-800 transition hover:-translate-y-0.5 hover:border-brand-300 hover:bg-brand-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-200"
-        data-guide-share-method="copy"
-        >
-        <LinkSimpleBold class="size-5" aria-hidden="true" />
-
-        Copy Link
-        </button>
-
-        <a
-        href={emailHref}
-        class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-accent-300 bg-accent-50 px-5 text-sm font-extrabold text-accent-800 transition hover:-translate-y-0.5 hover:border-accent-400 hover:bg-accent-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent-200"
-        data-guide-share-method="email"
-        >
-        <EnvelopeSimpleBold class="size-5" aria-hidden="true" />
-
-        Email Guide
-        </a>
-    </div>
-
-    <p
-        class="mt-4 min-h-6 text-sm font-bold text-brand-700"
-        role="status"
-        aria-live="polite"
-        data-guide-share-status
+    <span
+      class="grid size-14 shrink-0 place-items-center rounded-2xl bg-brand-100 text-brand-700"
+      aria-hidden="true"
     >
-    </p>
+      <ShareNetworkBold class="size-7" />
+    </span>
+  </div>
+
+  <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+    <button
+      type="button"
+      class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-brand-700 bg-brand-500 px-5 text-sm font-extrabold text-white shadow-blue transition hover:-translate-y-0.5 hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-200"
+      data-guide-share-method="native"
+    >
+      <ShareNetworkBold class="size-5" aria-hidden="true" />
+
+      Share Guide
+    </button>
+
+    <button
+      type="button"
+      class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-brand-200 bg-brand-50 px-5 text-sm font-extrabold text-brand-800 transition hover:-translate-y-0.5 hover:border-brand-300 hover:bg-brand-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-200"
+      data-guide-share-method="copy"
+    >
+      <LinkSimpleBold class="size-5" aria-hidden="true" />
+
+      Copy Link
+    </button>
+
+    <a
+      href={emailHref}
+      class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-accent-300 bg-accent-50 px-5 text-sm font-extrabold text-accent-800 transition hover:-translate-y-0.5 hover:border-accent-400 hover:bg-accent-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent-200"
+      data-guide-share-method="email"
+    >
+      <EnvelopeSimpleBold class="size-5" aria-hidden="true" />
+
+      Email Guide
+    </a>
+  </div>
+
+  <p
+    class="mt-4 min-h-6 text-sm font-bold text-brand-700"
+    role="status"
+    aria-live="polite"
+    data-guide-share-status
+  >
+  </p>
 </section>
 
 <script
-    is:inline
-    define:vars={{
-        guideTitle,
-        guideSlug,
-        guideURL,
-    }}
+  is:inline
+  define:vars={{
+    guideTitle,
+    guideSlug,
+    guideURL,
+  }}
 >
-    (() => {
-        const shareRoots = document.querySelectorAll('[data-guide-share-root]');
+  (() => {
+    const shareRoots = document.querySelectorAll('[data-guide-share-root]');
 
-        function sendGAEvent(eventName, parameters) {
-        if (typeof window.gtag !== 'function') {
-            return;
+    function sendGAEvent(eventName, parameters) {
+      if (typeof window.gtag !== 'function') {
+        return;
+      }
+
+      window.gtag('event', eventName, parameters);
+    }
+
+    function sendClarityEvent(eventName) {
+      if (typeof window.clarity !== 'function') {
+        return;
+      }
+
+      window.clarity('event', eventName);
+    }
+
+    function trackShare(method) {
+      sendGAEvent('share', {
+        method,
+        content_type: 'pet_guide',
+        item_id: guideSlug,
+        guide_slug: guideSlug,
+      });
+
+      sendClarityEvent('guideShare');
+    }
+
+    function fallbackCopy() {
+      const textarea = document.createElement('textarea');
+
+      textarea.value = guideURL;
+
+      textarea.setAttribute('readonly', '');
+
+      textarea.style.position = 'fixed';
+
+      textarea.style.opacity = '0';
+
+      textarea.style.pointerEvents = 'none';
+
+      document.body.appendChild(textarea);
+
+      textarea.focus();
+      textarea.select();
+
+      let copied = false;
+
+      try {
+        copied = document.execCommand('copy');
+      } catch {
+        copied = false;
+      }
+
+      textarea.remove();
+
+      return copied;
+    }
+
+    async function copyGuideURL() {
+      try {
+        if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+          await navigator.clipboard.writeText(guideURL);
+
+          return true;
         }
-
-        window.gtag('event', eventName, parameters);
-        }
-
-        function sendClarityEvent(eventName) {
-        if (typeof window.clarity !== 'function') {
-            return;
-        }
-
-        window.clarity('event', eventName);
-        }
-
-        function trackShare(method) {
-        sendGAEvent('share', {
-            method,
-            content_type: 'pet_guide',
-            item_id: guideSlug,
-            guide_slug: guideSlug,
-        });
-
-        sendClarityEvent('guideShare');
-        }
-
-        function fallbackCopy() {
-        const textarea = document.createElement('textarea');
-
-        textarea.value = guideURL;
-
-        textarea.setAttribute('readonly', '');
-
-        textarea.style.position = 'fixed';
-
-        textarea.style.opacity = '0';
-
-        textarea.style.pointerEvents = 'none';
-
-        document.body.appendChild(textarea);
-
-        textarea.focus();
-        textarea.select();
-
-        let copied = false;
-
-        try {
-            copied = document.execCommand('copy');
-        } catch {
-            copied = false;
-        }
-
-        textarea.remove();
-
-        return copied;
-        }
-
-        async function copyGuideURL() {
-        try {
-            if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-            await navigator.clipboard.writeText(guideURL);
-
-            return true;
-            }
-        } catch {
-            return fallbackCopy();
-        }
-
+      } catch {
         return fallbackCopy();
+      }
+
+      return fallbackCopy();
+    }
+
+    shareRoots.forEach((shareRoot) => {
+      if (!(shareRoot instanceof HTMLElement)) {
+        return;
+      }
+
+      if (shareRoot.dataset.guideShareBound === 'true') {
+        return;
+      }
+
+      shareRoot.dataset.guideShareBound = 'true';
+
+      const statusElement = shareRoot.querySelector('[data-guide-share-status]');
+
+      function setStatus(message) {
+        if (!(statusElement instanceof HTMLElement)) {
+          return;
         }
 
-        shareRoots.forEach((shareRoot) => {
-        if (!(shareRoot instanceof HTMLElement)) {
-            return;
+        statusElement.textContent = message;
+      }
+
+      shareRoot.addEventListener('click', async (event) => {
+        const target = event.target;
+
+        if (!(target instanceof Element)) {
+          return;
         }
 
-        if (shareRoot.dataset.guideShareBound === 'true') {
-            return;
+        const trigger = target.closest('[data-guide-share-method]');
+
+        if (!(trigger instanceof HTMLElement)) {
+          return;
         }
 
-        shareRoot.dataset.guideShareBound = 'true';
+        const method = trigger.dataset.guideShareMethod;
 
-        const statusElement = shareRoot.querySelector('[data-guide-share-status]');
+        if (method === 'email') {
+          trackShare('email');
 
-        function setStatus(message) {
-            if (!(statusElement instanceof HTMLElement)) {
-            return;
-            }
+          setStatus('Opening your email application.');
 
-            statusElement.textContent = message;
+          return;
         }
 
-        shareRoot.addEventListener('click', async (event) => {
-            const target = event.target;
+        event.preventDefault();
 
-            if (!(target instanceof Element)) {
-            return;
-            }
+        if (method === 'copy') {
+          const copied = await copyGuideURL();
 
-            const trigger = target.closest('[data-guide-share-method]');
+          if (copied) {
+            trackShare('copy_link');
 
-            if (!(trigger instanceof HTMLElement)) {
-            return;
-            }
-
-            const method = trigger.dataset.guideShareMethod;
-
-            if (method === 'email') {
-            trackShare('email');
-
-            setStatus('Opening your email application.');
-
-            return;
-            }
-
-            event.preventDefault();
-
-            if (method === 'copy') {
-            const copied = await copyGuideURL();
-
-            if (copied) {
-                trackShare('copy_link');
-
-                setStatus('Guide link copied.');
-            } else {
-                setStatus(
-                'The link could not be copied. Please copy it from your browser address bar.',
-                );
-            }
-
-            return;
-            }
-
-            if (method !== 'native') {
-            return;
-            }
-
-            if (typeof navigator.share === 'function') {
-            try {
-                await navigator.share({
-                title: guideTitle,
-
-                text: 'Helpful pet guidance from MaxiPawz Store.',
-
-                url: guideURL,
-                });
-
-                trackShare('native_share');
-
-                setStatus('Thanks for sharing this guide.');
-
-                return;
-            } catch (error) {
-                if (error instanceof DOMException && error.name === 'AbortError') {
-                return;
-                }
-            }
-            }
-
-            const copied = await copyGuideURL();
-
-            if (copied) {
-            trackShare('copy_fallback');
-
+            setStatus('Guide link copied.');
+          } else {
             setStatus(
-                'Sharing is not available on this device, so the guide link was copied instead.',
+              'The link could not be copied. Please copy it from your browser address bar.',
             );
-            } else {
-            setStatus('Sharing is unavailable. Please copy the page address from your browser.');
-            }
-        });
-        });
+          }
 
-        if (!window.__maxipawzGuideRelatedTrackingBound) {
-        window.__maxipawzGuideRelatedTrackingBound = true;
+          return;
+        }
 
-        document.addEventListener('click', (event) => {
-            const target = event.target;
+        if (method !== 'native') {
+          return;
+        }
 
-            if (!(target instanceof Element)) {
-            return;
-            }
+        if (typeof navigator.share === 'function') {
+          try {
+            await navigator.share({
+              title: guideTitle,
 
-            const link = target.closest('[data-guide-related-link]');
+              text: 'Helpful pet guidance from Maxi Pawz Store.',
 
-            if (!(link instanceof HTMLAnchorElement)) {
-            return;
-            }
-
-            const destination = link.dataset.relatedHref || link.getAttribute('href') || '';
-
-            sendGAEvent('select_content', {
-            content_type: 'related_guide',
-
-            item_id: destination,
-
-            guide_slug: guideSlug,
-
-            link_destination: destination,
+              url: guideURL,
             });
 
-            sendClarityEvent('relatedGuideClick');
-        });
+            trackShare('native_share');
+
+            setStatus('Thanks for sharing this guide.');
+
+            return;
+          } catch (error) {
+            if (error instanceof DOMException && error.name === 'AbortError') {
+              return;
+            }
+          }
         }
-    })();
+
+        const copied = await copyGuideURL();
+
+        if (copied) {
+          trackShare('copy_fallback');
+
+          setStatus(
+            'Sharing is not available on this device, so the guide link was copied instead.',
+          );
+        } else {
+          setStatus('Sharing is unavailable. Please copy the page address from your browser.');
+        }
+      });
+    });
+
+    if (!window.__maxipawzGuideRelatedTrackingBound) {
+      window.__maxipawzGuideRelatedTrackingBound = true;
+
+      document.addEventListener('click', (event) => {
+        const target = event.target;
+
+        if (!(target instanceof Element)) {
+          return;
+        }
+
+        const link = target.closest('[data-guide-related-link]');
+
+        if (!(link instanceof HTMLAnchorElement)) {
+          return;
+        }
+
+        const destination = link.dataset.relatedHref || link.getAttribute('href') || '';
+
+        sendGAEvent('select_content', {
+          content_type: 'related_guide',
+
+          item_id: destination,
+
+          guide_slug: guideSlug,
+
+          link_destination: destination,
+        });
+
+        sendClarityEvent('relatedGuideClick');
+      });
+    }
+  })();
 </script>

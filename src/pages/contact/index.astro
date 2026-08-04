@@ -2,17 +2,19 @@
 import ContactForm from '@components/contact/ContactForm.astro';
 import ContactHero from '@components/contact/ContactHero.astro';
 import ContactOptions from '@components/contact/ContactOptions.astro';
+
 import BaseLayout from '@layouts/BaseLayout.astro';
+
+import { businessConfig } from '../../config/business';
 ---
 
 <BaseLayout
-    title="Contact"
-    description="Contact MaxiPawz with general questions, product questions, partnership ideas, website feedback, and future order-support requests."
-    noIndex={true}
+  title="Contact"
+  description={`Contact ${businessConfig.shortName} with general questions, product questions, partnership ideas, website feedback, order-support requests, and return-related questions.`}
 >
-    <ContactHero />
+  <ContactHero />
 
-    <ContactOptions />
+  <ContactOptions />
 
-    <ContactForm />
+  <ContactForm />
 </BaseLayout>

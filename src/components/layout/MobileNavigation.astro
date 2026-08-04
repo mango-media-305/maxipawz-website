@@ -48,15 +48,9 @@ const activeNavigationHref = items
       return currentPath === '/';
     }
 
-    return (
-      currentPath === itemPath ||
-      currentPath.startsWith(`${itemPath}/`)
-    );
+    return currentPath === itemPath || currentPath.startsWith(`${itemPath}/`);
   })
-  .sort(
-    (firstItem, secondItem) =>
-      secondItem.href.length - firstItem.href.length,
-  )[0]?.href;
+  .sort((firstItem, secondItem) => secondItem.href.length - firstItem.href.length)[0]?.href;
 
 function isCurrentRoute(href: string): boolean {
   if (!activeNavigationHref) {
@@ -67,10 +61,7 @@ function isCurrentRoute(href: string): boolean {
 }
 ---
 
-<div
-  class="lg:hidden"
-  data-mobile-navigation
->
+<div class="lg:hidden" data-mobile-navigation>
   <button
     type="button"
     class="grid size-10 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-800 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-brand-400 hover:bg-brand-50"
@@ -79,10 +70,7 @@ function isCurrentRoute(href: string): boolean {
     aria-controls="mobile-navigation-panel"
     data-mobile-navigation-open
   >
-    <ListBold
-      class="size-4.5"
-      aria-hidden="true"
-    />
+    <ListBold class="size-4.5" aria-hidden="true" />
   </button>
 
   <div
@@ -109,19 +97,14 @@ function isCurrentRoute(href: string): boolean {
       class="absolute inset-y-0 right-0 flex h-full w-[min(92vw,24rem)] flex-col overflow-hidden border-l border-brand-100 bg-cream-soft shadow-2xl"
     >
       <!-- Drawer header -->
-      <div
-        class="flex shrink-0 items-center justify-between gap-4 border-b border-sand px-5 py-4"
-      >
+      <div class="flex shrink-0 items-center justify-between gap-4 border-b border-sand px-5 py-4">
         <a
           href="/"
           class="inline-flex min-w-0 items-center rounded-2xl"
-          aria-label="MaxiPawz Store home"
+          aria-label="Maxi Pawz Store home"
           data-mobile-navigation-link
         >
-          <BrandLogo
-            variant="logo"
-            class="h-12 w-auto max-w-52 object-contain"
-          />
+          <BrandLogo variant="logo" class="h-12 w-auto max-w-52 object-contain" />
         </a>
 
         <button
@@ -130,10 +113,7 @@ function isCurrentRoute(href: string): boolean {
           aria-label="Close navigation menu"
           data-mobile-navigation-close
         >
-          <XBold
-            class="size-4.5"
-            aria-hidden="true"
-          />
+          <XBold class="size-4.5" aria-hidden="true" />
         </button>
       </div>
 
@@ -162,19 +142,11 @@ function isCurrentRoute(href: string): boolean {
                   >
                     <span>{item.label}</span>
 
-                    {
-                      isCurrent ? (
-                        <PawPrintBold
-                          class="size-5 shrink-0"
-                          aria-hidden="true"
-                        />
-                      ) : (
-                        <ArrowRightBold
-                          class="size-5 shrink-0"
-                          aria-hidden="true"
-                        />
-                      )
-                    }
+                    {isCurrent ? (
+                      <PawPrintBold class="size-5 shrink-0" aria-hidden="true" />
+                    ) : (
+                      <ArrowRightBold class="size-5 shrink-0" aria-hidden="true" />
+                    )}
                   </a>
                 </li>
               );
@@ -194,10 +166,7 @@ function isCurrentRoute(href: string): boolean {
               data-mobile-navigation-link
               data-cart-link
             >
-              <ShoppingCartBold
-                class="size-5"
-                aria-hidden="true"
-              />
+              <ShoppingCartBold class="size-5" aria-hidden="true" />
 
               <span>View cart</span>
 
@@ -220,31 +189,20 @@ function isCurrentRoute(href: string): boolean {
               >
                 <span>{actionLabel}</span>
 
-                <ArrowRightBold
-                  class="size-5"
-                  aria-hidden="true"
-                />
+                <ArrowRightBold class="size-5" aria-hidden="true" />
               </a>
             )
           )
         }
 
-        {
-          note && (
-            <p class="mt-4 text-center text-xs leading-5 text-ink-500">
-              {note}
-            </p>
-          )
-        }
+        {note && <p class="mt-4 text-center text-xs leading-5 text-ink-500">{note}</p>}
       </div>
     </aside>
   </div>
 </div>
 
 <script>
-  const navigationElements = document.querySelectorAll<HTMLElement>(
-    '[data-mobile-navigation]',
-  );
+  const navigationElements = document.querySelectorAll<HTMLElement>('[data-mobile-navigation]');
 
   navigationElements.forEach((navigation) => {
     if (navigation.dataset.mobileNavigationReady === 'true') {
@@ -253,9 +211,7 @@ function isCurrentRoute(href: string): boolean {
 
     navigation.dataset.mobileNavigationReady = 'true';
 
-    const openButton = navigation.querySelector<HTMLButtonElement>(
-      '[data-mobile-navigation-open]',
-    );
+    const openButton = navigation.querySelector<HTMLButtonElement>('[data-mobile-navigation-open]');
 
     const closeButton = navigation.querySelector<HTMLButtonElement>(
       '[data-mobile-navigation-close]',
@@ -265,9 +221,7 @@ function isCurrentRoute(href: string): boolean {
       '[data-mobile-navigation-backdrop]',
     );
 
-    const panel = navigation.querySelector<HTMLElement>(
-      '[data-mobile-navigation-panel]',
-    );
+    const panel = navigation.querySelector<HTMLElement>('[data-mobile-navigation-panel]');
 
     const navigationLinks = navigation.querySelectorAll<HTMLAnchorElement>(
       '[data-mobile-navigation-link]',
@@ -341,19 +295,13 @@ function isCurrentRoute(href: string): boolean {
         return;
       }
 
-      if (
-        event.shiftKey &&
-        document.activeElement === firstElement
-      ) {
+      if (event.shiftKey && document.activeElement === firstElement) {
         event.preventDefault();
         lastElement.focus();
         return;
       }
 
-      if (
-        !event.shiftKey &&
-        document.activeElement === lastElement
-      ) {
+      if (!event.shiftKey && document.activeElement === lastElement) {
         event.preventDefault();
         firstElement.focus();
       }
@@ -380,10 +328,7 @@ function isCurrentRoute(href: string): boolean {
     window.addEventListener(
       'resize',
       () => {
-        if (
-          window.innerWidth >= 1024 &&
-          !panel.hidden
-        ) {
+        if (window.innerWidth >= 1024 && !panel.hidden) {
           closeMenu(false);
         }
       },

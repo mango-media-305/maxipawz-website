@@ -14,10 +14,7 @@ import Button from '../ui/Button.astro';
 
 import { isStoreLive } from '../../config/storefront';
 
-import {
-  lifestyleCategories,
-  type LifestyleCategoryIcon,
-} from '../../data/homepage';
+import { lifestyleCategories, type LifestyleCategoryIcon } from '../../data/homepage';
 
 const iconByCategory: Record<LifestyleCategoryIcon, typeof PawPrintBold> = {
   play: ConfettiBold,
@@ -36,9 +33,7 @@ function getCategoryHref(slug: string): string {
   return `/shop?category=${encodeURIComponent(slug)}`;
 }
 
-const categoryLinkLabel = isStoreLive
-  ? 'Explore category'
-  : 'Get launch updates';
+const categoryLinkLabel = isStoreLive ? 'Explore category' : 'Get launch updates';
 
 const categoryCountLabel = `${lifestyleCategories.length} thoughtful categories`;
 ---
@@ -49,10 +44,7 @@ const categoryCountLabel = `${lifestyleCategories.length} thoughtful categories`
   aria-labelledby="shop-by-lifestyle-title"
   data-category-showcase
 >
-  <div
-    class="category-showcase__pattern pointer-events-none absolute inset-0"
-    aria-hidden="true"
-  >
+  <div class="category-showcase__pattern pointer-events-none absolute inset-0" aria-hidden="true">
   </div>
 
   <div
@@ -82,44 +74,25 @@ const categoryCountLabel = `${lifestyleCategories.length} thoughtful categories`
   </div>
 
   <div class="site-container relative z-10">
-    <div
-      class="grid items-end gap-7 lg:grid-cols-1 lg:gap-14"
-    >
+    <div class="grid items-end gap-7 lg:grid-cols-1 lg:gap-14">
       <div data-category-reveal>
-        <Badge
-          variant="brand"
-          size="md"
-        >
-          <PawPrintBold
-            slot="icon"
-            aria-hidden="true"
-          />
+        <Badge variant="brand" size="md">
+          <PawPrintBold slot="icon" aria-hidden="true" />
 
-          {
-            isStoreLive
-              ? 'Shop by lifestyle'
-              : 'What you will find'
-          }
+          {isStoreLive ? 'Shop by lifestyle' : 'What you will find'}
         </Badge>
 
-        <h2
-          id="shop-by-lifestyle-title"
-          class="mt-5 text-4xl sm:text-5xl lg:text-6xl"
-        >
+        <h2 id="shop-by-lifestyle-title" class="mt-5 text-4xl sm:text-5xl lg:text-6xl">
           Products for play, care, comfort, and everyday adventures.
         </h2>
       </div>
 
-      <div
-        class="lg:pb-1"
-        data-category-reveal
-        style="--category-reveal-delay: 90ms;"
-      >
+      <div class="lg:pb-1" data-category-reveal style="--category-reveal-delay: 90ms;">
         <p>
           {
             isStoreLive
-              ? 'Explore MaxiPawz products based on the moments, routines, and experiences you share with your pet.'
-              : 'MaxiPawz is preparing a varied collection that supports playtime, walks, travel, feeding, hydration, comfort, care, and personal style.'
+              ? 'Explore Maxi Pawz products based on the moments, routines, and experiences you share with your pet.'
+              : 'Maxi Pawz is preparing a varied collection that supports playtime, walks, travel, feeding, hydration, comfort, care, and personal style.'
           }
         </p>
       </div>
@@ -156,60 +129,36 @@ const categoryCountLabel = `${lifestyleCategories.length} thoughtful categories`
       </ul>
     </div> -->
 
-    <div
-      class="mt-8 grid gap-5 sm:grid-cols-2 lg:mt-10 lg:grid-cols-3 lg:gap-6"
-    >
+    <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:mt-10 lg:grid-cols-3 lg:gap-6">
       {
-        lifestyleCategories.map(
-          (category, index) => {
-            const Icon =
-              iconByCategory[category.icon];
+        lifestyleCategories.map((category, index) => {
+          const Icon = iconByCategory[category.icon];
 
-            return (
-              <CategoryCard
-                title={category.title}
-                description={
-                  category.description
-                }
-                href={getCategoryHref(
-                  category.slug,
-                )}
-                linkLabel={
-                  categoryLinkLabel
-                }
-                tone={category.tone}
-                backgroundImage={
-                  category.backgroundImage
-                }
-                backgroundPosition={
-                  category.backgroundPosition
-                }
-                backgroundOverlay={
-                  category.backgroundOverlay
-                }
-                index={index}
-              >
-                <Icon
-                  slot="icon"
-                  aria-hidden="true"
-                />
-              </CategoryCard>
-            );
-          },
-        )
+          return (
+            <CategoryCard
+              title={category.title}
+              description={category.description}
+              href={getCategoryHref(category.slug)}
+              linkLabel={categoryLinkLabel}
+              tone={category.tone}
+              backgroundImage={category.backgroundImage}
+              backgroundPosition={category.backgroundPosition}
+              backgroundOverlay={category.backgroundOverlay}
+              index={index}
+            >
+              <Icon slot="icon" aria-hidden="true" />
+            </CategoryCard>
+          );
+        })
       }
     </div>
 
     <div
       class="category-showcase__cta mt-10 flex flex-col gap-6 overflow-hidden rounded-card-lg border border-brand-200/70 bg-white-warm/90 p-6 shadow-card backdrop-blur-md sm:p-8 lg:mt-12 lg:flex-row lg:items-center lg:justify-between"
       data-category-reveal
-      style={`--category-reveal-delay: ${
-        lifestyleCategories.length * 85 + 80
-      }ms;`}
+      style={`--category-reveal-delay: ${lifestyleCategories.length * 85 + 80}ms;`}
     >
-      <div
-        class="relative z-10 flex max-w-2xl items-start gap-4"
-      >
+      <div class="relative z-10 flex max-w-2xl items-start gap-4">
         <span
           class="grid size-12 shrink-0 place-items-center rounded-2xl bg-accent-100 text-accent-700 shadow-orange"
           aria-hidden="true"
@@ -226,21 +175,17 @@ const categoryCountLabel = `${lifestyleCategories.length} thoughtful categories`
             }
           </h3>
 
-          <p
-            class="mt-2 leading-7 text-ink-600"
-          >
+          <p class="mt-2 leading-7 text-ink-600">
             {
               isStoreLive
-                ? 'Browse the full MaxiPawz collection and discover useful products for more of the moments you share together.'
-                : 'Join the MaxiPawz pack for launch news, collection updates, useful guidance, and occasional subscriber offers.'
+                ? 'Browse the full Maxi Pawz collection and discover useful products for more of the moments you share together.'
+                : 'Join the Maxi Pawz pack for launch news, collection updates, useful guidance, and occasional subscriber offers.'
             }
           </p>
         </div>
       </div>
 
-      <div
-        class="relative z-10 shrink-0"
-      >
+      <div class="relative z-10 shrink-0">
         {
           isStoreLive ? (
             <Button
@@ -250,11 +195,7 @@ const categoryCountLabel = `${lifestyleCategories.length} thoughtful categories`
               iconPosition="right"
               class="w-full sm:w-auto"
             >
-              <ShoppingBagOpenBold
-                slot="icon"
-                aria-hidden="true"
-              />
-
+              <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
               Shop All Products
             </Button>
           ) : (
@@ -265,11 +206,7 @@ const categoryCountLabel = `${lifestyleCategories.length} thoughtful categories`
               iconPosition="right"
               class="w-full sm:w-auto"
             >
-              <HeartBold
-                slot="icon"
-                aria-hidden="true"
-              />
-
+              <HeartBold slot="icon" aria-hidden="true" />
               Join the Pack
             </Button>
           )
@@ -290,25 +227,14 @@ const categoryCountLabel = `${lifestyleCategories.length} thoughtful categories`
   }
 
   .category-showcase__pattern {
-    background-image: radial-gradient(
-      circle,
-      rgb(0 138 255 / 10%) 1.25px,
-      transparent 1.25px
-    );
+    background-image: radial-gradient(circle, rgb(0 138 255 / 10%) 1.25px, transparent 1.25px);
     background-size: 2rem 2rem;
-    mask-image: linear-gradient(
-      to bottom,
-      transparent,
-      black 16%,
-      black 78%,
-      transparent
-    );
+    mask-image: linear-gradient(to bottom, transparent, black 16%, black 78%, transparent);
     opacity: 0.65;
   }
 
   .category-showcase__orb {
-    animation: category-orb-drift 10s
-      ease-in-out infinite;
+    animation: category-orb-drift 10s ease-in-out infinite;
     will-change: transform;
   }
 
@@ -318,8 +244,7 @@ const categoryCountLabel = `${lifestyleCategories.length} thoughtful categories`
   }
 
   .category-showcase__paw {
-    animation: category-paw-float 7s
-      ease-in-out infinite;
+    animation: category-paw-float 7s ease-in-out infinite;
     will-change: transform;
   }
 
@@ -335,31 +260,23 @@ const categoryCountLabel = `${lifestyleCategories.length} thoughtful categories`
   .category-showcase__rail::before {
     position: absolute;
     inset: 0.35rem;
-    border: 1px solid
-      rgb(255 255 255 / 68%);
-    border-radius: calc(
-      var(--radius-card) - 0.35rem
-    );
+    border: 1px solid rgb(255 255 255 / 68%);
+    border-radius: calc(var(--radius-card) - 0.35rem);
     content: '';
     pointer-events: none;
   }
 
   .category-showcase__chip {
     transition:
-      transform 200ms
-        var(--ease-bounce-soft),
-      border-color 200ms
-        var(--ease-friendly),
-      background-color 200ms
-        var(--ease-friendly);
+      transform 200ms var(--ease-bounce-soft),
+      border-color 200ms var(--ease-friendly),
+      background-color 200ms var(--ease-friendly);
   }
 
   .category-showcase__chip:hover {
     transform: translateY(-2px);
     border-color: rgb(0 138 255 / 28%);
-    background-color: rgb(
-      238 248 255 / 92%
-    );
+    background-color: rgb(238 248 255 / 92%);
   }
 
   .category-showcase__cta {
@@ -392,77 +309,39 @@ const categoryCountLabel = `${lifestyleCategories.length} thoughtful categories`
     pointer-events: none;
   }
 
-  .category-motion-ready
-    [data-category-reveal] {
+  .category-motion-ready [data-category-reveal] {
     opacity: 0;
-    transform: translate3d(
-        0,
-        1.5rem,
-        0
-      )
-      scale(0.985);
+    transform: translate3d(0, 1.5rem, 0) scale(0.985);
     transition:
-      opacity 650ms
-        var(--ease-friendly)
-        var(
-          --category-reveal-delay,
-          0ms
-        ),
-      transform 650ms
-        var(--ease-friendly)
-        var(
-          --category-reveal-delay,
-          0ms
-        );
+      opacity 650ms var(--ease-friendly) var(--category-reveal-delay, 0ms),
+      transform 650ms var(--ease-friendly) var(--category-reveal-delay, 0ms);
     will-change: opacity, transform;
   }
 
-  .category-motion-ready
-    [data-category-reveal].is-category-visible {
+  .category-motion-ready [data-category-reveal].is-category-visible {
     opacity: 1;
-    transform: translate3d(0, 0, 0)
-      scale(1);
+    transform: translate3d(0, 0, 0) scale(1);
   }
 
   @keyframes category-orb-drift {
     0%,
     100% {
-      transform: translate3d(
-          0,
-          0,
-          0
-        )
-        scale(1);
+      transform: translate3d(0, 0, 0) scale(1);
     }
 
     50% {
-      transform: translate3d(
-          1rem,
-          -1.25rem,
-          0
-        )
-        scale(1.06);
+      transform: translate3d(1rem, -1.25rem, 0) scale(1.06);
     }
   }
 
   @keyframes category-paw-float {
     0%,
     100% {
-      transform: translate3d(
-          0,
-          0,
-          0
-        )
-        rotate(-4deg);
+      transform: translate3d(0, 0, 0) rotate(-4deg);
     }
 
     50% {
-      transform: translate3d(
-          0.45rem,
-          -0.8rem,
-          0
-        )
-        rotate(5deg);
+      transform: translate3d(0.45rem, -0.8rem, 0) rotate(5deg);
     }
   }
 
@@ -473,281 +352,156 @@ const categoryCountLabel = `${lifestyleCategories.length} thoughtful categories`
     }
 
     .category-showcase__chip,
-    .category-motion-ready
-      [data-category-reveal] {
+    .category-motion-ready [data-category-reveal] {
       transform: none !important;
       transition: none !important;
     }
 
-    .category-motion-ready
-      [data-category-reveal] {
+    .category-motion-ready [data-category-reveal] {
       opacity: 1 !important;
     }
   }
 </style>
 
 <script>
-  const initializeCategoryShowcases =
-    (): void => {
-      const sections = Array.from(
-        document.querySelectorAll<HTMLElement>(
-          '[data-category-showcase]',
-        ),
+  const initializeCategoryShowcases = (): void => {
+    const sections = Array.from(document.querySelectorAll<HTMLElement>('[data-category-showcase]'));
+
+    for (const section of sections) {
+      if (section.dataset.categoryInitialized === 'true') {
+        continue;
+      }
+
+      section.dataset.categoryInitialized = 'true';
+
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      const revealElements = Array.from(
+        section.querySelectorAll<HTMLElement>('[data-category-reveal]'),
       );
 
-      for (const section of sections) {
-        if (
-          section.dataset
-            .categoryInitialized === 'true'
-        ) {
-          continue;
-        }
+      if (!reducedMotion && 'IntersectionObserver' in window) {
+        section.classList.add('category-motion-ready');
 
-        section.dataset.categoryInitialized =
-          'true';
+        const revealObserver = new IntersectionObserver(
+          (entries, observer) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) {
+                continue;
+              }
 
-        const reducedMotion =
-          window.matchMedia(
-            '(prefers-reduced-motion: reduce)',
-          ).matches;
+              entry.target.classList.add('is-category-visible');
 
-        const revealElements =
-          Array.from(
-            section.querySelectorAll<HTMLElement>(
-              '[data-category-reveal]',
-            ),
-          );
-
-        if (
-          !reducedMotion &&
-          'IntersectionObserver' in window
-        ) {
-          section.classList.add(
-            'category-motion-ready',
-          );
-
-          const revealObserver =
-            new IntersectionObserver(
-              (entries, observer) => {
-                for (const entry of entries) {
-                  if (
-                    !entry.isIntersecting
-                  ) {
-                    continue;
-                  }
-
-                  entry.target.classList.add(
-                    'is-category-visible',
-                  );
-
-                  observer.unobserve(
-                    entry.target,
-                  );
-                }
-              },
-              {
-                rootMargin:
-                  '0px 0px -8% 0px',
-                threshold: 0.1,
-              },
-            );
-
-          window.requestAnimationFrame(() => {
-            for (
-              const element of revealElements
-            ) {
-              revealObserver.observe(
-                element,
-              );
+              observer.unobserve(entry.target);
             }
-          });
-        } else {
-          for (
-            const element of revealElements
-          ) {
-            element.classList.add(
-              'is-category-visible',
-            );
-          }
-        }
-
-        const supportsFinePointer =
-          window.matchMedia(
-            '(hover: hover) and (pointer: fine)',
-          ).matches;
-
-        if (
-          reducedMotion ||
-          !supportsFinePointer
-        ) {
-          continue;
-        }
-
-        const cards = Array.from(
-          section.querySelectorAll<HTMLElement>(
-            '[data-category-interactive]',
-          ),
+          },
+          {
+            rootMargin: '0px 0px -8% 0px',
+            threshold: 0.1,
+          },
         );
 
-        for (const card of cards) {
-          let animationFrame = 0;
-          let pointerX = 0;
-          let pointerY = 0;
-
-          const renderCardMotion =
-            (): void => {
-              animationFrame = 0;
-
-              const rect =
-                card.getBoundingClientRect();
-
-              if (
-                rect.width === 0 ||
-                rect.height === 0
-              ) {
-                return;
-              }
-
-              const normalizedX =
-                (pointerX - rect.left) /
-                  rect.width -
-                0.5;
-
-              const normalizedY =
-                (pointerY - rect.top) /
-                  rect.height -
-                0.5;
-
-              const rotateY =
-                normalizedX * 4.8;
-
-              const rotateX =
-                normalizedY * -4.2;
-
-              const imageX =
-                normalizedX * -8;
-
-              const imageY =
-                normalizedY * -8;
-
-              card.style.setProperty(
-                '--card-rotate-x',
-                `${rotateX.toFixed(2)}deg`,
-              );
-
-              card.style.setProperty(
-                '--card-rotate-y',
-                `${rotateY.toFixed(2)}deg`,
-              );
-
-              card.style.setProperty(
-                '--card-image-x',
-                `${imageX.toFixed(2)}px`,
-              );
-
-              card.style.setProperty(
-                '--card-image-y',
-                `${imageY.toFixed(2)}px`,
-              );
-
-              card.style.setProperty(
-                '--card-spotlight-x',
-                `${
-                  (normalizedX + 0.5) *
-                  100
-                }%`,
-              );
-
-              card.style.setProperty(
-                '--card-spotlight-y',
-                `${
-                  (normalizedY + 0.5) *
-                  100
-                }%`,
-              );
-            };
-
-          const handlePointerMove = (
-            event: PointerEvent,
-          ): void => {
-            pointerX = event.clientX;
-            pointerY = event.clientY;
-
-            if (animationFrame === 0) {
-              animationFrame =
-                window.requestAnimationFrame(
-                  renderCardMotion,
-                );
-            }
-          };
-
-          const resetCardMotion =
-            (): void => {
-              if (animationFrame !== 0) {
-                window.cancelAnimationFrame(
-                  animationFrame,
-                );
-
-                animationFrame = 0;
-              }
-
-              card.style.setProperty(
-                '--card-rotate-x',
-                '0deg',
-              );
-
-              card.style.setProperty(
-                '--card-rotate-y',
-                '0deg',
-              );
-
-              card.style.setProperty(
-                '--card-image-x',
-                '0px',
-              );
-
-              card.style.setProperty(
-                '--card-image-y',
-                '0px',
-              );
-
-              card.style.setProperty(
-                '--card-spotlight-x',
-                '50%',
-              );
-
-              card.style.setProperty(
-                '--card-spotlight-y',
-                '50%',
-              );
-            };
-
-          card.addEventListener(
-            'pointermove',
-            handlePointerMove,
-            {
-              passive: true,
-            },
-          );
-
-          card.addEventListener(
-            'pointerleave',
-            resetCardMotion,
-          );
-
-          card.addEventListener(
-            'blur',
-            resetCardMotion,
-            true,
-          );
+        window.requestAnimationFrame(() => {
+          for (const element of revealElements) {
+            revealObserver.observe(element);
+          }
+        });
+      } else {
+        for (const element of revealElements) {
+          element.classList.add('is-category-visible');
         }
       }
-    };
+
+      const supportsFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+      if (reducedMotion || !supportsFinePointer) {
+        continue;
+      }
+
+      const cards = Array.from(
+        section.querySelectorAll<HTMLElement>('[data-category-interactive]'),
+      );
+
+      for (const card of cards) {
+        let animationFrame = 0;
+        let pointerX = 0;
+        let pointerY = 0;
+
+        const renderCardMotion = (): void => {
+          animationFrame = 0;
+
+          const rect = card.getBoundingClientRect();
+
+          if (rect.width === 0 || rect.height === 0) {
+            return;
+          }
+
+          const normalizedX = (pointerX - rect.left) / rect.width - 0.5;
+
+          const normalizedY = (pointerY - rect.top) / rect.height - 0.5;
+
+          const rotateY = normalizedX * 4.8;
+
+          const rotateX = normalizedY * -4.2;
+
+          const imageX = normalizedX * -8;
+
+          const imageY = normalizedY * -8;
+
+          card.style.setProperty('--card-rotate-x', `${rotateX.toFixed(2)}deg`);
+
+          card.style.setProperty('--card-rotate-y', `${rotateY.toFixed(2)}deg`);
+
+          card.style.setProperty('--card-image-x', `${imageX.toFixed(2)}px`);
+
+          card.style.setProperty('--card-image-y', `${imageY.toFixed(2)}px`);
+
+          card.style.setProperty('--card-spotlight-x', `${(normalizedX + 0.5) * 100}%`);
+
+          card.style.setProperty('--card-spotlight-y', `${(normalizedY + 0.5) * 100}%`);
+        };
+
+        const handlePointerMove = (event: PointerEvent): void => {
+          pointerX = event.clientX;
+          pointerY = event.clientY;
+
+          if (animationFrame === 0) {
+            animationFrame = window.requestAnimationFrame(renderCardMotion);
+          }
+        };
+
+        const resetCardMotion = (): void => {
+          if (animationFrame !== 0) {
+            window.cancelAnimationFrame(animationFrame);
+
+            animationFrame = 0;
+          }
+
+          card.style.setProperty('--card-rotate-x', '0deg');
+
+          card.style.setProperty('--card-rotate-y', '0deg');
+
+          card.style.setProperty('--card-image-x', '0px');
+
+          card.style.setProperty('--card-image-y', '0px');
+
+          card.style.setProperty('--card-spotlight-x', '50%');
+
+          card.style.setProperty('--card-spotlight-y', '50%');
+        };
+
+        card.addEventListener('pointermove', handlePointerMove, {
+          passive: true,
+        });
+
+        card.addEventListener('pointerleave', resetCardMotion);
+
+        card.addEventListener('blur', resetCardMotion, true);
+      }
+    }
+  };
 
   initializeCategoryShowcases();
 
-  document.addEventListener(
-    'astro:page-load',
-    initializeCategoryShowcases,
-  );
+  document.addEventListener('astro:page-load', initializeCategoryShowcases);
 </script>

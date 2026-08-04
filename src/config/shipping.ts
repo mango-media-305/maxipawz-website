@@ -62,7 +62,7 @@ export const shippingConfig = {
     /**
      * PROVISIONAL SANDBOX SHIPPING TABLE
      *
-     * These are MaxiPawz checkout estimates, not live USPS,
+     * These are Maxi Pawz checkout estimates, not live USPS,
      * UPS, or FedEx quotes.
      *
      * Replace/calibrate these values before commercial launch.

@@ -1,4 +1,4 @@
-# MaxiPawz Store
+# Maxi Pawz Store
 
 A fast, accessible, and scalable e-commerce storefront for pet toys, built with Astro, TypeScript, Tailwind CSS, Stripe, and Netlify.
 
@@ -6,7 +6,7 @@ A fast, accessible, and scalable e-commerce storefront for pet toys, built with 
 
 ## Overview
 
-MaxiPawz Store is an online pet-toy shop focused on providing a simple, enjoyable, and secure shopping experience for pet owners.
+Maxi Pawz Store is an online pet-toy shop focused on providing a simple, enjoyable, and secure shopping experience for pet owners.
 
 The initial version uses a lean architecture without a traditional application database:
 
@@ -797,7 +797,7 @@ This project follows these security principles:
 - Checkout totals are never trusted from the browser.
 - Stripe webhook signatures are verified.
 - Product IDs and Price IDs are validated server-side.
-- Payment-card information never passes through MaxiPawz servers.
+- Payment-card information never passes through Maxi Pawz servers.
 - Sensitive environment variables are not committed.
 - Customer information is excluded from unnecessary logs.
 - Test and live Stripe credentials are separated.
@@ -811,13 +811,13 @@ To report a security issue, contact:
 security@maxipawz.com
 ```
 
-Replace this address with the official MaxiPawz security or support email before launch.
+Replace this address with the official Maxi Pawz security or support email before launch.
 
 ---
 
 ## Accessibility
 
-MaxiPawz Store aims to meet WCAG 2.2 Level AA.
+  Store aims to meet WCAG 2.2 Level AA.
 
 Accessibility testing should include:
 
@@ -1008,17 +1008,17 @@ Before contributing:
 
 ## License
 
-Copyright © 2026 MaxiPawz Store.
+Copyright © 2026 Maxi Pawz Store.
 
 All rights reserved.
 
-The source code, brand assets, product photography, written content, and other materials in this repository may not be copied, modified, distributed, sublicensed, or used commercially without written permission from MaxiPawz Store.
+The source code, brand assets, product photography, written content, and other materials in this repository may not be copied, modified, distributed, sublicensed, or used commercially without written permission from Maxi Pawz Store.
 
 ---
 
 ## Contact
 
-**MaxiPawz Store**
+**Maxi Pawz Store**
 
 Website: `https://www.maxipawz.com`
 Email: `support@maxipawz.com`

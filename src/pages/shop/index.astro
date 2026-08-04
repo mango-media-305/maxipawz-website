@@ -17,9 +17,9 @@ import { shopPrinciples, type ShopPrincipleIcon } from '../../data/shop';
 import { getActiveProducts } from '../../utils/products';
 
 const iconByPrinciple: Record<ShopPrincipleIcon, typeof PawPrintBold> = {
-    purpose: ShieldCheckBold,
-    practical: CheckCircleFill,
-    joy: HeartBold,
+  purpose: ShieldCheckBold,
+  practical: CheckCircleFill,
+  joy: HeartBold,
 };
 
 const activeProducts = getActiveProducts();
@@ -28,49 +28,49 @@ const hasDemoProducts = activeProducts.some((product) => product.isDemo);
 ---
 
 <BaseLayout
-    title="Shop"
-    description="Search and explore MaxiPawz pet toys, walking accessories, feeding products, comfort items, grooming essentials, collars, and everyday supplies."
-    noIndex={isStorePrelaunch || hasDemoProducts}
+  title="Shop"
+  description="Search and explore Maxi Pawz pet toys, walking accessories, feeding products, comfort items, grooming essentials, collars, and everyday supplies."
+  noIndex={isStorePrelaunch || hasDemoProducts}
 >
-    <ShopHero />
+  <ShopHero />
 
-    <section
-        class="border-y border-sand bg-white-warm/65"
-        aria-label="How MaxiPawz approaches its collection"
-    >
-        <div class="site-container grid gap-2 py-6 sm:py-8 md:grid-cols-3 md:gap-4">
-        {
-            shopPrinciples.map((principle) => {
-            const Icon = iconByPrinciple[principle.icon];
+  <section
+    class="border-y border-sand bg-white-warm/65"
+    aria-label="How Maxi Pawz approaches its collection"
+  >
+    <div class="site-container grid gap-2 py-6 sm:py-8 md:grid-cols-3 md:gap-4">
+      {
+        shopPrinciples.map((principle) => {
+          const Icon = iconByPrinciple[principle.icon];
 
-            return (
-                <article class="flex gap-4 rounded-3xl p-4 transition hover:bg-cream sm:p-5">
-                <span
-                    class="grid size-11 shrink-0 place-items-center rounded-2xl bg-brand-100 text-brand-700 sm:size-12"
-                    aria-hidden="true"
-                >
-                    <Icon class="size-5 sm:size-6" />
-                </span>
+          return (
+            <article class="flex gap-4 rounded-3xl p-4 transition hover:bg-cream sm:p-5">
+              <span
+                class="grid size-11 shrink-0 place-items-center rounded-2xl bg-brand-100 text-brand-700 sm:size-12"
+                aria-hidden="true"
+              >
+                <Icon class="size-5 sm:size-6" />
+              </span>
 
-                <div class="min-w-0">
-                    <h2 class="interface-heading text-lg">{principle.title}</h2>
+              <div class="min-w-0">
+                <h2 class="interface-heading text-lg">{principle.title}</h2>
 
-                    <p class="mt-2 text-sm leading-6 text-ink-600">{principle.description}</p>
-                </div>
-                </article>
-            );
-            })
-        }
-        </div>
-    </section>
+                <p class="mt-2 text-sm leading-6 text-ink-600">{principle.description}</p>
+              </div>
+            </article>
+          );
+        })
+      }
+    </div>
+  </section>
 
-    <ShopCategoryGrid />
+  <ShopCategoryGrid />
 
-    {
-        activeProducts.length > 0 && (
-        <ProductGrid products={activeProducts} demoMode={isStorePrelaunch || hasDemoProducts} />
-        )
-    }
+  {
+    activeProducts.length > 0 && (
+      <ProductGrid products={activeProducts} demoMode={isStorePrelaunch || hasDemoProducts} />
+    )
+  }
 
-    {isStorePrelaunch && <PrelaunchShopState />}
+  {isStorePrelaunch && <PrelaunchShopState />}
 </BaseLayout>
