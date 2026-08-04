@@ -3,42 +3,9 @@ import {
     businessDisplayName,
 } from '../config/business';
 
-import {
-    charityConfig,
-} from '../config/charity';
-
-import {
-    shippingConfig,
-} from '../config/shipping';
-
 import type {
     LegalDocument,
 } from './legal';
-
-function formatAmount(
-    amount: number,
-): string {
-    return new Intl.NumberFormat(
-        'en-US',
-        {
-            style:
-                'currency',
-
-            currency:
-                shippingConfig
-                    .currency,
-        },
-    ).format(
-        amount /
-        100,
-    );
-}
-
-const policyStatusLabel =
-    businessConfig
-        .commercePoliciesFinalized
-        ? 'Active policy'
-        : 'Draft shipping policy';
 
 export const shippingPolicyDocument:
     LegalDocument = {
@@ -52,13 +19,13 @@ export const shippingPolicyDocument:
         'Shipping',
 
     eyebrow:
-        'Orders and Delivery',
+        'Prelaunch Fulfillment',
 
     description:
-        'Review Maxi Pawz shipping destinations, shipping estimates, free-shipping eligibility, tracking, and delivery information.',
+        `Review the current prelaunch status of ${businessConfig.shortName} shipping, fulfillment, tracking, and delivery procedures.`,
 
     introduction:
-        `${businessDisplayName} currently uses this policy as a draft while the storefront and Stripe Sandbox checkout are being prepared for commercial launch.`,
+        `${businessDisplayName} is not yet accepting commercial website orders. The shipping configuration currently used for development and Stripe Sandbox testing does not create a public shipping offer, rate promise, delivery commitment, or commercial fulfillment agreement.`,
 
     icon:
         'shipping',
@@ -67,87 +34,63 @@ export const shippingPolicyDocument:
         'brand',
 
     statusLabel:
-        policyStatusLabel,
+        'Prelaunch policy',
 
     effectiveDate:
-        businessConfig
-            .policyEffectiveDate,
+        businessConfig.policyEffectiveDate,
 
     lastUpdated:
-        businessConfig
-            .policyLastUpdated,
+        businessConfig.policyLastUpdated,
 
     sections: [
         {
             id:
-                'destinations',
+                'current-status',
 
             title:
-                '1. Shipping destinations',
+                '1. Current shipping status',
 
             paragraphs: [
-                `Maxi Pawz is configured to accept shipping addresses within the ${shippingConfig.destinationLabel}.`,
+                'Commercial checkout is disabled and no real website order can currently be submitted.',
 
-                'International shipping and delivery to separately coded United States territories are not included in the current checkout configuration.',
+                'Demo products, test prices, shipping tables, package weights, Stripe Sandbox sessions, and internal fulfillment tools are used only for development and testing.',
+
+                'Those test configurations do not create a promise that a particular destination, shipping price, free-shipping threshold, processing time, carrier, service, or delivery range will be available at commercial launch.',
+            ],
+
+            notice:
+                'A complete commercial Shipping Policy will be reviewed before real checkout is enabled.',
+        },
+
+        {
+            id:
+                'planned-destinations',
+
+            title:
+                '2. Planned shipping destinations',
+
+            paragraphs: [
+                'The current technical checkout configuration is designed around United States shipping addresses.',
+
+                'The exact commercial destination list, including any treatment of Alaska, Hawaii, United States territories, military addresses, post-office boxes, or other special destinations, remains subject to final operational approval.',
+
+                'International shipping is not currently planned for the initial launch.',
             ],
         },
 
         {
             id:
-                'rates',
+                'rates-and-free-shipping',
 
             title:
-                '2. Standard shipping charges',
+                '3. Shipping charges and free-shipping conditions',
 
             paragraphs: [
-                `For eligible orders below ${formatAmount(
-                    shippingConfig
-                        .freeShippingThresholdAmount,
-                )}, Maxi Pawz calculates a standard-shipping estimate based on the order's shipping weight and destination category.`,
+                'The development environment currently contains provisional shipping calculations for testing checkout behavior.',
 
-                'The shipping charge for the order is displayed during checkout before payment is completed.',
-            ],
+                'Those calculations are not live carrier quotes and are not approved commercial rates.',
 
-            bullets: [
-                'Maxi Pawz does not currently use a single fixed standard-shipping charge.',
-
-                'The checkout shipping charge is an estimate and is not represented as a live USPS, UPS, FedEx, or other carrier quote.',
-
-                'The actual postage Maxi Pawz later pays to fulfill an order may be higher or lower than the checkout shipping charge.',
-
-                'Customers are not charged an additional amount solely because actual postage later differs from the shipping charge accepted during checkout.',
-
-                'Shipping charges may be subject to applicable sales-tax rules based on the destination.',
-            ],
-        },
-
-        {
-            id:
-                'free-shipping',
-
-            title:
-                '3. Free standard shipping',
-
-            paragraphs: [
-                `Eligible orders receive free standard shipping when the merchandise subtotal is ${formatAmount(
-                    shippingConfig
-                        .freeShippingThresholdAmount,
-                )} or more.`,
-
-                'When an eligible order receives free standard shipping, Maxi Pawz absorbs the applicable fulfillment shipping expense.',
-            ],
-
-            bullets: [
-                'The threshold is based on the validated merchandise subtotal before shipping and tax.',
-
-                'Item-level sale prices are reflected in the merchandise subtotal.',
-
-                'Shipping fees, taxes, gift cards, and other non-merchandise charges do not count toward the free-shipping threshold.',
-
-                charityConfig
-                    .countsTowardFreeShipping
-                    ? 'A future shelter contribution may count toward the free-shipping threshold only when that program is formally enabled.'
-                    : 'A future optional animal-shelter contribution will not count toward the free-shipping threshold.',
+                'The final policy will state the approved shipping charges, any merchandise threshold for free standard shipping, the destinations eligible for that offer, and how discounts, taxes, or other charges affect eligibility.',
             ],
         },
 
@@ -159,28 +102,30 @@ export const shippingPolicyDocument:
                 '4. Order processing',
 
             paragraphs: [
-                'Orders require processing and packaging before they are transferred to a shipping carrier.',
+                'Orders will require processing and packaging before being transferred to a shipping carrier.',
 
-                'A final commercial processing-time commitment has not yet been published. The live policy will be updated before commercial launch.',
+                'No commercial processing-time commitment is currently promised.',
+
+                'The final policy will describe processing time separately from carrier transit time.',
             ],
 
             notice:
-                'Processing time and carrier transit time are separate. Creating a shipping label does not by itself mean that a carrier has received the package.',
+                'Creating a shipping label does not by itself mean that a carrier has received a package.',
         },
 
         {
             id:
-                'fulfillment',
+                'carriers',
 
             title:
-                '5. Shipping carrier and fulfillment',
+                '5. Carrier and service selection',
 
             paragraphs: [
-                'Maxi Pawz may select an appropriate available carrier and service when fulfilling a standard-shipping order.',
+                `${businessConfig.shortName} may select an appropriate available carrier and service when fulfilling a future standard-shipping order.`,
 
-                'Carrier selection may depend on package size, package weight, destination, service availability, delivery expectations, and shipping cost.',
+                'Carrier selection may depend on package size, package weight, destination, service availability, delivery expectations, and cost.',
 
-                'During the initial launch stage, shipping labels and carrier services may be purchased manually as part of the fulfillment process.',
+                'The initial fulfillment process may include manually purchasing labels and entering tracking information.',
             ],
         },
 
@@ -189,14 +134,14 @@ export const shippingPolicyDocument:
                 'addresses',
 
             title:
-                '6. Shipping addresses and changes',
+                '6. Shipping addresses and corrections',
 
             paragraphs: [
-                'Customers are responsible for reviewing the recipient name, street address, apartment or unit information, city, state, and postal code before completing checkout.',
+                'Future customers will be responsible for reviewing the recipient name, street address, apartment or unit information, city, state, and postal code before completing checkout.',
 
-                `Contact Maxi Pawz through the ${businessConfig.contactLabel} promptly if an address correction is needed.`,
+                `After launch, address or order questions should be sent promptly to ${businessConfig.ordersEmail}.`,
 
-                'An address change cannot be guaranteed after an order has entered fulfillment or has been transferred to a carrier.',
+                'An address correction will not be guaranteed after an order has entered processing, fulfillment, or carrier possession.',
             ],
         },
 
@@ -208,11 +153,11 @@ export const shippingPolicyDocument:
                 '7. Tracking',
 
             paragraphs: [
-                'Tracking information will be provided when tracking is available for the shipping service used to fulfill the order.',
+                'Tracking information will be provided when it is available for the service used to fulfill an order.',
 
-                'Tracking information can require time to update after a label is created.',
+                'Tracking information may require time to update after a label is created.',
 
-                'Carrier scans, estimated delivery dates, delivery notices, and route information are controlled by the carrier.',
+                'Carrier scans, estimated delivery dates, delivery notices, routes, and final delivery events are controlled by the carrier.',
             ],
         },
 
@@ -224,33 +169,39 @@ export const shippingPolicyDocument:
                 '8. Delayed, damaged, incomplete, or missing shipments',
 
             paragraphs: [
-                `Contact Maxi Pawz through the ${businessConfig.contactLabel} promptly when a shipment appears delayed, damaged, incomplete, misdirected, or marked delivered but cannot be located.`,
+                `Future order-status questions should be sent to ${businessConfig.ordersEmail}.`,
 
-                'Keep the product, packaging, shipping container, shipping label, photographs, tracking information, and order records while the issue is reviewed.',
+                `Reports involving a damaged, defective, incorrect, incomplete, missing, or otherwise problematic shipment should be sent to ${businessConfig.supportEmail}.`,
 
-                'Maxi Pawz may need to review carrier information, delivery records, photographs, inventory records, or other relevant documentation before determining the appropriate response.',
+                'Customers may be asked to preserve the product, accessories, packaging, shipping container, shipping label, photographs, tracking information, and order records while the issue is reviewed.',
+
+                `${businessConfig.shortName} may need to review carrier information, delivery records, photographs, inventory records, and other relevant documentation before determining an appropriate response.`,
             ],
         },
 
         {
             id:
-                'charity',
+                'final-policy',
 
             title:
-                '9. Future animal-shelter contribution program',
+                '9. Information the final policy will include',
 
             paragraphs: [
-                charityConfig.planned
-                    ? 'Maxi Pawz is considering a future option that would allow customers to add a separate voluntary contribution benefiting a local animal shelter.'
-                    : 'No animal-shelter contribution program is currently planned.',
-
-                charityConfig.disclosure,
-
-                'The contribution feature will remain disabled until a partner is selected and written terms, payment handling, remittance, refunds, disclosures, receipts, accounting, and tax treatment are confirmed.',
+                'Before commercial launch, this page will be updated with approved shipping and fulfillment rules.',
             ],
 
-            notice:
-                'No portion of a current merchandise payment is represented as a charitable contribution.',
+            bullets: [
+                'Eligible states, regions, and address types.',
+                'Order-processing and handling expectations.',
+                'Available delivery methods or carrier-selection practices.',
+                'Estimated carrier transit ranges.',
+                'Shipping charges and free-shipping conditions.',
+                'Maximum supported package or order weight.',
+                'Tracking availability.',
+                'Address-correction and cancellation procedures.',
+                'Approach to delays, lost packages, delivery exceptions, and damaged shipments.',
+                'Any product or destination restrictions.',
+            ],
         },
 
         {
@@ -261,9 +212,11 @@ export const shippingPolicyDocument:
                 '10. Policy updates and contact',
 
             paragraphs: [
-                'This Shipping Policy may be updated when shipping rates, destinations, fulfillment procedures, delivery expectations, or legal requirements change.',
+                'This Shipping Policy may be updated when destinations, rates, processing expectations, carriers, fulfillment procedures, or applicable requirements change.',
 
-                `Questions may be submitted through the ${businessConfig.contactLabel}.`,
+                `General questions may be submitted through the ${businessConfig.contactLabel} or sent to ${businessConfig.generalEmail}.`,
+
+                businessConfig.supportResponseTime,
             ],
         },
     ],
@@ -277,30 +230,29 @@ export const shippingPolicyDocument:
                 '/return-policy',
 
             description:
-                'Review return, refund, exchange, and cancellation information.',
+                'Review the current status of returns, refunds, and cancellations.',
         },
 
         {
             label:
-                'Frequently Asked Questions',
+                'Order Support Email',
 
             href:
-                '/faq',
+                `mailto:${businessConfig.ordersEmail}`,
 
             description:
-                'Find general information about Maxi Pawz orders and products.',
+                `Send a future order or shipping question to ${businessConfig.ordersEmail}.`,
         },
 
         {
             label:
-                'Contact Maxi Pawz',
+                'Product-Issue Support',
 
             href:
-                businessConfig
-                    .contactHref,
+                `mailto:${businessConfig.supportEmail}`,
 
             description:
-                'Send a shipping or order question.',
+                `Report a future damaged, incorrect, incomplete, or missing product to ${businessConfig.supportEmail}.`,
         },
     ],
 };

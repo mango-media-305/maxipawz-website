@@ -16,11 +16,11 @@ const storeIsLive =
     storefrontMode === 'live';
 
 /*
- * These routes are functional or administrative pages,
- * not search-result landing pages.
+ * These routes are functional, administrative, transactional,
+ * or intentionally excluded policy pages.
  *
- * They should remain available to visitors but should not
- * be submitted to search engines through the sitemap.
+ * They remain available when visited directly, but they are not
+ * submitted to search engines through the generated sitemap.
  */
 const alwaysExcludedSitemapPaths = [
     '/404',
@@ -30,6 +30,11 @@ const alwaysExcludedSitemapPaths = [
     '/checkout',
     '/contact/success',
     '/join/success',
+    '/privacy-policy',
+    '/terms',
+    '/shipping-policy',
+    '/return-policy',
+    '/accessibility',
 ];
 
 function normalizePathname(pathname) {
@@ -79,7 +84,7 @@ function shouldIncludeInSitemap(page) {
      * submitted through the sitemap.
      *
      * Once PUBLIC_STOREFRONT_MODE becomes "live", the shop
-     * and real product pages are included automatically.
+     * and real product pages become eligible for inclusion.
      */
     if (
         !storeIsLive &&
