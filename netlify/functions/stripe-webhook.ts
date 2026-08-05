@@ -1,12 +1,10 @@
-import type {
-  Config,
-} from '@netlify/functions';
+import type { Config } from '@netlify/functions';
 
 import Stripe from 'stripe';
 
 import {
-  sendPaidOrderEmails,
-} from '../../src/server/email/send-order-emails';
+  queuePaidOrderEmailJob,
+} from '../../src/server/email/order-email-jobs';
 
 import type {
   ProcessedStripeEvent,
@@ -38,77 +36,65 @@ const supportedRefundEventTypes =
     'refund.failed',
   ]);
 
-class WebhookError
-  extends Error {
-  readonly status:
-    number;
+class WebhookError extends Error {
+  readonly status: number;
 
   constructor(
     status: number,
     message: string,
   ) {
-    super(
-      message,
-    );
+    super(message);
 
-    this.name =
-      'WebhookError';
-
-    this.status =
-      status;
+    this.name = 'WebhookError';
+    this.status = status;
   }
 }
 
 function jsonResponse(
   value: unknown,
-
   status = 200,
 ): Response {
-  return Response.json(
-    value,
-    {
-      status,
+  return Response.json(value, {
+    status,
 
-      headers: {
-        'Cache-Control':
-          'no-store, max-age=0',
-      },
+    headers: {
+      'Cache-Control': 'no-store, max-age=0',
     },
-  );
+  });
 }
 
 function getStripeConfiguration(): {
   stripe: Stripe;
-
   webhookSecret: string;
+  livemode: boolean;
 } {
   const stripeSecretKey =
-    process.env
-      .STRIPE_SECRET_KEY
-      ?.trim();
+    process.env.STRIPE_SECRET_KEY?.trim();
 
   const webhookSecret =
-    process.env
-      .STRIPE_WEBHOOK_SECRET
-      ?.trim();
+    process.env.STRIPE_WEBHOOK_SECRET?.trim();
+
+  const isTestKey =
+    stripeSecretKey?.startsWith('sk_test_') ??
+    false;
+
+  const isLiveKey =
+    stripeSecretKey?.startsWith('sk_live_') ??
+    false;
 
   if (
     !stripeSecretKey ||
-    !stripeSecretKey.startsWith(
-      'sk_test_',
-    )
+    (!isTestKey && !isLiveKey)
   ) {
     throw new WebhookError(
       503,
-      'A Stripe test secret key has not been configured.',
+      'A valid Stripe secret key has not been configured.',
     );
   }
 
   if (
     !webhookSecret ||
-    !webhookSecret.startsWith(
-      'whsec_',
-    )
+    !webhookSecret.startsWith('whsec_')
   ) {
     throw new WebhookError(
       503,
@@ -117,41 +103,44 @@ function getStripeConfiguration(): {
   }
 
   return {
-    stripe:
-      new Stripe(
-        stripeSecretKey,
-      ),
-
+    stripe: new Stripe(stripeSecretKey),
     webhookSecret,
+    livemode: isLiveKey,
   };
+}
+
+function getInternalFunctionSecret(): string {
+  const secret =
+    process.env.MAXIPAWZ_INTERNAL_FUNCTION_SECRET?.trim();
+
+  if (!secret || secret.length < 32) {
+    throw new WebhookError(
+      503,
+      'MAXIPAWZ_INTERNAL_FUNCTION_SECRET is missing or too short.',
+    );
+  }
+
+  return secret;
 }
 
 function isSupportedCheckoutEventType(
   value: string,
 ): value is SupportedCheckoutEventType {
-  return supportedCheckoutEventTypes.has(
-    value,
-  );
+  return supportedCheckoutEventTypes.has(value);
 }
 
 function isSupportedRefundEventType(
   value: string,
 ): value is SupportedRefundEventType {
-  return supportedRefundEventTypes.has(
-    value,
-  );
+  return supportedRefundEventTypes.has(value);
 }
 
 function isSupportedStripeEventType(
   value: string,
 ): value is SupportedStripeEventType {
   return (
-    isSupportedCheckoutEventType(
-      value,
-    ) ||
-    isSupportedRefundEventType(
-      value,
-    )
+    isSupportedCheckoutEventType(value) ||
+    isSupportedRefundEventType(value)
   );
 }
 
@@ -168,18 +157,14 @@ function normalizeStripeId(
     return undefined;
   }
 
-  return typeof value ===
-    'string'
+  return typeof value === 'string'
     ? value
     : value.id;
 }
 
 async function getRefundPaymentIntentId(
-  stripe:
-    Stripe,
-
-  refund:
-    Stripe.Refund,
+  stripe: Stripe,
+  refund: Stripe.Refund,
 ): Promise<string | undefined> {
   const directPaymentIntentId =
     normalizeStripeId(
@@ -190,19 +175,16 @@ async function getRefundPaymentIntentId(
     return directPaymentIntentId;
   }
 
-  const chargeId =
-    normalizeStripeId(
-      refund.charge,
-    );
+  const chargeId = normalizeStripeId(
+    refund.charge,
+  );
 
   if (!chargeId) {
     return undefined;
   }
 
   const charge =
-    await stripe.charges.retrieve(
-      chargeId,
-    );
+    await stripe.charges.retrieve(chargeId);
 
   return normalizeStripeId(
     charge.payment_intent,
@@ -210,31 +192,17 @@ async function getRefundPaymentIntentId(
 }
 
 async function saveProcessedEvent(
-  event:
-    Stripe.Event,
-
-  eventType:
-    SupportedStripeEventType,
-
+  event: Stripe.Event,
+  eventType: SupportedStripeEventType,
   sessionId: string,
 ): Promise<void> {
-  const processedEvent:
-    ProcessedStripeEvent = {
+  const processedEvent: ProcessedStripeEvent = {
     version: 1,
-
-    eventId:
-      event.id,
-
+    eventId: event.id,
     eventType,
-
     sessionId,
-
-    livemode:
-      event.livemode,
-
-    processedAt:
-      new Date()
-        .toISOString(),
+    livemode: event.livemode,
+    processedAt: new Date().toISOString(),
   };
 
   await recordProcessedStripeEvent(
@@ -242,19 +210,96 @@ async function saveProcessedEvent(
   );
 }
 
+async function dispatchPaidOrderEmails(
+  request: Request,
+  sessionId: string,
+  livemode: boolean,
+): Promise<'queued' | 'already-completed'> {
+  const job = await queuePaidOrderEmailJob(
+    sessionId,
+    livemode,
+  );
+
+  if (job.status === 'completed') {
+    return 'already-completed';
+  }
+
+  const internalSecret =
+    getInternalFunctionSecret();
+
+  /*
+   * Using request.url preserves the current Netlify origin:
+   * localhost, a branch deploy, a Deploy Preview, or production.
+   */
+  const endpoint = new URL(
+    '/api/internal/send-paid-order-emails',
+    request.url,
+  );
+
+  let response: Response;
+
+  try {
+    response = await fetch(endpoint, {
+      method: 'POST',
+
+      headers: {
+        'Content-Type': 'application/json',
+        'X-MaxiPawz-Internal-Secret':
+          internalSecret,
+      },
+
+      body: JSON.stringify({
+        sessionId,
+        livemode,
+      }),
+    });
+  } catch (error) {
+    console.error(
+      'The paid-order email background function could not be invoked.',
+      {
+        sessionId,
+        livemode,
+        error,
+      },
+    );
+
+    throw new WebhookError(
+      503,
+      'The paid-order email background function could not be invoked.',
+    );
+  }
+
+  if (!response.ok) {
+    const responseBody = (
+      await response.text()
+    ).slice(0, 500);
+
+    console.error(
+      'The paid-order email background function rejected the invocation.',
+      {
+        sessionId,
+        livemode,
+        status: response.status,
+        responseBody,
+      },
+    );
+
+    throw new WebhookError(
+      503,
+      'The paid-order email background function rejected the invocation.',
+    );
+  }
+
+  return 'queued';
+}
+
 async function processRefundEvent(
-  stripe:
-    Stripe,
-
-  event:
-    Stripe.Event,
-
-  eventType:
-    SupportedRefundEventType,
+  stripe: Stripe,
+  event: Stripe.Event,
+  eventType: SupportedRefundEventType,
 ): Promise<Response> {
   const refund =
-    event.data
-      .object as Stripe.Refund;
+    event.data.object as Stripe.Refund;
 
   const paymentIntentId =
     await getRefundPaymentIntentId(
@@ -264,12 +309,8 @@ async function processRefundEvent(
 
   if (!paymentIntentId) {
     return jsonResponse({
-      received:
-        true,
-
-      ignored:
-        true,
-
+      received: true,
+      ignored: true,
       reason:
         'The Stripe Refund does not contain a PaymentIntent.',
     });
@@ -281,19 +322,15 @@ async function processRefundEvent(
       event.livemode,
     );
 
-  /**
+  /*
    * The Stripe account could contain payments unrelated to
    * Maxi Pawz. A refund for one of those payments must not
    * create a Maxi Pawz order or cause Stripe webhook retries.
    */
   if (!existingOrder) {
     return jsonResponse({
-      received:
-        true,
-
-      ignored:
-        true,
-
+      received: true,
+      ignored: true,
       reason:
         'No Maxi Pawz order matches this Stripe PaymentIntent.',
     });
@@ -301,55 +338,36 @@ async function processRefundEvent(
 
   const refundList =
     await stripe.refunds.list({
-      payment_intent:
-        paymentIntentId,
-
-      limit:
-        100,
+      payment_intent: paymentIntentId,
+      limit: 100,
     });
 
-  if (
-    refundList.has_more
-  ) {
+  if (refundList.has_more) {
     throw new WebhookError(
       400,
       'The PaymentIntent contains more refunds than this integration currently supports.',
     );
   }
 
-  const refunds =
-    refundList.data.some(
-      (
-        candidate,
-      ) =>
-        candidate.id ===
-        refund.id,
-    )
-      ? refundList.data
-      : [
-        refund,
-        ...refundList.data,
-      ];
+  const refunds = refundList.data.some(
+    (candidate) =>
+      candidate.id === refund.id,
+  )
+    ? refundList.data
+    : [
+      refund,
+      ...refundList.data,
+    ];
 
   const savedOrder =
     await saveStripeRefundSnapshot({
       paymentIntentId,
-
-      livemode:
-        event.livemode,
-
+      livemode: event.livemode,
       refunds,
-
-      currentRefundId:
-        refund.id,
-
-      eventId:
-        event.id,
-
+      currentRefundId: refund.id,
+      eventId: event.id,
       eventType,
-
-      eventCreated:
-        event.created,
+      eventCreated: event.created,
     });
 
   await saveProcessedEvent(
@@ -359,131 +377,91 @@ async function processRefundEvent(
   );
 
   return jsonResponse({
-    received:
-      true,
-
-    duplicate:
-      false,
-
+    received: true,
+    duplicate: false,
     eventType,
-
-    sessionId:
-      savedOrder.sessionId,
-
+    sessionId: savedOrder.sessionId,
     paymentIntentId,
-
-    refundStatus:
-      savedOrder.refundStatus,
-
+    refundStatus: savedOrder.refundStatus,
     amountRefunded:
       savedOrder.amountRefunded,
-
     amountRefundPending:
-      savedOrder
-        .amountRefundPending,
-
+      savedOrder.amountRefundPending,
     amountRefundable:
-      savedOrder
-        .amountRefundable,
+      savedOrder.amountRefundable,
   });
 }
 
 async function processCheckoutEvent(
-  stripe:
-    Stripe,
-
-  event:
-    Stripe.Event,
-
-  eventType:
-    SupportedCheckoutEventType,
+  request: Request,
+  stripe: Stripe,
+  event: Stripe.Event,
+  eventType: SupportedCheckoutEventType,
 ): Promise<Response> {
   const eventSession =
     event.data
       .object as Stripe.Checkout.Session;
 
   if (
-    eventSession
-      .metadata
-      ?.storefront !==
+    eventSession.metadata?.storefront !==
     'maxipawz'
   ) {
     return jsonResponse({
-      received:
-        true,
-
-      ignored:
-        true,
-
+      received: true,
+      ignored: true,
       reason:
         'The Checkout Session does not belong to the Maxi Pawz integration.',
     });
   }
 
   const session =
-    await stripe
-      .checkout
-      .sessions
-      .retrieve(
-        eventSession.id,
-      );
+    await stripe.checkout.sessions.retrieve(
+      eventSession.id,
+    );
 
   const lineItemsResponse =
-    await stripe
-      .checkout
-      .sessions
-      .listLineItems(
-        session.id,
-        {
-          limit:
-            100,
+    await stripe.checkout.sessions.listLineItems(
+      session.id,
+      {
+        limit: 100,
 
-          expand: [
-            'data.price.product',
-          ],
-        },
-      );
+        expand: [
+          'data.price.product',
+        ],
+      },
+    );
 
-  if (
-    lineItemsResponse.has_more
-  ) {
+  if (lineItemsResponse.has_more) {
     throw new WebhookError(
       400,
       'The Checkout Session contains more line items than this integration currently supports.',
     );
   }
 
-  const incomingOrder =
-    buildOrderRecord({
-      session,
-
-      lineItems:
-        lineItemsResponse.data,
-
-      eventId:
-        event.id,
-
-      eventType,
-
-      eventCreated:
-        event.created,
-    });
+  const incomingOrder = buildOrderRecord({
+    session,
+    lineItems: lineItemsResponse.data,
+    eventId: event.id,
+    eventType,
+    eventCreated: event.created,
+  });
 
   const savedOrder =
-    await saveOrderRecord(
-      incomingOrder,
-    );
+    await saveOrderRecord(incomingOrder);
 
-  if (
-    savedOrder.paymentStatus ===
-    'paid'
-  ) {
-    await sendPaidOrderEmails({
-      session,
+  let emailJobStatus:
+    | 'not-required'
+    | 'queued'
+    | 'already-completed' =
+    'not-required';
 
-      order:
-        savedOrder,
-    });
+  if (savedOrder.paymentStatus === 'paid') {
+    emailJobStatus =
+      await dispatchPaidOrderEmails(
+        request,
+        savedOrder.sessionId,
+        savedOrder.livemode,
+      );
   }
 
   await saveProcessedEvent(
@@ -493,42 +471,26 @@ async function processCheckoutEvent(
   );
 
   return jsonResponse({
-    received:
-      true,
-
-    duplicate:
-      false,
-
-    sessionId:
-      savedOrder.sessionId,
-
+    received: true,
+    duplicate: false,
+    sessionId: savedOrder.sessionId,
     paymentStatus:
       savedOrder.paymentStatus,
-
-    orderStatus:
-      savedOrder.orderStatus,
-
+    orderStatus: savedOrder.orderStatus,
     fulfillmentStatus:
-      savedOrder
-        .fulfillmentStatus,
-
-    refundStatus:
-      savedOrder.refundStatus,
+      savedOrder.fulfillmentStatus,
+    refundStatus: savedOrder.refundStatus,
+    emailJobStatus,
   });
 }
 
 export default async function handler(
   request: Request,
 ): Promise<Response> {
-  if (
-    request.method !==
-    'POST'
-  ) {
+  if (request.method !== 'POST') {
     return jsonResponse(
       {
-        received:
-          false,
-
+        received: false,
         message:
           'This endpoint accepts POST requests only.',
       },
@@ -540,8 +502,8 @@ export default async function handler(
     const {
       stripe,
       webhookSecret,
-    } =
-      getStripeConfiguration();
+      livemode: configuredLivemode,
+    } = getStripeConfiguration();
 
     const signature =
       request.headers.get(
@@ -555,20 +517,17 @@ export default async function handler(
       );
     }
 
-    const rawBody =
-      await request.text();
+    const rawBody = await request.text();
 
-    let event:
-      Stripe.Event;
+    let event: Stripe.Event;
 
     try {
       event =
-        stripe.webhooks
-          .constructEvent(
-            rawBody,
-            signature,
-            webhookSecret,
-          );
+        stripe.webhooks.constructEvent(
+          rawBody,
+          signature,
+          webhookSecret,
+        );
     } catch {
       throw new WebhookError(
         400,
@@ -576,12 +535,16 @@ export default async function handler(
       );
     }
 
+    /*
+     * Prevent a live Stripe event from being processed with a
+     * Sandbox key, or a Sandbox event with a live key.
+     */
     if (
-      event.livemode
+      event.livemode !== configuredLivemode
     ) {
       throw new WebhookError(
         400,
-        'Live Stripe events are not accepted by this test endpoint.',
+        'The Stripe event mode does not match the configured Stripe secret key.',
       );
     }
 
@@ -591,14 +554,9 @@ export default async function handler(
       )
     ) {
       return jsonResponse({
-        received:
-          true,
-
-        ignored:
-          true,
-
-        eventType:
-          event.type,
+        received: true,
+        ignored: true,
+        eventType: event.type,
       });
     }
 
@@ -608,18 +566,11 @@ export default async function handler(
         event.livemode,
       );
 
-    if (
-      alreadyProcessed
-    ) {
+    if (alreadyProcessed) {
       return jsonResponse({
-        received:
-          true,
-
-        duplicate:
-          true,
-
-        eventId:
-          event.id,
+        received: true,
+        duplicate: true,
+        eventId: event.id,
       });
     }
 
@@ -636,22 +587,17 @@ export default async function handler(
     }
 
     return await processCheckoutEvent(
+      request,
       stripe,
       event,
       event.type,
     );
   } catch (error) {
-    if (
-      error instanceof
-      WebhookError
-    ) {
+    if (error instanceof WebhookError) {
       return jsonResponse(
         {
-          received:
-            false,
-
-          message:
-            error.message,
+          received: false,
+          message: error.message,
         },
         error.status,
       );
@@ -664,9 +610,7 @@ export default async function handler(
 
     return jsonResponse(
       {
-        received:
-          false,
-
+        received: false,
         message:
           'The webhook could not be processed.',
       },
@@ -675,8 +619,6 @@ export default async function handler(
   }
 }
 
-export const config:
-  Config = {
-  path:
-    '/api/stripe-webhook',
+export const config: Config = {
+  path: '/api/stripe-webhook',
 };
