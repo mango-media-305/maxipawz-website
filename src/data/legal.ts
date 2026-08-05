@@ -130,8 +130,6 @@ export const privacyPolicy: LegalDocument = {
                 `This policy applies to the ${businessConfig.publicName} website, its launch-list form, contact form, informational pages, Pet Guides, and related website interactions.`,
 
                 'The storefront is currently in prelaunch mode. Commercial checkout is disabled, customer accounts are not offered, and the website does not currently accept real product orders.',
-
-                `The public-facing business name is ${businessConfig.publicName}. This policy does not represent that the business has completed any particular corporate or fictitious-name registration.`,
             ],
 
             notice:
