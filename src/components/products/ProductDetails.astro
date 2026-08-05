@@ -85,6 +85,7 @@ const hasSpecifications = Boolean(
             <ProductImage
               image={primaryImage}
               eager={true}
+              variant="detail"
               class="aspect-square rounded-card-lg border border-sand bg-white-warm shadow-sm"
             />
 
@@ -94,6 +95,7 @@ const hasSpecifications = Boolean(
                   {additionalImages.map((image) => (
                     <ProductImage
                       image={image}
+                      variant="thumbnail"
                       class="aspect-square rounded-2xl border border-sand bg-white-warm shadow-sm"
                     />
                   ))}

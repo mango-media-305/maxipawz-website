@@ -9,16 +9,16 @@ import ProductImage from './ProductImage.astro';
 import type { Product, ProductAvailability } from '../../types/product';
 
 import {
-  formatPetType,
-  formatProductPrice,
-  getAvailabilityLabel,
-  getCategoryLabel,
-  getPrimaryProductImage,
+    formatPetType,
+    formatProductPrice,
+    getAvailabilityLabel,
+    getCategoryLabel,
+    getPrimaryProductImage,
 } from '../../utils/products';
 
 interface Props {
-  product: Product;
-  index?: number;
+    product: Product;
+    index?: number;
 }
 
 const { product, index = 0 } = Astro.props;
@@ -77,6 +77,7 @@ const availabilityClasses: Record<ProductAvailability, string> = {
         >
         <ProductImage
             image={primaryImage}
+            variant="card"
             class="aspect-square"
             imageClass="transition duration-500 group-hover:scale-[1.04]"
         />

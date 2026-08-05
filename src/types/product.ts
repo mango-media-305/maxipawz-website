@@ -56,16 +56,35 @@ export interface ProductImageCredit {
     source: 'Unsplash';
 }
 
-export interface ProductImage {
-    src: ImageMetadata | string;
+interface ProductImageBase {
     alt: string;
     position?: ProductImagePosition;
-
-    width?: number;
-    height?: number;
-
     credit?: ProductImageCredit;
 }
+
+/**
+ * Production product imagery should be imported from src/assets so Astro can
+ * generate responsive, optimized derivatives during the build.
+ */
+export interface LocalProductImage extends ProductImageBase {
+    src: ImageMetadata;
+    width?: never;
+    height?: never;
+}
+
+/**
+ * Remote product imagery is intended for temporary or demo catalog content.
+ * Intrinsic dimensions are required to reserve layout space and avoid CLS.
+ */
+export interface RemoteProductImage extends ProductImageBase {
+    src: string;
+    width: number;
+    height: number;
+}
+
+export type ProductImage =
+    | LocalProductImage
+    | RemoteProductImage;
 
 export interface ProductPrice {
     /**

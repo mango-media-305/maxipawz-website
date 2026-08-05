@@ -21,7 +21,7 @@ const availableTopics = getAvailableContactTopics(isStoreLive);
   class="section-spacing scroll-mt-28"
   aria-labelledby="contact-form-title"
 >
-  <div class="site-container grid items-start gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:gap-12">
+  <div class="site-container grid items-start gap-8 lg:grid-cols-2 lg:gap-12">
     <div class="lg:sticky lg:top-28">
       <Badge variant="accent" size="md">
         <HeartBold slot="icon" aria-hidden="true" />
@@ -42,12 +42,10 @@ const availableTopics = getAvailableContactTopics(isStoreLive);
         {businessConfig.supportResponseTime}
       </p>
 
-      <div class="mt-8 grid gap-3">
+      <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3">
         {
           contactPrinciples.map((principle) => (
-            <article class="flex items-start gap-3 rounded-2xl border border-sand bg-white-warm/80 p-4">
-              <CheckCircleFill class="mt-0.5 size-5 shrink-0 text-brand-500" aria-hidden="true" />
-
+            <article class="flex items-start gap-3 rounded-2xl border border-sand bg-white-warm/80 p-6">
               <div>
                 <h3 class="text-base text-ink-900">{principle.title}</h3>
 
@@ -92,6 +90,7 @@ const availableTopics = getAvailableContactTopics(isStoreLive);
       <p hidden>
         <label>
           Do not fill out this field:
+
           <input name="bot-field" />
         </label>
       </p>
@@ -172,9 +171,7 @@ const availableTopics = getAvailableContactTopics(isStoreLive);
           minlength="20"
           maxlength="3000"
           placeholder="Tell us about your question, idea, feedback, or request."
-          required
-        >
-        </textarea>
+          required></textarea>
 
         <p id="contact-message-help" class="form-help">
           Please provide at least 20 characters. Do not include card numbers, passwords, or complete

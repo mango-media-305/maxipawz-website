@@ -1,6 +1,12 @@
 /*
  * Maxi Pawz typography system
  *
+ * Font ownership is intentionally split by responsibility:
+ *
+ * - BaseLayout imports Nunito Sans Variable from @fontsource.
+ * - global.css owns the single Skia @font-face declaration.
+ * - This file maps those loaded families to semantic typography roles.
+ *
  * Display typography:
  * Skia Black at normal width.
  *
@@ -29,21 +35,12 @@
  *   Weight: 3.2 — Black
  *   Width:  1   — Normal width
  */
-@font-face {
-  font-family: 'Maxi Pawz Skia Black';
-  src: url('/fonts/skia/Skia.woff2') format('woff2');
-  font-style: normal;
-  font-weight: 900;
-  font-stretch: normal;
-  font-display: swap;
-}
 
 /*
  * Typography tokens.
  */
 :root {
-  --font-display:
-    'Maxi Pawz Skia Black', 'Arial Rounded MT Bold', ui-rounded, system-ui, sans-serif;
+  --font-display: 'Skia', 'Arial Rounded MT Bold', ui-rounded, system-ui, sans-serif;
 
   --font-body:
     'Nunito Sans Variable', 'Nunito Sans', ui-rounded, system-ui, -apple-system, BlinkMacSystemFont,
