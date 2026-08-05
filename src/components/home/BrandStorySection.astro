@@ -154,18 +154,24 @@ const backgroundSlides = [
       </div>
 
       <p
-        class="text-sm leading-6 text-white/60 sm:text-right"
+        class="max-w-xl text-sm leading-6 text-white/60 sm:text-right"
       >
         A pet store shaped by real experience, everyday routines, and the dog who inspired it all.
       </p>
     </div>
 
+    <!--
+      One column by default.
+
+      CSS changes this to two columns only at the exact same
+      breakpoint where the foreground slider becomes visible.
+    -->
     <div
-      class="brand-story-layout grid grid-cols-1 xl:grid-cols-2 items-center gap-12"
+      class="brand-story-layout grid items-center gap-12"
     >
       <!-- Foreground visual slider: large desktop only -->
       <div
-        class="brand-story-visual-desktop-only mx-auto w-full"
+        class="brand-story-visual-desktop-only mx-auto w-full max-w-lg"
         data-reveal="left"
         style="--reveal-delay: 80ms;"
       >
@@ -319,31 +325,38 @@ const backgroundSlides = [
 
 <style>
   /*
-   * The foreground visual slider is hidden by default.
+   * Mobile and tablet layout
    *
-   * !important prevents any display utility or generated component
-   * style from making it visible below the desktop threshold.
+   * The visual is removed from layout entirely. The grid therefore
+   * contains only the story-copy item and remains one column.
    */
   .brand-story-visual-desktop-only {
     display:
       none !important;
   }
 
-  /*
-   * Text uses the complete section width whenever the visual is hidden.
-   */
+  .brand-story-layout {
+    grid-template-columns:
+      minmax(0, 1fr);
+  }
+
   .brand-story-copy {
+    width:
+      100%;
+
+    max-width:
+      48rem;
 
     margin-inline:
       auto;
   }
 
   /*
-   * The foreground slider and two-column composition activate only at
-   * 1440px and above.
+   * Large desktop layout
    *
-   * Tablet landscape presets commonly reach 1280px or 1366px, so the
-   * previous 1280px rule was not sufficient.
+   * Slider visibility and the two-column grid activate together.
+   * There is no viewport range where an invisible slider can reserve
+   * an empty column.
    */
   @media (min-width: 1440px) {
     .brand-story-layout {
@@ -715,6 +728,11 @@ const backgroundSlides = [
     .brand-story-background__image {
       opacity:
         0.36;
+    }
+
+    .brand-story-copy {
+      max-width:
+        none;
     }
   }
 
