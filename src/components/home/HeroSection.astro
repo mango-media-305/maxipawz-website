@@ -108,7 +108,7 @@ const heroHighlights = [
         class="motion-float motion-float-slow absolute right-[2%] bottom-[8%] text-brand-600/22"
         data-motion-continuous
         >
-        <PawPrintBold class="size-14 rotate-[20deg]" />
+        <PawPrintBold class="size-14 rotate-20" />
         </span>
     </div>
 
@@ -211,15 +211,20 @@ const heroHighlights = [
 
         <!-- Adaptive editorial/product slider -->
         <div
-        class="motion-tilt-shell relative z-10"
-        data-tilt-root
-        data-tilt-strength="1.75"
-        data-reveal="right"
-        style="--reveal-delay: 120ms;"
+            class="motion-tilt-shell relative z-10 hidden sm:block"
+            data-tilt-root
+            data-tilt-strength="1.75"
+            data-reveal="right"
+            style="--reveal-delay: 120ms;"
         >
-        <div class="motion-tilt-surface" data-tilt-surface>
-            <HeroShowcaseSlider storeLive={isStoreLive} />
-        </div>
+            <div
+                class="motion-tilt-surface"
+                data-tilt-surface
+            >
+                <HeroShowcaseSlider
+                storeLive={isStoreLive}
+                />
+            </div>
         </div>
     </div>
 </section>

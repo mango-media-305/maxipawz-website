@@ -154,9 +154,9 @@ const backgroundSlides = [
     <div
       class="grid items-center gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16 xl:gap-20"
     >
-      <!-- Maxi story slider -->
+      <!-- Maxi story slider: desktop only -->
       <div
-        class="mx-auto w-full max-w-lg lg:mx-0"
+        class="mx-auto hidden w-full max-w-lg lg:mx-0 lg:block"
         data-reveal="left"
         style="--reveal-delay: 80ms;"
       >
@@ -182,7 +182,7 @@ const backgroundSlides = [
 
       <!-- Story copy -->
       <div
-        class="mx-auto w-full lg:mx-0"
+        class="mx-auto w-full max-w-3xl lg:mx-0 lg:max-w-none"
       >
         <div
           data-reveal="right"
