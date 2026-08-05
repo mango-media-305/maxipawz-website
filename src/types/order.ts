@@ -116,7 +116,7 @@ export interface OrderFulfillment {
   trackingUrl?: string;
 
   /**
-   * Actual postage MaxiPawz paid to ship the package.
+   * Actual postage Maxi Pawz paid to ship the package.
    *
    * Stored in cents.
    */

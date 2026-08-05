@@ -8,120 +8,201 @@ import SparkleBold from 'phosphor-astro/SparkleBold.astro';
 
 import Badge from '../ui/Badge.astro';
 
+import { businessConfig } from '../../config/business';
 import { isStoreLive } from '../../config/storefront';
 
-import { getAvailableContactTopics, type ContactTopicIcon } from '../../data/contact';
+import {
+  contactChannels,
+  getAvailableContactTopics,
+  type ContactTopicIcon,
+} from '../../data/contact';
 
 const availableTopics = getAvailableContactTopics(isStoreLive);
 
 const iconByTopic: Record<ContactTopicIcon, typeof PawPrintBold> = {
-    general: PawPrintBold,
-    product: ShoppingBagOpenBold,
-    partnership: HeartBold,
-    feedback: SparkleBold,
-    order: CheckCircleFill,
-    return: ShieldCheckBold,
+  general: PawPrintBold,
+  product: ShoppingBagOpenBold,
+  partnership: HeartBold,
+  feedback: SparkleBold,
+  order: CheckCircleFill,
+  return: ShieldCheckBold,
 };
 
 const toneByTopic: Record<ContactTopicIcon, string> = {
-    general: 'border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-brand-100/70',
+  general:
+    'border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-brand-100/70',
 
-    product: 'border-accent-200 bg-linear-to-br from-accent-50 via-white-warm to-accent-100/70',
+  product:
+    'border-accent-200 bg-linear-to-br from-accent-50 via-white-warm to-accent-100/70',
 
-    partnership: 'border-sand-dark/70 bg-linear-to-br from-cream-soft via-white-warm to-sand/65',
+  partnership:
+    'border-sand-dark/70 bg-linear-to-br from-cream-soft via-white-warm to-sand/65',
 
-    feedback: 'border-brand-200 bg-linear-to-br from-white-warm via-brand-50 to-accent-50',
+  feedback:
+    'border-brand-200 bg-linear-to-br from-white-warm via-brand-50 to-accent-50',
 
-    order: 'border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-cream',
+  order:
+    'border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-cream',
 
-    return: 'border-accent-200 bg-linear-to-br from-accent-50 via-white-warm to-cream',
+  return:
+    'border-accent-200 bg-linear-to-br from-accent-50 via-white-warm to-cream',
 };
 
 const iconToneByTopic: Record<ContactTopicIcon, string> = {
-    general: 'bg-brand-500 text-white shadow-blue',
+  general: 'bg-brand-500 text-white shadow-blue',
 
-    product: 'bg-accent-500 text-ink-950 shadow-orange',
+  product: 'bg-accent-500 text-ink-950 shadow-orange',
 
-    partnership: 'bg-ink-800 text-white shadow-soft',
+  partnership: 'bg-ink-800 text-white shadow-soft',
 
-    feedback: 'bg-brand-500 text-white shadow-blue',
+  feedback: 'bg-brand-500 text-white shadow-blue',
 
-    order: 'bg-success-500 text-white shadow-soft',
+  order: 'bg-success-500 text-white shadow-soft',
 
-    return: 'bg-accent-500 text-ink-950 shadow-orange',
+  return: 'bg-accent-500 text-ink-950 shadow-orange',
 };
 ---
 
 <section
-    class="section-spacing border-y border-sand bg-white-warm/70"
-    aria-labelledby="contact-options-title"
+  class="section-spacing border-y border-sand bg-white-warm/70"
+  aria-labelledby="contact-options-title"
 >
-    <div class="site-container">
-        <div class="mx-auto max-w-4xl text-center">
-        <Badge variant="brand" size="md" class="mx-auto">
-            <PawPrintBold slot="icon" aria-hidden="true" />
+  <div class="site-container">
+    <div class="mx-auto max-w-4xl text-center">
+      <Badge variant="brand" size="md" class="mx-auto">
+        <PawPrintBold slot="icon" aria-hidden="true" />
 
-            How We Can Help
-        </Badge>
+        How We Can Help
+      </Badge>
 
-        <h2 id="contact-options-title" class="section-title mx-auto mt-5 text-4xl sm:text-5xl">
-            Choose the topic that best matches your message.
+      <h2
+        id="contact-options-title"
+        class="section-title mx-auto mt-5 text-4xl sm:text-5xl"
+      >
+        Choose the topic that best matches your message.
+      </h2>
+
+      <p class="section-description mx-auto mt-4">
+        A clear topic and a few helpful details make your message easier to understand and organize.
+      </p>
+    </div>
+
+    <div
+      class:list={[
+        'mt-10 grid gap-4 sm:grid-cols-2 sm:gap-5 lg:mt-12',
+        availableTopics.length > 4 ? 'lg:grid-cols-3' : 'lg:grid-cols-4',
+      ]}
+    >
+      {
+        availableTopics.map((topic) => {
+          const Icon = iconByTopic[topic.icon];
+
+          return (
+            <article class="h-full">
+              <a
+                href="#contact-form"
+                class:list={[
+                  'group flex h-full flex-col rounded-card border p-5 shadow-sm',
+                  'transition duration-300 hover:-translate-y-1 hover:shadow-card',
+                  'focus-visible:outline-none focus-visible:ring-4',
+                  'focus-visible:ring-brand-300 focus-visible:ring-offset-2',
+                  'focus-visible:ring-offset-cream-soft',
+                  toneByTopic[topic.icon],
+                ]}
+                aria-label={`Contact ${businessConfig.shortName} about ${topic.title}`}
+              >
+                <span
+                  class:list={[
+                    'grid size-12 place-items-center rounded-2xl transition duration-300',
+                    'group-hover:rotate-3 group-hover:scale-105',
+                    '[&>svg]:size-6',
+                    iconToneByTopic[topic.icon],
+                  ]}
+                  aria-hidden="true"
+                >
+                  <Icon />
+                </span>
+
+                <h3 class="mt-5 text-xl text-ink-900">
+                  {topic.title}
+                </h3>
+
+                <p class="mt-3 flex-1 text-sm leading-6 text-ink-600">
+                  {topic.description}
+                </p>
+
+                <span
+                  class="mt-5 inline-flex w-fit items-center gap-2 font-extrabold text-brand-700 transition group-hover:gap-3 group-hover:text-brand-800"
+                >
+                  Start your message
+
+                  <HeartBold class="size-4" aria-hidden="true" />
+                </span>
+              </a>
+            </article>
+          );
+        })
+      }
+    </div>
+
+    <div class="mt-14 border-t border-sand pt-12">
+      <div class="mx-auto max-w-3xl text-center">
+        <p class="text-xs font-black tracking-widest text-brand-700 uppercase">
+          Email us directly
+        </p>
+
+        <h2 class="mt-3 text-3xl text-ink-900 sm:text-4xl">
+          Use the inbox that matches your request.
         </h2>
 
-        <p class="section-description mx-auto mt-4">
-            A clear topic and a few helpful details make your message easier to understand and organize.
+        <p class="mx-auto mt-4 max-w-2xl leading-7 text-ink-600">
+          Each inbox is monitored for its specific purpose. {businessConfig.supportResponseTime}
         </p>
-        </div>
+      </div>
 
-        <div
-        class:list={[
-            'mt-10 grid gap-4 sm:grid-cols-2 sm:gap-5 lg:mt-12',
-            availableTopics.length > 4 ? 'lg:grid-cols-3' : 'lg:grid-cols-4',
-        ]}
-        >
+      <div class="mt-8 grid gap-5 md:grid-cols-3">
         {
-            availableTopics.map((topic) => {
-            const Icon = iconByTopic[topic.icon];
+          contactChannels.map((channel) => {
+            const Icon = iconByTopic[channel.icon];
 
             return (
-                <article class="h-full">
-                <a
-                    href="#contact-form"
-                    class:list={[
-                    'group flex h-full flex-col rounded-card border p-5 shadow-sm',
-                    'transition duration-300 hover:-translate-y-1 hover:shadow-card',
-                    'focus-visible:outline-none focus-visible:ring-4',
-                    'focus-visible:ring-brand-300 focus-visible:ring-offset-2',
-                    'focus-visible:ring-offset-cream-soft',
-                    toneByTopic[topic.icon],
-                    ]}
-                    aria-label={`Contact MaxiPawz about ${topic.title}`}
+              <article
+                class:list={[
+                  'flex h-full flex-col rounded-card border p-5 shadow-sm',
+                  toneByTopic[channel.icon],
+                ]}
+              >
+                <span
+                  class:list={[
+                    'grid size-12 place-items-center rounded-2xl',
+                    '[&>svg]:size-6',
+                    iconToneByTopic[channel.icon],
+                  ]}
+                  aria-hidden="true"
                 >
-                    <span
-                    class:list={[
-                        'grid size-12 place-items-center rounded-2xl transition duration-300',
-                        'group-hover:rotate-3 group-hover:scale-105',
-                        '[&>svg]:size-6',
-                        iconToneByTopic[topic.icon],
-                    ]}
-                    aria-hidden="true"
-                    >
-                    <Icon />
-                    </span>
+                  <Icon />
+                </span>
 
-                    <h3 class="mt-5 text-xl text-ink-900">{topic.title}</h3>
+                <h3 class="mt-5 text-xl text-ink-900">
+                  {channel.title}
+                </h3>
 
-                    <p class="mt-3 flex-1 text-sm leading-6 text-ink-600">{topic.description}</p>
+                <p class="mt-3 flex-1 text-sm leading-6 text-ink-600">
+                  {channel.description}
+                </p>
 
-                    <span class="mt-5 inline-flex w-fit items-center gap-2 font-extrabold text-brand-700 transition group-hover:gap-3 group-hover:text-brand-800">
-                    Start your message
-                    <HeartBold class="size-4" aria-hidden="true" />
-                    </span>
+                <a
+                  href={`mailto:${channel.email}`}
+                  class="mt-5 break-all font-extrabold text-brand-700 transition hover:text-brand-900"
+                  aria-label={`Email ${businessConfig.shortName} at ${channel.email} about ${channel.title}`}
+                >
+                  {channel.email}
                 </a>
-                </article>
+              </article>
             );
-            })
+          })
         }
-        </div>
+      </div>
     </div>
+  </div>
 </section>

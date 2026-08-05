@@ -42,7 +42,7 @@ export const prelaunchHeroSlides: HeroSlide[] = [
     {
         id: 'everyday-pet-joy',
 
-        eyebrow: 'The MaxiPawz spirit',
+        eyebrow: 'The Maxi Pawz spirit',
 
         title: 'More joy for every part of pet life',
 
@@ -50,7 +50,7 @@ export const prelaunchHeroSlides: HeroSlide[] = [
             'We are creating a friendly destination for playtime, walks, travel, feeding, hydration, comfort, care, and everyday moments together.',
 
         image: "https://miro.medium.com/v2/resize:fit:2000/1*rnRDOjGuPaRpoetcAoZxHA.png",
-        imageAlt: 'Happy brown MaxiPawz dog mascot',
+        imageAlt: 'Happy brown Maxi Pawz dog mascot',
         imageFit: 'cover',
         objectPosition: 'center 28%',
 
@@ -71,13 +71,13 @@ export const prelaunchHeroSlides: HeroSlide[] = [
             'Discover future products ranging from toys and enrichment items to water bottles, collars, walking accessories, travel gear, and everyday supplies.',
 
         image: "https://static.tildacdn.com/tild6635-6330-4165-a233-393634353438/13364.jpg",
-        imageAlt: 'Blue and orange MaxiPawz brand mark',
+        imageAlt: 'Blue and orange Maxi Pawz brand mark',
         imageFit: 'cover',
 
         tone: 'brand',
 
         href: '/about',
-        linkLabel: 'Discover MaxiPawz',
+        linkLabel: 'Discover Maxi Pawz',
     },
 
     {
@@ -88,10 +88,10 @@ export const prelaunchHeroSlides: HeroSlide[] = [
         title: 'A complete pet-shopping experience is taking shape',
 
         description:
-            'MaxiPawz is preparing thoughtful products, helpful pet guidance, and a warm shopping experience for pets and their people.',
+            'Maxi Pawz is preparing thoughtful products, helpful pet guidance, and a warm shopping experience for pets and their people.',
 
         image: "https://m.media-amazon.com/images/I/71pou1A0rDL._AC_UF1000,1000_QL80_.jpg",
-        imageAlt: 'MaxiPawz Store horizontal logo',
+        imageAlt: 'Maxi Pawz Store horizontal logo',
         imageFit: 'cover',
 
         tone: 'sand',
@@ -127,7 +127,7 @@ function createProductSlideId(
  *
  * This function is intentionally product-category neutral. It works with
  * toys, accessories, supplies, hydration products, travel gear, collars,
- * grooming products, and other MaxiPawz merchandise.
+ * grooming products, and other Maxi Pawz merchandise.
  */
 export function createProductHeroSlides(
     products: HeroProductPreview[],
@@ -138,7 +138,7 @@ export function createProductHeroSlides(
         eyebrow:
             product.badge ??
             (index === 0
-                ? 'Featured MaxiPawz pick'
+                ? 'Featured Maxi Pawz pick'
                 : 'Customer favorite'),
 
         title: product.name,

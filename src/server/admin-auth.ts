@@ -37,7 +37,7 @@ export function assertAdminAuthorized(
     ) {
         throw new AdminAuthError(
             503,
-            'The MaxiPawz admin token is not configured.',
+            'The Maxi Pawz admin token is not configured.',
         );
     }
 

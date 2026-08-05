@@ -19,166 +19,152 @@ import { customerPromises } from '../data/about';
 ---
 
 <BaseLayout
-    title="Meet Maxi"
-    description="Meet Maxi, the dog who inspired the MaxiPawz mascot and store, and discover how real-life experience and the support of friends helped shape our pet brand."
-    noIndex={true}
+  title="Meet Maxi"
+  description="Meet Maxi, the dog who inspired the Maxi Pawz mascot and store, and discover how real-life experience and the support of friends helped shape our pet brand."
+  noIndex={true}
 >
-    <AboutHero />
+  <AboutHero />
 
-    <FoundersStory />
+  <FoundersStory />
 
-    <!-- Our promise -->
-    <section class="section-spacing" aria-labelledby="customer-promise-title">
-        <div class="site-container-wide">
-            <div
-                class="grid overflow-hidden rounded-[2.5rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 shadow-card lg:grid-cols-[0.85fr_1.15fr]"
-            >
-                <div
-                class="relative flex min-h-120 flex-col justify-end overflow-hidden p-6 text-white sm:p-8 lg:min-h-[34rem] lg:p-10"
-                >
-                <!-- Optimized background image -->
-                <Image
-                    src={maxiPromiseBackground}
-                    alt=""
-                    class="absolute inset-0 size-full object-cover object-center"
-                    widths={[480, 640, 768, 960]}
-                    sizes="(min-width: 1024px) 40vw, 100vw"
-                    loading="lazy"
-                    quality={85}
-                />
+  <!-- Our promise -->
+  <section class="section-spacing" aria-labelledby="customer-promise-title">
+    <div class="site-container-wide">
+      <div
+        class="grid overflow-hidden rounded-[2.5rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 shadow-card lg:grid-cols-[0.85fr_1.15fr]"
+      >
+        <div
+          class="relative flex min-h-120 flex-col justify-end overflow-hidden p-6 text-white sm:p-8 lg:min-h-[34rem] lg:p-10"
+        >
+          <!-- Optimized background image -->
+          <Image
+            src={maxiPromiseBackground}
+            alt=""
+            class="absolute inset-0 size-full object-cover object-center"
+            widths={[480, 640, 768, 960]}
+            sizes="(min-width: 1024px) 40vw, 100vw"
+            loading="lazy"
+            quality={85}
+          />
 
-                <!-- Main contrast overlay -->
-                <div
-                    class="pointer-events-none absolute inset-0 bg-linear-to-t from-ink-950/95 via-brand-950/70 to-brand-800/20"
-                    aria-hidden="true"
-                >
-                </div>
+          <!-- Main contrast overlay -->
+          <div
+            class="pointer-events-none absolute inset-0 bg-linear-to-t from-ink-950/95 via-brand-950/70 to-brand-800/20"
+            aria-hidden="true"
+          >
+          </div>
 
-                <!-- Subtle side overlay for better desktop readability -->
-                <div
-                    class="pointer-events-none absolute inset-0 bg-linear-to-r from-brand-950/75 via-brand-900/30 to-transparent"
-                    aria-hidden="true"
-                >
-                </div>
+          <!-- Subtle side overlay for better desktop readability -->
+          <div
+            class="pointer-events-none absolute inset-0 bg-linear-to-r from-brand-950/75 via-brand-900/30 to-transparent"
+            aria-hidden="true"
+          >
+          </div>
 
-                <!-- Existing decorative glows -->
-                <div
-                    class="pointer-events-none absolute -top-20 -left-20 size-56 rounded-full bg-white/15 blur-3xl"
-                    aria-hidden="true"
-                >
-                </div>
+          <!-- Existing decorative glows -->
+          <div
+            class="pointer-events-none absolute -top-20 -left-20 size-56 rounded-full bg-white/15 blur-3xl"
+            aria-hidden="true"
+          >
+          </div>
 
-                <div
-                    class="pointer-events-none absolute -right-24 -bottom-24 size-64 rounded-full bg-accent-400/30 blur-3xl"
-                    aria-hidden="true"
-                >
-                </div>
+          <div
+            class="pointer-events-none absolute -right-24 -bottom-24 size-64 rounded-full bg-accent-400/30 blur-3xl"
+            aria-hidden="true"
+          >
+          </div>
 
-                <!-- Content -->
-                <div class="relative z-10 max-w-lg">
-                    <HeartBold
-                    class="size-11 text-accent-300 sm:size-12"
-                    aria-hidden="true"
-                    />
+          <!-- Content -->
+          <div class="relative z-10 max-w-lg">
+            <HeartBold class="size-11 text-accent-300 sm:size-12" aria-hidden="true" />
 
-                    <Badge
-                    variant="accent"
-                    size="sm"
-                    class="mt-5 sm:mt-6"
-                    >
-                    Our Promise
-                    </Badge>
+            <Badge variant="accent" size="sm" class="mt-5 sm:mt-6"> Our Promise </Badge>
 
-                    <h2
-                    id="customer-promise-title"
-                    class="mt-5 max-w-md text-4xl text-white sm:text-5xl"
-                    >
-                    A store inspired by real life with a real dog.
-                    </h2>
+            <h2 id="customer-promise-title" class="mt-5 max-w-md text-4xl text-white sm:text-5xl">
+              A store inspired by real life with a real dog.
+            </h2>
 
-                    <p
-                    class="mt-4 max-w-md text-base leading-7 text-white/80 sm:mt-5"
-                    >
-                    We want MaxiPawz to feel honest, helpful, friendly, and
-                    grounded in the everyday experiences pet owners understand.
-                    </p>
-                </div>
-                </div>
-
-                <div class="p-8 sm:p-10">
-                    <ul class="grid gap-4">
-                        {
-                        customerPromises.map((promise) => (
-                            <li class="flex items-start gap-3 rounded-2xl border border-sand bg-white-warm/80 p-4 text-sm font-bold leading-6 text-ink-700">
-                            <CheckCircleFill
-                                class="mt-0.5 size-5 shrink-0 text-brand-500"
-                                aria-hidden="true"
-                            />
-
-                            <span>{promise}</span>
-                            </li>
-                        ))
-                        }
-                    </ul>
-                </div>
-            </div>
+            <p class="mt-4 max-w-md text-base leading-7 text-white/80 sm:mt-5">
+              We want Maxi Pawz to feel honest, helpful, friendly, and grounded in the everyday
+              experiences pet owners understand.
+            </p>
+          </div>
         </div>
-    </section>
 
-    <!-- Final CTA -->
-    <section class="section-spacing pt-0">
-        <div class="site-container">
-            <div
-                class="relative overflow-hidden rounded-[2.5rem] border border-accent-200 bg-linear-to-br from-accent-50 via-white-warm to-brand-50 px-6 py-10 text-center shadow-card sm:px-10 lg:px-14 lg:py-14"
-            >
-                <div
-                    class="pointer-events-none absolute -top-24 -right-20 size-64 rounded-full bg-brand-300/25 blur-3xl"
+        <div class="p-8 sm:p-10">
+          <ul class="grid gap-4">
+            {
+              customerPromises.map((promise) => (
+                <li class="flex items-start gap-3 rounded-2xl border border-sand bg-white-warm/80 p-4 text-sm font-bold leading-6 text-ink-700">
+                  <CheckCircleFill
+                    class="mt-0.5 size-5 shrink-0 text-brand-500"
                     aria-hidden="true"
-                >
-                </div>
+                  />
 
-                <div
-                    class="pointer-events-none absolute -bottom-28 -left-20 size-72 rounded-full bg-accent-300/25 blur-3xl"
-                    aria-hidden="true"
-                >
-                </div>
-
-                <div class="relative mx-auto max-w-3xl">
-                    <Badge variant="accent" size="md" class="mx-auto">
-                        <HeartBold slot="icon" aria-hidden="true" />
-
-                        Join Maxi’s Pack
-                    </Badge>
-
-                    <h2 class="section-title mt-6 text-4xl text-ink-900 sm:text-5xl">
-                        Maxi inspired the beginning. You can be part of what comes next.
-                    </h2>
-
-                    <p class="section-description mx-auto mt-5">
-                        {
-                        isStoreLive
-                            ? 'Explore our growing collection of playful, practical, and thoughtful products for dogs and the people who love them.'
-                            : 'Join the MaxiPawz pack for launch updates, new products, helpful pet guides, and more of Maxi’s story.'
-                        }
-                    </p>
-
-                    <div class="mt-8 flex justify-center">
-                        {
-                        isStoreLive ? (
-                            <Button href="/shop" variant="primary" size="lg" iconPosition="right">
-                            <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
-                            Explore the Shop
-                            </Button>
-                        ) : (
-                            <Button href="/#join-the-pack" variant="primary" size="lg" iconPosition="right">
-                            <ArrowRightBold slot="icon" aria-hidden="true" />
-                            Join the Pack
-                            </Button>
-                        )
-                        }
-                    </div>
-                </div>
-            </div>
+                  <span>{promise}</span>
+                </li>
+              ))
+            }
+          </ul>
         </div>
-    </section>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="section-spacing pt-0">
+    <div class="site-container">
+      <div
+        class="relative overflow-hidden rounded-[2.5rem] border border-accent-200 bg-linear-to-br from-accent-50 via-white-warm to-brand-50 px-6 py-10 text-center shadow-card sm:px-10 lg:px-14 lg:py-14"
+      >
+        <div
+          class="pointer-events-none absolute -top-24 -right-20 size-64 rounded-full bg-brand-300/25 blur-3xl"
+          aria-hidden="true"
+        >
+        </div>
+
+        <div
+          class="pointer-events-none absolute -bottom-28 -left-20 size-72 rounded-full bg-accent-300/25 blur-3xl"
+          aria-hidden="true"
+        >
+        </div>
+
+        <div class="relative mx-auto max-w-3xl">
+          <Badge variant="accent" size="md" class="mx-auto">
+            <HeartBold slot="icon" aria-hidden="true" />
+
+            Join Maxi’s Pack
+          </Badge>
+
+          <h2 class="section-title mt-6 text-4xl text-ink-900 sm:text-5xl">
+            Maxi inspired the beginning. You can be part of what comes next.
+          </h2>
+
+          <p class="section-description mx-auto mt-5">
+            {
+              isStoreLive
+                ? 'Explore our growing collection of playful, practical, and thoughtful products for dogs and the people who love them.'
+                : 'Join the Maxi Pawz pack for launch updates, new products, helpful pet guides, and more of Maxi’s story.'
+            }
+          </p>
+
+          <div class="mt-8 flex justify-center">
+            {
+              isStoreLive ? (
+                <Button href="/shop" variant="primary" size="lg" iconPosition="right">
+                  <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
+                  Explore the Shop
+                </Button>
+              ) : (
+                <Button href="/#join-the-pack" variant="primary" size="lg" iconPosition="right">
+                  <ArrowRightBold slot="icon" aria-hidden="true" />
+                  Join the Pack
+                </Button>
+              )
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 </BaseLayout>

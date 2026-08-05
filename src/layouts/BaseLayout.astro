@@ -13,447 +13,406 @@ import SiteHeader from '@components/layout/SiteHeader.astro';
 import { siteConfig } from '../config/site';
 
 type StructuredData =
-    | Record<string, unknown>
-    | Array<Record<string, unknown>>;
+  | Record<string, unknown>
+  | Array<Record<string, unknown>>;
 
-type SocialType =
-    | 'website'
-    | 'article';
+type SocialType = 'website' | 'article';
 
 interface SocialImageConfig {
-    src: string;
-    alt: string;
+  src: string;
+  alt: string;
 }
 
 interface Props {
-    title: string;
-    description: string;
+  title: string;
+  description: string;
 
-    image?: string;
-    imageAlt?: string;
-    imageType?: string;
-    imageWidth?: number;
-    imageHeight?: number;
+  image?: string;
+  imageAlt?: string;
+  imageType?: string;
+  imageWidth?: number;
+  imageHeight?: number;
 
-    socialType?: SocialType;
+  socialType?: SocialType;
 
-    publishedAt?: string;
-    modifiedAt?: string;
-    articleSection?: string;
+  publishedAt?: string;
+  modifiedAt?: string;
+  articleSection?: string;
 
-    noIndex?: boolean;
-    hideSiteChrome?: boolean;
+  noIndex?: boolean;
+  hideSiteChrome?: boolean;
 
-    structuredData?: StructuredData;
+  structuredData?: StructuredData;
 }
 
 const {
-    title,
-    description,
+  title,
+  description,
 
-    image,
-    imageAlt,
-    imageType,
-    imageWidth,
-    imageHeight,
+  image,
+  imageAlt,
+  imageType,
+  imageWidth,
+  imageHeight,
 
-    socialType = 'website',
+  socialType = 'website',
 
-    publishedAt,
-    modifiedAt,
-    articleSection,
+  publishedAt,
+  modifiedAt,
+  articleSection,
 
-    noIndex = false,
-    hideSiteChrome = false,
+  noIndex = false,
+  hideSiteChrome = false,
 
-    structuredData,
+  structuredData,
 } = Astro.props;
 
 const environmentNoIndex =
-    import.meta.env.PUBLIC_ROBOTS_NOINDEX ===
-    'true';
+  import.meta.env.PUBLIC_ROBOTS_NOINDEX === 'true';
 
 const shouldNoIndex =
-    noIndex || environmentNoIndex;
+  noIndex || environmentNoIndex;
 
 const fullTitle =
-    title === siteConfig.name
-        ? title
-        : `${title} | ${siteConfig.name}`;
+  title === siteConfig.name
+    ? title
+    : `${title} | ${siteConfig.name}`;
 
 const canonicalURL = Astro.site
-    ? new URL(
-          Astro.url.pathname,
-          Astro.site,
-      )
-    : new URL(
-          Astro.url.pathname,
-          Astro.url,
-      );
+  ? new URL(
+      Astro.url.pathname,
+      Astro.site,
+    )
+  : new URL(
+      Astro.url.pathname,
+      Astro.url,
+    );
 
 const normalizedPath =
-    Astro.url.pathname === '/'
-        ? '/'
-        : Astro.url.pathname.replace(
-              /\/+$/,
-              '',
-          );
+  Astro.url.pathname === '/'
+    ? '/'
+    : Astro.url.pathname.replace(
+        /\/+$/,
+        '',
+      );
 
-/*
- * Centralized OG-image assignments for the most important
- * website URLs.
- *
- * These route assignments intentionally take precedence over
- * older image props that may still be present in individual
- * pages, such as the homepage logo image.
- */
-const socialImageByPath: Record<
-    string,
-    SocialImageConfig
-> = {
-    '/': {
-        src: '/images/og/home.webp',
+const socialImageByPath: Record<string, SocialImageConfig> = {
+  '/': {
+    src: '/images/og/home.webp',
 
-        alt:
-            'MaxiPawz Store — thoughtful pet toys, accessories, essentials, and practical pet guides.',
-    },
+    alt:
+      `${siteConfig.name} — thoughtful pet toys, accessories, essentials, and practical pet guides.`,
+  },
 
-    '/pet-guides': {
-        src:
-            '/images/og/pet-guides.webp',
+  '/pet-guides': {
+    src:
+      '/images/og/pet-guides.webp',
 
-        alt:
-            'MaxiPawz Pet Guides — practical guidance for everyday pet life.',
-    },
+    alt:
+      `${siteConfig.shortName} Pet Guides — practical guidance for everyday pet life.`,
+  },
 
-    '/about': {
-        src: '/images/og/about.webp',
+  '/about': {
+    src: '/images/og/about.webp',
 
-        alt:
-            'About MaxiPawz Store — made for pets and built by two friends who love them.',
-    },
+    alt:
+      `About ${siteConfig.name} — made for pets and built by two friends who love them.`,
+  },
 
-    '/contact': {
-        src: '/images/og/contact.webp',
+  '/contact': {
+    src: '/images/og/contact.webp',
 
-        alt:
-            'Contact MaxiPawz Store with a question, suggestion, or support request.',
-    },
+    alt:
+      `Contact ${siteConfig.name} with a question, suggestion, or support request.`,
+  },
 
-    '/faq': {
-        src: '/images/og/faq.webp',
+  '/faq': {
+    src: '/images/og/faq.webp',
 
-        alt:
-            'MaxiPawz frequently asked questions and helpful answers.',
-    },
+    alt:
+      `${siteConfig.shortName} frequently asked questions and helpful answers.`,
+  },
 
-    '/product-safety': {
-        src:
-            '/images/og/product-safety.webp',
+  '/product-safety': {
+    src:
+      '/images/og/product-safety.webp',
 
-        alt:
-            'MaxiPawz guidance for choosing and using pet products responsibly.',
-    },
+    alt:
+      `${siteConfig.shortName} guidance for choosing and using pet products responsibly.`,
+  },
 
-    '/shop': {
-        src: '/images/og/shop.webp',
+  '/shop': {
+    src: '/images/og/shop.webp',
 
-        alt:
-            'Explore pet toys, accessories, travel gear, hydration products, and everyday essentials from MaxiPawz Store.',
-    },
+    alt:
+      `Explore pet toys, accessories, travel gear, hydration products, and everyday essentials from ${siteConfig.name}.`,
+  },
 };
 
 const mappedSocialImage =
-    socialImageByPath[normalizedPath];
+  socialImageByPath[normalizedPath];
 
-/*
- * Priority:
- *
- * 1. Important route assignment.
- * 2. Explicit image supplied by the page or layout.
- * 3. Universal MaxiPawz fallback image.
- */
 const resolvedImage =
-    mappedSocialImage?.src ??
-    image ??
-    '/images/og/default.webp';
+  mappedSocialImage?.src ??
+  image ??
+  '/images/og/default.webp';
 
 const resolvedImageAlt =
-    mappedSocialImage?.alt ??
-    imageAlt ??
-    'MaxiPawz Store — Happy Pets, Happy Life.';
+  mappedSocialImage?.alt ??
+  imageAlt ??
+  `${siteConfig.name} — Happy Pets, Happy Life.`;
 
 const socialImageURL = new URL(
-    resolvedImage,
-    canonicalURL,
+  resolvedImage,
+  canonicalURL,
 ).toString();
 
 const isManagedOgImage =
-    resolvedImage.startsWith(
-        '/images/og/',
-    );
+  resolvedImage.startsWith(
+    '/images/og/',
+  );
 
 const resolvedImageType =
-    imageType ??
-    (isManagedOgImage
-        ? 'image/webp'
-        : undefined);
+  imageType ??
+  (isManagedOgImage
+    ? 'image/webp'
+    : undefined);
 
 const resolvedImageWidth =
-    imageWidth ??
-    (isManagedOgImage ? 1200 : undefined);
+  imageWidth ??
+  (isManagedOgImage ? 1200 : undefined);
 
 const resolvedImageHeight =
-    imageHeight ??
-    (isManagedOgImage ? 630 : undefined);
+  imageHeight ??
+  (isManagedOgImage ? 630 : undefined);
 
 const robotsContent = shouldNoIndex
-    ? 'noindex, nofollow'
-    : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
+  ? 'noindex, nofollow'
+  : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
 ---
 
 <!doctype html>
 
 <html lang={siteConfig.language}>
-    <head>
-        <meta charset="UTF-8" />
+  <head>
+    <meta charset="UTF-8" />
 
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+    />
+
+    <meta
+      name="generator"
+      content={Astro.generator}
+    />
+
+    <title>{fullTitle}</title>
+
+    <meta
+      name="description"
+      content={description}
+    />
+
+    <meta
+      name="robots"
+      content={robotsContent}
+    />
+
+    <meta
+      name="theme-color"
+      content="#008aff"
+    />
+
+    <link
+      rel="canonical"
+      href={canonicalURL}
+    />
+
+    <link
+      rel="sitemap"
+      href="/sitemap-index.xml"
+    />
+
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="/favicon.svg"
+    />
+
+    <link
+      rel="preload"
+      href="/fonts/skia/Skia.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+
+    <meta
+      property="og:type"
+      content={socialType}
+    />
+
+    <meta
+      property="og:site_name"
+      content={siteConfig.name}
+    />
+
+    <meta
+      property="og:locale"
+      content={siteConfig.locale}
+    />
+
+    <meta
+      property="og:title"
+      content={fullTitle}
+    />
+
+    <meta
+      property="og:description"
+      content={description}
+    />
+
+    <meta
+      property="og:url"
+      content={canonicalURL}
+    />
+
+    <meta
+      property="og:image"
+      content={socialImageURL}
+    />
+
+    <meta
+      property="og:image:secure_url"
+      content={socialImageURL}
+    />
+
+    {
+      resolvedImageType && (
         <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1"
+          property="og:image:type"
+          content={resolvedImageType}
         />
+      )
+    }
 
+    {
+      resolvedImageWidth && (
         <meta
-            name="generator"
-            content={Astro.generator}
+          property="og:image:width"
+          content={String(resolvedImageWidth)}
         />
+      )
+    }
 
-        <title>{fullTitle}</title>
-
+    {
+      resolvedImageHeight && (
         <meta
-            name="description"
-            content={description}
+          property="og:image:height"
+          content={String(resolvedImageHeight)}
         />
+      )
+    }
 
-        <meta
-            name="robots"
-            content={robotsContent}
+    <meta
+      property="og:image:alt"
+      content={resolvedImageAlt}
+    />
+
+    {
+      socialType === 'article' &&
+        publishedAt && (
+          <meta
+            property="article:published_time"
+            content={publishedAt}
+          />
+        )
+    }
+
+    {
+      socialType === 'article' &&
+        modifiedAt && (
+          <meta
+            property="article:modified_time"
+            content={modifiedAt}
+          />
+        )
+    }
+
+    {
+      socialType === 'article' &&
+        articleSection && (
+          <meta
+            property="article:section"
+            content={articleSection}
+          />
+        )
+    }
+
+    <meta
+      name="twitter:card"
+      content="summary_large_image"
+    />
+
+    <meta
+      name="twitter:title"
+      content={fullTitle}
+    />
+
+    <meta
+      name="twitter:description"
+      content={description}
+    />
+
+    <meta
+      name="twitter:image"
+      content={socialImageURL}
+    />
+
+    <meta
+      name="twitter:image:alt"
+      content={resolvedImageAlt}
+    />
+
+    {
+      structuredData && (
+        <script
+          type="application/ld+json"
+          set:html={JSON.stringify(structuredData)}
         />
+      )
+    }
 
-        <meta
-            name="theme-color"
-            content="#008aff"
-        />
+    <Analytics />
+  </head>
 
-        <link
-            rel="canonical"
-            href={canonicalURL}
-        />
+  <body>
+    <a
+      href="#main-content"
+      class="fixed top-3 left-3 z-100 -translate-y-24 rounded-full bg-brand-700 px-5 py-3 font-bold text-white shadow-blue transition focus:translate-y-0"
+    >
+      Skip to main content
+    </a>
 
-        <link
-            rel="sitemap"
-            href="/sitemap-index.xml"
-        />
+    {
+      !hideSiteChrome && (
+        <>
+          <AnnouncementBar />
 
-        <link
-            rel="icon"
-            type="image/svg+xml"
-            href="/favicon.svg"
-        />
+          <SiteHeader />
+        </>
+      )
+    }
 
-        <link
-            rel="preload"
-            href="/fonts/skia/Skia.woff2"
-            as="font"
-            type="font/woff2"
-            crossorigin="anonymous"
-        />
+    <main id="main-content">
+      <slot />
+    </main>
 
-        <!-- Open Graph -->
-        <meta
-            property="og:type"
-            content={socialType}
-        />
-
-        <meta
-            property="og:site_name"
-            content={siteConfig.name}
-        />
-
-        <meta
-            property="og:locale"
-            content={siteConfig.locale}
-        />
-
-        <meta
-            property="og:title"
-            content={fullTitle}
-        />
-
-        <meta
-            property="og:description"
-            content={description}
-        />
-
-        <meta
-            property="og:url"
-            content={canonicalURL}
-        />
-
-        <meta
-            property="og:image"
-            content={socialImageURL}
-        />
-
-        <meta
-            property="og:image:secure_url"
-            content={socialImageURL}
-        />
-
-        {
-            resolvedImageType && (
-                <meta
-                    property="og:image:type"
-                    content={
-                        resolvedImageType
-                    }
-                />
-            )
-        }
-
-        {
-            resolvedImageWidth && (
-                <meta
-                    property="og:image:width"
-                    content={String(
-                        resolvedImageWidth,
-                    )}
-                />
-            )
-        }
-
-        {
-            resolvedImageHeight && (
-                <meta
-                    property="og:image:height"
-                    content={String(
-                        resolvedImageHeight,
-                    )}
-                />
-            )
-        }
-
-        <meta
-            property="og:image:alt"
-            content={resolvedImageAlt}
-        />
-
-        <!-- Article metadata -->
-        {
-            socialType ===
-                'article' &&
-                publishedAt && (
-                    <meta
-                        property="article:published_time"
-                        content={
-                            publishedAt
-                        }
-                    />
-                )
-        }
-
-        {
-            socialType ===
-                'article' &&
-                modifiedAt && (
-                    <meta
-                        property="article:modified_time"
-                        content={
-                            modifiedAt
-                        }
-                    />
-                )
-        }
-
-        {
-            socialType ===
-                'article' &&
-                articleSection && (
-                    <meta
-                        property="article:section"
-                        content={
-                            articleSection
-                        }
-                    />
-                )
-        }
-
-        <!-- Twitter / X -->
-        <meta
-            name="twitter:card"
-            content="summary_large_image"
-        />
-
-        <meta
-            name="twitter:title"
-            content={fullTitle}
-        />
-
-        <meta
-            name="twitter:description"
-            content={description}
-        />
-
-        <meta
-            name="twitter:image"
-            content={socialImageURL}
-        />
-
-        <meta
-            name="twitter:image:alt"
-            content={resolvedImageAlt}
-        />
-
-        {
-            structuredData && (
-                <script
-                    type="application/ld+json"
-                    set:html={JSON.stringify(
-                        structuredData,
-                    )}
-                />
-            )
-        }
-
-        <Analytics />
-    </head>
-
-    <body>
-        <a
-            href="#main-content"
-            class="fixed top-3 left-3 z-100 -translate-y-24 rounded-full bg-brand-700 px-5 py-3 font-bold text-white shadow-blue transition focus:translate-y-0"
-        >
-            Skip to main content
-        </a>
-
-        {
-            !hideSiteChrome && (
-                <>
-                    <AnnouncementBar />
-
-                    <SiteHeader />
-                </>
-            )
-        }
-
-        <main id="main-content">
-            <slot />
-        </main>
-
-        {
-            !hideSiteChrome && (
-                <SiteFooter />
-            )
-        }
-    </body>
+    {
+      !hideSiteChrome && (
+        <SiteFooter />
+      )
+    }
+  </body>
 </html>

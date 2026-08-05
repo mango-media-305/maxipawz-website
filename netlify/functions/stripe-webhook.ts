@@ -283,8 +283,8 @@ async function processRefundEvent(
 
   /**
    * The Stripe account could contain payments unrelated to
-   * MaxiPawz. A refund for one of those payments must not
-   * create a MaxiPawz order or cause Stripe webhook retries.
+   * Maxi Pawz. A refund for one of those payments must not
+   * create a Maxi Pawz order or cause Stripe webhook retries.
    */
   if (!existingOrder) {
     return jsonResponse({
@@ -295,7 +295,7 @@ async function processRefundEvent(
         true,
 
       reason:
-        'No MaxiPawz order matches this Stripe PaymentIntent.',
+        'No Maxi Pawz order matches this Stripe PaymentIntent.',
     });
   }
 
@@ -416,7 +416,7 @@ async function processCheckoutEvent(
         true,
 
       reason:
-        'The Checkout Session does not belong to the MaxiPawz integration.',
+        'The Checkout Session does not belong to the Maxi Pawz integration.',
     });
   }
 

@@ -110,7 +110,7 @@ function getPresentation(viewState: ViewState): {
           : 'Your Stripe test payment has been confirmed.',
 
         description:
-          'The signed Stripe webhook reached the MaxiPawz order system and the payment status was verified.',
+          'The signed Stripe webhook reached the Maxi Pawz order system and the payment status was verified.',
 
         iconClasses: 'border-success-100 bg-success-50 text-success-700',
       };
@@ -157,7 +157,7 @@ function getPresentation(viewState: ViewState): {
 
         title: 'The Checkout Session ID is missing or invalid.',
 
-        description: 'Return to the cart and begin checkout again from the MaxiPawz website.',
+        description: 'Return to the cart and begin checkout again from the Maxi Pawz website.',
 
         iconClasses: 'border-accent-200 bg-accent-50 text-accent-700',
       };

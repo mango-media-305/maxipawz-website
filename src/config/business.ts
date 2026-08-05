@@ -1,30 +1,50 @@
 /**
- * Public business information used by policy and customer-support pages.
+ * Public business information used by policy, customer-support,
+ * transactional-email, and website identity features.
  *
- * IMPORTANT:
- * Replace `legalName` before the commercial launch if the registered
- * business entity differs from the public MaxiPawz Store name.
- *
- * Add a public support email or mailing address only after those contact
- * details are ready to appear permanently on the website.
+ * The public brand name may be displayed while registration is pending.
+ * Keep `legalName` empty until the exact registered corporation name has
+ * been approved and officially registered.
  */
 export const businessConfig = {
-    publicName: 'MaxiPawz Store',
-    shortName: 'MaxiPawz',
+    publicName: 'Maxi Pawz Store',
+    shortName: 'Maxi Pawz',
 
+    /**
+     * Exact registered entity name.
+     *
+     * This must remain empty until registration is complete.
+     */
     legalName: '',
 
-    country: 'United States',
+    registrationStatus: 'pending',
+    intendedEntityType: 'Florida for-profit corporation',
 
-    contactLabel: 'MaxiPawz contact form',
+    country: 'United States',
+    state: 'Florida',
+
+    contactLabel: 'Maxi Pawz contact form',
     contactHref: '/contact',
 
-    supportEmail: '',
-    privacyEmail: '',
+    generalEmail: 'info@maxipawz.com',
+    ordersEmail: 'orders@maxipawz.com',
+    supportEmail: 'support@maxipawz.com',
+    privacyEmail: 'support@maxipawz.com',
+
+    automatedEmailSenderName: 'Maxi Pawz Store',
+    automatedEmailSenderAddress: 'orders@updates.maxipawz.com',
+
+    /**
+     * No public mailing address or telephone number will be displayed
+     * during the current prelaunch stage.
+     */
     mailingAddress: '',
+    phoneNumber: '',
+
+    supportResponseTime: 'We normally respond within 1–2 business days.',
 
     policyEffectiveDate: 'July 27, 2026',
-    policyLastUpdated: 'August 2, 2026',
+    policyLastUpdated: 'August 4, 2026',
 
     policyStage: 'prelaunch',
 

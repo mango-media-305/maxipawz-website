@@ -1,3 +1,5 @@
+import { businessConfig } from './business';
+
 export type StorefrontMode = 'prelaunch' | 'live';
 
 interface StorefrontAnnouncement {
@@ -32,12 +34,12 @@ const storefrontStates: Record<
     prelaunch: {
         announcement: {
             message:
-                'Explore practical pet guides and get first access to the MaxiPawz collection.',
+                `Explore practical pet guides and get first access to the ${businessConfig.shortName} collection.`,
 
             href: '/#join-the-pack',
 
             ariaLabel:
-                'Join the MaxiPawz launch list for first access',
+                `Join the ${businessConfig.shortName} launch list for first access`,
         },
 
         headerAction: {
@@ -57,7 +59,7 @@ const storefrontStates: Record<
             href: '/shop',
 
             ariaLabel:
-                'Shop MaxiPawz pet products',
+                `Shop ${businessConfig.shortName} pet products`,
         },
 
         headerAction: null,

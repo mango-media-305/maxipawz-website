@@ -7,6 +7,7 @@ import CartButton from '../cart/CartButton';
 import MobileNavigation from './MobileNavigation.astro';
 import Button from '../ui/Button.astro';
 
+import { businessConfig } from '../../config/business';
 import { isStoreLive, storefrontState } from '../../config/storefront';
 
 import { mobileNavigation, primaryNavigation } from '../../data/navigation';
@@ -64,7 +65,7 @@ const cartEnabled = isStoreLive || hasDemoProducts;
     <a
       href="/"
       class="group relative z-10 inline-flex shrink-0 items-center rounded-full focus-visible:outline-offset-4 md:rounded-2xl"
-      aria-label="MaxiPawz Store home"
+      aria-label={`${businessConfig.publicName} home`}
     >
       <BrandLogo
         variant="mascot"
@@ -102,7 +103,8 @@ const cartEnabled = isStoreLive || hasDemoProducts;
                 <span
                   class="absolute inset-x-4 -bottom-0.5 h-0.5 rounded-full bg-accent-500"
                   aria-hidden="true"
-                ></span>
+                >
+                </span>
               )}
             </a>
           );
@@ -116,7 +118,7 @@ const cartEnabled = isStoreLive || hasDemoProducts;
           <a
             href="/shop#products"
             class="hidden size-10 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-800 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-brand-400 hover:bg-brand-50 xl:grid"
-            aria-label="Search MaxiPawz products"
+            aria-label={`Search ${businessConfig.shortName} products`}
           >
             <MagnifyingGlassBold class="size-4.5" aria-hidden="true" />
           </a>

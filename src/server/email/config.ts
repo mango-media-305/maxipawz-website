@@ -1,3 +1,5 @@
+import { businessConfig } from '../../config/business';
+
 export interface EmailRuntimeConfig {
     enabled: boolean;
 
@@ -40,18 +42,22 @@ function parseBoolean(
     return fallback;
 }
 
-function optionalEmail(
+function resolveEmail(
     value: string | undefined,
+    fallback: string | undefined,
+    variableName: string,
 ): string | undefined {
     const normalized =
         value?.trim();
 
     if (!normalized) {
-        return undefined;
+        return fallback;
     }
 
     if (!normalized.includes('@')) {
-        return undefined;
+        throw new Error(
+            `${variableName} is invalid.`,
+        );
     }
 
     return normalized;
@@ -80,6 +86,22 @@ export function getEmailRuntimeConfig():
             true,
         );
 
+    const defaultFromName =
+        businessConfig
+            .automatedEmailSenderName;
+
+    const defaultFromEmail =
+        businessConfig
+            .automatedEmailSenderAddress;
+
+    const defaultReplyToEmail =
+        businessConfig
+            .supportEmail;
+
+    const defaultOrderNotificationEmail =
+        businessConfig
+            .ordersEmail;
+
     if (!enabled) {
         return {
             enabled: false,
@@ -90,9 +112,16 @@ export function getEmailRuntimeConfig():
             apiKey: '',
 
             fromName:
-                'MaxiPawz Store',
+                defaultFromName,
 
-            fromEmail: '',
+            fromEmail:
+                defaultFromEmail,
+
+            replyToEmail:
+                defaultReplyToEmail,
+
+            orderNotificationEmail:
+                defaultOrderNotificationEmail,
         };
     }
 
@@ -116,12 +145,14 @@ export function getEmailRuntimeConfig():
         process.env
             .RESEND_FROM_NAME
             ?.trim() ||
-        'MaxiPawz Store';
+        defaultFromName;
 
     const fromEmail =
-        optionalEmail(
+        resolveEmail(
             process.env
                 .RESEND_FROM_EMAIL,
+            defaultFromEmail,
+            'RESEND_FROM_EMAIL',
         );
 
     if (!fromEmail) {
@@ -131,21 +162,27 @@ export function getEmailRuntimeConfig():
     }
 
     const replyToEmail =
-        optionalEmail(
+        resolveEmail(
             process.env
                 .RESEND_REPLY_TO_EMAIL,
+            defaultReplyToEmail,
+            'RESEND_REPLY_TO_EMAIL',
         );
 
     const orderNotificationEmail =
-        optionalEmail(
+        resolveEmail(
             process.env
                 .RESEND_ORDER_NOTIFICATION_EMAIL,
+            defaultOrderNotificationEmail,
+            'RESEND_ORDER_NOTIFICATION_EMAIL',
         );
 
     const sandboxRecipientEmail =
-        optionalEmail(
+        resolveEmail(
             process.env
                 .RESEND_SANDBOX_RECIPIENT_EMAIL,
+            undefined,
+            'RESEND_SANDBOX_RECIPIENT_EMAIL',
         );
 
     if (

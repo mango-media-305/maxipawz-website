@@ -21,14 +21,14 @@ function getOrderReference(
 ): string {
     const suffix =
         sessionId
-        .replace(
-            /^cs_(?:test|live)_/,
-            '',
-        )
-        .slice(
-            -10,
-        )
-        .toUpperCase();
+            .replace(
+                /^cs_(?:test|live)_/,
+                '',
+            )
+            .slice(
+                -10,
+            )
+            .toUpperCase();
 
     return `MPZ-${suffix}`;
 }
@@ -51,8 +51,8 @@ function buildTrackingButton(
             >
             <a
                 href="${escapeEmailHtml(
-                trackingUrl,
-                )}"
+        trackingUrl,
+    )}"
                 style="display:inline-block;padding:13px 22px;color:#ffffff;text-decoration:none;font-size:14px;font-weight:800;"
             >
                 Track your package
@@ -67,7 +67,7 @@ function buildVisitWebsiteButton():
     string {
     const homeUrl =
         buildEmailSiteUrl(
-        '/',
+            '/',
         );
 
     return `
@@ -85,11 +85,11 @@ function buildVisitWebsiteButton():
             >
             <a
                 href="${escapeEmailHtml(
-                homeUrl,
-                )}"
+        homeUrl,
+    )}"
                 style="display:inline-block;padding:12px 20px;color:#654630;text-decoration:none;font-size:13px;font-weight:800;"
             >
-                Visit MaxiPawz
+                Visit Maxi Pawz
             </a>
             </td>
         </tr>
@@ -106,58 +106,58 @@ export function buildCustomerShippingConfirmation(
 
     if (!fulfillment) {
         throw new Error(
-        'The order does not contain fulfillment information.',
+            'The order does not contain fulfillment information.',
         );
     }
 
     const customerName =
         order.customer
-        ?.name ??
+            ?.name ??
         'there';
 
     const orderReference =
         getOrderReference(
-        order.sessionId,
+            order.sessionId,
         );
 
     const testPrefix =
         order.livemode
-        ? ''
-        : '[SANDBOX] ';
+            ? ''
+            : '[SANDBOX] ';
 
     const subject =
-        `${testPrefix}Your MaxiPawz order is on the way — ${orderReference}`;
+        `${testPrefix}Your Maxi Pawz order is on the way — ${orderReference}`;
 
     const serviceLine =
         fulfillment.service
-        ? `${fulfillment.carrier} ${fulfillment.service}`
-        : fulfillment.carrier;
+            ? `${fulfillment.carrier} ${fulfillment.service}`
+            : fulfillment.carrier;
 
     const trackingButton =
         fulfillment.trackingUrl
-        ? buildTrackingButton(
-            fulfillment
-                .trackingUrl,
+            ? buildTrackingButton(
+                fulfillment
+                    .trackingUrl,
             )
-        : '';
+            : '';
 
     const homeUrl =
         buildEmailSiteUrl(
-        '/',
+            '/',
         );
 
     const html =
         buildBrandedEmailShell({
-        testMode:
-            !order.livemode,
+            testMode:
+                !order.livemode,
 
-        testBannerText:
-            'SANDBOX TEST — THIS IS NOT A REAL SHIPMENT',
+            testBannerText:
+                'SANDBOX TEST — THIS IS NOT A REAL SHIPMENT',
 
-        preheader:
-            `Your MaxiPawz order ${orderReference} is on the way.`,
+            preheader:
+                `Your Maxi Pawz order ${orderReference} is on the way.`,
 
-        content: `
+            content: `
             <h1
             style="margin:4px 0 12px;font-size:28px;line-height:1.2;color:#3f2f29;"
             >
@@ -169,7 +169,7 @@ export function buildCustomerShippingConfirmation(
             >
             Hi ${escapeEmailHtml(
                 customerName,
-            )}, your MaxiPawz order has been shipped.
+            )}, your Maxi Pawz order has been shipped.
             </p>
 
             <div
@@ -184,7 +184,7 @@ export function buildCustomerShippingConfirmation(
 
                 ${escapeEmailHtml(
                 orderReference,
-                )}
+            )}
 
                 <br />
 
@@ -194,7 +194,7 @@ export function buildCustomerShippingConfirmation(
 
                 ${escapeEmailHtml(
                 serviceLine,
-                )}
+            )}
 
                 <br />
 
@@ -205,7 +205,7 @@ export function buildCustomerShippingConfirmation(
                 ${escapeEmailHtml(
                 fulfillment
                     .trackingNumber,
-                )}
+            )}
             </div>
 
             ${trackingButton}
@@ -219,27 +219,26 @@ export function buildCustomerShippingConfirmation(
 
             ${buildVisitWebsiteButton()}
         `,
-    });
+        });
 
     const text = `
-MaxiPawz Store
+Maxi Pawz Store
 HAPPY PETS • HAPPY LIFE
 
 Hi ${customerName},
 
-Your MaxiPawz order is on the way!
+Your Maxi Pawz order is on the way!
 
 Order: ${orderReference}
 Carrier: ${serviceLine}
 Tracking: ${fulfillment.trackingNumber}
 
-${
-    fulfillment.trackingUrl
-        ? `Track package: ${fulfillment.trackingUrl}`
-        : ''
-}
+${fulfillment.trackingUrl
+            ? `Track package: ${fulfillment.trackingUrl}`
+            : ''
+        }
 
-Visit MaxiPawz:
+Visit Maxi Pawz:
 ${homeUrl}
 
 Tracking information can take some time to update after the carrier receives the package.

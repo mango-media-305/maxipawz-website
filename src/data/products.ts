@@ -59,7 +59,7 @@ const demoProducts: Product[] = [
         description: [
             'This fictional demo product represents a versatile toy intended for supervised games of fetch and tug.',
 
-            'It is included only to demonstrate how product descriptions, materials, care instructions, pricing, and safety information will appear in the MaxiPawz catalog.',
+            'It is included only to demonstrate how product descriptions, materials, care instructions, pricing, and safety information will appear in the Maxi Pawz catalog.',
         ],
 
         petTypes: ['dog'],

@@ -181,7 +181,7 @@ export const shopPrinciples: ShopPrinciple[] = [
         title: 'Joyful by nature',
 
         description:
-            'MaxiPawz brings warmth, color, personality, and a sense of fun to shopping for the pets we love.',
+            'Maxi Pawz brings warmth, color, personality, and a sense of fun to shopping for the pets we love.',
 
         icon: 'joy',
     },
@@ -193,7 +193,7 @@ export const prelaunchCollectionHighlights: CollectionHighlight[] =
             title: 'A varied collection',
 
             description:
-                'MaxiPawz is preparing products for play, walking, travel, feeding, hydration, comfort, grooming, and personal style.',
+                'Maxi Pawz is preparing products for play, walking, travel, feeding, hydration, comfort, grooming, and personal style.',
         },
 
         {

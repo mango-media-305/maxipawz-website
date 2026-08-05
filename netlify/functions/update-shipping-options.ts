@@ -102,7 +102,7 @@ function parseShippingDetails(
         'US'
     ) {
         throw new Error(
-            'MaxiPawz currently ships only within the United States.',
+            'Maxi Pawz currently ships only within the United States.',
         );
     }
 
@@ -273,7 +273,7 @@ export default async function handler(
             'test'
         ) {
             throw new Error(
-                'The Checkout Session does not belong to the MaxiPawz Sandbox integration.',
+                'The Checkout Session does not belong to the Maxi Pawz Sandbox integration.',
             );
         }
 

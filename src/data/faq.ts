@@ -32,10 +32,10 @@ export interface FaqGroup {
 
 const prelaunchStorefrontItems: FaqItem[] = [
     {
-        question: 'What is MaxiPawz?',
+        question: 'What is Maxi Pawz?',
 
         answer: [
-            'MaxiPawz is a pet lifestyle store inspired by Maxi, our dog and daily companion. We are creating a welcoming place for playful products, practical essentials, and helpful pet guidance.',
+            'Maxi Pawz is a pet lifestyle store inspired by Maxi, our dog and daily companion. We are creating a welcoming place for playful products, practical essentials, and helpful pet guidance.',
 
             'The store is being organized around real pet routines such as play, walking, travel, feeding, hydration, comfort, grooming, and everyday care.',
         ],
@@ -52,7 +52,7 @@ const prelaunchStorefrontItems: FaqItem[] = [
         answer: [
             'A public opening date has not been announced yet. We are preparing the collection, product information, shopping experience, and checkout process before opening the store.',
 
-            'Joining the MaxiPawz pack is the best way to receive future launch updates.',
+            'Joining the Maxi Pawz pack is the best way to receive future launch updates.',
         ],
 
         link: {
@@ -62,7 +62,7 @@ const prelaunchStorefrontItems: FaqItem[] = [
     },
 
     {
-        question: 'What products will MaxiPawz offer?',
+        question: 'What products will Maxi Pawz offer?',
 
         answer: [
             'The planned collection includes products for Play & Enrichment, Walk & Travel, Feeding & Hydration, Comfort & Home, Grooming & Care, and Collars & Accessories.',
@@ -77,10 +77,10 @@ const prelaunchStorefrontItems: FaqItem[] = [
     },
 
     {
-        question: 'Is MaxiPawz only for dogs?',
+        question: 'Is Maxi Pawz only for dogs?',
 
         answer: [
-            'MaxiPawz begins with the experience we gained while raising Maxi, so much of our current guidance is dog-focused.',
+            'Maxi Pawz begins with the experience we gained while raising Maxi, so much of our current guidance is dog-focused.',
 
             'Future product pages will identify the intended animal, size, activity, and use whenever that information applies.',
         ],
@@ -119,10 +119,10 @@ const prelaunchStorefrontItems: FaqItem[] = [
 
 const liveStorefrontItems: FaqItem[] = [
     {
-        question: 'What is MaxiPawz?',
+        question: 'What is Maxi Pawz?',
 
         answer: [
-            'MaxiPawz is a pet lifestyle store inspired by Maxi, our dog and daily companion.',
+            'Maxi Pawz is a pet lifestyle store inspired by Maxi, our dog and daily companion.',
 
             'We organize products around everyday pet activities, including play, walking, travel, feeding, hydration, comfort, grooming, care, and personal style.',
         ],
@@ -149,10 +149,10 @@ const liveStorefrontItems: FaqItem[] = [
     },
 
     {
-        question: 'Is MaxiPawz only for dogs?',
+        question: 'Is Maxi Pawz only for dogs?',
 
         answer: [
-            'MaxiPawz is inspired by our experience with Maxi, so many products and guides may be dog-focused.',
+            'Maxi Pawz is inspired by our experience with Maxi, so many products and guides may be dog-focused.',
 
             'Always review the individual product description, sizing, intended animal, instructions, and warnings before making a purchase.',
         ],
@@ -164,7 +164,7 @@ const liveStorefrontItems: FaqItem[] = [
         answer: [
             'Yes. Product suggestions and collection feedback are welcome through our contact form.',
 
-            'Suggestions help us understand the needs and interests of the MaxiPawz community.',
+            'Suggestions help us understand the needs and interests of the Maxi Pawz community.',
         ],
 
         link: {
@@ -191,7 +191,7 @@ const productItems: FaqItem[] = [
     },
 
     {
-        question: 'What are MaxiPawz Pet Guides?',
+        question: 'What are Maxi Pawz Pet Guides?',
 
         answer: [
             'Pet Guides are educational resources that help pet owners think through common product choices and everyday routines.',
@@ -209,7 +209,7 @@ const productItems: FaqItem[] = [
         question: 'Do the Pet Guides replace veterinary advice?',
 
         answer: [
-            'No. MaxiPawz Pet Guides provide general educational information only.',
+            'No. Maxi Pawz Pet Guides provide general educational information only.',
 
             'They do not replace veterinary diagnosis, treatment, nutritional guidance, behavioral care, emergency services, or individualized professional advice.',
         ],
@@ -239,7 +239,7 @@ const productItems: FaqItem[] = [
         question: 'Where can I ask a product question?',
 
         answer: [
-            'Use the MaxiPawz contact form and choose Product question as the topic.',
+            'Use the Maxi Pawz contact form and choose Product question as the topic.',
 
             'Include the product category, intended use, relevant measurements, feature, or pet routine connected to your question.',
         ],
@@ -308,7 +308,7 @@ const orderItems: FaqItem[] = [
         answer: [
             'Stop using the product when the damage could make it unsuitable or unsafe.',
 
-            'Keep the product, packaging, and order information while the issue is reviewed. Contact MaxiPawz with your order number and a description of the damage.',
+            'Keep the product, packaging, and order information while the issue is reviewed. Contact Maxi Pawz with your order number and a description of the damage.',
         ],
 
         link: {
@@ -335,7 +335,7 @@ const orderItems: FaqItem[] = [
 
 const helpItems: FaqItem[] = [
     {
-        question: 'How can I contact MaxiPawz?',
+        question: 'How can I contact Maxi Pawz?',
 
         answer: [
             'Use the contact form and select the topic that most closely matches your message.',
@@ -380,7 +380,7 @@ const helpItems: FaqItem[] = [
     },
 
     {
-        question: 'Can MaxiPawz help with a pet emergency?',
+        question: 'Can Maxi Pawz help with a pet emergency?',
 
         answer: [
             'No. The website, contact form, shop, and Pet Guides are not emergency services.',
@@ -402,8 +402,8 @@ export function getFaqGroups(
                 : 'Coming Soon',
 
             title: isStoreLive
-                ? 'About MaxiPawz and the shop'
-                : 'About MaxiPawz and the upcoming store',
+                ? 'About Maxi Pawz and the shop'
+                : 'About Maxi Pawz and the upcoming store',
 
             description: isStoreLive
                 ? 'Learn about the brand, collection, and shopping experience.'

@@ -2365,7 +2365,7 @@ export default function AdminOrders() {
         return (
             <section className="mx-auto max-w-xl rounded-[2.5rem] border border-brand-200 bg-white-warm p-6 shadow-card sm:p-8">
                 <p className="text-xs font-extrabold tracking-[0.08em] text-brand-700 uppercase">
-                    MaxiPawz Admin
+                    Maxi Pawz Admin
                 </p>
 
                 <h1 className="mt-3 text-3xl text-ink-900">
@@ -2436,7 +2436,7 @@ export default function AdminOrders() {
     }
 
     const filters:
-        Array<{
+        {
             value:
             OrderFilter;
 
@@ -2445,7 +2445,7 @@ export default function AdminOrders() {
 
             count:
             number;
-        }> = [
+        }[] = [
             {
                 value:
                     'needs-fulfillment',
@@ -2532,7 +2532,7 @@ export default function AdminOrders() {
             <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                     <p className="text-xs font-extrabold tracking-[0.08em] text-brand-700 uppercase">
-                        MaxiPawz Admin
+                        Maxi Pawz Admin
                     </p>
 
                     <h1 className="mt-2 text-4xl text-ink-900">

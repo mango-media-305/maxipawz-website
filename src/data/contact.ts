@@ -1,3 +1,5 @@
+import { businessConfig } from '../config/business';
+
 export type ContactTopicIcon =
     | 'general'
     | 'product'
@@ -28,6 +30,13 @@ export interface ContactPrinciple {
     description: string;
 }
 
+export interface ContactChannel {
+    title: string;
+    email: string;
+    description: string;
+    icon: ContactTopicIcon;
+}
+
 export const contactTopics: ContactTopic[] = [
     {
         label: 'General question',
@@ -36,7 +45,7 @@ export const contactTopics: ContactTopic[] = [
         title: 'General Questions',
 
         description:
-            'Ask about MaxiPawz, our story, the upcoming store, Pet Guides, or anything else related to the brand.',
+            `Ask about ${businessConfig.shortName}, our story, the upcoming store, Pet Guides, or anything else related to the brand.`,
 
         icon: 'general',
     },
@@ -84,7 +93,7 @@ export const contactTopics: ContactTopic[] = [
         title: 'Order Support',
 
         description:
-            'Contact us about an existing MaxiPawz order and include the order number when it is available.',
+            `Contact us about an existing ${businessConfig.shortName} order and include the order number when it is available.`,
 
         icon: 'order',
         liveOnly: true,
@@ -97,10 +106,48 @@ export const contactTopics: ContactTopic[] = [
         title: 'Returns',
 
         description:
-            'Start a return-related conversation for an eligible MaxiPawz purchase after the store opens.',
+            `Start a return-related conversation for an eligible ${businessConfig.shortName} purchase after the store opens.`,
 
         icon: 'return',
         liveOnly: true,
+    },
+];
+
+export const contactChannels: ContactChannel[] = [
+    {
+        title: 'General Questions',
+
+        email:
+            businessConfig.generalEmail,
+
+        description:
+            'General questions, product questions, partnerships, collaborations, Pet Guides, and website feedback.',
+
+        icon: 'general',
+    },
+
+    {
+        title: 'Order Support',
+
+        email:
+            businessConfig.ordersEmail,
+
+        description:
+            'Questions about an existing order, payment confirmation, shipping update, or order information.',
+
+        icon: 'order',
+    },
+
+    {
+        title: 'Returns and Product Issues',
+
+        email:
+            businessConfig.supportEmail,
+
+        description:
+            'Return requests and reports about damaged, defective, incorrect, missing, or incomplete products.',
+
+        icon: 'return',
     },
 ];
 
@@ -132,6 +179,7 @@ export function getAvailableContactTopics(
 ): ContactTopic[] {
     return contactTopics.filter(
         (topic) =>
-            isStoreLive || !topic.liveOnly,
+            isStoreLive ||
+            !topic.liveOnly,
     );
 }

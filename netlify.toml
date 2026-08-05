@@ -5,7 +5,6 @@
 
 [build.environment]
   NODE_VERSION = "22"
-  PUBLIC_ROBOTS_NOINDEX = "false"
 
 [context.deploy-preview.environment]
   PUBLIC_ROBOTS_NOINDEX = "true"
@@ -28,7 +27,7 @@
 # ---------------------------------------------------------
 
 # Redirect the default Netlify production hostname to the
-# canonical MaxiPawz domain.
+# canonical Maxi Pawz domain.
 
 [[redirects]]
   from = "http://maxipawzprod.netlify.app/*"

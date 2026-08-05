@@ -19,7 +19,7 @@ export interface StoryMilestone {
 export const aboutHero = {
     eyebrow: 'Meet Maxi',
 
-    title: 'The dog behind MaxiPawz.',
+    title: 'The dog behind Maxi Pawz.',
 
     description:
         'Maxi is our dog, the inspiration for our mascot, and the reason this store exists. Our experience choosing pet products began at home, caring for Maxi from puppyhood and learning what truly makes a difference in a dog’s everyday life.',
@@ -42,9 +42,9 @@ export const maxiStory = {
 
         'Living with Maxi taught us that not every pet product delivers the same experience. Some toys become instant favorites. Some accessories look good but are not practical. Some everyday products quietly become things you never want to be without.',
 
-        'Those experiences gave us the idea for MaxiPawz: a store shaped by real life with a real dog. We wanted to bring together playful products, practical accessories, travel and hydration essentials, comfort items, and everyday supplies under one friendly brand.',
+        'Those experiences gave us the idea for Maxi Pawz: a store shaped by real life with a real dog. We wanted to bring together playful products, practical accessories, travel and hydration essentials, comfort items, and everyday supplies under one friendly brand.',
 
-        'We did not build the idea alone. Our friends believed in MaxiPawz, encouraged us, shared ideas, and helped us move forward when the business was still starting from zero. Their support helped turn a personal idea inspired by Maxi into a growing vision.',
+        'We did not build the idea alone. Our friends believed in Maxi Pawz, encouraged us, shared ideas, and helped us move forward when the business was still starting from zero. Their support helped turn a personal idea inspired by Maxi into a growing vision.',
     ],
 
     milestones: [
@@ -72,7 +72,7 @@ export const maxiStory = {
             title: 'From zero to hero—together',
 
             description:
-                'Our friends supported the idea with encouragement, feedback, creativity, and the belief that MaxiPawz could become something special.',
+                'Our friends supported the idea with encouragement, feedback, creativity, and the belief that Maxi Pawz could become something special.',
         },
 
         {

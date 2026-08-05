@@ -46,157 +46,228 @@ export interface LegalDocument {
 }
 
 const sharedPolicyDetails = {
-    effectiveDate: businessConfig.policyEffectiveDate,
-    lastUpdated: businessConfig.policyLastUpdated,
-    statusLabel: 'Prelaunch policy',
+    effectiveDate:
+        businessConfig.policyEffectiveDate,
+
+    lastUpdated:
+        businessConfig.policyLastUpdated,
+
+    statusLabel:
+        'Prelaunch policy',
 } as const;
 
 const commonRelatedLinks: LegalLink[] = [
     {
-        label: 'Contact MaxiPawz',
-        href: businessConfig.contactHref,
+        label:
+            `Contact ${businessConfig.shortName}`,
+
+        href:
+            businessConfig.contactHref,
+
         description:
             'Send a privacy, policy, accessibility, or website question.',
     },
+
     {
-        label: 'Frequently Asked Questions',
-        href: '/faq',
+        label:
+            'Frequently Asked Questions',
+
+        href:
+            '/faq',
+
         description:
-            'Find general information about MaxiPawz and the upcoming store.',
+            `Find general information about ${businessConfig.shortName} and the upcoming store.`,
     },
+
     {
-        label: 'Pet Product Safety',
-        href: '/product-safety',
+        label:
+            'Pet Product Safety',
+
+        href:
+            '/product-safety',
+
         description:
             'Review general guidance for choosing and using pet products.',
     },
 ];
 
 export const privacyPolicy: LegalDocument = {
-    slug: 'privacy-policy',
-    title: 'Privacy Policy',
-    shortTitle: 'Privacy',
-    eyebrow: 'Your Information',
+    slug:
+        'privacy-policy',
+
+    title:
+        'Privacy Policy',
+
+    shortTitle:
+        'Privacy',
+
+    eyebrow:
+        'Your Information',
+
     description:
-        'Learn what information MaxiPawz currently collects, why it is used, and the choices available to website visitors.',
+        `Learn what information ${businessConfig.shortName} currently collects, why it is used, and the choices available to website visitors.`,
+
     introduction:
-    `This Privacy Policy explains how ${businessDisplayName} handles information submitted through this prelaunch website and information processed through website analytics and experience-measurement services. It reflects the website’s current forms and functionality and must be reviewed again before ecommerce checkout, advertising tools, or additional customer services are enabled.`,
-    icon: 'privacy',
-    tone: 'brand',
+        `This Privacy Policy explains how ${businessDisplayName} handles information submitted through this prelaunch website and information processed while operating, protecting, measuring, and improving the website. It describes the website’s current functionality and will be reviewed again before commercial checkout or additional customer-data features are enabled.`,
+
+    icon:
+        'privacy',
+
+    tone:
+        'brand',
+
     ...sharedPolicyDetails,
 
     sections: [
         {
-            id: 'scope',
+            id:
+                'scope',
 
-            title: '1. Scope and current website stage',
+            title:
+                '1. Scope and current website stage',
 
             paragraphs: [
                 `This policy applies to the ${businessConfig.publicName} website, its launch-list form, contact form, informational pages, Pet Guides, and related website interactions.`,
 
-                'The online store is currently in prelaunch mode. The website does not currently accept purchases, create customer accounts, or collect payment-card information.',
+                'The storefront is currently in prelaunch mode. Commercial checkout is disabled, customer accounts are not offered, and the website does not currently accept real product orders.',
             ],
 
             notice:
-                'This policy must be updated before the storefront begins accepting payments or collecting additional customer information.',
+                'This policy must be reviewed again before commercial checkout or additional customer-data features are enabled.',
         },
 
         {
-            id: 'information-you-provide',
+            id:
+                'information-you-provide',
 
-            title: '2. Information you provide',
+            title:
+                '2. Information you provide',
 
             paragraphs: [
-                'We collect information that you choose to submit through website forms.',
+                'We collect information that you choose to submit through website forms or email.',
             ],
 
             bullets: [
                 'Launch-list information, such as an email address and optional first name.',
                 'Contact information, such as your name and email address.',
-                'The topic and content of a message submitted through the contact form.',
-                'Product suggestions, website feedback, partnership inquiries, or other information you voluntarily provide.',
-                'An order number may be collected later when order-support functionality becomes available.',
+                'The selected topic and content of a contact-form message.',
+                'Product suggestions, website feedback, partnership inquiries, accessibility reports, or other information you voluntarily provide.',
+                'Information sent directly to a Maxi Pawz email address.',
+                'Order-related information may be collected later after commercial ordering becomes available.',
             ],
 
             notice:
-                'Do not submit passwords, full payment-card numbers, Social Security numbers, medical records, or other highly sensitive personal information through website forms.',
+                'Do not submit passwords, full payment-card numbers, Social Security numbers, medical records, or other highly sensitive information through website forms or ordinary email.',
         },
 
         {
-            id: 'technical-information',
+            id:
+                'forms-and-notifications',
 
-            title: '3. Technical and operational information',
+            title:
+                '3. Website forms and notifications',
 
             paragraphs: [
-                'The website’s hosting, security, and delivery infrastructure may automatically process technical information needed to serve and protect the website.',
+                'The contact form and launch-list form are processed through Netlify Forms.',
 
-                'This may include an Internet Protocol address, browser or device information, request timing, referring pages, error information, and similar server or security records.',
+                'A submission may be stored within Netlify systems and made available to authorized website administrators.',
+
+                `Form-submission notifications may be delivered to ${businessConfig.generalEmail} so the message or signup can be reviewed.`,
+
+                'The launch-list form records interest in future updates. Submitting the form does not create a customer account, complete a purchase, or guarantee that a particular product or promotion will become available.',
             ],
         },
 
         {
-            id: 'how-information-is-used',
+            id:
+                'technical-information',
 
-            title: '4. How information is used',
+            title:
+                '4. Technical and operational information',
 
             paragraphs: [
-                'Information may be used for the purposes described when it is collected and for reasonable activities connected with operating the website.',
+                'The website’s hosting, security, delivery, and diagnostic systems may automatically process technical information needed to serve and protect the website.',
+
+                'This may include an Internet Protocol address, browser or device information, request timing, referring pages, page addresses, error information, and similar server or security records.',
+            ],
+        },
+
+        {
+            id:
+                'how-information-is-used',
+
+            title:
+                '5. How information is used',
+
+            paragraphs: [
+                'Information may be used for the purpose described when it is collected and for reasonable activities connected with operating the website.',
             ],
 
             bullets: [
-                'Responding to questions, suggestions, and support requests.',
-                'Managing launch-list subscriptions and sending requested MaxiPawz updates.',
+                'Responding to questions, suggestions, accessibility reports, and support requests.',
+                'Maintaining the prelaunch interest list.',
+                'Preparing future launch communications.',
                 'Reviewing product suggestions and customer interests.',
-                'Evaluating website feedback and accessibility concerns.',
+                'Evaluating website feedback and usability concerns.',
                 'Protecting the website against spam, misuse, fraud, or security threats.',
-                'Maintaining business records and complying with applicable legal obligations.',
-                'Preparing and improving the future MaxiPawz shopping experience.',
+                'Maintaining appropriate business and operational records.',
+                'Preparing and improving the future Maxi Pawz shopping experience.',
             ],
         },
 
         {
-            id: 'service-providers',
+            id:
+                'service-providers',
 
-            title: '5. Service providers and information sharing',
+            title:
+                '6. Service providers and information sharing',
 
             paragraphs: [
-                'We may use service providers to host the website, process forms, send communications, protect the website, and support future ecommerce operations.',
+                'We may use service providers to host the website, process forms, send communications, measure website activity, protect the website, and support future ecommerce operations.',
 
-                'Website forms are currently processed through Netlify Forms. Submitted form information may be stored within Netlify systems and made available to authorized website administrators.',
+                'These providers may process information only as needed to provide their services, maintain their systems, enforce their terms, protect against misuse, or comply with applicable obligations.',
 
-                'Information may also be disclosed when reasonably necessary to comply with law, respond to valid legal requests, protect rights or safety, investigate misuse, or complete a business reorganization or transfer.',
+                'Information may also be disclosed when reasonably necessary to respond to valid legal requests, protect rights or safety, investigate misuse, prevent fraud, or complete a business reorganization or transfer.',
             ],
 
             notice:
-                'MaxiPawz does not currently sell personal information submitted through its website forms.',
+                `${businessConfig.shortName} does not currently sell personal information submitted through its website forms.`,
         },
 
         {
-            id: 'email-updates',
-
-            title: '6. Email updates and communication choices',
-
-            paragraphs: [
-                'Visitors who join the MaxiPawz launch list may receive launch information, product news, Pet Guide updates, and occasional store communications.',
-
-                'You may unsubscribe using the option included in an email or by contacting MaxiPawz through the website.',
-            ],
-        },
-
-        {
-            id: 'cookies-and-analytics',
+            id:
+                'email-communications',
 
             title:
-                '7. Cookies, analytics, and website experience measurement',
+                '7. Email communications and launch updates',
 
             paragraphs: [
-                'The website uses Google Analytics 4 to help us understand how visitors discover and use MaxiPawz. Google Analytics may process information such as pages viewed, approximate geographic area, device and browser information, referring sources, interactions, and general website usage patterns.',
+                `Visitors who join the ${businessConfig.shortName} launch list may later receive launch information, product news, Pet Guide updates, or occasional store communications.`,
 
-                'The website uses Microsoft Clarity to help us understand how visitors interact with website pages through tools such as session recordings, heatmaps, interaction measurements, and diagnostic information.',
+                'A promotional email program will not be treated as ready for launch until the necessary sender identification, mailing-address disclosure, unsubscribe method, and email-service configuration are in place.',
 
-                'These services may use cookies, local storage, identifiers, or similar technologies. Information is processed under the applicable policies and settings of Google and Microsoft.',
+                `Questions about the launch list may be sent to ${businessConfig.generalEmail}.`,
+            ],
 
-                'MaxiPawz uses this information to understand website performance, improve navigation and content, identify technical or usability problems, and measure actions such as successful launch-list and contact-form submissions.',
+            notice:
+                'Transactional order and shipping messages will be handled separately from promotional email after commercial checkout is launched.',
+        },
+
+        {
+            id:
+                'analytics',
+
+            title:
+                '8. Analytics and website-experience measurement',
+
+            paragraphs: [
+                'Google Analytics 4 and Microsoft Clarity may be used when analytics are enabled for the production website.',
+
+                'These services may process information such as pages viewed, approximate geographic area, device and browser information, referring sources, clicks, scrolling, interaction patterns, and general website usage information.',
+
+                'These services may use cookies, local storage, identifiers, or similar technologies under their respective policies and configurations.',
+
+                `${businessConfig.shortName} uses website-measurement information to understand performance, improve navigation and content, identify technical or usability problems, and measure successful form-completion events.`,
             ],
 
             bullets: [
@@ -205,109 +276,162 @@ export const privacyPolicy: LegalDocument = {
                 'Referring websites and marketing sources.',
                 'Approximate geographic information.',
                 'Clicks, scrolling, and website interaction patterns.',
-                'Successful form-completion events without including the submitted form contents in analytics event parameters.',
+                'Successful form events without intentionally including the submitted form contents in custom analytics parameters.',
             ],
 
             notice:
-                'Do not submit highly sensitive information through website forms. MaxiPawz does not intentionally send names, email addresses, message contents, payment information, or other directly identifying form-field values to Google Analytics or Microsoft Clarity as custom analytics events.',
+                `${businessConfig.shortName} does not intentionally send names, email addresses, message contents, payment information, or other directly identifying form-field values to analytics services as custom event parameters.`,
         },
 
         {
-            id: 'future-checkout',
+            id:
+                'future-checkout',
 
-            title: '8. Future checkout and payment processing',
+            title:
+                '9. Future checkout and payment processing',
 
             paragraphs: [
-                'MaxiPawz plans to use Stripe-hosted checkout when the store opens. Payment information would then be submitted directly to Stripe and handled under Stripe’s own privacy and security practices.',
+                `${businessConfig.shortName} plans to use Stripe for payment processing when the commercial store opens.`,
 
-                'The MaxiPawz Privacy Policy will be reviewed and updated before checkout is enabled, including any information collected for orders, taxes, fulfillment, customer service, and fraud prevention.',
+                'Payment-card information would be submitted through Stripe’s checkout interface and processed under Stripe’s own privacy and security practices.',
+
+                'Before commercial checkout is enabled, this policy will be reviewed to address order information, payment processing, taxes, fraud prevention, fulfillment, shipping, customer service, refunds, and related records.',
             ],
         },
 
         {
-            id: 'retention-and-security',
+            id:
+                'retention-and-security',
 
-            title: '9. Retention and security',
+            title:
+                '10. Retention and security',
 
             paragraphs: [
-                'We seek to retain personal information only for as long as reasonably needed for the purpose for which it was collected, legitimate business records, dispute prevention, security, or applicable legal obligations.',
+                'We seek to retain personal information only for as long as reasonably needed for the purpose for which it was collected, legitimate operational records, security, dispute prevention, or applicable obligations.',
 
                 'Reasonable administrative and technical measures may be used to protect information. No method of electronic transmission or storage can be guaranteed to be completely secure.',
             ],
         },
 
         {
-            id: 'children',
+            id:
+                'children',
 
-            title: '10. Children’s privacy',
+            title:
+                '11. Children’s privacy',
 
             paragraphs: [
-                'The website is intended for adults and is not directed to children under 13.',
+                'The website is intended for adults shopping for or learning about products for pets. It is not intended as a service directed to children under 13.',
 
-                'We do not knowingly request personal information directly from children under 13. A parent or guardian who believes a child submitted personal information may contact MaxiPawz to request review or deletion.',
+                'We do not knowingly request personal information directly from children under 13 through the website forms.',
+
+                `A parent or guardian who believes a child submitted personal information may contact ${businessConfig.privacyEmail} to request review or deletion.`,
             ],
         },
 
         {
-            id: 'choices-and-rights',
+            id:
+                'choices-and-requests',
 
-            title: '11. Your choices and privacy requests',
+            title:
+                '12. Your choices and privacy requests',
 
             paragraphs: [
-                'Depending on your location and applicable law, you may have rights or choices relating to access, correction, deletion, or use of personal information.',
+                'Depending on applicable law and the circumstances, you may have choices relating to access, correction, deletion, or use of personal information.',
 
-                `Submit a request through the ${businessConfig.contactLabel}. We may need enough information to understand and reasonably verify the request before acting on it.`,
+                `Privacy requests may be sent to ${businessConfig.privacyEmail} or submitted through the ${businessConfig.contactLabel}.`,
+
+                'We may need enough information to understand and reasonably verify a request before acting on it.',
             ],
         },
 
         {
-            id: 'changes-and-contact',
+            id:
+                'changes-and-contact',
 
-            title: '12. Changes and contact information',
+            title:
+                '13. Changes and contact information',
 
             paragraphs: [
-                'This Privacy Policy may be updated when website features, service providers, business operations, or legal requirements change.',
+                'This Privacy Policy may be updated when website features, service providers, business operations, or applicable requirements change.',
 
-                `Questions or privacy requests may be submitted through the ${businessConfig.contactLabel}.`,
+                `Privacy questions and requests should be sent to ${businessConfig.privacyEmail}.`,
+
+                businessConfig.supportResponseTime,
             ],
         },
     ],
 
     relatedLinks: [
         {
-            label: 'Terms of Use',
-            href: '/terms',
+            label:
+                'Terms of Use',
+
+            href:
+                '/terms',
+
             description:
-                'Review the rules that apply when using the MaxiPawz website.',
+                `Review the rules that apply when using the ${businessConfig.shortName} website.`,
         },
+
         {
-            label: 'Accessibility Statement',
-            href: '/accessibility',
+            label:
+                'Accessibility Statement',
+
+            href:
+                '/accessibility',
+
             description:
                 'Learn about our approach to website accessibility.',
         },
-        ...commonRelatedLinks.slice(0, 1),
+
+        {
+            label:
+                'Privacy Email',
+
+            href:
+                `mailto:${businessConfig.privacyEmail}`,
+
+            description:
+                `Send a privacy request to ${businessConfig.privacyEmail}.`,
+        },
     ],
 };
 
 export const termsPolicy: LegalDocument = {
-    slug: 'terms',
-    title: 'Website Terms of Use',
-    shortTitle: 'Terms',
-    eyebrow: 'Website Use',
+    slug:
+        'terms',
+
+    title:
+        'Website Terms of Use',
+
+    shortTitle:
+        'Terms',
+
+    eyebrow:
+        'Website Use',
+
     description:
-        'Review the terms that apply when accessing and using the MaxiPawz prelaunch website.',
+        `Review the terms that apply when accessing and using the ${businessConfig.shortName} prelaunch website.`,
+
     introduction:
-        `These Website Terms of Use govern access to the ${businessConfig.publicName} website. The current website is informational and prelaunch. Separate commercial terms will be added or updated before products are offered for purchase.`,
-    icon: 'terms',
-    tone: 'accent',
+        `These Website Terms of Use govern access to the ${businessConfig.publicName} website. The current website is informational and prelaunch. Commercial terms will be added or updated before products are offered for purchase.`,
+
+    icon:
+        'terms',
+
+    tone:
+        'accent',
+
     ...sharedPolicyDetails,
 
     sections: [
         {
-            id: 'acceptance',
+            id:
+                'acceptance',
 
-            title: '1. Acceptance of these terms',
+            title:
+                '1. Acceptance of these terms',
 
             paragraphs: [
                 'By accessing or using this website, you agree to these Website Terms of Use and the Privacy Policy.',
@@ -317,14 +441,18 @@ export const termsPolicy: LegalDocument = {
         },
 
         {
-            id: 'prelaunch-status',
+            id:
+                'prelaunch-status',
 
-            title: '2. Prelaunch website status',
+            title:
+                '2. Prelaunch website status',
 
             paragraphs: [
-                'MaxiPawz is currently preparing its product collection and ecommerce experience.',
+                `${businessConfig.shortName} is currently preparing its product collection and ecommerce experience.`,
 
-                'Product categories, descriptions of planned services, launch information, illustrations, concepts, and previews do not represent a current offer to sell a product or a guarantee that a specific product will become available.',
+                'The website does not currently accept commercial product orders.',
+
+                'Product categories, planned services, launch information, illustrations, concepts, demo products, Sandbox prices, and previews do not represent a current offer to sell a product or guarantee that a specific product will become available.',
             ],
 
             notice:
@@ -332,9 +460,27 @@ export const termsPolicy: LegalDocument = {
         },
 
         {
-            id: 'eligibility',
+            id:
+                'business-identity',
 
-            title: '3. Eligibility and authority',
+            title:
+                '3. Business identity',
+
+            paragraphs: [
+                `The website currently operates publicly under the name ${businessConfig.publicName}.`,
+
+                'The use of that public-facing name on this prelaunch website does not state or guarantee that any particular corporation, limited-liability company, fictitious name, trademark, or other registration has been completed.',
+
+                'Business-identity information may be updated after the applicable registrations and launch preparations are complete.',
+            ],
+        },
+
+        {
+            id:
+                'eligibility',
+
+            title:
+                '4. Eligibility and authority',
 
             paragraphs: [
                 'The website is intended for people who can legally agree to these terms.',
@@ -344,44 +490,51 @@ export const termsPolicy: LegalDocument = {
         },
 
         {
-            id: 'acceptable-use',
+            id:
+                'acceptable-use',
 
-            title: '4. Acceptable use',
+            title:
+                '5. Acceptable use',
 
             paragraphs: [
                 'You may use the website only for lawful purposes and in a way that does not interfere with its operation or the rights of others.',
             ],
 
             bullets: [
-                'Do not attempt to gain unauthorized access to the website, hosting systems, forms, or administrative tools.',
+                'Do not attempt to gain unauthorized access to the website, hosting systems, forms, administrative tools, or connected services.',
                 'Do not introduce malicious code, automated attacks, excessive traffic, or other harmful technology.',
                 'Do not use website forms for harassment, fraud, unlawful solicitation, impersonation, or spam.',
+                'Do not attempt to interfere with security, analytics, checkout testing, or form processing.',
                 'Do not scrape, copy, or republish substantial website content in a way that violates applicable rights.',
-                'Do not misrepresent an affiliation with MaxiPawz.',
+                `Do not misrepresent an affiliation with ${businessConfig.shortName}.`,
             ],
         },
 
         {
-            id: 'intellectual-property',
+            id:
+                'intellectual-property',
 
-            title: '5. Website and brand content',
+            title:
+                '6. Website and brand content',
 
             paragraphs: [
-                'The website design, MaxiPawz branding, mascot, logos, original text, graphics, guides, page layouts, and other original materials are protected by applicable intellectual-property laws.',
+                `The website design, ${businessConfig.shortName} branding, mascot, logos, original text, graphics, guides, photographs, page layouts, and other original materials may be protected by applicable intellectual-property laws.`,
 
                 'Limited personal viewing of public website content does not transfer ownership or grant permission to reproduce, distribute, sell, modify, or create derivative commercial works.',
             ],
         },
 
         {
-            id: 'user-submissions',
+            id:
+                'submissions',
 
-            title: '6. Messages, suggestions, and submissions',
+            title:
+                '7. Messages, suggestions, and submissions',
 
             paragraphs: [
-                'You remain responsible for information you submit through the website.',
+                'You remain responsible for information you submit through the website or by email.',
 
-                'By submitting feedback, suggestions, or ideas, you give MaxiPawz permission to review and use the submission for evaluating or improving the website, brand, products, or services without creating an obligation to adopt or compensate for the idea.',
+                `By submitting feedback, suggestions, or ideas, you allow ${businessConfig.shortName} to review and use the submission for evaluating or improving the website, brand, products, or services without creating an obligation to adopt or compensate for the idea.`,
             ],
 
             notice:
@@ -389,21 +542,27 @@ export const termsPolicy: LegalDocument = {
         },
 
         {
-            id: 'pet-information',
+            id:
+                'pet-information',
 
-            title: '7. Pet information and educational content',
+            title:
+                '8. Pet information and educational content',
 
             paragraphs: [
                 'Pet Guides, product-safety information, frequently asked questions, and similar content are provided for general educational purposes.',
 
                 'They do not replace veterinary diagnosis, treatment, emergency services, nutritional advice, professional training, or individualized behavioral or medical guidance.',
+
+                'Pet owners remain responsible for selecting products appropriate for their animal and for supervising product use as appropriate.',
             ],
         },
 
         {
-            id: 'third-party-services',
+            id:
+                'third-party-services',
 
-            title: '8. Third-party services and links',
+            title:
+                '9. Third-party services and links',
 
             paragraphs: [
                 'The website may rely on or link to third-party services. Those services operate under their own terms, policies, availability, and security practices.',
@@ -413,45 +572,67 @@ export const termsPolicy: LegalDocument = {
         },
 
         {
-            id: 'availability',
+            id:
+                'availability',
 
-            title: '9. Website availability and changes',
+            title:
+                '10. Website availability and changes',
 
             paragraphs: [
                 'The website may be changed, suspended, restricted, or discontinued at any time.',
 
-                'We do not guarantee that every page, feature, form, link, or piece of information will remain continuously available or error-free.',
+                'We do not guarantee that every page, feature, form, link, demo, or piece of information will remain continuously available or error-free.',
             ],
         },
 
         {
-            id: 'disclaimers',
+            id:
+                'disclaimers',
 
-            title: '10. Disclaimers',
+            title:
+                '11. Disclaimers',
 
             paragraphs: [
-                'The prelaunch website and its content are provided on an “as available” basis to the extent permitted by law.',
+                'The prelaunch website and its content are provided on an “as available” basis to the extent permitted by applicable law.',
 
-                'MaxiPawz does not promise that the website will satisfy every particular purpose, remain uninterrupted, or be free from all errors or security risks.',
+                `${businessConfig.shortName} does not promise that the website will satisfy every particular purpose, remain uninterrupted, or be free from all errors or security risks.`,
             ],
         },
 
         {
-            id: 'limitation',
+            id:
+                'limitation',
 
-            title: '11. Limitation of responsibility',
+            title:
+                '12. Limitation of responsibility',
 
             paragraphs: [
-                'To the fullest extent permitted by applicable law, MaxiPawz is not responsible for indirect, incidental, special, consequential, or similar losses arising solely from use of or inability to use the informational prelaunch website.',
+                `To the fullest extent permitted by applicable law, ${businessConfig.shortName} is not responsible for indirect, incidental, special, consequential, or similar losses arising solely from use of or inability to use the informational prelaunch website.`,
 
                 'Nothing in these terms excludes responsibility that cannot legally be excluded or limited.',
             ],
         },
 
         {
-            id: 'changes',
+            id:
+                'commercial-terms',
 
-            title: '12. Changes to these terms',
+            title:
+                '13. Future commercial terms',
+
+            paragraphs: [
+                'Commercial terms relating to products, prices, checkout, payment, taxes, shipping, returns, cancellations, refunds, promotions, and order support are not active through this prelaunch website.',
+
+                'The applicable policies will be reviewed and published before real purchases are enabled.',
+            ],
+        },
+
+        {
+            id:
+                'changes',
+
+            title:
+                '14. Changes to these terms',
 
             paragraphs: [
                 'These terms may be revised as the website, store, policies, and services develop.',
@@ -461,161 +642,209 @@ export const termsPolicy: LegalDocument = {
         },
 
         {
-            id: 'contact',
+            id:
+                'contact',
 
-            title: '13. Contact',
+            title:
+                '15. Contact',
 
             paragraphs: [
-                `Questions about these terms may be submitted through the ${businessConfig.contactLabel}.`,
+                `Questions about these terms may be sent to ${businessConfig.generalEmail} or submitted through the ${businessConfig.contactLabel}.`,
+
+                businessConfig.supportResponseTime,
             ],
         },
     ],
 
     relatedLinks: [
         {
-            label: 'Privacy Policy',
-            href: '/privacy-policy',
+            label:
+                'Privacy Policy',
+
+            href:
+                '/privacy-policy',
+
             description:
                 'Learn how information submitted through the website is handled.',
         },
+
         {
-            label: 'Accessibility Statement',
-            href: '/accessibility',
+            label:
+                'Accessibility Statement',
+
+            href:
+                '/accessibility',
+
             description:
                 'Review our approach to accessible website use.',
         },
-        ...commonRelatedLinks.slice(0, 1),
+
+        ...commonRelatedLinks.slice(
+            0,
+            1,
+        ),
     ],
 };
 
 export const shippingPolicy: LegalDocument = {
-    slug: 'shipping-policy',
-    title: 'Shipping Policy',
-    shortTitle: 'Shipping',
-    eyebrow: 'Prelaunch Fulfillment',
+    slug:
+        'shipping-policy',
+
+    title:
+        'Shipping Policy',
+
+    shortTitle:
+        'Shipping',
+
+    eyebrow:
+        'Prelaunch Fulfillment',
+
     description:
-        'Review the current prelaunch status of MaxiPawz shipping and fulfillment.',
+        `Review the current prelaunch status of ${businessConfig.shortName} shipping and fulfillment.`,
+
     introduction:
-        'The MaxiPawz online store is not yet accepting orders. Shipping destinations, methods, rates, processing times, and fulfillment procedures have not been finalized and are not currently being offered as commercial promises.',
-    icon: 'shipping',
-    tone: 'brand',
+        `The ${businessConfig.publicName} online store is not yet accepting commercial orders. Shipping destinations, rates, processing commitments, delivery estimates, carrier procedures, and fulfillment rules remain under review.`,
+
+    icon:
+        'shipping',
+
+    tone:
+        'brand',
+
     ...sharedPolicyDetails,
 
     sections: [
         {
-            id: 'current-status',
+            id:
+                'current-status',
 
-            title: '1. Current shipping status',
+            title:
+                '1. Current shipping status',
 
             paragraphs: [
-                'MaxiPawz is currently in prelaunch mode and does not accept website orders.',
+                'Commercial checkout is disabled and no real website order can currently be submitted.',
 
-                'Because no purchases are currently processed, there are no active shipping methods, delivery estimates, shipping charges, free-shipping thresholds, or supported delivery destinations.',
+                'Any shipping configuration used in Stripe Sandbox, demo products, test orders, or internal development does not create a public shipping offer or delivery promise.',
             ],
 
             notice:
-                'A complete shipping policy will be published and reviewed before checkout is enabled.',
+                'A complete commercial Shipping Policy will be reviewed before real checkout is enabled.',
         },
 
         {
-            id: 'future-policy',
+            id:
+                'future-policy',
 
-            title: '2. Information the final policy will include',
+            title:
+                '2. Information the final policy will include',
 
             paragraphs: [
-                'Before commercial launch, this page will be updated with clear fulfillment information.',
+                'Before commercial launch, the Shipping Policy will be updated with approved fulfillment information.',
             ],
 
             bullets: [
-                'Countries, states, territories, or regions eligible for delivery.',
-                'Order-processing and handling timeframes.',
-                'Available carriers and delivery methods.',
-                'Estimated delivery ranges.',
-                'Shipping rates and any free-shipping conditions.',
+                'Eligible shipping destinations.',
+                'Order-processing and handling expectations.',
+                'Available delivery methods or carrier-selection practices.',
+                'Estimated carrier transit ranges.',
+                'Shipping charges and any free-shipping conditions.',
                 'Tracking availability.',
-                'Address-change procedures.',
-                'Approach to delays, lost packages, and damaged shipments.',
-                'Any product or destination restrictions.',
+                'Address-correction procedures.',
+                'Approach to carrier delays and delivery exceptions.',
+                'Process for damaged, incomplete, missing, or misdirected shipments.',
+                'Any product, package-weight, or destination restrictions.',
             ],
         },
 
         {
-            id: 'estimated-dates',
+            id:
+                'addresses',
 
-            title: '3. Processing and delivery estimates',
+            title:
+                '3. Future shipping addresses',
 
             paragraphs: [
-                'No processing or delivery timeframe is currently promised.',
+                'Future customers will be responsible for reviewing recipient and shipping-address information before completing checkout.',
 
-                'When the store opens, processing time and carrier transit time will be described separately because they represent different stages of fulfillment.',
+                'The final policy will explain whether and when an address may be corrected after an order is submitted.',
             ],
         },
 
         {
-            id: 'shipping-addresses',
+            id:
+                'tracking-and-delivery',
 
-            title: '4. Shipping addresses',
+            title:
+                '4. Tracking and delivery information',
 
             paragraphs: [
-                'Future customers will be responsible for reviewing shipping information before completing checkout.',
+                'Tracking and delivery procedures will be published after fulfillment methods are finalized.',
 
-                'The final policy will explain whether and when an address can be corrected after an order is submitted.',
+                'The final policy will distinguish store processing from carrier transit and carrier-controlled tracking events.',
             ],
         },
 
         {
-            id: 'tracking-and-delays',
+            id:
+                'shipping-problems',
 
-            title: '5. Tracking and carrier delays',
+            title:
+                '5. Future shipping problems',
 
             paragraphs: [
-                'Tracking availability and procedures will be described after fulfillment providers and delivery methods are finalized.',
+                `After commercial launch, order questions should be sent to ${businessConfig.ordersEmail}.`,
 
-                'The final policy will distinguish between MaxiPawz processing activity and delays occurring after a shipment is transferred to a carrier.',
+                `Reports involving damaged, incomplete, incorrect, missing, or otherwise problematic deliveries should be sent to ${businessConfig.supportEmail}.`,
+
+                'Customers may be asked to preserve the product, packaging, shipping label, photographs, tracking information, and order records while a reported problem is reviewed.',
             ],
         },
 
         {
-            id: 'problems',
+            id:
+                'updates',
 
-            title: '6. Lost, damaged, or misdirected shipments',
-
-            paragraphs: [
-                'The future policy will explain how customers should report a shipment that appears lost, damaged, incomplete, or delivered to an incorrect destination.',
-
-                'Customers should not discard products, packaging, shipping labels, or order records while a reported problem is being reviewed.',
-            ],
-        },
-
-        {
-            id: 'updates',
-
-            title: '7. Policy updates',
+            title:
+                '6. Policy updates and contact',
 
             paragraphs: [
-                'This prelaunch Shipping Policy will be replaced or expanded before the store begins accepting orders.',
+                'This prelaunch policy will be replaced or expanded before real purchases are enabled.',
 
-                `Questions about the planned store may be submitted through the ${businessConfig.contactLabel}.`,
+                `General questions may be sent to ${businessConfig.generalEmail}.`,
             ],
         },
     ],
 
     relatedLinks: [
         {
-            label: 'Return Policy',
-            href: '/return-policy',
+            label:
+                'Return Policy',
+
+            href:
+                '/return-policy',
+
             description:
-                'Review the current status of returns, exchanges, and refunds.',
+                'Review the current status of returns, cancellations, and refunds.',
         },
+
         {
-            label: 'Frequently Asked Questions',
-            href: '/faq',
+            label:
+                'Order Support Email',
+
+            href:
+                `mailto:${businessConfig.ordersEmail}`,
+
             description:
-                'Find answers about the upcoming MaxiPawz store.',
+                `Send a future order question to ${businessConfig.ordersEmail}.`,
         },
+
         {
-            label: 'Contact MaxiPawz',
-            href: '/contact',
+            label:
+                `Contact ${businessConfig.shortName}`,
+
+            href:
+                businessConfig.contactHref,
+
             description:
                 'Send a question about the future shopping experience.',
         },
@@ -623,173 +852,223 @@ export const shippingPolicy: LegalDocument = {
 };
 
 export const returnPolicy: LegalDocument = {
-    slug: 'return-policy',
-    title: 'Return and Refund Policy',
-    shortTitle: 'Returns',
-    eyebrow: 'Prelaunch Returns',
+    slug:
+        'return-policy',
+
+    title:
+        'Return and Refund Policy',
+
+    shortTitle:
+        'Returns',
+
+    eyebrow:
+        'Prelaunch Returns',
+
     description:
-        'Review the current prelaunch status of MaxiPawz returns, exchanges, cancellations, and refunds.',
+        `Review the current prelaunch status of ${businessConfig.shortName} returns, cancellations, exchanges, and refunds.`,
+
     introduction:
-        'The MaxiPawz online store is not yet accepting purchases. No return window, exchange program, refund timeline, cancellation guarantee, or return-shipping procedure is currently active.',
-    icon: 'returns',
-    tone: 'accent',
+        `The ${businessConfig.publicName} online store is not yet accepting commercial purchases. No active return window, exchange program, refund timeline, cancellation guarantee, or return-shipping procedure currently applies to website purchases.`,
+
+    icon:
+        'returns',
+
+    tone:
+        'accent',
+
     ...sharedPolicyDetails,
 
     sections: [
         {
-            id: 'current-status',
+            id:
+                'current-status',
 
-            title: '1. Current return status',
+            title:
+                '1. Current return status',
 
             paragraphs: [
-                'Because the website is in prelaunch mode and does not currently process orders, there are no website purchases eligible for return, exchange, cancellation, or refund.',
+                'Because commercial checkout is disabled, there are no real website purchases currently eligible for return, cancellation, exchange, or refund.',
 
-                'Content on this page does not create a return right or refund promise for a purchase made through another business or seller.',
+                'Content on this page does not create a return or refund right for a purchase made through another seller or business.',
             ],
 
             notice:
-                'The final return and refund terms must be published before MaxiPawz checkout is enabled.',
+                'Final return and refund terms must be reviewed before commercial checkout is enabled.',
         },
 
         {
-            id: 'future-policy',
+            id:
+                'manual-process',
 
-            title: '2. Information the final policy will include',
+            title:
+                '2. Planned manual request process',
 
             paragraphs: [
-                'The completed policy will clearly explain the conditions and process for requesting a return or refund.',
+                `After launch, return requests and reports involving damaged, defective, incorrect, missing, or incomplete products will be handled manually through ${businessConfig.supportEmail}.`,
+
+                'The initial store will not provide an automatic self-service return portal.',
+
+                'A customer should not mail or deliver a product unless return instructions have been provided for that specific request.',
+            ],
+        },
+
+        {
+            id:
+                'future-policy',
+
+            title:
+                '3. Information the final policy will include',
+
+            paragraphs: [
+                'The completed policy will clearly explain the conditions and process for requesting a return, cancellation, or refund.',
             ],
 
             bullets: [
                 'The number of days available to request a return.',
                 'The condition in which an item must be returned.',
-                'Whether original packaging, tags, or accessories are required.',
+                'Whether original packaging, tags, accessories, or components are required.',
                 'Products that are final sale or otherwise excluded.',
-                'Procedures for damaged, defective, incorrect, or incomplete items.',
+                'Rules for opened, used, consumable, personalized, or hygiene-sensitive products.',
+                'Procedures for damaged, defective, incorrect, missing, or incomplete items.',
                 'Who is responsible for return-shipping costs.',
-                'Whether exchanges are available.',
-                'How approved refunds are issued.',
-                'Expected refund-processing time.',
+                'Whether direct exchanges are offered.',
+                'How approved refunds are initiated.',
+                'Expected internal refund-processing time.',
                 'When an order can no longer be changed or cancelled.',
             ],
         },
 
         {
-            id: 'request-process',
+            id:
+                'request-information',
 
-            title: '3. Future return-request process',
-
-            paragraphs: [
-                'When returns become available, customers will be instructed to contact MaxiPawz before sending an item back.',
-
-                'A request may require the order number, purchaser email address, item name, reason for the request, and supporting photographs when relevant.',
-            ],
-
-            notice:
-                'Do not mail or deliver a product to an address unless MaxiPawz has provided return instructions for that specific request.',
-        },
-
-        {
-            id: 'product-condition',
-
-            title: '4. Product condition and pet-use considerations',
+            title:
+                '4. Information a future request may require',
 
             paragraphs: [
-                'The final policy will address product condition, signs of use, hygiene considerations, missing components, damage, and packaging requirements.',
+                'A return or product-issue request may require the order reference, purchaser email address, item name, reason for the request, and supporting photographs when relevant.',
 
-                'Some products may have different eligibility rules because they are wearable, consumable, personalized, hygienic, or intended for direct pet use.',
+                'Customers may be asked to preserve the product, accessories, packaging, shipping container, shipping label, and order documentation while the request is reviewed.',
             ],
         },
 
         {
-            id: 'damaged-or-incorrect',
+            id:
+                'refund-method',
 
-            title: '5. Damaged, defective, or incorrect items',
-
-            paragraphs: [
-                'The completed policy will provide a separate process for reporting products that arrive damaged, defective, incomplete, or different from the item ordered.',
-
-                'Customers may be asked to preserve the product, packaging, shipping label, and order documentation while the issue is reviewed.',
-            ],
-        },
-
-        {
-            id: 'refunds',
-
-            title: '6. Refund timing and payment method',
+            title:
+                '5. Future refunds',
 
             paragraphs: [
                 'No refund-processing timeframe is currently promised.',
 
-                'Before launch, the policy will explain when an approved refund is initiated, the original payment method used, and why a financial institution may require additional time to post the credit.',
+                'The final policy will explain when an approved refund is initiated, how it is returned to the original payment method, and why the customer’s financial institution may require additional time to post the credit.',
+
+                'Stripe will handle payment and refund receipts when commercial checkout is launched.',
             ],
         },
 
         {
-            id: 'changes-and-cancellations',
+            id:
+                'changes-and-cancellations',
 
-            title: '7. Order changes and cancellations',
+            title:
+                '6. Future order changes and cancellations',
 
             paragraphs: [
-                'The future cancellation policy will explain how quickly a customer should contact MaxiPawz and when an order may be too far into processing or fulfillment to change.',
+                `After launch, customers should contact ${businessConfig.ordersEmail} promptly when requesting an order correction or cancellation.`,
 
-                'A cancellation or address change will not be described as guaranteed after an order has entered processing.',
+                'A cancellation, shipping-address change, or order change will not be guaranteed after an order has entered processing or fulfillment.',
             ],
         },
 
         {
-            id: 'updates',
+            id:
+                'updates',
 
-            title: '8. Policy updates',
+            title:
+                '7. Policy updates and contact',
 
             paragraphs: [
-                'This prelaunch policy will be replaced or expanded before the store begins accepting purchases.',
+                'This prelaunch policy will be replaced or expanded before the store begins accepting commercial purchases.',
 
-                `Questions about the planned return process may be submitted through the ${businessConfig.contactLabel}.`,
+                `Questions about the planned return process may be sent to ${businessConfig.supportEmail}.`,
+
+                businessConfig.supportResponseTime,
             ],
         },
     ],
 
     relatedLinks: [
         {
-            label: 'Shipping Policy',
-            href: '/shipping-policy',
+            label:
+                'Shipping Policy',
+
+            href:
+                '/shipping-policy',
+
             description:
                 'Review the current shipping and fulfillment status.',
         },
+
         {
-            label: 'Pet Product Safety',
-            href: '/product-safety',
+            label:
+                'Pet Product Safety',
+
+            href:
+                '/product-safety',
+
             description:
                 'Review guidance for inspecting and using pet products.',
         },
+
         {
-            label: 'Contact MaxiPawz',
-            href: '/contact',
+            label:
+                'Returns and Product Issues',
+
+            href:
+                `mailto:${businessConfig.supportEmail}`,
+
             description:
-                'Send a question about the future store.',
+                `Send a future return or product-issue request to ${businessConfig.supportEmail}.`,
         },
     ],
 };
 
 export const accessibilityStatement: LegalDocument = {
-    slug: 'accessibility',
-    title: 'Accessibility Statement',
-    shortTitle: 'Accessibility',
-    eyebrow: 'Inclusive Website Use',
+    slug:
+        'accessibility',
+
+    title:
+        'Accessibility Statement',
+
+    shortTitle:
+        'Accessibility',
+
+    eyebrow:
+        'Inclusive Website Use',
+
     description:
-        'Learn about the MaxiPawz commitment to creating a website that is welcoming and usable for more people.',
+        `Learn about the ${businessConfig.shortName} commitment to creating a website that is welcoming and usable for more people.`,
+
     introduction:
-        `${businessConfig.publicName} is committed to improving the accessibility and usability of its website. Accessibility is treated as an ongoing design, development, testing, and content responsibility rather than a one-time claim of complete conformity.`,
-    icon: 'accessibility',
-    tone: 'sand',
+        `${businessConfig.publicName} is committed to improving the accessibility and usability of its website. Accessibility is treated as an ongoing design, development, testing, and content responsibility rather than a claim of complete or permanent conformity.`,
+
+    icon:
+        'accessibility',
+
+    tone:
+        'sand',
+
     ...sharedPolicyDetails,
 
     sections: [
         {
-            id: 'commitment',
+            id:
+                'commitment',
 
-            title: '1. Our accessibility commitment',
+            title:
+                '1. Our accessibility commitment',
 
             paragraphs: [
                 'We want visitors to be able to understand the content, navigate the website, use forms, and access important store information across a range of devices and assistive technologies.',
@@ -799,9 +1078,11 @@ export const accessibilityStatement: LegalDocument = {
         },
 
         {
-            id: 'current-practices',
+            id:
+                'current-practices',
 
-            title: '2. Current design and development practices',
+            title:
+                '2. Current design and development practices',
 
             paragraphs: [
                 'The website is being developed with recognized accessibility practices in mind.',
@@ -821,57 +1102,71 @@ export const accessibilityStatement: LegalDocument = {
         },
 
         {
-            id: 'ongoing-work',
+            id:
+                'ongoing-work',
 
-            title: '3. Ongoing work',
+            title:
+                '3. Ongoing work',
 
             paragraphs: [
                 'Accessibility work may include automated checks, keyboard testing, screen-reader review, contrast evaluation, content review, and correction of issues found after deployment.',
 
-                'New third-party ecommerce or payment tools will be evaluated as they are introduced.',
+                'Third-party ecommerce, payment, analytics, form, or embedded tools will be evaluated as they are introduced.',
             ],
         },
 
         {
-            id: 'limitations',
+            id:
+                'limitations',
 
-            title: '4. Known limitations and third-party content',
+            title:
+                '4. Known limitations and third-party content',
 
             paragraphs: [
-                'Despite ongoing efforts, some content or functionality may not yet work perfectly for every user, device, browser, or assistive technology.',
+                'Despite ongoing efforts, some content or functionality may not work perfectly for every user, device, browser, or assistive technology.',
 
                 'Some third-party services, embedded tools, payment interfaces, or linked websites are controlled by their respective providers and may have separate accessibility features and limitations.',
             ],
         },
 
         {
-            id: 'feedback',
+            id:
+                'feedback',
 
-            title: '5. Accessibility feedback',
+            title:
+                '5. Accessibility feedback',
 
             paragraphs: [
                 'We welcome reports about barriers, difficult interactions, unclear content, missing labels, keyboard problems, contrast concerns, or other accessibility issues.',
 
-                `Use the ${businessConfig.contactLabel} and select “Website feedback.” Include the page address, the problem encountered, the device or assistive technology involved when relevant, and the format or assistance that would be useful.`,
+                `Use the ${businessConfig.contactLabel}, select “Website feedback,” or email ${businessConfig.generalEmail}.`,
+
+                'Include the page address, the problem encountered, the device or assistive technology involved when relevant, and the format or assistance that would be useful.',
             ],
         },
 
         {
-            id: 'response',
+            id:
+                'response',
 
-            title: '6. Our approach to reported issues',
+            title:
+                '6. Our approach to reported issues',
 
             paragraphs: [
-                'Accessibility feedback will be reviewed so that the problem can be understood and considered for correction.',
+                'Accessibility feedback will be reviewed so the problem can be understood and considered for correction.',
 
-                'When a reasonable alternative way to access information is available, MaxiPawz may provide that alternative while a website issue is being investigated.',
+                `When a reasonable alternative way to access information is available, ${businessConfig.shortName} may provide that alternative while a website issue is being investigated.`,
+
+                businessConfig.supportResponseTime,
             ],
         },
 
         {
-            id: 'changes',
+            id:
+                'changes',
 
-            title: '7. Statement updates',
+            title:
+                '7. Statement updates',
 
             paragraphs: [
                 'This statement may be updated as accessibility work, website functionality, and third-party services change.',
@@ -883,22 +1178,36 @@ export const accessibilityStatement: LegalDocument = {
 
     relatedLinks: [
         {
-            label: 'Contact MaxiPawz',
-            href: '/contact#contact-form',
+            label:
+                `Contact ${businessConfig.shortName}`,
+
+            href:
+                '/contact#contact-form',
+
             description:
                 'Report a website or accessibility concern.',
         },
+
         {
-            label: 'Privacy Policy',
-            href: '/privacy-policy',
+            label:
+                'Accessibility Email',
+
+            href:
+                `mailto:${businessConfig.generalEmail}`,
+
+            description:
+                `Send an accessibility concern to ${businessConfig.generalEmail}.`,
+        },
+
+        {
+            label:
+                'Privacy Policy',
+
+            href:
+                '/privacy-policy',
+
             description:
                 'Learn how contact-form information is handled.',
-        },
-        {
-            label: 'Frequently Asked Questions',
-            href: '/faq',
-            description:
-                'Find general website and store information.',
         },
     ],
 };

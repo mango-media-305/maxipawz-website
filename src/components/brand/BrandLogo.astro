@@ -7,6 +7,8 @@ import markImage from '../../assets/brand/maxipawz-mark.webp';
 import mascotImage from '../../assets/brand/maxipawz-mascot.webp';
 import maxiImage from '../../assets/home/maxi-1.webp';
 
+import { businessConfig } from '../../config/business';
+
 type BrandLogoVariant = 'logo' | 'mark' | 'mascot' | 'maxi';
 
 interface BrandImage {
@@ -35,22 +37,22 @@ const {
 const imageByVariant: Record<BrandLogoVariant, BrandImage> = {
   logo: {
     src: logoImage,
-    alt: 'MaxiPawz Store',
+    alt: businessConfig.publicName,
   },
 
   mark: {
     src: markImage,
-    alt: 'MaxiPawz',
+    alt: businessConfig.shortName,
   },
 
   mascot: {
     src: mascotImage,
-    alt: 'MaxiPawz dog mascot',
+    alt: `${businessConfig.shortName} dog mascot`,
   },
 
   maxi: {
     src: maxiImage,
-    alt: 'Maxi, the dog who inspired MaxiPawz Store',
+    alt: `Maxi, the dog who inspired ${businessConfig.publicName}`,
   },
 };
 
