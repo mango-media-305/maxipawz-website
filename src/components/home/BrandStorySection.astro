@@ -161,22 +161,11 @@ const backgroundSlides = [
     </div>
 
     <div
-      class="grid items-center gap-12 xl:grid-cols-[0.92fr_1.08fr] xl:gap-16 2xl:gap-20"
+      class="brand-story-layout grid grid-cols-1 xl:grid-cols-2 items-center gap-12"
     >
-      <!--
-        Desktop-only visual slider.
-
-        It remains hidden on:
-        - Mobile
-        - Regular tablets
-        - Large touch tablets
-        - Tablet landscape
-
-        It appears only at 1280px+ on devices with a fine pointer
-        and proper hover support.
-      -->
+      <!-- Foreground visual slider: large desktop only -->
       <div
-        class="brand-story-visual-desktop-only mx-auto w-full max-w-lg xl:mx-0"
+        class="brand-story-visual-desktop-only mx-auto w-full"
         data-reveal="left"
         style="--reveal-delay: 80ms;"
       >
@@ -202,7 +191,7 @@ const backgroundSlides = [
 
       <!-- Story copy -->
       <div
-        class="mx-auto w-full max-w-3xl xl:mx-0 xl:max-w-none"
+        class="brand-story-copy w-full"
       >
         <div
           data-reveal="right"
@@ -210,7 +199,7 @@ const backgroundSlides = [
         >
           <h2
             id="brand-story-title"
-            class="section-title text-4xl text-white sm:text-5xl xl:text-[3.65rem]"
+            class="section-title text-4xl text-white sm:text-5xl"
           >
             The dog behind the name—and the{' '}
 
@@ -330,35 +319,67 @@ const backgroundSlides = [
 
 <style>
   /*
-   * Hidden by default.
+   * The foreground visual slider is hidden by default.
    *
-   * Using a dedicated media query is more reliable than lg:block
-   * because lg starts at 1024px, which includes tablet landscape.
+   * !important prevents any display utility or generated component
+   * style from making it visible below the desktop threshold.
    */
   .brand-story-visual-desktop-only {
     display:
-      none;
+      none !important;
   }
 
   /*
-   * Only show the foreground story slider on a desktop-sized viewport
-   * with mouse/trackpad-style interaction.
-   *
-   * This keeps the slider hidden on large touch tablets even when their
-   * landscape viewport exceeds the normal tablet breakpoint.
+   * Text uses the complete section width whenever the visual is hidden.
    */
-  @media
-    (min-width: 1280px)
-    and (hover: hover)
-    and (pointer: fine) {
+  .brand-story-copy {
+
+    margin-inline:
+      auto;
+  }
+
+  /*
+   * The foreground slider and two-column composition activate only at
+   * 1440px and above.
+   *
+   * Tablet landscape presets commonly reach 1280px or 1366px, so the
+   * previous 1280px rule was not sufficient.
+   */
+  @media (min-width: 1440px) {
+    .brand-story-layout {
+      grid-template-columns:
+        minmax(0, 0.92fr)
+        minmax(0, 1.08fr);
+
+      column-gap:
+        4rem;
+    }
+
     .brand-story-visual-desktop-only {
       display:
-        block;
+        block !important;
+
+      margin-inline:
+        0;
+    }
+
+    .brand-story-copy {
+      max-width:
+        none;
+
+      margin-inline:
+        0;
+    }
+
+    .brand-story-copy
+      .section-title {
+      font-size:
+        3.65rem;
     }
   }
 
   /*
-   * Background slider remains available on every viewport.
+   * Background slider remains visible at every viewport.
    */
   .brand-story-background {
     background-color:
@@ -424,8 +445,10 @@ const backgroundSlides = [
 
   .brand-story-background__edge-fade {
     box-shadow:
-      inset 0 8rem 8rem -6rem rgb(20 15 12 / 92%),
-      inset 0 -8rem 8rem -6rem rgb(20 15 12 / 94%);
+      inset 0 8rem 8rem -6rem
+        rgb(20 15 12 / 92%),
+      inset 0 -8rem 8rem -6rem
+        rgb(20 15 12 / 94%);
   }
 
   .brand-story-editorial__pattern {
