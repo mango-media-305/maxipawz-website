@@ -1,0 +1,107 @@
+/*
+ * Maxi Pawz rendering and paint-performance safeguards
+ *
+ * This file is imported after global.css and typography.css so these
+ * targeted overrides remain easy to audit and remove individually.
+ */
+
+@layer components {
+    /*
+    * The original surface-card used backdrop-filter: blur(14px).
+    *
+    * Surface cards are numerous and often large, so a nearly opaque
+    * background provides the same visual separation without continuously
+    * sampling and repainting the content behind every card.
+    */
+    .surface-card {
+        background: rgb(255 254 249 / 96%);
+
+        -webkit-backdrop-filter: none;
+
+        backdrop-filter: none;
+    }
+}
+
+@layer utilities {
+    /*
+    * Use only on substantial below-the-fold sections.
+    *
+    * The browser may skip layout and paint work until the section is near
+    * the viewport while retaining an estimated block size for scrolling.
+    */
+    .content-visibility-auto {
+        content-visibility: auto;
+
+        contain-intrinsic-size: auto 72rem;
+    }
+
+    /*
+    * Decorative layers that never escape their visual boundary may opt
+    * into paint containment.
+    */
+    .paint-contained {
+        contain: paint;
+    }
+
+    /*
+    * Explicit replacement for glass surfaces that do not need to sample
+    * the page behind them.
+    */
+    .opaque-glass {
+        background-color: rgb(255 254 249 / 96%);
+
+        -webkit-backdrop-filter: none;
+
+        backdrop-filter: none;
+    }
+}
+
+/*
+ * Touch devices generally have less GPU headroom and receive no meaningful
+ * benefit from hover-oriented translucent glass effects.
+ */
+@media (hover: none), (pointer: coarse) {
+    [class*='backdrop-blur'] {
+        -webkit-backdrop-filter: none !important;
+
+        backdrop-filter: none !important;
+    }
+}
+
+/*
+ * Respect operating-system transparency preferences where supported.
+ */
+@media (prefers-reduced-transparency: reduce) {
+    *,
+    *::before,
+    *::after {
+        -webkit-backdrop-filter: none !important;
+
+        backdrop-filter: none !important;
+    }
+
+    .surface-card,
+    .opaque-glass {
+        background-color: #fffef9;
+    }
+}
+
+/*
+ * Print output never needs compositing or skipped offscreen rendering.
+ */
+@media print {
+    .content-visibility-auto {
+        content-visibility: visible;
+
+        contain-intrinsic-size: none;
+    }
+
+    .surface-card,
+    .opaque-glass {
+        background: #ffffff;
+
+        -webkit-backdrop-filter: none;
+
+        backdrop-filter: none;
+    }
+}

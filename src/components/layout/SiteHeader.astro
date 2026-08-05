@@ -8,6 +8,7 @@ import MobileNavigation from './MobileNavigation.astro';
 import Button from '../ui/Button.astro';
 
 import { businessConfig } from '../../config/business';
+
 import { isStoreLive, storefrontState } from '../../config/storefront';
 
 import { mobileNavigation, primaryNavigation } from '../../data/navigation';
@@ -53,11 +54,12 @@ const cartEnabled = isStoreLive || hasDemoProducts;
   class="sticky top-0 z-40 isolate w-full border-b border-sand/60 shadow-[0_8px_28px_-24px_rgba(53,39,31,0.35)]"
   data-site-header
 >
-  <div
-    class="pointer-events-none absolute inset-0 z-0 bg-cream-soft/95 backdrop-blur-xl"
-    aria-hidden="true"
-  >
-  </div>
+  <!--
+    An almost-opaque surface replaces the permanent full-width
+    backdrop blur. The header retains the same warm floating appearance
+    without forcing a blur repaint during every scroll frame.
+  -->
+  <div class="pointer-events-none absolute inset-0 z-0 bg-cream-soft/98" aria-hidden="true"></div>
 
   <div
     class="site-container-wide relative z-10 flex min-h-16 items-center justify-between gap-3 py-1.5 sm:min-h-17"
@@ -103,8 +105,7 @@ const cartEnabled = isStoreLive || hasDemoProducts;
                 <span
                   class="absolute inset-x-4 -bottom-0.5 h-0.5 rounded-full bg-accent-500"
                   aria-hidden="true"
-                >
-                </span>
+                ></span>
               )}
             </a>
           );
@@ -125,7 +126,7 @@ const cartEnabled = isStoreLive || hasDemoProducts;
         )
       }
 
-      {cartEnabled && <CartButton client:load />}
+      {cartEnabled && <CartButton client:idle />}
 
       {
         !isStoreLive && headerAction && (
