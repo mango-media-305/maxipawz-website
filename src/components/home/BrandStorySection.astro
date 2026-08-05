@@ -15,7 +15,6 @@ import BrandStoryVisualSlider from './BrandStoryVisualSlider.astro';
 import Button from '../ui/Button.astro';
 
 import { isStoreLive } from '../../config/storefront';
-
 import { brandStory } from '../../data/homepage';
 
 const backgroundSlides = [
@@ -37,7 +36,6 @@ const backgroundSlides = [
   id="our-story"
   class="brand-story-editorial section-spacing relative isolate overflow-hidden bg-ink-950 text-white"
   aria-labelledby="brand-story-title"
-  data-brand-story-section
 >
   <!-- Full-section background slider -->
   <div
@@ -45,23 +43,34 @@ const backgroundSlides = [
     aria-hidden="true"
   >
     {
-      backgroundSlides.map((slide, index) => (
-        <div
-          class="brand-story-background__slide absolute inset-0"
-          style={`--story-background-delay: ${index * 8}s;`}
-        >
-          <Image
-            src={slide.src}
-            alt=""
-            class="brand-story-background__image absolute inset-0 size-full object-cover"
-            loading="lazy"
-            fetchpriority="low"
-            widths={[768, 1024, 1280, 1600, 1920]}
-            sizes="100vw"
-            quality={78}
-          />
-        </div>
-      ))
+      backgroundSlides.map(
+        (
+          slide,
+          index,
+        ) => (
+          <div
+            class="brand-story-background__slide absolute inset-0"
+            style={`--story-background-delay: ${index * 8}s;`}
+          >
+            <Image
+              src={slide.src}
+              alt=""
+              class="brand-story-background__image absolute inset-0 size-full object-cover"
+              loading="lazy"
+              fetchpriority="low"
+              widths={[
+                768,
+                1024,
+                1280,
+                1600,
+                1920,
+              ]}
+              sizes="100vw"
+              quality={78}
+            />
+          </div>
+        ),
+      )
     }
 
     <div
@@ -110,7 +119,7 @@ const backgroundSlides = [
   </div>
 
   <div
-    class="brand-story-editorial__paw brand-story-editorial__paw--one pointer-events-none absolute top-[10%] right-[7%] z-0 hidden text-brand-300/25 lg:block"
+    class="brand-story-editorial__paw brand-story-editorial__paw--one pointer-events-none absolute top-[10%] right-[7%] z-0 hidden text-brand-300/25 xl:block"
     data-motion-continuous
     aria-hidden="true"
   >
@@ -120,7 +129,7 @@ const backgroundSlides = [
   </div>
 
   <div
-    class="brand-story-editorial__paw brand-story-editorial__paw--two pointer-events-none absolute bottom-[10%] left-[4%] z-0 hidden text-accent-300/22 lg:block"
+    class="brand-story-editorial__paw brand-story-editorial__paw--two pointer-events-none absolute bottom-[10%] left-[4%] z-0 hidden text-accent-300/22 xl:block"
     data-motion-continuous
     aria-hidden="true"
   >
@@ -152,11 +161,22 @@ const backgroundSlides = [
     </div>
 
     <div
-      class="grid items-center gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16 xl:gap-20"
+      class="grid items-center gap-12 xl:grid-cols-[0.92fr_1.08fr] xl:gap-16 2xl:gap-20"
     >
-      <!-- Maxi story slider: desktop only -->
+      <!--
+        Desktop-only visual slider.
+
+        It remains hidden on:
+        - Mobile
+        - Regular tablets
+        - Large touch tablets
+        - Tablet landscape
+
+        It appears only at 1280px+ on devices with a fine pointer
+        and proper hover support.
+      -->
       <div
-        class="mx-auto hidden w-full max-w-lg lg:mx-0 lg:block"
+        class="brand-story-visual-desktop-only mx-auto w-full max-w-lg xl:mx-0"
         data-reveal="left"
         style="--reveal-delay: 80ms;"
       >
@@ -182,7 +202,7 @@ const backgroundSlides = [
 
       <!-- Story copy -->
       <div
-        class="mx-auto w-full max-w-3xl lg:mx-0 lg:max-w-none"
+        class="mx-auto w-full max-w-3xl xl:mx-0 xl:max-w-none"
       >
         <div
           data-reveal="right"
@@ -190,7 +210,7 @@ const backgroundSlides = [
         >
           <h2
             id="brand-story-title"
-            class="section-title text-4xl text-white sm:text-5xl lg:text-[3.65rem]"
+            class="section-title text-4xl text-white sm:text-5xl xl:text-[3.65rem]"
           >
             The dog behind the name—and the{' '}
 
@@ -310,10 +330,35 @@ const backgroundSlides = [
 
 <style>
   /*
-   * Background slider
+   * Hidden by default.
    *
-   * The dark section color remains the foundation. The photography
-   * adds atmosphere without replacing the established dark appearance.
+   * Using a dedicated media query is more reliable than lg:block
+   * because lg starts at 1024px, which includes tablet landscape.
+   */
+  .brand-story-visual-desktop-only {
+    display:
+      none;
+  }
+
+  /*
+   * Only show the foreground story slider on a desktop-sized viewport
+   * with mouse/trackpad-style interaction.
+   *
+   * This keeps the slider hidden on large touch tablets even when their
+   * landscape viewport exceeds the normal tablet breakpoint.
+   */
+  @media
+    (min-width: 1280px)
+    and (hover: hover)
+    and (pointer: fine) {
+    .brand-story-visual-desktop-only {
+      display:
+        block;
+    }
+  }
+
+  /*
+   * Background slider remains available on every viewport.
    */
   .brand-story-background {
     background-color:
@@ -323,6 +368,15 @@ const backgroundSlides = [
   .brand-story-background__slide {
     opacity:
       0;
+
+    animation:
+      brand-story-background-fade
+      24s
+      linear
+      infinite;
+
+    animation-delay:
+      var(--story-background-delay);
   }
 
   .brand-story-background__slide:first-child {
@@ -341,22 +395,7 @@ const backgroundSlides = [
       saturate(0.88)
       contrast(0.96)
       brightness(0.72);
-  }
 
-  .brand-story-editorial.is-story-visible
-    .brand-story-background__slide {
-    animation:
-      brand-story-background-fade
-      24s
-      linear
-      infinite;
-
-    animation-delay:
-      var(--story-background-delay);
-  }
-
-  .brand-story-editorial.is-story-visible
-    .brand-story-background__image {
     animation:
       brand-story-background-ken-burns
       24s
@@ -385,10 +424,8 @@ const backgroundSlides = [
 
   .brand-story-background__edge-fade {
     box-shadow:
-      inset 0 8rem 8rem -6rem
-        rgb(20 15 12 / 92%),
-      inset 0 -8rem 8rem -6rem
-        rgb(20 15 12 / 94%);
+      inset 0 8rem 8rem -6rem rgb(20 15 12 / 92%),
+      inset 0 -8rem 8rem -6rem rgb(20 15 12 / 94%);
   }
 
   .brand-story-editorial__pattern {
@@ -419,9 +456,6 @@ const backgroundSlides = [
       0.36;
   }
 
-  /*
-   * Existing decorative motion
-   */
   .brand-story-editorial__glow.is-motion-active {
     animation:
       brand-story-glow-drift
