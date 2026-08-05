@@ -1,27 +1,21 @@
 ---
-import { Image } from 'astro:assets';
-
 import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
-import CheckCircleFill from 'phosphor-astro/CheckCircleFill.astro';
 import ConfettiBold from 'phosphor-astro/ConfettiBold.astro';
 import HeartBold from 'phosphor-astro/HeartBold.astro';
 import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
 import ShieldCheckBold from 'phosphor-astro/ShieldCheckBold.astro';
-import ShoppingBagOpenBold from 'phosphor-astro/ShoppingBagOpenBold.astro';
 import SparkleBold from 'phosphor-astro/SparkleBold.astro';
 
 import maxipawzLogo from '../assets/brand/maxipawz-horizontal-logo.webp';
-import maxiHeroImage from '../assets/home/maxi-1.webp';
-import maxiPlayImage from '../assets/home/maxi-2.webp';
-import maxiGuideImage from '../assets/home/maxi-3.webp';
 
 import BrandStorySection from '@components/home/BrandStorySection.astro';
+import HeroSection from '@components/home/HeroSection.astro';
 import HomeMotion from '@components/home/HomeMotion.astro';
 import LaunchSignup from '@components/home/LaunchSignup.astro';
 import PetGuidesPreview from '@components/home/PetGuidesPreview.astro';
 import ShopByLifestyle from '@components/home/ShopByLifestyle.astro';
 import Badge from '@components/ui/Badge.astro';
-import Button from '@components/ui/Button.astro';
+
 import BaseLayout from '@layouts/BaseLayout.astro';
 
 import { isStoreLive } from '../config/storefront';
@@ -49,10 +43,12 @@ const onlineStoreData = {
   logo: logoURL,
 
   description: siteConfig.description,
+
   slogan: siteConfig.slogan,
 
   location: {
     '@type': 'VirtualLocation',
+
     url: homeURL,
   },
 
@@ -99,6 +95,7 @@ const structuredData = {
 
       url: homeURL,
       name: siteConfig.name,
+
       alternateName: siteConfig.shortName,
 
       description: siteConfig.description,
@@ -113,12 +110,6 @@ const structuredData = {
     onlineStoreData,
   ],
 };
-
-const heroHighlights = [
-  'Thoughtful product categories',
-  'Practical pet guidance',
-  'A secure shopping experience',
-];
 
 const benefits = [
   {
@@ -205,277 +196,7 @@ const currentActions = [
   structuredData={structuredData}
 >
   <div class="home-motion-scope" data-home-motion>
-    <!-- Hero -->
-    <section class="relative overflow-hidden">
-      <div
-        class="motion-parallax pointer-events-none absolute -top-40 -left-40"
-        data-parallax
-        data-parallax-speed="0.035"
-        aria-hidden="true"
-      >
-        <div class="size-128 rounded-full bg-brand-300/25 blur-3xl"></div>
-      </div>
-
-      <div
-        class="motion-parallax pointer-events-none absolute top-16 -right-48"
-        data-parallax
-        data-parallax-speed="0.055"
-        aria-hidden="true"
-      >
-        <div class="size-136 rounded-full bg-accent-300/25 blur-3xl"></div>
-      </div>
-
-      <div
-        class="pointer-events-none absolute inset-0 hidden overflow-hidden lg:block"
-        aria-hidden="true"
-      >
-        <span class="motion-float absolute top-[14%] left-[47%] text-brand-300/40">
-          <PawPrintBold class="size-12 rotate-12" />
-        </span>
-
-        <span
-          class="motion-float motion-float-slow motion-float-reverse absolute top-[68%] left-[3%] text-accent-300/35"
-        >
-          <PawPrintBold class="size-9 -rotate-12" />
-        </span>
-
-        <span
-          class="motion-float motion-float-slow absolute right-[2%] bottom-[8%] text-brand-300/35"
-        >
-          <PawPrintBold class="size-14 rotate-[20deg]" />
-        </span>
-      </div>
-
-      <div
-        class="site-container-wide grid items-center gap-10 py-12 sm:py-14 lg:grid-cols-[0.92fr_1.08fr] lg:gap-14 lg:py-18"
-      >
-        <div class="relative z-10 max-w-2xl">
-          <Badge variant={isStoreLive ? 'brand' : 'accent'} size="md" class="motion-pulse-ring">
-            <PawPrintBold slot="icon" aria-hidden="true" />
-
-            {isStoreLive ? 'Find their next Maxi Pawz favorite' : 'Built for real pet life'}
-          </Badge>
-
-          <h1 class="mt-6 max-w-3xl text-5xl text-ink-900 sm:text-6xl lg:text-7xl">
-            Better everyday moments start with
-
-            <span class="text-brand-gradient motion-gradient-text">
-              {' '}the right pet essentials.
-            </span>
-          </h1>
-
-          <p class="mt-6 max-w-2xl text-lg leading-8 text-ink-600 sm:text-xl">
-            {
-              isStoreLive
-                ? 'Discover thoughtfully selected products for play, walks, travel, hydration, feeding, comfort, care, and everyday life together.'
-                : 'Maxi Pawz is building a thoughtful online destination for pet toys, accessories, travel gear, hydration products, and useful everyday supplies. While our first collection takes shape, explore practical guides and discover what is ahead.'
-            }
-          </p>
-
-          <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-            {
-              isStoreLive ? (
-                <>
-                  <Button
-                    href="/shop"
-                    variant="primary"
-                    size="lg"
-                    iconPosition="left"
-                    class="w-full sm:w-auto"
-                  >
-                    <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
-                    Shop the Collection
-                  </Button>
-
-                  <Button
-                    href="/pet-guides"
-                    variant="secondary"
-                    size="lg"
-                    iconPosition="right"
-                    class="w-full sm:w-auto"
-                  >
-                    <ArrowRightBold slot="icon" aria-hidden="true" />
-                    Explore Pet Guides
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button
-                    href="/#shop-by-lifestyle"
-                    variant="primary"
-                    size="lg"
-                    iconPosition="left"
-                    class="w-full sm:w-auto"
-                  >
-                    <ConfettiBold slot="icon" aria-hidden="true" />
-                    Explore What Is Coming
-                  </Button>
-
-                  <Button
-                    href="/pet-guides"
-                    variant="secondary"
-                    size="lg"
-                    iconPosition="right"
-                    class="w-full sm:w-auto"
-                  >
-                    <ArrowRightBold slot="icon" aria-hidden="true" />
-                    Read Pet Guides
-                  </Button>
-                </>
-              )
-            }
-          </div>
-
-          <div
-            class="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold text-ink-600"
-            aria-label="Maxi Pawz highlights"
-          >
-            {
-              heroHighlights.map((highlight) => (
-                <span class="inline-flex items-center gap-2">
-                  <CheckCircleFill class="size-5 shrink-0 text-brand-500" aria-hidden="true" />
-
-                  {highlight}
-                </span>
-              ))
-            }
-          </div>
-        </div>
-
-        <!-- Hero visual -->
-        <div class="motion-tilt-shell relative z-10" data-tilt-root data-tilt-strength="2.75">
-          <div
-            class="motion-bob pointer-events-none absolute -top-4 left-8 z-40 hidden items-center gap-2 rounded-full border border-white/70 bg-white-warm/90 px-4 py-2 text-sm font-extrabold text-ink-800 shadow-card backdrop-blur-md sm:flex"
-            aria-hidden="true"
-          >
-            <span class="grid size-7 place-items-center rounded-full bg-accent-100 text-accent-700">
-              <PawPrintBold class="size-4" />
-            </span>
-
-            Happy pets • happy life
-          </div>
-
-          <div
-            class="motion-tilt-surface grid gap-4 rounded-card-lg sm:grid-cols-[1.15fr_0.85fr]"
-            data-tilt-surface
-          >
-            <article
-              class="group relative min-h-120 overflow-hidden rounded-card-lg border border-sand bg-white-warm shadow-card sm:min-h-140"
-            >
-              <Image
-                src={maxiHeroImage}
-                alt="Maxi, the dog who inspired Maxi Pawz Store"
-                class="motion-image-lift absolute inset-0 size-full object-cover object-center"
-                loading="eager"
-                fetchpriority="high"
-                widths={[360, 480, 640, 800, 960]}
-                sizes="(min-width: 1280px) 560px, (min-width: 1024px) 43vw, (min-width: 640px) 58vw, calc(100vw - 2rem)"
-                quality={80}
-              />
-
-              <div
-                class="absolute inset-0 bg-linear-to-t from-ink-950/80 via-ink-950/10 to-transparent"
-                aria-hidden="true"
-              >
-              </div>
-
-              <div class="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8">
-                <Badge variant="accent" size="sm">
-                  <HeartBold slot="icon" aria-hidden="true" />
-
-                  Meet Maxi
-                </Badge>
-
-                <h2 class="mt-4 max-w-md text-3xl text-white sm:text-4xl">
-                  The happy face behind the Maxi Pawz name.
-                </h2>
-
-                <p class="mt-3 max-w-md leading-7 text-white/85">
-                  Real experiences with Maxi inspired a store focused on joy, usefulness, comfort,
-                  and stronger everyday moments with pets.
-                </p>
-              </div>
-            </article>
-
-            <div class="grid gap-4 sm:grid-rows-2">
-              <a
-                href="/#shop-by-lifestyle"
-                class="group relative min-h-56 overflow-hidden rounded-card border border-brand-200 bg-brand-50 shadow-card transition duration-300 hover:-translate-y-1 hover:shadow-card-hover focus-visible:-translate-y-1"
-              >
-                <Image
-                  src={maxiPlayImage}
-                  alt="Dog enjoying a playful enrichment activity"
-                  class="motion-image-lift absolute inset-0 size-full object-cover"
-                  loading="lazy"
-                  fetchpriority="low"
-                  widths={[240, 320, 480, 640]}
-                  sizes="(min-width: 1280px) 260px, (min-width: 1024px) 20vw, (min-width: 640px) 35vw, calc(100vw - 2rem)"
-                  quality={78}
-                />
-
-                <div
-                  class="absolute inset-0 bg-linear-to-t from-ink-950/80 via-ink-950/15 to-transparent"
-                  aria-hidden="true"
-                >
-                </div>
-
-                <div class="absolute inset-x-0 bottom-0 p-5 text-white">
-                  <span class="text-sm font-extrabold text-accent-200">Play & enrichment</span>
-
-                  <h2 class="mt-1 text-2xl text-white">Products that make playtime count.</h2>
-
-                  <span class="mt-3 inline-flex items-center gap-2 text-sm font-extrabold">
-                    Preview the category
-
-                    <ArrowRightBold
-                      class="size-4 transition group-hover:translate-x-1 group-focus-visible:translate-x-1"
-                      aria-hidden="true"
-                    />
-                  </span>
-                </div>
-              </a>
-
-              <a
-                href="/pet-guides"
-                class="group relative min-h-56 overflow-hidden rounded-card border border-accent-200 bg-accent-50 shadow-card transition duration-300 hover:-translate-y-1 hover:shadow-card-hover focus-visible:-translate-y-1"
-              >
-                <Image
-                  src={maxiGuideImage}
-                  alt="Dog prepared for a walk and outdoor adventure"
-                  class="motion-image-lift absolute inset-0 size-full object-cover"
-                  loading="lazy"
-                  fetchpriority="low"
-                  widths={[240, 320, 480, 640]}
-                  sizes="(min-width: 1280px) 260px, (min-width: 1024px) 20vw, (min-width: 640px) 35vw, calc(100vw - 2rem)"
-                  quality={78}
-                />
-
-                <div
-                  class="absolute inset-0 bg-linear-to-t from-ink-950/80 via-ink-950/15 to-transparent"
-                  aria-hidden="true"
-                >
-                </div>
-
-                <div class="absolute inset-x-0 bottom-0 p-5 text-white">
-                  <span class="text-sm font-extrabold text-brand-200">Practical guidance</span>
-
-                  <h2 class="mt-1 text-2xl text-white">Helpful ideas for everyday pet life.</h2>
-
-                  <span class="mt-3 inline-flex items-center gap-2 text-sm font-extrabold">
-                    Explore pet guides
-
-                    <ArrowRightBold
-                      class="size-4 transition group-hover:translate-x-1 group-focus-visible:translate-x-1"
-                      aria-hidden="true"
-                    />
-                  </span>
-                </div>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+    <HeroSection />
 
     <!-- Brand promises -->
     <section class="border-y border-sand bg-white-warm/65" aria-labelledby="why-maxipawz-title">
