@@ -1,83 +1,165 @@
 ---
+import { Image } from 'astro:assets';
+
 import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
 import HeartBold from 'phosphor-astro/HeartBold.astro';
 import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
 import ShoppingBagOpenBold from 'phosphor-astro/ShoppingBagOpenBold.astro';
 
-import BrandLogo from '../brand/BrandLogo.astro';
+import storyBackgroundOne from '../../assets/home/hero-slide-1.webp';
+import storyBackgroundTwo from '../../assets/home/hero-slide-2.webp';
+import storyBackgroundThree from '../../assets/home/hero-slide-3.webp';
+
+import BrandStoryVisualSlider from './BrandStoryVisualSlider.astro';
+
 import Button from '../ui/Button.astro';
 
 import { isStoreLive } from '../../config/storefront';
 
 import { brandStory } from '../../data/homepage';
+
+const backgroundSlides = [
+  {
+    src: storyBackgroundOne,
+  },
+
+  {
+    src: storyBackgroundTwo,
+  },
+
+  {
+    src: storyBackgroundThree,
+  },
+];
 ---
 
 <section
   id="our-story"
   class="brand-story-editorial section-spacing relative isolate overflow-hidden bg-ink-950 text-white"
   aria-labelledby="brand-story-title"
+  data-brand-story-section
 >
+  <!-- Full-section background slider -->
   <div
-    class="brand-story-editorial__pattern pointer-events-none absolute inset-0"
+    class="brand-story-background pointer-events-none absolute inset-0 z-0 overflow-hidden"
+    aria-hidden="true"
+  >
+    {
+      backgroundSlides.map((slide, index) => (
+        <div
+          class="brand-story-background__slide absolute inset-0"
+          style={`--story-background-delay: ${index * 8}s;`}
+        >
+          <Image
+            src={slide.src}
+            alt=""
+            class="brand-story-background__image absolute inset-0 size-full object-cover"
+            loading="lazy"
+            fetchpriority="low"
+            widths={[768, 1024, 1280, 1600, 1920]}
+            sizes="100vw"
+            quality={78}
+          />
+        </div>
+      ))
+    }
+
+    <div
+      class="brand-story-background__overlay absolute inset-0"
+      aria-hidden="true"
+    >
+    </div>
+
+    <div
+      class="brand-story-background__edge-fade absolute inset-0"
+      aria-hidden="true"
+    >
+    </div>
+  </div>
+
+  <div
+    class="brand-story-editorial__pattern pointer-events-none absolute inset-0 z-0"
     aria-hidden="true"
   >
   </div>
 
   <div
-    class="motion-parallax brand-story-editorial__glow brand-story-editorial__glow--blue pointer-events-none absolute -top-40 -left-32"
+    class="motion-parallax brand-story-editorial__glow brand-story-editorial__glow--blue pointer-events-none absolute -top-40 -left-32 z-0"
     data-parallax
     data-parallax-speed="0.035"
     data-motion-continuous
     aria-hidden="true"
   >
-    <div class="size-96 rounded-full bg-brand-500/24 blur-3xl"></div>
+    <div
+      class="size-96 rounded-full bg-brand-500/24 blur-3xl"
+    >
+    </div>
   </div>
 
   <div
-    class="motion-parallax brand-story-editorial__glow brand-story-editorial__glow--orange pointer-events-none absolute -right-32 -bottom-44"
+    class="motion-parallax brand-story-editorial__glow brand-story-editorial__glow--orange pointer-events-none absolute -right-32 -bottom-44 z-0"
     data-parallax
     data-parallax-speed="0.055"
     data-motion-continuous
     aria-hidden="true"
   >
-    <div class="size-112 rounded-full bg-accent-500/20 blur-3xl"></div>
+    <div
+      class="size-112 rounded-full bg-accent-500/20 blur-3xl"
+    >
+    </div>
   </div>
 
   <div
-    class="brand-story-editorial__paw brand-story-editorial__paw--one pointer-events-none absolute top-[10%] right-[7%] hidden text-brand-300/25 lg:block"
+    class="brand-story-editorial__paw brand-story-editorial__paw--one pointer-events-none absolute top-[10%] right-[7%] z-0 hidden text-brand-300/25 lg:block"
     data-motion-continuous
     aria-hidden="true"
   >
-    <PawPrintBold class="size-16 rotate-12" />
+    <PawPrintBold
+      class="size-16 rotate-12"
+    />
   </div>
 
   <div
-    class="brand-story-editorial__paw brand-story-editorial__paw--two pointer-events-none absolute bottom-[10%] left-[4%] hidden text-accent-300/22 lg:block"
+    class="brand-story-editorial__paw brand-story-editorial__paw--two pointer-events-none absolute bottom-[10%] left-[4%] z-0 hidden text-accent-300/22 lg:block"
     data-motion-continuous
     aria-hidden="true"
   >
-    <PawPrintBold class="size-12 -rotate-12" />
+    <PawPrintBold
+      class="size-12 -rotate-12"
+    />
   </div>
 
-  <div class="site-container relative z-10">
+  <div
+    class="site-container relative z-10"
+  >
     <div
       class="mb-10 flex flex-col gap-5 border-b border-white/10 pb-8 sm:mb-12 sm:flex-row sm:items-end sm:justify-between"
       data-reveal
     >
       <div>
-        <p class="mt-4 max-w-xl text-sm font-extrabold uppercase tracking-[0.18em] text-white/55">
+        <p
+          class="mt-4 max-w-xl text-sm font-extrabold tracking-[0.18em] text-white/55 uppercase"
+        >
           Meet Maxi · Discover our story
         </p>
       </div>
 
-      <p class="text-sm leading-6 text-white/60 sm:text-right">
+      <p
+        class="text-sm leading-6 text-white/60 sm:text-right"
+      >
         A pet store shaped by real experience, everyday routines, and the dog who inspired it all.
       </p>
     </div>
 
-    <div class="grid items-center gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16 xl:gap-20">
-      <!-- Layered Maxi artwork -->
-      <div class="mx-auto w-full max-w-lg lg:mx-0" data-reveal="left" style="--reveal-delay: 80ms;">
+    <div
+      class="grid items-center gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16 xl:gap-20"
+    >
+      <!-- Maxi story slider -->
+      <div
+        class="mx-auto w-full max-w-lg lg:mx-0"
+        data-reveal="left"
+        style="--reveal-delay: 80ms;"
+      >
         <div
           class="motion-parallax brand-story-visual-parallax relative"
           data-parallax
@@ -86,97 +168,41 @@ import { brandStory } from '../../data/homepage';
           <div
             class="motion-tilt-shell brand-story-visual-shell relative"
             data-tilt-root
-            data-tilt-strength="2.5"
+            data-tilt-strength="1.8"
           >
-            <div class="motion-tilt-surface brand-story-visual-surface relative" data-tilt-surface>
-              <div
-                class="brand-story-visual-halo pointer-events-none absolute inset-10 -z-10 rounded-full bg-linear-to-br from-brand-400/45 via-white/10 to-accent-400/45 blur-3xl"
-                aria-hidden="true"
-              >
-              </div>
-
-              <div
-                class="brand-story-visual-frame relative overflow-hidden rounded-card-lg border border-white/15 bg-linear-to-br from-brand-500/25 via-white/10 to-accent-500/20 p-2 shadow-2xl shadow-black/30 backdrop-blur sm:p-3"
-              >
-                <div
-                  class="brand-story-visual-art relative aspect-9/12 overflow-hidden rounded-card bg-cream-soft"
-                >
-                  <BrandLogo
-                    variant="maxi"
-                    class="brand-story-visual-image size-full object-cover"
-                  />
-
-                  <div
-                    class="brand-story-visual-vignette pointer-events-none absolute inset-0"
-                    aria-hidden="true"
-                  >
-                  </div>
-
-                  <div
-                    class="absolute top-5 left-5 rounded-full border border-white/45 bg-ink-950/70 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-white"
-                  >
-                    The original Maxi Pawz
-                  </div>
-                </div>
-
-                <div
-                  class="mt-2 rounded-3xl border border-white/10 bg-ink-950/92 p-4 sm:mt-3 sm:p-5"
-                >
-                  <div class="flex items-center gap-3">
-                    <span
-                      class="grid size-11 shrink-0 place-items-center rounded-2xl bg-accent-500 text-ink-950 shadow-orange"
-                      aria-hidden="true"
-                    >
-                      <PawPrintBold class="size-5" />
-                    </span>
-
-                    <div class="min-w-0">
-                      <p class="font-display text-xl leading-tight text-white sm:text-2xl">
-                        Meet Maxi
-                      </p>
-
-                      <p class="mt-1 text-sm leading-5 text-white/70">
-                        Our dog, our mascot, and the inspiration behind Maxi Pawz.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <span
-                class="brand-story-floating-mark brand-story-floating-mark--logo absolute -top-4 -right-2 z-20 grid size-16 rotate-6 place-items-center rounded-3xl border-4 border-ink-950 bg-white-warm shadow-blue sm:-right-5 sm:size-20"
-                data-motion-continuous
-                aria-hidden="true"
-              >
-                <BrandLogo variant="mark" class="size-10 object-contain sm:size-12" />
-              </span>
-
-              <span
-                class="brand-story-floating-mark brand-story-floating-mark--mascot absolute -bottom-4 -left-2 z-20 grid size-14 -rotate-6 place-items-center rounded-[1.25rem] border-4 border-ink-950 bg-brand-500 text-ink-950 shadow-orange sm:-left-5 sm:size-16"
-                data-motion-continuous
-                aria-hidden="true"
-              >
-                <BrandLogo variant="mascot" class="size-10 object-contain sm:size-12" />
-              </span>
+            <div
+              class="motion-tilt-surface brand-story-visual-surface relative"
+              data-tilt-surface
+            >
+              <BrandStoryVisualSlider />
             </div>
           </div>
         </div>
       </div>
 
       <!-- Story copy -->
-      <div class="mx-auto w-full lg:mx-0">
-        <div data-reveal="right" style="--reveal-delay: 120ms;">
+      <div
+        class="mx-auto w-full lg:mx-0"
+      >
+        <div
+          data-reveal="right"
+          style="--reveal-delay: 120ms;"
+        >
           <h2
             id="brand-story-title"
             class="section-title text-4xl text-white sm:text-5xl lg:text-[3.65rem]"
           >
             The dog behind the name—and the{' '}
 
-            <span class="brand-story-accent-text text-accent-300"> heart behind our store. </span>
+            <span
+              class="brand-story-accent-text text-accent-300"
+            >
+              heart behind our store.
+            </span>
           </h2>
 
           <p
-            class="mt-6 border-l-4 border-accent-400 pl-5 text-lg font-bold leading-8 text-white/92 sm:text-xl"
+            class="mt-6 border-l-4 border-accent-400 pl-5 text-lg leading-8 font-bold text-white/92 sm:text-xl"
           >
             {brandStory.introduction}
           </p>
@@ -187,9 +213,13 @@ import { brandStory } from '../../data/homepage';
           data-reveal="right"
           style="--reveal-delay: 180ms;"
         >
-          <p>{brandStory.experience}</p>
+          <p>
+            {brandStory.experience}
+          </p>
 
-          <p>{brandStory.community}</p>
+          <p>
+            {brandStory.community}
+          </p>
         </div>
 
         <div
@@ -197,21 +227,31 @@ import { brandStory } from '../../data/homepage';
           data-reveal="right"
           style="--reveal-delay: 290ms;"
         >
-          <div class="relative z-10">
-            <div class="flex items-start gap-3">
+          <div
+            class="relative z-10"
+          >
+            <div
+              class="flex items-start gap-3"
+            >
               <div>
-                <p class="font-display text-lg text-white sm:text-xl">
+                <p
+                  class="font-display text-lg text-white sm:text-xl"
+                >
                   More than a mascot. This is where the story starts.
                 </p>
 
-                <p class="mt-2 text-sm leading-6 text-white/65">
+                <p
+                  class="mt-2 text-sm leading-6 text-white/65"
+                >
                   Learn how Maxi, two friends, and a shared love for pets became the foundation of
                   Maxi Pawz.
                 </p>
               </div>
             </div>
 
-            <div class="mt-5 flex flex-col gap-3 sm:flex-row">
+            <div
+              class="mt-5 flex flex-col gap-3 sm:flex-row"
+            >
               <Button
                 href="/about"
                 variant="primary"
@@ -219,7 +259,10 @@ import { brandStory } from '../../data/homepage';
                 iconPosition="right"
                 class="w-full sm:w-auto"
               >
-                <ArrowRightBold slot="icon" aria-hidden="true" />
+                <ArrowRightBold
+                  slot="icon"
+                  aria-hidden="true"
+                />
 
                 Meet Maxi & Our Story
               </Button>
@@ -233,7 +276,11 @@ import { brandStory } from '../../data/homepage';
                     iconPosition="right"
                     class="w-full sm:w-auto"
                   >
-                    <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
+                    <ShoppingBagOpenBold
+                      slot="icon"
+                      aria-hidden="true"
+                    />
+
                     Explore the Shop
                   </Button>
                 ) : (
@@ -244,7 +291,11 @@ import { brandStory } from '../../data/homepage';
                     iconPosition="right"
                     class="w-full sm:w-auto"
                   >
-                    <HeartBold slot="icon" aria-hidden="true" />
+                    <HeartBold
+                      slot="icon"
+                      aria-hidden="true"
+                    />
+
                     Join the Pack
                   </Button>
                 )
@@ -258,190 +309,386 @@ import { brandStory } from '../../data/homepage';
 </section>
 
 <style>
+  /*
+   * Background slider
+   *
+   * The dark section color remains the foundation. The photography
+   * adds atmosphere without replacing the established dark appearance.
+   */
+  .brand-story-background {
+    background-color:
+      rgb(20 15 12);
+  }
+
+  .brand-story-background__slide {
+    opacity:
+      0;
+  }
+
+  .brand-story-background__slide:first-child {
+    opacity:
+      1;
+  }
+
+  .brand-story-background__image {
+    opacity:
+      0.48;
+
+    transform:
+      scale(1.08);
+
+    filter:
+      saturate(0.88)
+      contrast(0.96)
+      brightness(0.72);
+  }
+
+  .brand-story-editorial.is-story-visible
+    .brand-story-background__slide {
+    animation:
+      brand-story-background-fade
+      24s
+      linear
+      infinite;
+
+    animation-delay:
+      var(--story-background-delay);
+  }
+
+  .brand-story-editorial.is-story-visible
+    .brand-story-background__image {
+    animation:
+      brand-story-background-ken-burns
+      24s
+      ease-in-out
+      infinite;
+
+    animation-delay:
+      var(--story-background-delay);
+  }
+
+  .brand-story-background__overlay {
+    background:
+      linear-gradient(
+        90deg,
+        rgb(20 15 12 / 62%) 0%,
+        rgb(20 15 12 / 70%) 44%,
+        rgb(20 15 12 / 76%) 100%
+      ),
+      linear-gradient(
+        180deg,
+        rgb(20 15 12 / 54%) 0%,
+        rgb(20 15 12 / 28%) 44%,
+        rgb(20 15 12 / 72%) 100%
+      );
+  }
+
+  .brand-story-background__edge-fade {
+    box-shadow:
+      inset 0 8rem 8rem -6rem
+        rgb(20 15 12 / 92%),
+      inset 0 -8rem 8rem -6rem
+        rgb(20 15 12 / 94%);
+  }
+
   .brand-story-editorial__pattern {
     background-image:
-      linear-gradient(rgb(255 255 255 / 3%) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(255 255 255 / 3%) 1px, transparent 1px);
+      linear-gradient(
+        rgb(255 255 255 / 3%) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        90deg,
+        rgb(255 255 255 / 3%) 1px,
+        transparent 1px
+      );
 
-    background-size: 3.5rem 3.5rem;
+    background-size:
+      3.5rem 3.5rem;
 
-    mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+    mask-image:
+      linear-gradient(
+        to bottom,
+        transparent,
+        black 12%,
+        black 88%,
+        transparent
+      );
 
-    opacity: 0.45;
+    opacity:
+      0.36;
   }
 
   /*
-   * Unique story animations are activated by HomeMotion through
-   * the shared is-motion-active class.
+   * Existing decorative motion
    */
   .brand-story-editorial__glow.is-motion-active {
-    animation: brand-story-glow-drift 11s ease-in-out infinite;
+    animation:
+      brand-story-glow-drift
+      11s
+      ease-in-out
+      infinite;
   }
 
   .brand-story-editorial__glow--orange.is-motion-active {
-    animation-delay: -5s;
-    animation-direction: reverse;
+    animation-delay:
+      -5s;
+
+    animation-direction:
+      reverse;
   }
 
   .brand-story-editorial__paw.is-motion-active {
-    animation: brand-story-paw-float 7.5s ease-in-out infinite;
+    animation:
+      brand-story-paw-float
+      7.5s
+      ease-in-out
+      infinite;
 
-    will-change: transform;
+    will-change:
+      transform;
   }
 
   .brand-story-editorial__paw--two.is-motion-active {
-    animation-delay: -3.5s;
-    animation-direction: reverse;
-  }
+    animation-delay:
+      -3.5s;
 
-  .brand-story-visual-frame {
-    transform: translateZ(0);
-
-    transition:
-      border-color 260ms var(--ease-friendly),
-      box-shadow 260ms var(--ease-friendly);
-  }
-
-  .brand-story-visual-shell:hover .brand-story-visual-frame {
-    border-color: rgb(255 255 255 / 24%);
-
-    box-shadow: 0 38px 85px -38px rgb(0 0 0 / 72%);
-  }
-
-  .brand-story-visual-image {
-    transform: scale(1.035);
-
-    transition:
-      transform 800ms var(--ease-friendly),
-      filter 800ms var(--ease-friendly);
-  }
-
-  .brand-story-visual-shell:hover .brand-story-visual-image {
-    transform: scale(1.075);
-
-    filter: saturate(1.05) contrast(1.02);
-  }
-
-  .brand-story-visual-vignette {
-    background:
-      linear-gradient(to top, rgb(33 23 17 / 28%), transparent 38%),
-      linear-gradient(to bottom, rgb(255 255 255 / 8%), transparent 20%);
-  }
-
-  .brand-story-floating-mark.is-motion-active {
-    animation: brand-story-card-float 5.8s ease-in-out infinite;
-
-    will-change: transform;
-  }
-
-  .brand-story-floating-mark--mascot.is-motion-active {
-    animation-delay: -2.6s;
-    animation-direction: reverse;
+    animation-direction:
+      reverse;
   }
 
   .brand-story-accent-text {
-    background: linear-gradient(110deg, #ffae66 0%, #ff8433 45%, #8ed3ff 100%);
+    background:
+      linear-gradient(
+        110deg,
+        #ffae66 0%,
+        #ff8433 45%,
+        #8ed3ff 100%
+      );
 
-    background-clip: text;
-    color: transparent;
+    background-clip:
+      text;
+
+    color:
+      transparent;
   }
 
   .brand-story-cta {
-    position: relative;
+    position:
+      relative;
   }
 
   .brand-story-cta::before {
-    position: absolute;
-    top: -7rem;
-    right: -5rem;
+    position:
+      absolute;
 
-    width: 17rem;
-    height: 17rem;
+    top:
+      -7rem;
 
-    border-radius: 9999px;
+    right:
+      -5rem;
 
-    background: rgb(0 138 255 / 18%);
+    width:
+      17rem;
 
-    content: '';
-    filter: blur(2.5rem);
-    pointer-events: none;
+    height:
+      17rem;
+
+    border-radius:
+      9999px;
+
+    background:
+      rgb(0 138 255 / 18%);
+
+    content:
+      '';
+
+    filter:
+      blur(2.5rem);
+
+    pointer-events:
+      none;
   }
 
   .brand-story-cta::after {
-    position: absolute;
-    bottom: -8rem;
-    left: 15%;
+    position:
+      absolute;
 
-    width: 16rem;
-    height: 16rem;
+    bottom:
+      -8rem;
 
-    border-radius: 9999px;
+    left:
+      15%;
 
-    background: rgb(255 102 0 / 16%);
+    width:
+      16rem;
 
-    content: '';
-    filter: blur(2.5rem);
-    pointer-events: none;
+    height:
+      16rem;
+
+    border-radius:
+      9999px;
+
+    background:
+      rgb(255 102 0 / 16%);
+
+    content:
+      '';
+
+    filter:
+      blur(2.5rem);
+
+    pointer-events:
+      none;
+  }
+
+  @keyframes brand-story-background-fade {
+    0%,
+    29% {
+      opacity:
+        1;
+    }
+
+    38%,
+    100% {
+      opacity:
+        0;
+    }
+  }
+
+  @keyframes brand-story-background-ken-burns {
+    0% {
+      transform:
+        scale(1.08)
+        translate3d(
+          0,
+          0,
+          0
+        );
+    }
+
+    50% {
+      transform:
+        scale(1.14)
+        translate3d(
+          -1%,
+          -0.8%,
+          0
+        );
+    }
+
+    100% {
+      transform:
+        scale(1.19)
+        translate3d(
+          1%,
+          0.8%,
+          0
+        );
+    }
   }
 
   @keyframes brand-story-glow-drift {
     0%,
     100% {
-      transform: translate3d(0, var(--motion-parallax-y), 0) scale(1);
+      transform:
+        translate3d(
+          0,
+          var(--motion-parallax-y),
+          0
+        )
+        scale(1);
     }
 
     50% {
-      transform: translate3d(1rem, calc(var(--motion-parallax-y) - 1rem), 0) scale(1.06);
+      transform:
+        translate3d(
+          1rem,
+          calc(
+            var(--motion-parallax-y) -
+            1rem
+          ),
+          0
+        )
+        scale(1.06);
     }
   }
 
   @keyframes brand-story-paw-float {
     0%,
     100% {
-      transform: translate3d(0, 0, 0) rotate(-4deg);
+      transform:
+        translate3d(
+          0,
+          0,
+          0
+        )
+        rotate(-4deg);
     }
 
     50% {
-      transform: translate3d(0.45rem, -0.8rem, 0) rotate(5deg);
+      transform:
+        translate3d(
+          0.45rem,
+          -0.8rem,
+          0
+        )
+        rotate(5deg);
     }
   }
 
-  @keyframes brand-story-card-float {
-    0%,
-    100% {
-      transform: translate3d(0, 0, 0) rotate(-2deg);
+  @media (max-width: 1023px) {
+    .brand-story-background__image {
+      opacity:
+        0.42;
     }
 
-    50% {
-      transform: translate3d(0.25rem, -0.55rem, 0) rotate(2deg);
+    .brand-story-background__overlay {
+      background:
+        linear-gradient(
+          180deg,
+          rgb(20 15 12 / 72%) 0%,
+          rgb(20 15 12 / 54%) 40%,
+          rgb(20 15 12 / 78%) 100%
+        );
     }
   }
 
-  @media (hover: none), (pointer: coarse) {
-    .brand-story-visual-shell:hover .brand-story-visual-frame {
-      border-color: rgb(255 255 255 / 15%);
-
-      box-shadow: 0 25px 65px -38px rgb(0 0 0 / 55%);
-    }
-
-    .brand-story-visual-shell:hover .brand-story-visual-image {
-      transform: scale(1.035);
-      filter: none;
+  @media (max-width: 639px) {
+    .brand-story-background__image {
+      opacity:
+        0.36;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .brand-story-background__slide,
+    .brand-story-background__image,
     .brand-story-editorial__glow,
-    .brand-story-editorial__paw,
-    .brand-story-floating-mark,
-    .brand-story-visual-image {
-      animation: none !important;
-      transition: none !important;
-      will-change: auto !important;
+    .brand-story-editorial__paw {
+      animation:
+        none !important;
+
+      transition:
+        none !important;
+
+      will-change:
+        auto !important;
     }
 
-    .brand-story-visual-image {
-      transform: none !important;
+    .brand-story-background__slide {
+      opacity:
+        0 !important;
+    }
+
+    .brand-story-background__slide:first-child {
+      opacity:
+        1 !important;
+    }
+
+    .brand-story-background__image {
+      transform:
+        scale(1.08) !important;
     }
   }
 </style>

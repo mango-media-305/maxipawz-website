@@ -1,0 +1,728 @@
+---
+import { Image } from 'astro:assets';
+
+import ArrowLeftBold from 'phosphor-astro/ArrowLeftBold.astro';
+import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
+import HeartBold from 'phosphor-astro/HeartBold.astro';
+import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
+import SparkleBold from 'phosphor-astro/SparkleBold.astro';
+
+import maxiStoryOne from '../../assets/home/maxi-story-slide-1.webp';
+import maxiStoryTwo from '../../assets/home/maxi-story-slide-2.webp';
+import maxiStoryThree from '../../assets/home/maxi-story-slide-3.webp';
+
+import BrandLogo from '../brand/BrandLogo.astro';
+
+const storySlides = [
+    {
+        image: maxiStoryOne,
+
+        alt: 'Maxi, the dog who inspired the Maxi Pawz name',
+
+        eyebrow: 'The original inspiration',
+
+        title: 'Maxi, the heart behind the name.',
+
+        description:
+        'His personality, joyful energy, and everyday routines inspired a pet store built around stronger moments between pets and their people.',
+
+        icon: HeartBold,
+
+        accentClass: 'text-accent-200',
+    },
+
+    {
+        image: maxiStoryTwo,
+
+        alt: 'Maxi enjoying a playful everyday moment',
+
+        eyebrow: 'Everyday joy',
+
+        title: 'The little moments that shaped the idea.',
+
+        description:
+        'Playtime, comfort, walks, feeding, travel, and life at home helped shape the way we think about useful and enjoyable pet products.',
+
+        icon: SparkleBold,
+
+        accentClass: 'text-brand-200',
+    },
+
+    {
+        image: maxiStoryThree,
+
+        alt: 'Maxi ready for another outdoor adventure',
+
+        eyebrow: 'Real pet life',
+
+        title: 'A brand inspired by life together.',
+
+        description:
+        'Maxi Pawz grew from real experiences and a simple goal: help make everyday life with pets happier, easier, and more thoughtful.',
+
+        icon: PawPrintBold,
+
+        accentClass: 'text-accent-200',
+    },
+];
+
+const slideCount = storySlides.length;
+---
+
+<section
+    class="brand-story-slider relative"
+    aria-label="The Maxi Pawz story in pictures"
+    data-brand-story-slider
+>
+    <div
+        class="brand-story-slider__halo pointer-events-none absolute inset-10 -z-10 rounded-full bg-linear-to-br from-brand-400/45 via-white/10 to-accent-400/45 blur-3xl"
+        aria-hidden="true"
+    >
+    </div>
+
+    <div
+        class="brand-story-slider__frame relative rounded-card-lg border border-white/15 bg-ink-950/88 p-2 shadow-2xl shadow-black/30 sm:p-3"
+    >
+        <div
+        class="brand-story-slider__viewport relative overflow-hidden rounded-card"
+        data-brand-story-slider-viewport
+        aria-live="off"
+        >
+        {
+            storySlides.map((slide, index) => {
+            const Icon = slide.icon;
+
+            return (
+                <article
+                class:list={[
+                    'brand-story-slider__slide group absolute inset-0 overflow-hidden rounded-card bg-ink-950',
+                    index === 0 && 'is-active',
+                ]}
+                data-brand-story-slide
+                aria-hidden={index === 0 ? 'false' : 'true'}
+                >
+                <Image
+                    src={slide.image}
+                    alt={slide.alt}
+                    class="brand-story-slider__image absolute inset-0 size-full object-cover object-center"
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    fetchpriority={index === 0 ? 'high' : 'low'}
+                    widths={[400, 560, 720, 900, 1080]}
+                    sizes="(min-width: 1280px) 30rem, (min-width: 1024px) 40vw, calc(100vw - 3rem)"
+                    quality={82}
+                />
+
+                <div
+                    class="brand-story-slider__image-overlay absolute inset-0"
+                    aria-hidden="true"
+                ></div>
+
+                <div class="absolute top-5 left-5 flex max-w-[calc(100%-2.5rem)] items-center gap-2 rounded-full border border-white/25 bg-ink-950/70 px-4 py-2 text-xs font-black tracking-[0.12em] text-white uppercase">
+                    <Icon class:list={['size-4 shrink-0', slide.accentClass]} aria-hidden="true" />
+
+                    {slide.eyebrow}
+                </div>
+
+                <div class="absolute inset-x-0 bottom-0 p-5 text-white sm:p-7">
+                    <h3 class="max-w-md text-3xl text-white sm:text-4xl">{slide.title}</h3>
+
+                    <p class="mt-3 max-w-md text-sm leading-6 text-white/76 sm:text-base sm:leading-7">
+                    {slide.description}
+                    </p>
+                </div>
+                </article>
+            );
+            })
+        }
+        </div>
+
+        <div
+        class="mt-2 flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-white/10 bg-ink-950/94 p-3 sm:mt-3 sm:p-4"
+        >
+        <div class="flex items-center gap-2" aria-label="Choose a Maxi story slide">
+            {
+            storySlides.map((_, index) => (
+                <button
+                type="button"
+                class:list={[
+                    'brand-story-slider__dot size-2.5 rounded-full bg-white/28 transition',
+                    index === 0 && 'is-active',
+                ]}
+                aria-label={`Show story slide ${index + 1} of ${slideCount}`}
+                aria-current={index === 0 ? 'true' : undefined}
+                data-brand-story-dot
+                data-slide-index={index}
+                ></button>
+            ))
+            }
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button
+            type="button"
+            class="min-h-10 rounded-full border border-white/14 bg-white/8 px-4 text-xs font-extrabold text-white/75 transition hover:bg-white/14 hover:text-white"
+            aria-label="Pause the Maxi story slider"
+            data-brand-story-autoplay
+            >
+            <span data-brand-story-autoplay-label> Pause </span>
+            </button>
+
+            <button
+            type="button"
+            class="grid size-10 place-items-center rounded-full border border-white/14 bg-white/8 text-white transition hover:-translate-y-0.5 hover:bg-white/14"
+            aria-label="Show previous story slide"
+            data-brand-story-previous
+            >
+            <ArrowLeftBold class="size-4.5" aria-hidden="true" />
+            </button>
+
+            <button
+            type="button"
+            class="grid size-10 place-items-center rounded-full border border-brand-500 bg-brand-500 text-white shadow-blue transition hover:-translate-y-0.5 hover:bg-brand-600"
+            aria-label="Show next story slide"
+            data-brand-story-next
+            >
+            <ArrowRightBold class="size-4.5" aria-hidden="true" />
+            </button>
+        </div>
+        </div>
+    </div>
+
+    <!-- Existing floating BrandLogo marks -->
+    <span
+        class="brand-story-floating-mark brand-story-floating-mark--logo absolute -top-4 -right-2 z-20 grid size-16 rotate-6 place-items-center rounded-3xl border-4 border-ink-950 bg-white-warm shadow-blue sm:-right-5 sm:size-20"
+        data-motion-continuous
+        aria-hidden="true"
+    >
+        <BrandLogo variant="mark" class="size-10 object-contain sm:size-12" />
+    </span>
+
+    <span
+        class="brand-story-floating-mark brand-story-floating-mark--mascot absolute -bottom-4 -left-2 z-20 grid size-14 -rotate-6 place-items-center rounded-[1.25rem] border-4 border-ink-950 bg-brand-500 text-ink-950 shadow-orange sm:-left-5 sm:size-16"
+        data-motion-continuous
+        aria-hidden="true"
+    >
+        <BrandLogo variant="mascot" class="size-10 object-contain sm:size-12" />
+    </span>
+</section>
+
+<style>
+    .brand-story-slider__frame {
+        transform: translateZ(0);
+
+        transition:
+        border-color 260ms var(--ease-friendly),
+        box-shadow 260ms var(--ease-friendly);
+    }
+
+    .brand-story-slider:hover .brand-story-slider__frame {
+        border-color: rgb(255 255 255 / 24%);
+
+        box-shadow: 0 38px 85px -38px rgb(0 0 0 / 72%);
+    }
+
+    .brand-story-slider__viewport {
+        aspect-ratio: 4 / 5;
+
+        min-height: 30rem;
+    }
+
+    .brand-story-slider__slide {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+
+        transform: translate3d(1rem, 0, 0) scale(0.99);
+
+        transition:
+        opacity 460ms var(--ease-friendly),
+        visibility 460ms var(--ease-friendly),
+        transform 540ms var(--ease-friendly);
+    }
+
+    .brand-story-slider__slide.is-active {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    .brand-story-slider__image {
+        transform: scale(1.035);
+
+        transform-origin: center;
+
+        filter: saturate(0.98) contrast(1.01);
+    }
+
+    .brand-story-slider__slide.is-active .brand-story-slider__image {
+        animation: brand-story-foreground-ken-burns 5.8s ease-out both;
+    }
+
+    .brand-story-slider__image-overlay {
+        background: linear-gradient(
+        to top,
+        rgb(20 14 10 / 92%) 0%,
+        rgb(20 14 10 / 48%) 36%,
+        rgb(20 14 10 / 8%) 68%,
+        rgb(20 14 10 / 18%) 100%
+        );
+    }
+
+    .brand-story-slider__dot.is-active {
+        width: 2rem;
+
+        background-color: rgb(255 102 0);
+    }
+
+    .brand-story-floating-mark.is-motion-active {
+        animation: brand-story-slider-logo-float 5.8s ease-in-out infinite;
+
+        will-change: transform;
+    }
+
+    .brand-story-floating-mark--mascot.is-motion-active {
+        animation-delay: -2.6s;
+
+        animation-direction: reverse;
+    }
+
+    @keyframes brand-story-foreground-ken-burns {
+        0% {
+        transform: scale(1.035) translate3d(0, 0, 0);
+        }
+
+        100% {
+        transform: scale(1.1) translate3d(1.2%, -1%, 0);
+        }
+    }
+
+    @keyframes brand-story-slider-logo-float {
+        0%,
+        100% {
+        transform: translate3d(0, 0, 0) rotate(-2deg);
+        }
+
+        50% {
+        transform: translate3d(0.25rem, -0.55rem, 0) rotate(2deg);
+        }
+    }
+
+    @media (max-width: 639px) {
+        .brand-story-slider__viewport {
+        min-height: 28rem;
+        }
+    }
+
+    @media (hover: none), (pointer: coarse) {
+        .brand-story-slider:hover .brand-story-slider__frame {
+        border-color: rgb(255 255 255 / 15%);
+
+        box-shadow: 0 25px 65px -38px rgb(0 0 0 / 55%);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .brand-story-slider__slide,
+        .brand-story-slider__image,
+        .brand-story-slider__dot,
+        .brand-story-floating-mark {
+        animation: none !important;
+
+        transition: none !important;
+
+        will-change: auto !important;
+        }
+
+        .brand-story-slider__image {
+        transform: scale(1.035) !important;
+        }
+    }
+</style>
+
+<script>
+    const BRAND_STORY_AUTOPLAY_DELAY = 5000;
+
+    const initializeBrandStorySliders = (): void => {
+        const sliders = Array.from(document.querySelectorAll<HTMLElement>('[data-brand-story-slider]'));
+
+        for (const slider of sliders) {
+        if (slider.dataset.brandStoryInitialized === 'true') {
+            continue;
+        }
+
+        slider.dataset.brandStoryInitialized = 'true';
+
+        const slides = Array.from(slider.querySelectorAll<HTMLElement>('[data-brand-story-slide]'));
+
+        const dots = Array.from(slider.querySelectorAll<HTMLButtonElement>('[data-brand-story-dot]'));
+
+        const previousButton = slider.querySelector<HTMLButtonElement>('[data-brand-story-previous]');
+
+        const nextButton = slider.querySelector<HTMLButtonElement>('[data-brand-story-next]');
+
+        const autoplayButton = slider.querySelector<HTMLButtonElement>('[data-brand-story-autoplay]');
+
+        const autoplayLabel = slider.querySelector<HTMLElement>('[data-brand-story-autoplay-label]');
+
+        const viewport = slider.querySelector<HTMLElement>('[data-brand-story-slider-viewport]');
+
+        const storySection = slider.closest<HTMLElement>('[data-brand-story-section]');
+
+        if (slides.length <= 1 || !previousButton || !nextButton || !autoplayButton) {
+            storySection?.classList.add('is-story-visible');
+
+            continue;
+        }
+
+        const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+        let activeIndex = 0;
+        let autoplayTimer = 0;
+
+        let pointerStartX: number | null = null;
+
+        let isHovered = false;
+
+        let isFocusWithin = false;
+
+        let isInViewport = true;
+
+        let isUserPaused = false;
+
+        const pauseAutoplay = (): void => {
+            if (autoplayTimer === 0) {
+            return;
+            }
+
+            window.clearTimeout(autoplayTimer);
+
+            autoplayTimer = 0;
+        };
+
+        const updateAutoplayControl = (): void => {
+            const buttonLabel = isUserPaused
+            ? 'Resume the Maxi story slider'
+            : 'Pause the Maxi story slider';
+
+            autoplayButton.setAttribute('aria-label', buttonLabel);
+
+            if (autoplayLabel) {
+            autoplayLabel.textContent = isUserPaused ? 'Play' : 'Pause';
+            }
+        };
+
+        const showSlide = (requestedIndex: number): void => {
+            const normalizedIndex = (requestedIndex + slides.length) % slides.length;
+
+            activeIndex = normalizedIndex;
+
+            slides.forEach((slide, index) => {
+            const isActive = index === activeIndex;
+
+            slide.classList.toggle('is-active', isActive);
+
+            slide.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+            });
+
+            dots.forEach((dot, index) => {
+            const isActive = index === activeIndex;
+
+            dot.classList.toggle('is-active', isActive);
+
+            if (isActive) {
+                dot.setAttribute('aria-current', 'true');
+            } else {
+                dot.removeAttribute('aria-current');
+            }
+            });
+        };
+
+        const scheduleAutoplay = (): void => {
+            pauseAutoplay();
+
+            if (
+            reducedMotionQuery.matches ||
+            isUserPaused ||
+            isHovered ||
+            isFocusWithin ||
+            !isInViewport ||
+            document.hidden
+            ) {
+            return;
+            }
+
+            autoplayTimer = window.setTimeout(() => {
+            showSlide(activeIndex + 1);
+
+            scheduleAutoplay();
+            }, BRAND_STORY_AUTOPLAY_DELAY);
+        };
+
+        const restartAutoplay = (): void => {
+            pauseAutoplay();
+            scheduleAutoplay();
+        };
+
+        const showPrevious = (): void => {
+            showSlide(activeIndex - 1);
+
+            restartAutoplay();
+        };
+
+        const showNext = (): void => {
+            showSlide(activeIndex + 1);
+
+            restartAutoplay();
+        };
+
+        const handleAutoplayToggle = (): void => {
+            isUserPaused = !isUserPaused;
+
+            updateAutoplayControl();
+
+            if (isUserPaused) {
+            pauseAutoplay();
+
+            return;
+            }
+
+            scheduleAutoplay();
+        };
+
+        previousButton.addEventListener('click', showPrevious);
+
+        nextButton.addEventListener('click', showNext);
+
+        autoplayButton.addEventListener('click', handleAutoplayToggle);
+
+        const dotCleanup: Array<() => void> = [];
+
+        for (const dot of dots) {
+            const handleDotClick = (): void => {
+            const index = Number(dot.dataset.slideIndex);
+
+            if (!Number.isInteger(index)) {
+                return;
+            }
+
+            showSlide(index);
+
+            restartAutoplay();
+            };
+
+            dot.addEventListener('click', handleDotClick);
+
+            dotCleanup.push(() => {
+            dot.removeEventListener('click', handleDotClick);
+            });
+        }
+
+        const handleKeyDown = (event: KeyboardEvent): void => {
+            if (event.key === 'ArrowLeft') {
+            event.preventDefault();
+
+            showPrevious();
+            }
+
+            if (event.key === 'ArrowRight') {
+            event.preventDefault();
+
+            showNext();
+            }
+        };
+
+        const handlePointerDown = (event: PointerEvent): void => {
+            pointerStartX = event.clientX;
+
+            pauseAutoplay();
+        };
+
+        const handlePointerUp = (event: PointerEvent): void => {
+            if (pointerStartX === null) {
+            scheduleAutoplay();
+
+            return;
+            }
+
+            const distance = event.clientX - pointerStartX;
+
+            pointerStartX = null;
+
+            if (Math.abs(distance) < 48) {
+            scheduleAutoplay();
+
+            return;
+            }
+
+            if (distance > 0) {
+            showPrevious();
+            } else {
+            showNext();
+            }
+        };
+
+        const handlePointerCancel = (): void => {
+            pointerStartX = null;
+
+            scheduleAutoplay();
+        };
+
+        const handleMouseEnter = (): void => {
+            isHovered = true;
+
+            pauseAutoplay();
+        };
+
+        const handleMouseLeave = (): void => {
+            isHovered = false;
+
+            scheduleAutoplay();
+        };
+
+        const handleFocusIn = (): void => {
+            isFocusWithin = true;
+
+            pauseAutoplay();
+        };
+
+        const handleFocusOut = (event: FocusEvent): void => {
+            const nextFocusedElement = event.relatedTarget;
+
+            if (nextFocusedElement instanceof Node && slider.contains(nextFocusedElement)) {
+            return;
+            }
+
+            isFocusWithin = false;
+
+            scheduleAutoplay();
+        };
+
+        const handleVisibilityChange = (): void => {
+            if (document.hidden) {
+            pauseAutoplay();
+
+            return;
+            }
+
+            scheduleAutoplay();
+        };
+
+        const handleReducedMotionChange = (): void => {
+            if (reducedMotionQuery.matches) {
+            pauseAutoplay();
+
+            return;
+            }
+
+            scheduleAutoplay();
+        };
+
+        const intersectionObserver =
+            'IntersectionObserver' in window
+            ? new IntersectionObserver(
+                (entries) => {
+                    const entry = entries[0];
+
+                    isInViewport = Boolean(entry?.isIntersecting);
+
+                    storySection?.classList.toggle('is-story-visible', isInViewport);
+
+                    if (isInViewport) {
+                    scheduleAutoplay();
+                    } else {
+                    pauseAutoplay();
+                    }
+                },
+                {
+                    rootMargin: '15% 0px',
+
+                    threshold: 0.15,
+                },
+                )
+            : null;
+
+        slider.addEventListener('keydown', handleKeyDown);
+
+        slider.addEventListener('mouseenter', handleMouseEnter);
+
+        slider.addEventListener('mouseleave', handleMouseLeave);
+
+        slider.addEventListener('focusin', handleFocusIn);
+
+        slider.addEventListener('focusout', handleFocusOut);
+
+        viewport?.addEventListener('pointerdown', handlePointerDown, {
+            passive: true,
+        });
+
+        viewport?.addEventListener('pointerup', handlePointerUp, {
+            passive: true,
+        });
+
+        viewport?.addEventListener('pointercancel', handlePointerCancel, {
+            passive: true,
+        });
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        reducedMotionQuery.addEventListener('change', handleReducedMotionChange);
+
+        if (intersectionObserver) {
+            intersectionObserver.observe(slider);
+        } else {
+            storySection?.classList.add('is-story-visible');
+        }
+
+        updateAutoplayControl();
+        scheduleAutoplay();
+
+        const cleanup = (): void => {
+            pauseAutoplay();
+
+            intersectionObserver?.disconnect();
+
+            storySection?.classList.remove('is-story-visible');
+
+            previousButton.removeEventListener('click', showPrevious);
+
+            nextButton.removeEventListener('click', showNext);
+
+            autoplayButton.removeEventListener('click', handleAutoplayToggle);
+
+            slider.removeEventListener('keydown', handleKeyDown);
+
+            slider.removeEventListener('mouseenter', handleMouseEnter);
+
+            slider.removeEventListener('mouseleave', handleMouseLeave);
+
+            slider.removeEventListener('focusin', handleFocusIn);
+
+            slider.removeEventListener('focusout', handleFocusOut);
+
+            viewport?.removeEventListener('pointerdown', handlePointerDown);
+
+            viewport?.removeEventListener('pointerup', handlePointerUp);
+
+            viewport?.removeEventListener('pointercancel', handlePointerCancel);
+
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+
+            reducedMotionQuery.removeEventListener('change', handleReducedMotionChange);
+
+            for (const cleanupDot of dotCleanup) {
+            cleanupDot();
+            }
+        };
+
+        document.addEventListener('astro:before-swap', cleanup, {
+            once: true,
+        });
+        }
+    };
+
+    initializeBrandStorySliders();
+
+    document.addEventListener('astro:page-load', initializeBrandStorySliders);
+</script>
