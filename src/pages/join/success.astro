@@ -8,12 +8,13 @@ import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
 
 import Badge from '@components/ui/Badge.astro';
 import Button from '@components/ui/Button.astro';
+
 import BaseLayout from '@layouts/BaseLayout.astro';
 ---
 
 <BaseLayout
   title="Welcome to the Pack"
-  description="Your Maxi Pawz launch-list subscription was received successfully."
+  description="Your Maxi Pawz signup and email preference were saved successfully."
   noIndex={true}
 >
   <AnalyticsEvent
@@ -21,6 +22,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
     clarityName="newsletterSignup"
     parameters={{
       lead_source: 'launch_list',
+      email_marketing_opt_in: true,
     }}
   />
 
@@ -65,9 +67,18 @@ import BaseLayout from '@layouts/BaseLayout.astro';
         </h1>
 
         <p class="mx-auto mt-5 max-w-xl text-base leading-7 text-ink-600 sm:text-lg sm:leading-8">
-          Your information was submitted successfully. We will keep you updated as the first Maxi
-          Pawz collection takes shape.
+          Your information and email preference were saved successfully. We can now keep you
+          updated with Maxi Pawz news, new products, helpful pet guides, and occasional offers.
         </p>
+
+        <div class="mx-auto mt-8 max-w-xl rounded-3xl border border-brand-200 bg-white-warm p-5">
+          <p class="font-extrabold text-ink-900">You're in control.</p>
+
+          <p class="mt-2 text-sm leading-6 text-ink-600">
+            Every Maxi Pawz marketing email will include an option to unsubscribe whenever you
+            choose.
+          </p>
+        </div>
 
         <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           <Button

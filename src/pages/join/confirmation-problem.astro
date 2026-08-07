@@ -1,0 +1,99 @@
+---
+import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
+import WarningCircleBold from 'phosphor-astro/WarningCircleBold.astro';
+import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
+
+import Badge from '@components/ui/Badge.astro';
+import Button from '@components/ui/Button.astro';
+
+import BaseLayout from '@layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+    title="Subscription Confirmation Problem"
+    description="The Maxi Pawz email subscription could not be confirmed."
+    noIndex={true}
+>
+    <section
+        class="relative flex min-h-[70vh] items-center overflow-hidden py-16 sm:py-20"
+        aria-labelledby="confirmation-problem-title"
+    >
+        <div
+        class="pointer-events-none absolute -top-40 -left-40 size-128 rounded-full bg-brand-300/20 blur-3xl"
+        aria-hidden="true"
+        >
+        </div>
+
+        <div
+        class="pointer-events-none absolute -right-40 -bottom-40 size-136 rounded-full bg-accent-300/25 blur-3xl"
+        aria-hidden="true"
+        >
+        </div>
+
+        <div class="site-container relative">
+        <div
+            class="mx-auto max-w-3xl overflow-hidden rounded-[2.5rem] border border-accent-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 text-center shadow-card sm:p-8 lg:p-12"
+        >
+            <span
+            class="mx-auto grid size-20 place-items-center rounded-full border border-accent-200 bg-accent-50 text-accent-700 shadow-soft"
+            aria-hidden="true"
+            >
+            <WarningCircleBold class="size-10" />
+            </span>
+
+            <Badge variant="brand" size="md" class="mx-auto mt-7">
+            <PawPrintBold slot="icon" aria-hidden="true" />
+
+            Confirmation Needed
+            </Badge>
+
+            <h1
+            id="confirmation-problem-title"
+            class="mx-auto mt-6 max-w-2xl text-4xl text-ink-900 sm:text-5xl lg:text-6xl"
+            >
+            We couldn't confirm that subscription.
+            </h1>
+
+            <p class="mx-auto mt-5 max-w-xl text-base leading-7 text-ink-600 sm:text-lg sm:leading-8">
+            The confirmation link may have expired, already been replaced by a newer link, or the
+            email service may be temporarily unavailable.
+            </p>
+
+            <div class="mx-auto mt-8 max-w-xl rounded-3xl border border-sand bg-white-warm p-5">
+            <p class="font-extrabold text-ink-900">The easiest fix</p>
+
+            <p class="mt-2 text-sm leading-6 text-ink-600">
+                Return to the homepage and submit the Join the Pack form again. We'll send you a fresh
+                confirmation link.
+            </p>
+            </div>
+
+            <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <Button
+                href="/#join-the-pack"
+                variant="primary"
+                size="lg"
+                iconPosition="right"
+                class="w-full sm:w-auto"
+            >
+                <PawPrintBold slot="icon" aria-hidden="true" />
+
+                Try Again
+            </Button>
+
+            <Button
+                href="/"
+                variant="secondary"
+                size="lg"
+                iconPosition="right"
+                class="w-full sm:w-auto"
+            >
+                <ArrowRightBold slot="icon" aria-hidden="true" />
+
+                Return Home
+            </Button>
+            </div>
+        </div>
+        </div>
+    </section>
+</BaseLayout>

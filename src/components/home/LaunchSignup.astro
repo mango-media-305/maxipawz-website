@@ -197,15 +197,11 @@ import Button from '../ui/Button.astro';
             >
               <form
                 name="maxipawz-launch-list"
-                action="/join/success"
+                action="/api/newsletter/subscribe"
                 method="POST"
-                data-netlify="true"
-                data-netlify-honeypot="bot-field"
                 class="launch-signup__form surface-card relative overflow-hidden p-5 sm:p-7 lg:p-8"
                 data-launch-form
               >
-                <input type="hidden" name="form-name" value="maxipawz-launch-list" />
-
                 <p hidden>
                   <label>
                     Do not fill out this field:
@@ -240,8 +236,8 @@ import Button from '../ui/Button.astro';
                   </div>
 
                   <p class="mt-5 leading-7 text-ink-600">
-                    Tell us where to send your Maxi Pawz updates. Your first name is optional, but
-                    your email address is required.
+                    Tell us a little about you. Your first name is optional, but your email address
+                    is required.
                   </p>
 
                   <div class="mt-7 grid gap-5 sm:grid-cols-2">
@@ -264,7 +260,7 @@ import Button from '../ui/Button.astro';
                       />
 
                       <p class="mt-2 text-xs leading-5 text-ink-500">
-                        Helps us make your updates feel a little more personal.
+                        Helps us make your Maxi Pawz experience feel a little more personal.
                       </p>
                     </div>
 
@@ -291,18 +287,46 @@ import Button from '../ui/Button.astro';
                     </div>
                   </div>
 
-                  <div class="mt-6 rounded-3xl border border-brand-200/70 bg-brand-50/85 p-4">
-                    <div class="flex items-start gap-3">
-                      <CheckCircleBold
-                        class="mt-0.5 size-5 shrink-0 text-brand-700"
-                        aria-hidden="true"
+                  <div
+                    class="mt-6 rounded-3xl border border-brand-200/70 bg-brand-50/85 p-4 sm:p-5"
+                  >
+                    <label
+                      for="launch-marketing-consent"
+                      class="flex cursor-pointer items-start gap-3"
+                    >
+                      <input
+                        id="launch-marketing-consent"
+                        name="marketing-consent"
+                        type="checkbox"
+                        value="yes"
+                        checked
+                        class="mt-1 size-5 shrink-0 cursor-pointer accent-brand-600"
                       />
 
-                      <p class="text-sm leading-6 text-ink-600">
-                        Friendly updates only. We will not flood your inbox, and you can unsubscribe
-                        at any time.
-                      </p>
-                    </div>
+                      <span class="min-w-0">
+                        <span class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <span class="font-extrabold leading-6 text-ink-800">
+                            Yes, send me Maxi Pawz emails.
+                          </span>
+
+                          <span
+                            class="rounded-full border border-brand-200 bg-white-warm px-2 py-0.5 text-[0.7rem] font-extrabold tracking-[0.05em] text-brand-700 uppercase"
+                          >
+                            Optional
+                          </span>
+                        </span>
+
+                        <span class="mt-1 block text-sm leading-6 text-ink-600">
+                          I want launch updates, new-product news, helpful pet guides, and occasional
+                          Maxi Pawz offers by email.
+                        </span>
+
+                        <span class="mt-2 block text-xs leading-5 text-ink-500">
+                          Uncheck this box if you prefer not to receive marketing emails. You can
+                          unsubscribe at any time.
+                        </span>
+                      </span>
+                    </label>
                   </div>
 
                   <div class="mt-6">
@@ -321,9 +345,17 @@ import Button from '../ui/Button.astro';
 
                   <p class="sr-only" aria-live="polite" data-launch-form-status></p>
 
-                  <p class="mt-4 text-center text-xs leading-5 text-ink-500">
-                    By joining, you agree to receive Maxi Pawz launch and marketing emails.
-                  </p>
+                  <div class="mt-4 flex items-start justify-center gap-2 text-center">
+                    <CheckCircleBold
+                      class="mt-0.5 size-4 shrink-0 text-brand-700"
+                      aria-hidden="true"
+                    />
+
+                    <p class="max-w-md text-xs leading-5 text-ink-500">
+                      Submitting this form records your interest in Maxi Pawz. Marketing email
+                      preferences are controlled by the checkbox above.
+                    </p>
+                  </div>
                 </div>
               </form>
             </div>
@@ -836,7 +868,7 @@ import Button from '../ui/Button.astro';
         }
 
         if (formStatus) {
-          formStatus.textContent = 'Submitting your information.';
+          formStatus.textContent = 'Saving your information and email preference.';
         }
 
         window.setTimeout(() => {
