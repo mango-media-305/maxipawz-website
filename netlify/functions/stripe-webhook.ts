@@ -148,8 +148,8 @@ function normalizeStripeId(
   value:
     | string
     | {
-      id: string;
-    }
+        id: string;
+      }
     | null
     | undefined,
 ): string | undefined {
@@ -355,9 +355,9 @@ async function processRefundEvent(
   )
     ? refundList.data
     : [
-      refund,
-      ...refundList.data,
-    ];
+        refund,
+        ...refundList.data,
+      ];
 
   const savedOrder =
     await saveStripeRefundSnapshot({

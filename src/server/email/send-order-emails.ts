@@ -27,14 +27,19 @@ import {
 } from './templates';
 
 interface SendPaidOrderEmailsOptions {
-    session: Stripe.Checkout.Session;
-    order: OrderRecord;
+    session:
+    Stripe.Checkout.Session;
+
+    order:
+    OrderRecord;
 }
 
 interface SendEmailOptions {
-    resend: Resend;
+    resend:
+    Resend;
 
-    kind: TransactionalEmailKind;
+    kind:
+    TransactionalEmailKind;
 
     sessionId: string;
 
@@ -47,6 +52,7 @@ interface SendEmailOptions {
     subject: string;
 
     html: string;
+
     text: string;
 
     livemode: boolean;
@@ -75,7 +81,9 @@ function getEmailDeliveryStore(
 }
 
 function getDeliveryKey(
-    kind: TransactionalEmailKind,
+    kind:
+    TransactionalEmailKind,
+
     sessionId: string,
 ): string {
     return `${kind}/${sessionId}`;
@@ -85,7 +93,8 @@ function getSafeErrorMessage(
     error: unknown,
 ): string {
     if (
-        error instanceof Error
+        error instanceof
+        Error
     ) {
         return error.message.slice(
             0,
@@ -97,8 +106,11 @@ function getSafeErrorMessage(
 }
 
 async function getDeliveryRecord(
-    kind: TransactionalEmailKind,
+    kind:
+    TransactionalEmailKind,
+
     sessionId: string,
+
     livemode: boolean,
 ): Promise<EmailDeliveryRecord | null> {
     const store =
@@ -112,7 +124,8 @@ async function getDeliveryRecord(
             sessionId,
         ),
         {
-            type: 'json',
+            type:
+                'json',
         },
     ) as
         | EmailDeliveryRecord
@@ -120,13 +133,16 @@ async function getDeliveryRecord(
 }
 
 async function saveDeliveryRecord(
-    record: EmailDeliveryRecord,
+    record:
+    EmailDeliveryRecord,
 ): Promise<void> {
     const store =
         getEmailDeliveryStore(
-            record.sessionId.startsWith(
-                'cs_live_',
-            ),
+            record
+                .sessionId
+                .startsWith(
+                    'cs_live_',
+                ),
         );
 
     await store.setJSON(
@@ -139,7 +155,8 @@ async function saveDeliveryRecord(
 }
 
 async function sendEmail(
-    options: SendEmailOptions,
+    options:
+    SendEmailOptions,
 ): Promise<EmailDeliveryRecord> {
     const {
         resend,
@@ -175,69 +192,93 @@ async function sendEmail(
     const attemptCount =
         (
             existing
-                ?.attemptCount ?? 0
-        ) + 1;
+                ?.attemptCount ??
+            0
+        ) +
+        1;
 
     try {
         const result =
-            await resend.emails.send(
-                {
-                    from,
+            await resend
+                .emails
+                .send(
+                    {
+                        from,
 
-                    to:
-                        recipient,
+                        to:
+                            recipient,
 
-                    ...(replyTo
-                        ? {
-                            replyTo,
-                        }
-                        : {}),
+                        ...(
+                            replyTo
+                                ? {
+                                    replyTo,
+                                }
+                                : {}
+                        ),
 
-                    subject,
-                    html,
-                    text,
+                        subject,
 
-                    tags: [
-                        {
-                            name:
-                                'category',
+                        html,
 
-                            value:
-                                kind,
-                        },
+                        text,
 
-                        {
-                            name:
-                                'storefront',
+                        tags: [
+                            {
+                                name:
+                                    'category',
 
-                            value:
-                                'maxipawz',
-                        },
+                                value:
+                                    kind,
+                            },
 
-                        {
-                            name:
-                                'mode',
+                            {
+                                name:
+                                    'storefront',
 
-                            value:
-                                livemode
-                                    ? 'live'
-                                    : 'test',
-                        },
-                    ],
-                },
-                {
-                    idempotencyKey:
-                        `${kind}/${sessionId}`,
-                },
-            );
+                                value:
+                                    'maxipawz',
+                            },
 
-        if (result.error) {
+                            {
+                                name:
+                                    'mode',
+
+                                value:
+                                    livemode
+                                        ? 'live'
+                                        : 'test',
+                            },
+
+                            {
+                                name:
+                                    'session_id',
+
+                                value:
+                                    sessionId,
+                            },
+                        ],
+                    },
+                    {
+                        idempotencyKey:
+                            `${kind}/${sessionId}`,
+                    },
+                );
+
+        if (
+            result.error
+        ) {
             throw new Error(
-                result.error.message,
+                result
+                    .error
+                    .message,
             );
         }
 
-        if (!result.data?.id) {
+        if (
+            !result
+                .data
+                ?.id
+        ) {
             throw new Error(
                 'Resend did not return an email ID.',
             );
@@ -250,6 +291,7 @@ async function sendEmail(
             kind,
 
             sessionId,
+
             recipient,
 
             status:
@@ -259,7 +301,9 @@ async function sendEmail(
                 'resend',
 
             providerMessageId:
-                result.data.id,
+                result
+                    .data
+                    .id,
 
             attemptCount,
 
@@ -285,6 +329,7 @@ async function sendEmail(
             kind,
 
             sessionId,
+
             recipient,
 
             status:
@@ -318,7 +363,8 @@ async function sendEmail(
 }
 
 export async function sendPaidOrderEmails(
-    options: SendPaidOrderEmailsOptions,
+    options:
+    SendPaidOrderEmailsOptions,
 ): Promise<void> {
     const {
         session,
@@ -328,7 +374,9 @@ export async function sendPaidOrderEmails(
     const config =
         getEmailRuntimeConfig();
 
-    if (!config.enabled) {
+    if (
+        !config.enabled
+    ) {
         return;
     }
 
@@ -367,7 +415,9 @@ export async function sendPaidOrderEmails(
             sandboxRecipient ??
             checkoutEmail;
 
-        if (customerRecipient) {
+        if (
+            customerRecipient
+        ) {
             const content =
                 buildCustomerOrderConfirmation(
                     session,
@@ -423,7 +473,9 @@ export async function sendPaidOrderEmails(
             config
                 .orderNotificationEmail;
 
-        if (!internalRecipient) {
+        if (
+            !internalRecipient
+        ) {
             throw new Error(
                 'No internal order notification email is configured.',
             );
