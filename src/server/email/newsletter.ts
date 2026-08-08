@@ -34,12 +34,19 @@ const MAXIMUM_ERROR_MESSAGE_LENGTH =
 const CONSENT_TEXT_VERSION =
     'join-the-pack-email-marketing-v1-2026-08-07';
 
+type NewsletterDataMode =
+    | 'test'
+    | 'live';
+
 interface NewsletterRuntimeConfig {
     enabled: boolean;
 
     apiKey: string;
 
     topicId: string;
+
+    dataMode:
+        NewsletterDataMode;
 }
 
 export type NewsletterErrorCode =
@@ -110,19 +117,36 @@ function parseBoolean(
     return fallback;
 }
 
-function getEnvironmentSuffix():
-    'live'
-    | 'test' {
-    return process.env
-        .CONTEXT ===
-        'production'
-        ? 'live'
-        : 'test';
+function getNewsletterDataMode():
+    NewsletterDataMode {
+    const configured =
+        process.env
+            .NEWSLETTER_DATA_MODE
+            ?.trim()
+            .toLowerCase();
+
+    if (
+        configured ===
+        'test' ||
+        configured ===
+        'live'
+    ) {
+        return configured;
+    }
+
+    throw new NewsletterError(
+        'configuration-error',
+        503,
+        'NEWSLETTER_DATA_MODE must be explicitly configured as "test" or "live".',
+    );
 }
 
-function getLeadStore() {
+function getLeadStore(
+    dataMode:
+        NewsletterDataMode,
+) {
     return getStore(
-        `maxipawz-newsletter-leads-${getEnvironmentSuffix()}`,
+        `maxipawz-newsletter-leads-${dataMode}`,
         {
             consistency:
                 'strong',
@@ -283,16 +307,26 @@ function getNewsletterRuntimeConfig():
 
     return {
         enabled,
+
         apiKey,
+
         topicId,
+
+        dataMode:
+            getNewsletterDataMode(),
     };
 }
 
 async function getLead(
+    dataMode:
+        NewsletterDataMode,
+
     emailHash: string,
 ): Promise<NewsletterLeadRecord | null> {
     const store =
-        getLeadStore();
+        getLeadStore(
+            dataMode,
+        );
 
     return await store.get(
         getLeadKey(
@@ -308,11 +342,16 @@ async function getLead(
 }
 
 async function saveLead(
+    dataMode:
+        NewsletterDataMode,
+
     record:
         NewsletterLeadRecord,
 ): Promise<void> {
     const store =
-        getLeadStore();
+        getLeadStore(
+            dataMode,
+        );
 
     await store.setJSON(
         getLeadKey(
@@ -361,6 +400,8 @@ async function syncLeadToResend(
      *
      * The global unsubscribed flag affects Resend Broadcasts.
      * Transactional order messages continue to use the Emails API.
+     *
+     * This synchronization strategy will be hardened separately.
      */
     const createResult =
         await resend
@@ -409,11 +450,10 @@ async function syncLeadToResend(
     }
 
     /*
-     * A Contact is global in Resend, so a second submission may
-     * legitimately encounter an already-existing Contact.
+     * Existing contacts currently fall through to an update.
      *
-     * Updating by email also gives us a straightforward re-subscribe
-     * and opt-out path from the same Maxi Pawz form.
+     * We will replace this error-based detection with a deterministic
+     * contact lookup in the next hardening step.
      */
     const updateResult =
         await resend
@@ -519,6 +559,7 @@ export async function submitNewsletterLead(
 
     const existing =
         await getLead(
+            config.dataMode,
             emailHash,
         );
 
@@ -624,6 +665,7 @@ export async function submitNewsletterLead(
      * to lose the submitted lead or the visitor's latest preference.
      */
     await saveLead(
+        config.dataMode,
         pendingRecord,
     );
 
@@ -638,23 +680,26 @@ export async function submitNewsletterLead(
             new Date()
                 .toISOString();
 
-        await saveLead({
-            ...pendingRecord,
+        await saveLead(
+            config.dataMode,
+            {
+                ...pendingRecord,
 
-            resendContactId:
-                resendContactId ??
-                pendingRecord
-                    .resendContactId,
+                resendContactId:
+                    resendContactId ??
+                    pendingRecord
+                        .resendContactId,
 
-            resendSyncStatus:
-                'synced',
+                resendSyncStatus:
+                    'synced',
 
-            lastError:
-                undefined,
+                lastError:
+                    undefined,
 
-            updatedAt:
-                syncedAt,
-        });
+                updatedAt:
+                    syncedAt,
+            },
+        );
 
         return {
             accepted:
@@ -672,25 +717,31 @@ export async function submitNewsletterLead(
             new Date()
                 .toISOString();
 
-        await saveLead({
-            ...pendingRecord,
+        await saveLead(
+            config.dataMode,
+            {
+                ...pendingRecord,
 
-            resendSyncStatus:
-                'failed',
+                resendSyncStatus:
+                    'failed',
 
-            lastError:
-                getSafeErrorMessage(
-                    error,
-                ),
+                lastError:
+                    getSafeErrorMessage(
+                        error,
+                    ),
 
-            updatedAt:
-                failedAt,
-        });
+                updatedAt:
+                    failedAt,
+            },
+        );
 
         console.error(
             'Newsletter lead was saved, but Resend synchronization failed.',
             {
                 emailHash,
+
+                dataMode:
+                    config.dataMode,
 
                 marketingConsent:
                     input
