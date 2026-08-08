@@ -1,3 +1,7 @@
+import {
+    createHash,
+} from 'node:crypto';
+
 import type {
     Config,
 } from '@netlify/functions';
@@ -7,6 +11,21 @@ import {
     parseNewsletterLeadInput,
     submitNewsletterLead,
 } from '../../src/server/email/newsletter';
+
+import {
+    queueWelcomeEmailJob,
+} from '../../src/server/email/welcome-email-jobs';
+
+import type {
+    MarketingEmailDataMode,
+} from '../../src/types/email';
+
+type WelcomeEmailDispatchStatus =
+    | 'not-requested'
+    | 'queued'
+    | 'already-processing'
+    | 'already-completed'
+    | 'dispatch-failed';
 
 function getFormString(
     formData:
@@ -89,6 +108,201 @@ function redirectResponse(
             },
         },
     );
+}
+
+function getNewsletterDataMode():
+    MarketingEmailDataMode {
+    const configured =
+        process.env
+            .NEWSLETTER_DATA_MODE
+            ?.trim()
+            .toLowerCase();
+
+    if (
+        configured ===
+        'test' ||
+        configured ===
+        'live'
+    ) {
+        return configured;
+    }
+
+    throw new Error(
+        'NEWSLETTER_DATA_MODE must be explicitly configured as "test" or "live".',
+    );
+}
+
+function getInternalFunctionSecret():
+    string {
+    const secret =
+        process.env
+            .MAXIPAWZ_INTERNAL_FUNCTION_SECRET
+            ?.trim();
+
+    if (
+        !secret ||
+        secret.length <
+            32
+    ) {
+        throw new Error(
+            'MAXIPAWZ_INTERNAL_FUNCTION_SECRET is missing or too short.',
+        );
+    }
+
+    return secret;
+}
+
+function hashEmail(
+    email: string,
+): string {
+    return createHash(
+        'sha256',
+    )
+        .update(
+            email
+                .trim()
+                .toLowerCase(),
+            'utf8',
+        )
+        .digest(
+            'hex',
+        );
+}
+
+async function dispatchWelcomeEmail(
+    request:
+        Request,
+
+    email:
+        string,
+): Promise<WelcomeEmailDispatchStatus> {
+    const dataMode =
+        getNewsletterDataMode();
+
+    const emailHash =
+        hashEmail(
+            email,
+        );
+
+    const job =
+        await queueWelcomeEmailJob(
+            emailHash,
+            dataMode,
+        );
+
+    /*
+     * A completed Welcome Email is permanent. Re-submitting the Join
+     * the Pack form must never cause another Welcome Email to be sent.
+     */
+    if (
+        job.status ===
+        'completed'
+    ) {
+        return 'already-completed';
+    }
+
+    /*
+     * Do not deliberately create another concurrent background
+     * invocation if one is already processing.
+     */
+    if (
+        job.status ===
+        'processing'
+    ) {
+        return 'already-processing';
+    }
+
+    /*
+     * queueWelcomeEmailJob() converts failed or skipped jobs back to
+     * queued. That allows a visitor who submitted while marketing was
+     * disabled to trigger a fresh attempt later by submitting again.
+     */
+    const internalSecret =
+        getInternalFunctionSecret();
+
+    const endpoint =
+        new URL(
+            '/api/internal/send-welcome-email',
+            request.url,
+        );
+
+    let response:
+        Response;
+
+    try {
+        response =
+            await fetch(
+                endpoint,
+                {
+                    method:
+                        'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json',
+
+                        'X-MaxiPawz-Internal-Secret':
+                            internalSecret,
+                    },
+
+                    body:
+                        JSON.stringify({
+                            emailHash,
+
+                            dataMode,
+                        }),
+                },
+            );
+    } catch (error) {
+        console.error(
+            'The Welcome Email background function could not be invoked.',
+            {
+                emailHash,
+
+                dataMode,
+
+                error,
+            },
+        );
+
+        throw new Error(
+            'The Welcome Email background function could not be invoked.',
+        );
+    }
+
+    if (
+        !response.ok
+    ) {
+        const responseBody =
+            (
+                await response
+                    .text()
+            )
+                .slice(
+                    0,
+                    500,
+                );
+
+        console.error(
+            'The Welcome Email background function rejected the invocation.',
+            {
+                emailHash,
+
+                dataMode,
+
+                status:
+                    response.status,
+
+                responseBody,
+            },
+        );
+
+        throw new Error(
+            'The Welcome Email background function rejected the invocation.',
+        );
+    }
+
+    return 'queued';
 }
 
 export default async function handler(
@@ -200,10 +414,59 @@ export default async function handler(
                 'homepage-join-the-pack',
             );
 
+        /*
+         * The Contact synchronization is the primary signup operation.
+         *
+         * Welcome Email dispatch happens only after the preference has
+         * been successfully stored and synchronized with Resend.
+         */
         const result =
             await submitNewsletterLead(
                 input,
             );
+
+        let welcomeEmailJobStatus:
+            WelcomeEmailDispatchStatus =
+            'not-requested';
+
+        if (
+            result
+                .marketingConsent &&
+            result
+                .resendSyncStatus ===
+                'synced'
+        ) {
+            try {
+                welcomeEmailJobStatus =
+                    await dispatchWelcomeEmail(
+                        request,
+                        input.email,
+                    );
+            } catch (error) {
+                /*
+                 * A Welcome Email infrastructure problem must not turn
+                 * an otherwise successful newsletter signup into a
+                 * failed signup.
+                 *
+                 * The user's marketing preference is already safely
+                 * stored and synchronized at this point.
+                 */
+                welcomeEmailJobStatus =
+                    'dispatch-failed';
+
+                console.error(
+                    'Newsletter signup succeeded, but Welcome Email dispatch failed.',
+                    {
+                        emailHash:
+                            hashEmail(
+                                input.email,
+                            ),
+
+                        error,
+                    },
+                );
+            }
+        }
 
         if (
             wantsJson(
@@ -216,6 +479,8 @@ export default async function handler(
                         true,
 
                     ...result,
+
+                    welcomeEmailJobStatus,
                 },
                 201,
             );
