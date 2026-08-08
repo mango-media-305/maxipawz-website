@@ -5,7 +5,33 @@ import {
 import type {
     ProcessedResendWebhookEventRecord,
     ResendEmailStatusRecord,
+    ResendMarketingEmailStatusRecord,
+    ResendTrackedEmailEventType,
 } from '../../types/email';
+
+interface CommonProcessedDeliveryEvent {
+    eventId: string;
+
+    eventType:
+        ResendTrackedEmailEventType;
+
+    providerMessageId: string;
+
+    recipients: string[];
+
+    deliveryStatus:
+        ResendEmailStatusRecord['status'];
+
+    reason?: string;
+
+    eventCreatedAt: string;
+
+    receivedAt: string;
+}
+
+type ExistingStatusRecord =
+    | ResendEmailStatusRecord
+    | ResendMarketingEmailStatusRecord;
 
 function getEnvironmentSuffix(
     livemode: boolean,
@@ -25,13 +51,27 @@ function getWebhookEventStore() {
     );
 }
 
-function getEmailStatusStore(
+function getTransactionalEmailStatusStore(
     livemode: boolean,
 ) {
     return getStore(
         `maxipawz-resend-email-status-${getEnvironmentSuffix(
             livemode,
         )}`,
+        {
+            consistency:
+                'strong',
+        },
+    );
+}
+
+function getMarketingEmailStatusStore(
+    dataMode:
+        'test'
+        | 'live',
+) {
+    return getStore(
+        `maxipawz-resend-marketing-email-status-${dataMode}`,
         {
             consistency:
                 'strong',
@@ -87,6 +127,226 @@ function getLaterTimestamp(
         : existing;
 }
 
+function getCommonProcessedDeliveryEvent(
+    event:
+        ProcessedResendWebhookEventRecord,
+): CommonProcessedDeliveryEvent | null {
+    if (
+        event.outcome !==
+            'processed' ||
+        !event.providerMessageId ||
+        !event.recipients ||
+        !event.deliveryStatus
+    ) {
+        return null;
+    }
+
+    const trackedEventTypes:
+        ResendTrackedEmailEventType[] = [
+        'email.sent',
+        'email.delivered',
+        'email.delivery_delayed',
+        'email.bounced',
+        'email.complained',
+        'email.failed',
+        'email.suppressed',
+    ];
+
+    if (
+        !trackedEventTypes.includes(
+            event.eventType as
+                ResendTrackedEmailEventType,
+        )
+    ) {
+        return null;
+    }
+
+    return {
+        eventId:
+            event.eventId,
+
+        eventType:
+            event.eventType as
+                ResendTrackedEmailEventType,
+
+        providerMessageId:
+            event.providerMessageId,
+
+        recipients:
+            event.recipients,
+
+        deliveryStatus:
+            event.deliveryStatus,
+
+        reason:
+            event.reason,
+
+        eventCreatedAt:
+            event.eventCreatedAt,
+
+        receivedAt:
+            event.receivedAt,
+    };
+}
+
+function buildTimeline(
+    existing:
+        ExistingStatusRecord
+        | null,
+
+    event:
+        CommonProcessedDeliveryEvent,
+) {
+    const isNewestEvent =
+        !existing ||
+        getTimestampMilliseconds(
+            event.eventCreatedAt,
+        ) >=
+            getTimestampMilliseconds(
+                existing
+                    .lastEventCreatedAt,
+            );
+
+    return {
+        status:
+            isNewestEvent
+                ? event
+                    .deliveryStatus
+                : existing
+                    ?.status ??
+                    event
+                        .deliveryStatus,
+
+        lastEventId:
+            isNewestEvent
+                ? event
+                    .eventId
+                : existing
+                    ?.lastEventId ??
+                    event
+                        .eventId,
+
+        lastEventType:
+            isNewestEvent
+                ? event
+                    .eventType
+                : existing
+                    ?.lastEventType ??
+                    event
+                        .eventType,
+
+        lastEventCreatedAt:
+            isNewestEvent
+                ? event
+                    .eventCreatedAt
+                : existing
+                    ?.lastEventCreatedAt ??
+                    event
+                        .eventCreatedAt,
+
+        lastReason:
+            isNewestEvent
+                ? event
+                    .reason
+                : existing
+                    ?.lastReason,
+
+        sentAt:
+            event.deliveryStatus ===
+            'sent'
+                ? getLaterTimestamp(
+                    existing
+                        ?.sentAt,
+                    event
+                        .eventCreatedAt,
+                )
+                : existing
+                    ?.sentAt,
+
+        deliveredAt:
+            event.deliveryStatus ===
+            'delivered'
+                ? getLaterTimestamp(
+                    existing
+                        ?.deliveredAt,
+                    event
+                        .eventCreatedAt,
+                )
+                : existing
+                    ?.deliveredAt,
+
+        deliveryDelayedAt:
+            event.deliveryStatus ===
+            'delivery-delayed'
+                ? getLaterTimestamp(
+                    existing
+                        ?.deliveryDelayedAt,
+                    event
+                        .eventCreatedAt,
+                )
+                : existing
+                    ?.deliveryDelayedAt,
+
+        bouncedAt:
+            event.deliveryStatus ===
+            'bounced'
+                ? getLaterTimestamp(
+                    existing
+                        ?.bouncedAt,
+                    event
+                        .eventCreatedAt,
+                )
+                : existing
+                    ?.bouncedAt,
+
+        complainedAt:
+            event.deliveryStatus ===
+            'complained'
+                ? getLaterTimestamp(
+                    existing
+                        ?.complainedAt,
+                    event
+                        .eventCreatedAt,
+                )
+                : existing
+                    ?.complainedAt,
+
+        failedAt:
+            event.deliveryStatus ===
+            'failed'
+                ? getLaterTimestamp(
+                    existing
+                        ?.failedAt,
+                    event
+                        .eventCreatedAt,
+                )
+                : existing
+                    ?.failedAt,
+
+        suppressedAt:
+            event.deliveryStatus ===
+            'suppressed'
+                ? getLaterTimestamp(
+                    existing
+                        ?.suppressedAt,
+                    event
+                        .eventCreatedAt,
+                )
+                : existing
+                    ?.suppressedAt,
+
+        createdAt:
+            existing
+                ?.createdAt ??
+            event
+                .receivedAt,
+
+        updatedAt:
+            event
+                .receivedAt,
+    };
+}
+
 export async function hasProcessedResendWebhookEvent(
     eventId: string,
 ): Promise<boolean> {
@@ -104,32 +364,32 @@ export async function hasProcessedResendWebhookEvent(
         null;
 }
 
-async function updateResendEmailStatus(
+async function updateTransactionalEmailStatus(
     event:
         ProcessedResendWebhookEventRecord,
+
+    common:
+        CommonProcessedDeliveryEvent,
 ): Promise<void> {
     if (
-        event.outcome !==
-        'processed' ||
-        !event.providerMessageId ||
         !event.kind ||
+        event.kind ===
+            'welcome-to-the-pack' ||
         !event.sessionId ||
         typeof event.livemode !==
-        'boolean' ||
-        !event.recipients ||
-        !event.deliveryStatus
+            'boolean'
     ) {
         return;
     }
 
     const store =
-        getEmailStatusStore(
+        getTransactionalEmailStatusStore(
             event.livemode,
         );
 
     const key =
         getEmailStatusKey(
-            event.providerMessageId,
+            common.providerMessageId,
         );
 
     const existing =
@@ -147,34 +407,25 @@ async function updateResendEmailStatus(
         existing &&
         (
             existing.kind !==
-            event.kind ||
+                event.kind ||
             existing.sessionId !==
-            event.sessionId ||
+                event.sessionId ||
             existing.livemode !==
-            event.livemode
+                event.livemode
         )
     ) {
         throw new Error(
-            'The Resend email event metadata does not match the existing email status record.',
+            'The Resend transactional email event metadata does not match the existing email status record.',
         );
     }
 
-    const isNewestEvent =
-        !existing ||
-        getTimestampMilliseconds(
-            event.eventCreatedAt,
-        ) >=
-        getTimestampMilliseconds(
-            existing
-                .lastEventCreatedAt,
-        );
-
-    const next:
+    const record:
         ResendEmailStatusRecord = {
         version: 1,
 
         providerMessageId:
-            event.providerMessageId,
+            common
+                .providerMessageId,
 
         kind:
             event.kind,
@@ -186,131 +437,138 @@ async function updateResendEmailStatus(
             event.livemode,
 
         recipients:
-            event.recipients,
+            common.recipients,
 
-        status:
-            isNewestEvent
-                ? event.deliveryStatus
-                : existing
-                    ?.status ??
-                event.deliveryStatus,
-
-        lastEventId:
-            isNewestEvent
-                ? event.eventId
-                : existing
-                    ?.lastEventId ??
-                event.eventId,
-
-        lastEventType:
-            isNewestEvent
-                ? event.eventType
-                : existing
-                    ?.lastEventType ??
-                event.eventType,
-
-        lastEventCreatedAt:
-            isNewestEvent
-                ? event.eventCreatedAt
-                : existing
-                    ?.lastEventCreatedAt ??
-                event.eventCreatedAt,
-
-        lastReason:
-            isNewestEvent
-                ? event.reason
-                : existing
-                    ?.lastReason,
-
-        sentAt:
-            event.deliveryStatus ===
-            'sent'
-                ? getLaterTimestamp(
-                    existing
-                        ?.sentAt,
-                    event.eventCreatedAt,
-                )
-                : existing
-                    ?.sentAt,
-
-        deliveredAt:
-            event.deliveryStatus ===
-            'delivered'
-                ? getLaterTimestamp(
-                    existing
-                        ?.deliveredAt,
-                    event.eventCreatedAt,
-                )
-                : existing
-                    ?.deliveredAt,
-
-        deliveryDelayedAt:
-            event.deliveryStatus ===
-            'delivery-delayed'
-                ? getLaterTimestamp(
-                    existing
-                        ?.deliveryDelayedAt,
-                    event.eventCreatedAt,
-                )
-                : existing
-                    ?.deliveryDelayedAt,
-
-        bouncedAt:
-            event.deliveryStatus ===
-            'bounced'
-                ? getLaterTimestamp(
-                    existing
-                        ?.bouncedAt,
-                    event.eventCreatedAt,
-                )
-                : existing
-                    ?.bouncedAt,
-
-        complainedAt:
-            event.deliveryStatus ===
-            'complained'
-                ? getLaterTimestamp(
-                    existing
-                        ?.complainedAt,
-                    event.eventCreatedAt,
-                )
-                : existing
-                    ?.complainedAt,
-
-        failedAt:
-            event.deliveryStatus ===
-            'failed'
-                ? getLaterTimestamp(
-                    existing
-                        ?.failedAt,
-                    event.eventCreatedAt,
-                )
-                : existing
-                    ?.failedAt,
-
-        suppressedAt:
-            event.deliveryStatus ===
-            'suppressed'
-                ? getLaterTimestamp(
-                    existing
-                        ?.suppressedAt,
-                    event.eventCreatedAt,
-                )
-                : existing
-                    ?.suppressedAt,
-
-        createdAt:
-            existing
-                ?.createdAt ??
-            event.receivedAt,
-
-        updatedAt:
-            event.receivedAt,
+        ...buildTimeline(
+            existing,
+            common,
+        ),
     };
 
     await store.setJSON(
         key,
-        next,
+        record,
+    );
+}
+
+async function updateMarketingEmailStatus(
+    event:
+        ProcessedResendWebhookEventRecord,
+
+    common:
+        CommonProcessedDeliveryEvent,
+): Promise<void> {
+    if (
+        event.kind !==
+            'welcome-to-the-pack' ||
+        !event.emailHash ||
+        (
+            event.dataMode !==
+                'test' &&
+            event.dataMode !==
+                'live'
+        )
+    ) {
+        return;
+    }
+
+    const store =
+        getMarketingEmailStatusStore(
+            event.dataMode,
+        );
+
+    const key =
+        getEmailStatusKey(
+            common.providerMessageId,
+        );
+
+    const existing =
+        await store.get(
+            key,
+            {
+                type:
+                    'json',
+            },
+        ) as
+            | ResendMarketingEmailStatusRecord
+            | null;
+
+    if (
+        existing &&
+        (
+            existing.kind !==
+                event.kind ||
+            existing.emailHash !==
+                event.emailHash ||
+            existing.dataMode !==
+                event.dataMode
+        )
+    ) {
+        throw new Error(
+            'The Resend marketing email event metadata does not match the existing email status record.',
+        );
+    }
+
+    const record:
+        ResendMarketingEmailStatusRecord = {
+        version: 1,
+
+        providerMessageId:
+            common
+                .providerMessageId,
+
+        kind:
+            event.kind,
+
+        emailHash:
+            event.emailHash,
+
+        dataMode:
+            event.dataMode,
+
+        recipients:
+            common.recipients,
+
+        ...buildTimeline(
+            existing,
+            common,
+        ),
+    };
+
+    await store.setJSON(
+        key,
+        record,
+    );
+}
+
+async function updateResendEmailStatus(
+    event:
+        ProcessedResendWebhookEventRecord,
+): Promise<void> {
+    const common =
+        getCommonProcessedDeliveryEvent(
+            event,
+        );
+
+    if (!common) {
+        return;
+    }
+
+    if (
+        event.kind ===
+        'welcome-to-the-pack'
+    ) {
+        await updateMarketingEmailStatus(
+            event,
+            common,
+        );
+
+        return;
+    }
+
+    await updateTransactionalEmailStatus(
+        event,
+        common,
     );
 }
 
@@ -319,9 +577,11 @@ export async function recordProcessedResendWebhookEvent(
         ProcessedResendWebhookEventRecord,
 ): Promise<void> {
     /*
-     * Update the derived status before recording the event as
-     * processed. If the final write fails, Resend can retry and
-     * safely rebuild the same status.
+     * Update the derived status before recording the webhook event as
+     * processed.
+     *
+     * If the final event write fails, Resend may retry the webhook and
+     * safely rebuild the same derived status.
      */
     await updateResendEmailStatus(
         event,

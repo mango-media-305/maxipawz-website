@@ -2,6 +2,10 @@ import {
     businessConfig,
 } from '../../config/business';
 
+import type {
+    MarketingEmailDataMode,
+} from '../../types/email';
+
 import {
     buildEmailSiteUrl,
     escapeEmailHtml,
@@ -10,22 +14,18 @@ import {
 const EMAIL_PATTERN =
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-type MarketingEmailMode =
-    | 'test'
-    | 'live';
-
 interface DisabledMarketingEmailRuntimeConfig {
     enabled: false;
 
     mode:
-        MarketingEmailMode;
+        MarketingEmailDataMode;
 }
 
 interface EnabledMarketingEmailRuntimeConfig {
     enabled: true;
 
     mode:
-        MarketingEmailMode;
+        MarketingEmailDataMode;
 
     apiKey: string;
 
@@ -36,6 +36,8 @@ interface EnabledMarketingEmailRuntimeConfig {
     replyToEmail: string;
 
     mailingAddress: string;
+
+    sandboxRecipientEmail?: string;
 }
 
 export type MarketingEmailRuntimeConfig =
@@ -110,7 +112,7 @@ function getRequiredEnvironmentVariable(
 }
 
 function getMarketingEmailMode():
-    MarketingEmailMode {
+    MarketingEmailDataMode {
     const configured =
         process.env
             .NEWSLETTER_DATA_MODE
@@ -229,6 +231,25 @@ export function getMarketingEmailRuntimeConfig():
         );
     }
 
+    /*
+     * Test-mode marketing is deliberately fail-closed.
+     *
+     * Once marketing email is enabled in a test environment, every
+     * outbound marketing message must be routed to one controlled inbox.
+     * A missing override is treated as configuration failure rather than
+     * risking delivery to a submitted lead.
+     */
+    const sandboxRecipientEmail =
+        mode ===
+        'test'
+            ? validateEmailAddress(
+                getRequiredEnvironmentVariable(
+                    'RESEND_MARKETING_SANDBOX_RECIPIENT_EMAIL',
+                ),
+                'RESEND_MARKETING_SANDBOX_RECIPIENT_EMAIL',
+            )
+            : undefined;
+
     return {
         enabled:
             true,
@@ -244,6 +265,12 @@ export function getMarketingEmailRuntimeConfig():
         replyToEmail,
 
         mailingAddress,
+
+        ...(sandboxRecipientEmail
+            ? {
+                sandboxRecipientEmail,
+            }
+            : {}),
     };
 }
 

@@ -222,9 +222,6 @@ export async function sendWelcomeEmail(
         };
     }
 
-    /*
-     * The permanent delivery record is our long-term idempotency layer.
-     */
     const existingDelivery =
         await getDeliveryRecord(
             normalizedEmailHash,
@@ -246,11 +243,8 @@ export async function sendWelcomeEmail(
     }
 
     /*
-     * Read the most recent lead immediately before the send.
-     *
-     * The original signup state stored in the job is never trusted for
-     * marketing permission because the visitor may have unsubscribed
-     * while the background job was waiting.
+     * Always re-read the current newsletter record immediately before
+     * sending. A queued job never grants marketing permission by itself.
      */
     const lead =
         await getNewsletterLead(
@@ -322,11 +316,32 @@ export async function sendWelcomeEmail(
     const from =
         `${config.fromName} <${config.fromEmail}>`;
 
+    /*
+     * Keep both addresses in the audit record.
+     *
+     * intendedRecipient:
+     *   the actual newsletter subscriber.
+     *
+     * recipient:
+     *   the mailbox that Resend actually received as "to".
+     *
+     * In test mode those values intentionally differ.
+     */
     const intendedRecipient =
         lead.email;
 
     const recipient =
-        intendedRecipient;
+        dataMode ===
+        'test'
+            ? config
+                .sandboxRecipientEmail
+            : intendedRecipient;
+
+    if (!recipient) {
+        throw new Error(
+            'A controlled marketing sandbox recipient is required in test mode.',
+        );
+    }
 
     const now =
         new Date()
@@ -363,13 +378,6 @@ export async function sendWelcomeEmail(
                         text:
                             content.text,
 
-                        /*
-                         * RFC 8058-style one-click unsubscribe support.
-                         *
-                         * A normal browser GET still shows our confirmation
-                         * page. Email providers may POST directly to the same
-                         * signed URL for their native unsubscribe control.
-                         */
                         headers: {
                             'List-Unsubscribe':
                                 `<${unsubscribeUrl}>`,

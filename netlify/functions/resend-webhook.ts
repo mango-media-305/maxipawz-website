@@ -12,11 +12,16 @@ import {
 } from '../../src/server/email/resend-events';
 
 import type {
+    MarketingEmailDataMode,
+    MarketingEmailKind,
     ProcessedResendWebhookEventRecord,
     ResendEmailDeliveryStatus,
     ResendTrackedEmailEventType,
     TransactionalEmailKind,
 } from '../../src/types/email';
+
+const EMAIL_HASH_PATTERN =
+    /^[0-9a-f]{64}$/;
 
 const trackedEmailEventTypes =
     new Set<string>([
@@ -34,6 +39,11 @@ const transactionalEmailKinds =
         'customer-order-confirmation',
         'internal-new-order',
         'customer-shipping-confirmation',
+    ]);
+
+const marketingEmailKinds =
+    new Set<string>([
+        'welcome-to-the-pack',
     ]);
 
 class WebhookError
@@ -63,32 +73,56 @@ interface VerifiedResendWebhookEvent {
     created_at: string;
 
     data:
-    Record<
-        string,
-        unknown
-    >;
+        Record<
+            string,
+            unknown
+        >;
 }
 
-interface ProcessableEmailMetadata {
+interface CommonProcessableEmailMetadata {
     eventType:
-    ResendTrackedEmailEventType;
+        ResendTrackedEmailEventType;
 
     providerMessageId: string;
-
-    kind:
-    TransactionalEmailKind;
-
-    sessionId: string;
-
-    livemode: boolean;
 
     recipients: string[];
 
     deliveryStatus:
-    ResendEmailDeliveryStatus;
+        ResendEmailDeliveryStatus;
 
     reason?: string;
 }
+
+interface TransactionalProcessableEmailMetadata
+    extends CommonProcessableEmailMetadata {
+    channel:
+        'transactional';
+
+    kind:
+        TransactionalEmailKind;
+
+    sessionId: string;
+
+    livemode: boolean;
+}
+
+interface MarketingProcessableEmailMetadata
+    extends CommonProcessableEmailMetadata {
+    channel:
+        'marketing';
+
+    kind:
+        MarketingEmailKind;
+
+    emailHash: string;
+
+    dataMode:
+        MarketingEmailDataMode;
+}
+
+type ProcessableEmailMetadata =
+    | TransactionalProcessableEmailMetadata
+    | MarketingProcessableEmailMetadata;
 
 function jsonResponse(
     value: unknown,
@@ -116,9 +150,9 @@ function isRecord(
 > {
     return (
         typeof value ===
-        'object' &&
+            'object' &&
         value !==
-        null &&
+            null &&
         !Array.isArray(
             value,
         )
@@ -168,6 +202,25 @@ function isTransactionalEmailKind(
     );
 }
 
+function isMarketingEmailKind(
+    value: string,
+): value is MarketingEmailKind {
+    return marketingEmailKinds.has(
+        value,
+    );
+}
+
+function isMarketingEmailDataMode(
+    value: string,
+): value is MarketingEmailDataMode {
+    return (
+        value ===
+            'test' ||
+        value ===
+            'live'
+    );
+}
+
 function isVerifiedResendWebhookEvent(
     value: unknown,
 ): value is VerifiedResendWebhookEvent {
@@ -176,9 +229,9 @@ function isVerifiedResendWebhookEvent(
             value,
         ) &&
         typeof value.type ===
-        'string' &&
+            'string' &&
         typeof value.created_at ===
-        'string' &&
+            'string' &&
         isValidIsoDate(
             value.created_at,
         ) &&
@@ -190,6 +243,7 @@ function isVerifiedResendWebhookEvent(
 
 function getRequiredEnvironmentVariable(
     name: string,
+
     prefix: string,
 ): string {
     const value =
@@ -213,13 +267,17 @@ function getRequiredEnvironmentVariable(
 }
 
 function getRequiredHeader(
-    request: Request,
+    request:
+        Request,
+
     name: string,
 ): string {
     const value =
-        request.headers.get(
-            name,
-        );
+        request
+            .headers
+            .get(
+                name,
+            );
 
     if (!value) {
         throw new WebhookError(
@@ -319,7 +377,7 @@ function getEventReason(
 
     const detailKey =
         eventType ===
-        'email.bounced'
+            'email.bounced'
             ? 'bounce'
             : eventType ===
                 'email.failed'
@@ -436,6 +494,70 @@ function getDeliveryStatus(
     }
 }
 
+function resolveCommonMetadata(
+    event:
+        VerifiedResendWebhookEvent,
+):
+    | CommonProcessableEmailMetadata
+    | string {
+    if (
+        !isTrackedEmailEventType(
+            event.type,
+        )
+    ) {
+        return 'The Resend event type is not tracked by Maxi Pawz.';
+    }
+
+    const providerMessageId =
+        event.data
+            .email_id;
+
+    if (
+        typeof providerMessageId !==
+            'string' ||
+        !providerMessageId
+            .trim()
+    ) {
+        return 'The Resend event does not contain an email ID.';
+    }
+
+    const recipients =
+        event.data
+            .to;
+
+    if (
+        !isStringArray(
+            recipients,
+        ) ||
+        recipients.length ===
+            0
+    ) {
+        return 'The Resend event does not contain a valid recipient list.';
+    }
+
+    return {
+        eventType:
+            event.type,
+
+        providerMessageId:
+            providerMessageId
+                .trim(),
+
+        recipients,
+
+        deliveryStatus:
+            getDeliveryStatus(
+                event.type,
+            ),
+
+        reason:
+            getEventReason(
+                event.type,
+                event.data,
+            ),
+    };
+}
+
 function resolveProcessableEmailMetadata(
     event:
         VerifiedResendWebhookEvent,
@@ -444,24 +566,28 @@ function resolveProcessableEmailMetadata(
         processable: true;
 
         metadata:
-        ProcessableEmailMetadata;
+            ProcessableEmailMetadata;
     }
     | {
         processable: false;
 
         reason: string;
     } {
+    const common =
+        resolveCommonMetadata(
+            event,
+        );
+
     if (
-        !isTrackedEmailEventType(
-            event.type,
-        )
+        typeof common ===
+        'string'
     ) {
         return {
             processable:
                 false,
 
             reason:
-                'The Resend event type is not tracked by Maxi Pawz.',
+                common,
         };
     }
 
@@ -486,41 +612,13 @@ function resolveProcessableEmailMetadata(
     const kind =
         tags.category;
 
-    if (
-        !kind ||
-        !isTransactionalEmailKind(
-            kind,
-        )
-    ) {
+    if (!kind) {
         return {
             processable:
                 false,
 
             reason:
-                'The email does not contain a supported transactional category.',
-        };
-    }
-
-    const sessionId =
-        tags.session_id;
-
-    if (
-        !sessionId ||
-        (
-            !sessionId.startsWith(
-                'cs_test_',
-            ) &&
-            !sessionId.startsWith(
-                'cs_live_',
-            )
-        )
-    ) {
-        return {
-            processable:
-                false,
-
-            reason:
-                'The email does not contain a valid Stripe Checkout Session tag.',
+                'The email does not contain a Maxi Pawz category tag.',
         };
     }
 
@@ -528,10 +626,10 @@ function resolveProcessableEmailMetadata(
         tags.mode;
 
     if (
-        mode !==
-        'test' &&
-        mode !==
-        'live'
+        !mode ||
+        !isMarketingEmailDataMode(
+            mode,
+        )
     ) {
         return {
             processable:
@@ -542,102 +640,134 @@ function resolveProcessableEmailMetadata(
         };
     }
 
-    const livemode =
-        mode ===
-        'live';
-
     if (
-        livemode !==
-        sessionId.startsWith(
-            'cs_live_',
+        isTransactionalEmailKind(
+            kind,
         )
     ) {
+        const sessionId =
+            tags.session_id;
+
+        if (
+            !sessionId ||
+            (
+                !sessionId.startsWith(
+                    'cs_test_',
+                ) &&
+                !sessionId.startsWith(
+                    'cs_live_',
+                )
+            )
+        ) {
+            return {
+                processable:
+                    false,
+
+                reason:
+                    'The transactional email does not contain a valid Stripe Checkout Session tag.',
+            };
+        }
+
+        const livemode =
+            mode ===
+            'live';
+
+        if (
+            livemode !==
+            sessionId.startsWith(
+                'cs_live_',
+            )
+        ) {
+            return {
+                processable:
+                    false,
+
+                reason:
+                    'The transactional email mode tag does not match the Stripe Checkout Session mode.',
+            };
+        }
+
         return {
             processable:
-                false,
+                true,
 
-            reason:
-                'The email mode tag does not match the Stripe Checkout Session mode.',
+            metadata: {
+                ...common,
+
+                channel:
+                    'transactional',
+
+                kind,
+
+                sessionId,
+
+                livemode,
+            },
         };
     }
 
-    const providerMessageId =
-        event.data
-            .email_id;
-
     if (
-        typeof providerMessageId !==
-        'string' ||
-        !providerMessageId.trim()
+        isMarketingEmailKind(
+            kind,
+        )
     ) {
+        const emailHash =
+            tags.lead_hash
+                ?.trim()
+                .toLowerCase();
+
+        if (
+            !emailHash ||
+            !EMAIL_HASH_PATTERN.test(
+                emailHash,
+            )
+        ) {
+            return {
+                processable:
+                    false,
+
+                reason:
+                    'The marketing email does not contain a valid lead hash.',
+            };
+        }
+
         return {
             processable:
-                false,
+                true,
 
-            reason:
-                'The Resend event does not contain an email ID.',
-        };
-    }
+            metadata: {
+                ...common,
 
-    const recipients =
-        event.data.to;
+                channel:
+                    'marketing',
 
-    if (
-        !isStringArray(
-            recipients,
-        ) ||
-        recipients.length ===
-        0
-    ) {
-        return {
-            processable:
-                false,
+                kind,
 
-            reason:
-                'The Resend event does not contain a valid recipient list.',
+                emailHash,
+
+                dataMode:
+                    mode,
+            },
         };
     }
 
     return {
         processable:
-            true,
+            false,
 
-        metadata: {
-            eventType:
-                event.type,
-
-            providerMessageId:
-                providerMessageId.trim(),
-
-            kind,
-
-            sessionId,
-
-            livemode,
-
-            recipients,
-
-            deliveryStatus:
-                getDeliveryStatus(
-                    event.type,
-                ),
-
-            reason:
-                getEventReason(
-                    event.type,
-                    event.data,
-                ),
-        },
+        reason:
+            'The email does not contain a supported Maxi Pawz email category.',
     };
 }
 
 async function verifyWebhookEvent(
-    request: Request,
+    request:
+        Request,
 ): Promise<{
     eventId: string;
 
     event:
-    VerifiedResendWebhookEvent;
+        VerifiedResendWebhookEvent;
 }> {
     const apiKey =
         getRequiredEnvironmentVariable(
@@ -670,7 +800,8 @@ async function verifyWebhookEvent(
         );
 
     const payload =
-        await request.text();
+        await request
+            .text();
 
     const resend =
         new Resend(
@@ -720,13 +851,15 @@ async function verifyWebhookEvent(
 
     return {
         eventId,
+
         event:
             verified,
     };
 }
 
 export default async function handler(
-    request: Request,
+    request:
+        Request,
 ): Promise<Response> {
     if (
         request.method !==
@@ -785,60 +918,107 @@ export default async function handler(
         if (
             resolved.processable
         ) {
-            record = {
-                version: 1,
+            const metadata =
+                resolved.metadata;
 
-                eventId,
+            if (
+                metadata.channel ===
+                'transactional'
+            ) {
+                record = {
+                    version: 1,
 
-                eventType:
-                    resolved
-                        .metadata
-                        .eventType,
+                    eventId,
 
-                providerMessageId:
-                    resolved
-                        .metadata
-                        .providerMessageId,
+                    eventType:
+                        metadata
+                            .eventType,
 
-                kind:
-                    resolved
-                        .metadata
-                        .kind,
+                    providerMessageId:
+                        metadata
+                            .providerMessageId,
 
-                sessionId:
-                    resolved
-                        .metadata
-                        .sessionId,
+                    kind:
+                        metadata
+                            .kind,
 
-                livemode:
-                    resolved
-                        .metadata
-                        .livemode,
+                    sessionId:
+                        metadata
+                            .sessionId,
 
-                recipients:
-                    resolved
-                        .metadata
-                        .recipients,
+                    livemode:
+                        metadata
+                            .livemode,
 
-                deliveryStatus:
-                    resolved
-                        .metadata
-                        .deliveryStatus,
+                    recipients:
+                        metadata
+                            .recipients,
 
-                outcome:
-                    'processed',
+                    deliveryStatus:
+                        metadata
+                            .deliveryStatus,
 
-                reason:
-                    resolved
-                        .metadata
-                        .reason,
+                    outcome:
+                        'processed',
 
-                eventCreatedAt:
-                    event
-                        .created_at,
+                    reason:
+                        metadata
+                            .reason,
 
-                receivedAt,
-            };
+                    eventCreatedAt:
+                        event
+                            .created_at,
+
+                    receivedAt,
+                };
+            } else {
+                record = {
+                    version: 1,
+
+                    eventId,
+
+                    eventType:
+                        metadata
+                            .eventType,
+
+                    providerMessageId:
+                        metadata
+                            .providerMessageId,
+
+                    kind:
+                        metadata
+                            .kind,
+
+                    emailHash:
+                        metadata
+                            .emailHash,
+
+                    dataMode:
+                        metadata
+                            .dataMode,
+
+                    recipients:
+                        metadata
+                            .recipients,
+
+                    deliveryStatus:
+                        metadata
+                            .deliveryStatus,
+
+                    outcome:
+                        'processed',
+
+                    reason:
+                        metadata
+                            .reason,
+
+                    eventCreatedAt:
+                        event
+                            .created_at,
+
+                    receivedAt,
+                };
+            }
         } else {
             record = {
                 version: 1,
@@ -897,7 +1077,8 @@ export default async function handler(
                     .deliveryStatus,
 
             reason:
-                record.reason,
+                record
+                    .reason,
         });
     } catch (error) {
         if (

@@ -132,3 +132,153 @@ export interface WelcomeEmailJobRecord {
 
     skippedAt?: string;
 }
+
+export type ResendTrackedEmailEventType =
+    | 'email.sent'
+    | 'email.delivered'
+    | 'email.delivery_delayed'
+    | 'email.bounced'
+    | 'email.complained'
+    | 'email.failed'
+    | 'email.suppressed';
+
+export type ResendEmailDeliveryStatus =
+    | 'sent'
+    | 'delivered'
+    | 'delivery-delayed'
+    | 'bounced'
+    | 'complained'
+    | 'failed'
+    | 'suppressed';
+
+export type ResendWebhookEventOutcome =
+    | 'processed'
+    | 'ignored';
+
+export interface ProcessedResendWebhookEventRecord {
+    version: 1;
+
+    eventId: string;
+
+    eventType: string;
+
+    providerMessageId?: string;
+
+    kind?:
+        | TransactionalEmailKind
+        | MarketingEmailKind;
+
+    sessionId?: string;
+
+    livemode?: boolean;
+
+    emailHash?: string;
+
+    dataMode?:
+        MarketingEmailDataMode;
+
+    recipients?: string[];
+
+    deliveryStatus?:
+        ResendEmailDeliveryStatus;
+
+    outcome:
+        ResendWebhookEventOutcome;
+
+    reason?: string;
+
+    eventCreatedAt: string;
+
+    receivedAt: string;
+}
+
+export interface ResendEmailStatusRecord {
+    version: 1;
+
+    providerMessageId: string;
+
+    kind:
+        TransactionalEmailKind;
+
+    sessionId: string;
+
+    livemode: boolean;
+
+    recipients: string[];
+
+    status:
+        ResendEmailDeliveryStatus;
+
+    lastEventId: string;
+
+    lastEventType:
+        ResendTrackedEmailEventType;
+
+    lastEventCreatedAt: string;
+
+    lastReason?: string;
+
+    sentAt?: string;
+
+    deliveredAt?: string;
+
+    deliveryDelayedAt?: string;
+
+    bouncedAt?: string;
+
+    complainedAt?: string;
+
+    failedAt?: string;
+
+    suppressedAt?: string;
+
+    createdAt: string;
+
+    updatedAt: string;
+}
+
+export interface ResendMarketingEmailStatusRecord {
+    version: 1;
+
+    providerMessageId: string;
+
+    kind:
+        MarketingEmailKind;
+
+    emailHash: string;
+
+    dataMode:
+        MarketingEmailDataMode;
+
+    recipients: string[];
+
+    status:
+        ResendEmailDeliveryStatus;
+
+    lastEventId: string;
+
+    lastEventType:
+        ResendTrackedEmailEventType;
+
+    lastEventCreatedAt: string;
+
+    lastReason?: string;
+
+    sentAt?: string;
+
+    deliveredAt?: string;
+
+    deliveryDelayedAt?: string;
+
+    bouncedAt?: string;
+
+    complainedAt?: string;
+
+    failedAt?: string;
+
+    suppressedAt?: string;
+
+    createdAt: string;
+
+    updatedAt: string;
+}
