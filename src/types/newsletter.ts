@@ -3,7 +3,8 @@ export type NewsletterSource =
 
 export type NewsletterMarketingPreferenceMethod =
     | 'prechecked-checkbox-submission'
-    | 'checkbox-unchecked-submission';
+    | 'checkbox-unchecked-submission'
+    | 'unsubscribe-link';
 
 export type NewsletterResendSyncStatus =
     | 'pending'

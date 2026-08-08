@@ -1,0 +1,95 @@
+---
+import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
+import HeartBold from 'phosphor-astro/HeartBold.astro';
+import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
+
+import Badge from '@components/ui/Badge.astro';
+import Button from '@components/ui/Button.astro';
+
+import BaseLayout from '@layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+    title="Unsubscribe from Maxi Pawz Emails"
+    description="Confirm that you want to stop receiving Maxi Pawz marketing emails."
+    noIndex={true}
+>
+    <section
+        class="relative flex min-h-[70vh] items-center overflow-hidden py-16 sm:py-20"
+        aria-labelledby="unsubscribe-title"
+    >
+        <div
+        class="pointer-events-none absolute -top-40 -left-40 size-128 rounded-full bg-brand-300/20 blur-3xl"
+        aria-hidden="true"
+        >
+        </div>
+
+        <div
+        class="pointer-events-none absolute -right-40 -bottom-40 size-136 rounded-full bg-accent-300/20 blur-3xl"
+        aria-hidden="true"
+        >
+        </div>
+
+        <div class="site-container relative">
+        <div
+            class="mx-auto max-w-3xl overflow-hidden rounded-[2.5rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 text-center shadow-card sm:p-8 lg:p-12"
+        >
+            <span
+            class="mx-auto grid size-20 place-items-center rounded-full border border-brand-200 bg-brand-50 text-brand-700 shadow-soft"
+            aria-hidden="true"
+            >
+            <HeartBold class="size-10" />
+            </span>
+
+            <Badge variant="brand" size="md" class="mx-auto mt-7">
+            <PawPrintBold slot="icon" aria-hidden="true" />
+
+            Email Preferences
+            </Badge>
+
+            <h1
+            id="unsubscribe-title"
+            class="mx-auto mt-6 max-w-2xl text-4xl text-ink-900 sm:text-5xl lg:text-6xl"
+            >
+            Want to leave our email pack?
+            </h1>
+
+            <p class="mx-auto mt-5 max-w-xl text-base leading-7 text-ink-600 sm:text-lg sm:leading-8">
+            Confirm below and we'll stop sending you Maxi Pawz marketing emails, including product
+            updates, pet guides, launch news, and occasional offers.
+            </p>
+
+            <div class="mx-auto mt-8 max-w-xl rounded-3xl border border-sand bg-white-warm p-5">
+            <p class="font-extrabold text-ink-900">Order emails are different.</p>
+
+            <p class="mt-2 text-sm leading-6 text-ink-600">
+                Unsubscribing here does not prevent essential transactional messages related to an
+                order, payment, shipment, support request, or other service you ask us to provide.
+            </p>
+            </div>
+
+            <form action="/api/newsletter/unsubscribe" method="POST" class="mx-auto mt-8 max-w-md">
+            <Button type="submit" variant="primary" size="lg" fullWidth={true} iconPosition="right">
+                <PawPrintBold slot="icon" aria-hidden="true" />
+
+                Unsubscribe Me
+            </Button>
+            </form>
+
+            <div class="mt-4">
+            <Button
+                href="/"
+                variant="secondary"
+                size="lg"
+                iconPosition="right"
+                class="w-full sm:w-auto"
+            >
+                <ArrowRightBold slot="icon" aria-hidden="true" />
+
+                Keep Me Subscribed
+            </Button>
+            </div>
+        </div>
+        </div>
+    </section>
+</BaseLayout>
