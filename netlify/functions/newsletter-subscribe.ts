@@ -308,4 +308,26 @@ export const config:
 
     method:
         'POST',
+
+    /*
+     * Protect the public signup endpoint before requests reach
+     * Netlify Blobs or the Resend Contacts API.
+     *
+     * Each IP address receives its own allowance for this domain:
+     * 5 requests every 60 seconds.
+     *
+     * Requests above the limit are rejected by Netlify with HTTP 429.
+     */
+    rateLimit: {
+        windowLimit:
+            5,
+
+        windowSize:
+            60,
+
+        aggregateBy: [
+            'ip',
+            'domain',
+        ],
+    },
 };
