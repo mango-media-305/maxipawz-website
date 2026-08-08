@@ -55,6 +55,26 @@ function redirectResponse(
     );
 }
 
+function emptyResponse(
+    status:
+        number,
+): Response {
+    return new Response(
+        null,
+        {
+            status,
+
+            headers: {
+                'Cache-Control':
+                    'no-store, max-age=0',
+
+                'Referrer-Policy':
+                    'no-referrer',
+            },
+        },
+    );
+}
+
 function getCookieValue(
     request:
         Request,
@@ -211,6 +231,58 @@ function buildExpiredUnsubscribeCookie(
         secure;
 }
 
+async function isOneClickUnsubscribeRequest(
+    request:
+        Request,
+): Promise<boolean> {
+    if (
+        request.method !==
+        'POST'
+    ) {
+        return false;
+    }
+
+    const contentType =
+        request
+            .headers
+            .get(
+                'content-type',
+            )
+            ?.toLowerCase() ??
+        '';
+
+    if (
+        !contentType.includes(
+            'application/x-www-form-urlencoded',
+        ) &&
+        !contentType.includes(
+            'multipart/form-data',
+        )
+    ) {
+        return false;
+    }
+
+    try {
+        /*
+         * Clone the request so the detection step never consumes the
+         * original request body.
+         */
+        const formData =
+            await request
+                .clone()
+                .formData();
+
+        return (
+            formData.get(
+                'List-Unsubscribe',
+            ) ===
+            'One-Click'
+        );
+    } catch {
+        return false;
+    }
+}
+
 async function handleGet(
     request:
         Request,
@@ -227,6 +299,13 @@ async function handleGet(
         );
     }
 
+    /*
+     * GET verifies the signed token but intentionally performs no
+     * unsubscribe action.
+     *
+     * This prevents security scanners that automatically visit links
+     * from changing a visitor's marketing preference.
+     */
     await inspectNewsletterUnsubscribeToken(
         token,
     );
@@ -247,6 +326,9 @@ async function handleGet(
 async function handlePost(
     request:
         Request,
+
+    oneClickRequest:
+        boolean,
 ): Promise<Response> {
     const token =
         getUnsubscribeToken(
@@ -254,10 +336,14 @@ async function handlePost(
         );
 
     if (!token) {
-        return redirectResponse(
-            request,
-            '/email/unsubscribe-problem',
-        );
+        return oneClickRequest
+            ? emptyResponse(
+                400,
+            )
+            : redirectResponse(
+                request,
+                '/email/unsubscribe-problem',
+            );
     }
 
     const result =
@@ -271,6 +357,16 @@ async function handlePost(
     ) {
         console.warn(
             'The marketing opt-out was recorded by Maxi Pawz, but Resend synchronization remains pending.',
+        );
+    }
+
+    /*
+     * RFC 8058 / email-provider one-click requests expect an empty
+     * successful response rather than a browser redirect.
+     */
+    if (oneClickRequest) {
+        return emptyResponse(
+            200,
         );
     }
 
@@ -290,6 +386,14 @@ export default async function handler(
     request:
         Request,
 ): Promise<Response> {
+    const oneClickRequest =
+        request.method ===
+        'POST'
+            ? await isOneClickUnsubscribeRequest(
+                request,
+            )
+            : false;
+
     try {
         if (
             request.method ===
@@ -306,6 +410,7 @@ export default async function handler(
         ) {
             return await handlePost(
                 request,
+                oneClickRequest,
             );
         }
 
@@ -343,6 +448,15 @@ export default async function handler(
                 },
             );
 
+            if (oneClickRequest) {
+                return emptyResponse(
+                    error.status >=
+                        500
+                        ? 503
+                        : 400,
+                );
+            }
+
             return redirectResponse(
                 request,
                 '/email/unsubscribe-problem',
@@ -359,6 +473,12 @@ export default async function handler(
             'Unexpected newsletter unsubscribe failure.',
             error,
         );
+
+        if (oneClickRequest) {
+            return emptyResponse(
+                500,
+            );
+        }
 
         return redirectResponse(
             request,
