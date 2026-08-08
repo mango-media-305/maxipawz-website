@@ -41,12 +41,20 @@ type NewsletterDataMode =
 interface NewsletterRuntimeConfig {
     enabled: boolean;
 
-    apiKey: string;
+    contactsApiKey: string;
 
     topicId: string;
 
     dataMode:
         NewsletterDataMode;
+}
+
+interface ResendApiErrorLike {
+    name?: unknown;
+
+    message?: unknown;
+
+    statusCode?: unknown;
 }
 
 export type NewsletterErrorCode =
@@ -188,7 +196,60 @@ function getSafeErrorMessage(
         );
     }
 
+    if (
+        typeof error ===
+        'object' &&
+        error !==
+        null &&
+        'message' in
+            error
+    ) {
+        const message =
+            (
+                error as {
+                    message?: unknown;
+                }
+            )
+                .message;
+
+        if (
+            typeof message ===
+            'string'
+        ) {
+            return message.slice(
+                0,
+                MAXIMUM_ERROR_MESSAGE_LENGTH,
+            );
+        }
+    }
+
     return 'Unknown newsletter synchronization error.';
+}
+
+function isResendNotFoundError(
+    error: unknown,
+): boolean {
+    if (
+        typeof error !==
+            'object' ||
+        error ===
+            null
+    ) {
+        return false;
+    }
+
+    const candidate =
+        error as
+        ResendApiErrorLike;
+
+    return (
+        candidate
+            .statusCode ===
+            404 ||
+        candidate
+            .name ===
+            'not_found'
+    );
 }
 
 function normalizeEmail(
@@ -202,7 +263,7 @@ function normalizeEmail(
     if (
         !normalized ||
         normalized.length >
-        254 ||
+            254 ||
         !EMAIL_PATTERN.test(
             normalized,
         )
@@ -269,21 +330,21 @@ function getNewsletterRuntimeConfig():
         );
     }
 
-    const apiKey =
+    const contactsApiKey =
         process.env
-            .RESEND_API_KEY
+            .RESEND_CONTACTS_API_KEY
             ?.trim();
 
     if (
-        !apiKey ||
-        !apiKey.startsWith(
+        !contactsApiKey ||
+        !contactsApiKey.startsWith(
             're_',
         )
     ) {
         throw new NewsletterError(
             'configuration-error',
             503,
-            'RESEND_API_KEY is missing or invalid.',
+            'RESEND_CONTACTS_API_KEY is missing or invalid.',
         );
     }
 
@@ -308,7 +369,7 @@ function getNewsletterRuntimeConfig():
     return {
         enabled,
 
-        apiKey,
+        contactsApiKey,
 
         topicId,
 
@@ -370,40 +431,22 @@ function getPreferenceMethod(
         : 'checkbox-unchecked-submission';
 }
 
-async function syncLeadToResend(
+async function createResendContact(
+    resend:
+        Resend,
+
     config:
         NewsletterRuntimeConfig,
 
     lead:
         NewsletterLeadRecord,
-): Promise<string | undefined> {
-    const resend =
-        new Resend(
-            config.apiKey,
-        );
-
+): Promise<string> {
     const subscription =
         lead.marketingConsent
             ? 'opt_in'
             : 'opt_out';
 
-    /*
-     * Every submitted lead is represented as a Resend Contact.
-     *
-     * Marketing opt-in:
-     *   unsubscribed = false
-     *   Topic = opt_in
-     *
-     * Marketing opt-out:
-     *   unsubscribed = true
-     *   Topic = opt_out
-     *
-     * The global unsubscribed flag affects Resend Broadcasts.
-     * Transactional order messages continue to use the Emails API.
-     *
-     * This synchronization strategy will be hardened separately.
-     */
-    const createResult =
+    const result =
         await resend
             .contacts
             .create({
@@ -432,35 +475,49 @@ async function syncLeadToResend(
             });
 
     if (
-        !createResult.error
+        result.error
     ) {
-        if (
-            !createResult
-                .data
-                ?.id
-        ) {
-            throw new Error(
-                'Resend created the contact but did not return a contact ID.',
-            );
-        }
-
-        return createResult
-            .data
-            .id;
+        throw new Error(
+            result.error.message,
+        );
     }
 
-    /*
-     * Existing contacts currently fall through to an update.
-     *
-     * We will replace this error-based detection with a deterministic
-     * contact lookup in the next hardening step.
-     */
-    const updateResult =
+    if (
+        !result.data?.id
+    ) {
+        throw new Error(
+            'Resend created the contact but did not return a contact ID.',
+        );
+    }
+
+    return result
+        .data
+        .id;
+}
+
+async function updateResendContact(
+    resend:
+        Resend,
+
+    config:
+        NewsletterRuntimeConfig,
+
+    lead:
+        NewsletterLeadRecord,
+
+    contactId: string,
+): Promise<string> {
+    const subscription =
+        lead.marketingConsent
+            ? 'opt_in'
+            : 'opt_out';
+
+    const contactResult =
         await resend
             .contacts
             .update({
-                email:
-                    lead.email,
+                id:
+                    contactId,
 
                 unsubscribed:
                     !lead
@@ -468,10 +525,10 @@ async function syncLeadToResend(
             });
 
     if (
-        updateResult.error
+        contactResult.error
     ) {
         throw new Error(
-            updateResult
+            contactResult
                 .error
                 .message,
         );
@@ -482,8 +539,8 @@ async function syncLeadToResend(
             .contacts
             .topics
             .update({
-                email:
-                    lead.email,
+                id:
+                    contactId,
 
                 topics: [
                     {
@@ -505,9 +562,78 @@ async function syncLeadToResend(
         );
     }
 
-    return updateResult
-        .data
-        ?.id;
+    return (
+        contactResult
+            .data
+            ?.id ??
+        contactId
+    );
+}
+
+async function syncLeadToResend(
+    config:
+        NewsletterRuntimeConfig,
+
+    lead:
+        NewsletterLeadRecord,
+): Promise<string> {
+    const resend =
+        new Resend(
+            config.contactsApiKey,
+        );
+
+    /*
+     * Retrieve the Contact first.
+     *
+     * This avoids treating every create error as if it meant
+     * "contact already exists".
+     */
+    const lookupResult =
+        await resend
+            .contacts
+            .get({
+                email:
+                    lead.email,
+            });
+
+    if (
+        lookupResult.error
+    ) {
+        if (
+            isResendNotFoundError(
+                lookupResult.error,
+            )
+        ) {
+            return await createResendContact(
+                resend,
+                config,
+                lead,
+            );
+        }
+
+        throw new Error(
+            lookupResult
+                .error
+                .message,
+        );
+    }
+
+    if (
+        !lookupResult.data?.id
+    ) {
+        throw new Error(
+            'Resend returned a Contact without a contact ID.',
+        );
+    }
+
+    return await updateResendContact(
+        resend,
+        config,
+        lead,
+        lookupResult
+            .data
+            .id,
+    );
 }
 
 export function parseNewsletterLeadInput(
@@ -659,10 +785,10 @@ export async function submitNewsletterLead(
     };
 
     /*
-     * Save the lead before calling Resend.
+     * Save before talking to Resend.
      *
-     * This means a temporary provider failure never causes Maxi Pawz
-     * to lose the submitted lead or the visitor's latest preference.
+     * A temporary provider failure therefore cannot erase the lead
+     * or the visitor's most recently submitted preference.
      */
     await saveLead(
         config.dataMode,
@@ -685,10 +811,7 @@ export async function submitNewsletterLead(
             {
                 ...pendingRecord,
 
-                resendContactId:
-                    resendContactId ??
-                    pendingRecord
-                        .resendContactId,
+                resendContactId,
 
                 resendSyncStatus:
                     'synced',
