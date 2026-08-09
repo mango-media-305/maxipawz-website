@@ -65,7 +65,7 @@ export function buildWelcomeToPackEmail(
         `${testMode
             ? '[TEST] '
             : ''
-        }Welcome to the Maxi Pawz pack 🐾`;
+        }Welcome to Maxi Pawz 🐾`;
 
     const petGuidesUrl =
         buildEmailSiteUrl(
@@ -99,7 +99,7 @@ export function buildWelcomeToPackEmail(
                 'MAXI PAWZ MARKETING TEST — NOT A LIVE CAMPAIGN',
 
             preheader:
-                'Welcome to the Maxi Pawz pack. Happy pets, happy life!',
+                'Welcome to Maxi Pawz. Happy pets, happy life!',
 
             content: `
                 <h1
@@ -110,7 +110,7 @@ export function buildWelcomeToPackEmail(
                         color:#3f2f29;
                     "
                 >
-                    Welcome to the pack, ${escapeEmailHtml(
+                    Welcome to Maxi Pawz, ${escapeEmailHtml(
                 greetingName,
             )}! 🐾
                 </h1>
@@ -162,7 +162,7 @@ export function buildWelcomeToPackEmail(
                         🧸 New Maxi Pawz products and launches
                         <br />
 
-                        🎉 Occasional offers and pack-only updates
+                        🎉 Occasional offers and subscriber-only updates
                     </div>
                 </div>
 
@@ -241,7 +241,7 @@ export function buildWelcomeToPackEmail(
 MAXI PAWZ STORE
 HAPPY PETS • HAPPY LIFE
 
-Welcome to the pack, ${greetingName}! 🐾
+Welcome to Maxi Pawz, ${greetingName}! 🐾
 
 We're really happy you're here.
 
@@ -251,7 +251,7 @@ WHAT YOU CAN EXPECT
 
 - Helpful pet guides and practical ideas
 - New Maxi Pawz products and launches
-- Occasional offers and pack-only updates
+- Occasional offers and subscriber-only updates
 
 START WITH SOMETHING USEFUL
 

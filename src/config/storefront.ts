@@ -36,19 +36,19 @@ const storefrontStates: Record<
             message:
                 `Explore practical pet guides and get first access to the ${businessConfig.shortName} collection.`,
 
-            href: '/#join-the-pack',
+            href: '/#maxi-pawz-updates',
 
             ariaLabel:
-                `Join the ${businessConfig.shortName} launch list for first access`,
+                `Get ${businessConfig.shortName} updates and first access`,
         },
 
         headerAction: {
-            label: 'Join the Pack',
-            href: '/#join-the-pack',
+            label: 'Get Updates',
+            href: '/#maxi-pawz-updates',
         },
 
         mobileNote:
-            'Explore helpful pet guidance and join the pack for launch updates, new products, and occasional offers.',
+            'Explore helpful pet guidance and get Maxi Pawz updates about launch news, new products, and occasional offers.',
     },
 
     live: {

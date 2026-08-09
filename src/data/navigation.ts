@@ -115,8 +115,8 @@ export const footerNavigation: FooterNavigationGroup[] = [
       },
 
       {
-        label: 'Join the Pack',
-        href: '/#join-the-pack',
+        label: 'Maxi Pawz Updates',
+        href: '/#maxi-pawz-updates',
       },
     ],
   },

@@ -13,9 +13,9 @@ import Button from '../ui/Button.astro';
 ---
 
 <section
-  id="join-the-pack"
+  id="maxi-pawz-updates"
   class="launch-signup content-visibility-auto section-spacing relative isolate scroll-mt-28 overflow-hidden border-b border-sand/70"
-  aria-labelledby="join-the-pack-title"
+  aria-labelledby="maxi-pawz-updates-title"
   data-launch-signup
 >
   <div class="launch-signup__pattern pointer-events-none absolute inset-0" aria-hidden="true"></div>
@@ -127,18 +127,18 @@ import Button from '../ui/Button.astro';
             >
               <HeartBold class="size-4" aria-hidden="true" />
 
-              Join the Pack
+              Be First to Know
             </p>
 
             <h2
-              id="join-the-pack-title"
+              id="maxi-pawz-updates-title"
               class="mt-6 max-w-xl text-3xl text-white sm:text-4xl lg:text-[2.8rem]"
             >
               Be first to discover what is coming to Maxi Pawz.
             </h2>
 
             <p class="mt-5 max-w-xl text-base leading-7 text-white/78 sm:text-lg sm:leading-8">
-              Join the Maxi Pawz pack for launch updates, new products, helpful pet guides, and
+              Get Maxi Pawz updates for launch news, new products, helpful pet guides, and
               occasional subscriber-only offers.
             </p>
           </div>
@@ -231,7 +231,7 @@ import Button from '../ui/Button.astro';
                 <div class="relative z-10">
                   <div class="flex items-start gap-4 pr-0 sm:pr-20">
                     <h3 class="mt-2 text-2xl text-ink-900 sm:text-3xl">
-                      Become part of the Maxi Pawz pack.
+                      Stay connected with Maxi Pawz.
                     </h3>
                   </div>
 
@@ -310,7 +310,7 @@ import Button from '../ui/Button.astro';
                           </span>
 
                           <span
-                            class="rounded-full border border-brand-200 bg-white-warm px-2 py-0.5 text-[0.7rem] font-extrabold tracking-[0.05em] text-brand-700 uppercase"
+                            class="rounded-full border border-brand-200 bg-white-warm px-2 py-0.5 text-[0.7rem] font-extrabold tracking-wider text-brand-700 uppercase"
                           >
                             Optional
                           </span>
@@ -339,7 +339,7 @@ import Button from '../ui/Button.astro';
                     >
                       <ArrowRightBold slot="icon" aria-hidden="true" />
 
-                      <span data-launch-submit-label> Join the Pack </span>
+                      <span data-launch-submit-label> Get Maxi Pawz Updates </span>
                     </Button>
                   </div>
 
@@ -780,9 +780,25 @@ import Button from '../ui/Button.astro';
 
       const formStatus = form.querySelector<HTMLElement>('[data-launch-form-status]');
 
+      const marketingConsentCheckbox =
+        form.querySelector<HTMLInputElement>('#launch-marketing-consent');
+
       const fields = Array.from(form.querySelectorAll<HTMLInputElement>('[data-launch-field]'));
 
       let resetTimer = 0;
+
+      const getIdleSubmitLabel = (): string =>
+        marketingConsentCheckbox?.checked === false
+          ? 'Save My Preference'
+          : 'Get Maxi Pawz Updates';
+
+      const syncSubmitLabel = (): void => {
+        if (!submitLabel || form.classList.contains('is-submitting')) {
+          return;
+        }
+
+        submitLabel.textContent = getIdleSubmitLabel();
+      };
 
       const updateFieldState = (field: HTMLInputElement): void => {
         const hasValue = field.value.trim().length > 0;
@@ -839,9 +855,7 @@ import Button from '../ui/Button.astro';
           submitButton.removeAttribute('aria-busy');
         }
 
-        if (submitLabel) {
-          submitLabel.textContent = 'Join the Pack';
-        }
+        syncSubmitLabel();
 
         if (formStatus) {
           formStatus.textContent = '';
@@ -864,7 +878,7 @@ import Button from '../ui/Button.astro';
         form.setAttribute('aria-busy', 'true');
 
         if (submitLabel) {
-          submitLabel.textContent = 'Joining the pack…';
+          submitLabel.textContent = 'Saving your preferences…';
         }
 
         if (formStatus) {
@@ -882,6 +896,10 @@ import Button from '../ui/Button.astro';
         resetTimer = window.setTimeout(resetSubmittingState, 12000);
       };
 
+      marketingConsentCheckbox?.addEventListener('change', syncSubmitLabel);
+
+      syncSubmitLabel();
+
       form.addEventListener('submit', handleSubmit);
 
       window.addEventListener('pageshow', resetSubmittingState);
@@ -892,6 +910,8 @@ import Button from '../ui/Button.astro';
 
           resetTimer = 0;
         }
+
+        marketingConsentCheckbox?.removeEventListener('change', syncSubmitLabel);
 
         form.removeEventListener('submit', handleSubmit);
 
