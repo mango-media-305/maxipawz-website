@@ -301,8 +301,8 @@ export function buildMarketingComplianceHtml(
             "
         >
             <div>
-                You're receiving this marketing email because you chose to receive
-                Maxi Pawz news, product updates, pet guides, or offers.
+                You're receiving this marketing email because your Maxi Pawz email preference
+                is currently set to receive news, product updates, pet guides, or offers.
             </div>
 
             <div
@@ -410,7 +410,7 @@ export function buildMarketingComplianceText(
         '',
         '---',
         '',
-        `You're receiving this marketing email because you chose to receive ${businessConfig.shortName} news, product updates, pet guides, or offers.`,
+        `You're receiving this marketing email because your ${businessConfig.shortName} email preference is currently set to receive news, product updates, pet guides, or offers.`,
         '',
         businessConfig.publicName,
         mailingAddress,
