@@ -1,3 +1,8 @@
+import {
+    isInventoryAcceptanceSelection,
+    productHasInventoryAcceptanceSelection,
+} from '../config/inventory-acceptance';
+
 import type {
     Product,
     ProductAvailability,
@@ -30,6 +35,15 @@ export function isInventoryTrackingEnabledForSelection(
         return false;
     }
 
+    if (
+        isInventoryAcceptanceSelection(
+            product.slug,
+            variant?.id,
+        )
+    ) {
+        return true;
+    }
+
     return (
         variant?.trackInventory ??
         product.trackInventory ??
@@ -40,6 +54,14 @@ export function isInventoryTrackingEnabledForSelection(
 export function productHasTrackedInventory(
     product: Product,
 ): boolean {
+    if (
+        productHasInventoryAcceptanceSelection(
+            product.slug,
+        )
+    ) {
+        return true;
+    }
+
     if (
         product.trackInventory ===
         true
