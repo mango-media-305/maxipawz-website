@@ -66,7 +66,8 @@ interface ProductImageBase {
  * Production product imagery should be imported from src/assets so Astro can
  * generate responsive, optimized derivatives during the build.
  */
-export interface LocalProductImage extends ProductImageBase {
+export interface LocalProductImage
+    extends ProductImageBase {
     src: ImageMetadata;
     width?: never;
     height?: never;
@@ -76,7 +77,8 @@ export interface LocalProductImage extends ProductImageBase {
  * Remote product imagery is intended for temporary or demo catalog content.
  * Intrinsic dimensions are required to reserve layout space and avoid CLS.
  */
-export interface RemoteProductImage extends ProductImageBase {
+export interface RemoteProductImage
+    extends ProductImageBase {
     src: string;
     width: number;
     height: number;
@@ -118,6 +120,16 @@ export interface ProductVariant {
     price?: ProductPrice;
     availability?: ProductAvailability;
 
+    /**
+     * Enables runtime inventory tracking for this option.
+     *
+     * When omitted, the variant inherits the parent product's
+     * trackInventory value.
+     *
+     * Inventory-tracked variants must have their own SKU.
+     */
+    trackInventory?: boolean;
+
     stripePriceId?: string;
 }
 
@@ -129,6 +141,18 @@ export interface Product {
     category: ProductCategorySlug;
     status: ProductStatus;
     availability: ProductAvailability;
+
+    /**
+     * Enables runtime inventory tracking.
+     *
+     * Static availability continues to control merchandising states such as
+     * coming-soon and discontinued. Runtime inventory is consulted only when
+     * the effective catalog availability is in-stock.
+     *
+     * Products with variants may use this value as the default for all
+     * variants. Individual variants can override it.
+     */
+    trackInventory?: boolean;
 
     shortDescription: string;
     description: string[];

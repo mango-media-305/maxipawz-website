@@ -15,6 +15,11 @@ import type {
     ProductInventoryResponse,
 } from '../../src/types/inventory';
 
+import {
+    getInventorySku,
+    isInventoryTrackingEnabledForSelection,
+} from '../../src/utils/product-inventory';
+
 function jsonResponse(
     body:
         | ProductInventoryResponse
@@ -47,6 +52,22 @@ function isValidVariantId(
 ): boolean {
     return /^[A-Za-z0-9_-]+$/.test(
         value,
+    );
+}
+
+function inventoryUnavailableResponse():
+    Response {
+    return jsonResponse(
+        {
+            ok: false,
+
+            code:
+                'inventory-error',
+
+            message:
+                'Inventory information is temporarily unavailable.',
+        },
+        503,
     );
 }
 
@@ -159,30 +180,31 @@ export default async function handler(
         );
     }
 
-    if (
+    const variant =
         variantId
-    ) {
-        const variant =
-            product.variants?.find(
+            ? product.variants?.find(
                 (candidate) =>
                     candidate.id ===
                     variantId,
-            );
+            )
+            : undefined;
 
-        if (!variant) {
-            return jsonResponse(
-                {
-                    ok: false,
+    if (
+        variantId &&
+        !variant
+    ) {
+        return jsonResponse(
+            {
+                ok: false,
 
-                    code:
-                        'variant-not-found',
+                code:
+                    'variant-not-found',
 
-                    message:
-                        'The requested product option could not be found.',
-                },
-                404,
-            );
-        }
+                message:
+                    'The requested product option could not be found.',
+            },
+            404,
+        );
     }
 
     if (
@@ -203,12 +225,102 @@ export default async function handler(
         );
     }
 
+    const inventoryTracked =
+        isInventoryTrackingEnabledForSelection(
+            product,
+            variant,
+        );
+
+    if (!inventoryTracked) {
+        return jsonResponse({
+            ok: true,
+
+            inventory: {
+                tracked: false,
+
+                productSlug,
+
+                ...(variantId
+                    ? {
+                        variantId,
+                    }
+                    : {}),
+
+                status:
+                    'not-tracked',
+
+                available:
+                    null,
+
+                canPurchase:
+                    false,
+            },
+        });
+    }
+
+    const expectedSku =
+        getInventorySku(
+            product,
+            variant,
+        );
+
+    if (!expectedSku) {
+        console.error(
+            'Inventory tracking is enabled without a catalog SKU.',
+            {
+                productSlug,
+
+                variantId,
+            },
+        );
+
+        return inventoryUnavailableResponse();
+    }
+
     try {
         const inventory =
             await getPublicInventorySnapshot(
                 productSlug,
                 variantId,
             );
+
+        if (
+            !inventory.tracked
+        ) {
+            console.error(
+                'Inventory tracking is enabled but no inventory row exists.',
+                {
+                    productSlug,
+
+                    variantId,
+
+                    expectedSku,
+                },
+            );
+
+            return inventoryUnavailableResponse();
+        }
+
+        if (
+            inventory.sku !==
+            expectedSku
+        ) {
+            console.error(
+                'Inventory SKU does not match the product catalog.',
+                {
+                    productSlug,
+
+                    variantId,
+
+                    expectedSku,
+
+                    inventorySku:
+                        inventory.sku,
+                },
+            );
+
+            return inventoryUnavailableResponse();
+        }
 
         return jsonResponse({
             ok: true,
@@ -227,18 +339,7 @@ export default async function handler(
             },
         );
 
-        return jsonResponse(
-            {
-                ok: false,
-
-                code:
-                    'inventory-error',
-
-                message:
-                    'Inventory information is temporarily unavailable.',
-            },
-            503,
-        );
+        return inventoryUnavailableResponse();
     }
 }
 
