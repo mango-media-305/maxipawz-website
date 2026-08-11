@@ -1,0 +1,16 @@
+---
+import AdminInventory from '@components/admin/AdminInventory';
+import BaseLayout from '@layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+    title="Inventory Management"
+    description="Private Maxi Pawz inventory management dashboard."
+    noIndex={true}
+>
+    <section class="section-spacing">
+        <div class="site-container">
+        <AdminInventory client:load />
+        </div>
+    </section>
+</BaseLayout>
