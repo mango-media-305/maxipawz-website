@@ -16,6 +16,10 @@ import {
     getPrimaryProductImage,
 } from '../../utils/products';
 
+import {
+    productHasTrackedInventory,
+} from '../../utils/product-inventory';
+
 interface Props {
     product: Product;
     index?: number;
@@ -53,6 +57,10 @@ const availabilityClasses: Record<ProductAvailability, string> = {
 
     discontinued: 'border-danger-100 bg-danger-50 text-danger-700',
 };
+
+const showStaticAvailabilityBadge =
+    product.availability !== 'in-stock' ||
+    !productHasTrackedInventory(product);
 ---
 
 <article
@@ -109,15 +117,19 @@ const availabilityClasses: Record<ProductAvailability, string> = {
             }
         </div>
 
-        <span
-            class:list={[
-            'absolute right-4 bottom-4 rounded-full border px-3 py-1.5 text-xs font-extrabold shadow-sm backdrop-blur',
+        {
+            showStaticAvailabilityBadge && (
+                <span
+                    class:list={[
+                    'absolute right-4 bottom-4 rounded-full border px-3 py-1.5 text-xs font-extrabold shadow-sm backdrop-blur',
 
-            availabilityClasses[product.availability],
-            ]}
-        >
-            {getAvailabilityLabel(product.availability)}
-        </span>
+                    availabilityClasses[product.availability],
+                    ]}
+                >
+                    {getAvailabilityLabel(product.availability)}
+                </span>
+            )
+        }
         </a>
 
         <div class="flex flex-1 flex-col p-5">

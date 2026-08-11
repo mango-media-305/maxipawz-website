@@ -8,6 +8,14 @@ import {
 import QuantityControl from './QuantityControl';
 
 import {
+    useCart,
+} from './useCart';
+
+import {
+    useProductInventory,
+} from './useProductInventory';
+
+import {
     addCartLine,
     openCartDrawer,
 } from '../../stores/cart';
@@ -17,6 +25,11 @@ import {
     getAvailabilityLabel,
     getProductBySlug,
 } from '../../utils/products';
+
+import {
+    getEffectiveProductAvailability,
+    isInventoryTrackingEnabledForSelection,
+} from '../../utils/product-inventory';
 
 interface Props {
     productSlug: string;
@@ -34,8 +47,18 @@ function CartIcon() {
             aria-hidden="true"
         >
             <path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L20 8H7" />
-            <circle cx="10" cy="20" r="1.5" />
-            <circle cx="18" cy="20" r="1.5" />
+
+            <circle
+                cx="10"
+                cy="20"
+                r="1.5"
+            />
+
+            <circle
+                cx="18"
+                cy="20"
+                r="1.5"
+            />
         </svg>
     );
 }
@@ -49,35 +72,40 @@ export default function AddToCartButton({
             productSlug,
         );
 
-    const [selectedVariantId, setSelectedVariantId] =
+    const {
+        state:
+            cartState,
+    } =
+        useCart();
+
+    const [
+        selectedVariantId,
+        setSelectedVariantId,
+    ] =
         useState('');
 
-    const [quantity, setQuantity] =
+    const [
+        quantity,
+        setQuantity,
+    ] =
         useState(1);
 
-    const [message, setMessage] =
+    const [
+        message,
+        setMessage,
+    ] =
         useState('');
 
     const messageTimer =
         useRef<number>();
 
-    useEffect(() => {
-        return () => {
-            if (
-                messageTimer.current
-            ) {
-                window.clearTimeout(
-                    messageTimer.current,
-                );
-            }
-        };
-    }, []);
-
     const variants =
-        product?.variants ?? [];
+        product?.variants ??
+        [];
 
     const hasVariants =
-        variants.length > 0;
+        variants.length >
+        0;
 
     const selectedVariant =
         useMemo(
@@ -92,6 +120,154 @@ export default function AddToCartButton({
                 selectedVariantId,
             ],
         );
+
+    const needsVariantSelection =
+        Boolean(
+            product &&
+            hasVariants &&
+            !selectedVariant,
+        );
+
+    const effectiveAvailability =
+        product
+            ? getEffectiveProductAvailability(
+                product,
+                selectedVariant,
+            )
+            : undefined;
+
+    const effectivePrice =
+        selectedVariant?.price ??
+        product?.price;
+
+    const inventoryTrackingEnabled =
+        Boolean(
+            product &&
+            !needsVariantSelection &&
+            isInventoryTrackingEnabledForSelection(
+                product,
+                selectedVariant,
+            ),
+        );
+
+    const inventoryLookupEnabled =
+        Boolean(
+            product &&
+            !needsVariantSelection &&
+            effectiveAvailability ===
+                'in-stock' &&
+            inventoryTrackingEnabled,
+        );
+
+    const inventoryLookup =
+        useProductInventory({
+            productSlug,
+
+            variantId:
+                selectedVariant?.id,
+
+            enabled:
+                inventoryLookupEnabled,
+        });
+
+    const existingCartQuantity =
+        useMemo(() => {
+            if (!product) {
+                return 0;
+            }
+
+            return (
+                cartState.lines.find(
+                    (line) =>
+                        line.productSlug ===
+                            product.slug &&
+                        line.variantId ===
+                            selectedVariant
+                                ?.id,
+                )?.quantity ??
+                0
+            );
+        }, [
+            cartState,
+            product,
+            selectedVariant,
+        ]);
+
+    const remainingCartCapacity =
+        Math.max(
+            0,
+            99 -
+                existingCartQuantity,
+        );
+
+    const liveAvailable =
+        inventoryLookup.status ===
+            'ready'
+            ? inventoryLookup
+                .inventory
+                ?.available ??
+            null
+            : null;
+
+    const remainingInventoryCapacity =
+        inventoryTrackingEnabled
+            ? liveAvailable ===
+                null
+                ? 0
+                : Math.max(
+                    0,
+                    liveAvailable -
+                        existingCartQuantity,
+                )
+            : remainingCartCapacity;
+
+    const maxSelectableQuantity =
+        Math.min(
+            remainingCartCapacity,
+            remainingInventoryCapacity,
+        );
+
+    useEffect(() => {
+        return () => {
+            if (
+                messageTimer.current
+            ) {
+                window.clearTimeout(
+                    messageTimer.current,
+                );
+            }
+        };
+    }, []);
+
+    useEffect(() => {
+        if (
+            maxSelectableQuantity >
+            0
+        ) {
+            if (
+                quantity >
+                maxSelectableQuantity
+            ) {
+                setQuantity(
+                    maxSelectableQuantity,
+                );
+            }
+
+            return;
+        }
+
+        if (
+            quantity !==
+            1
+        ) {
+            setQuantity(
+                1,
+            );
+        }
+    }, [
+        maxSelectableQuantity,
+        quantity,
+    ]);
 
     if (!product) {
         return null;
@@ -111,23 +287,133 @@ export default function AddToCartButton({
         );
     }
 
-    const effectiveAvailability =
-        selectedVariant?.availability ??
-        product.availability;
+    const inventoryConfirmed =
+        !inventoryTrackingEnabled ||
+        (
+            inventoryLookup.status ===
+                'ready' &&
+            inventoryLookup
+                .inventory
+                ?.tracked ===
+                true
+        );
 
-    const effectivePrice =
-        selectedVariant?.price ??
-        product.price;
-
-    const needsVariantSelection =
-        hasVariants &&
-        !selectedVariant;
+    const inventoryCanPurchase =
+        !inventoryTrackingEnabled ||
+        Boolean(
+            inventoryLookup
+                .inventory
+                ?.canPurchase &&
+            liveAvailable !==
+                null &&
+            liveAvailable >
+                0,
+        );
 
     const canAdd =
         !needsVariantSelection &&
         effectiveAvailability ===
-        'in-stock' &&
-        Boolean(effectivePrice);
+            'in-stock' &&
+        Boolean(
+            effectivePrice,
+        ) &&
+        inventoryConfirmed &&
+        inventoryCanPurchase &&
+        maxSelectableQuantity >
+            0 &&
+        quantity <=
+            maxSelectableQuantity;
+
+    let stockMessage =
+        '';
+
+    let stockMessageClass =
+        'text-ink-600';
+
+    if (
+        needsVariantSelection
+    ) {
+        stockMessage =
+            'Select an option to check availability.';
+    } else if (
+        effectiveAvailability &&
+        effectiveAvailability !==
+            'in-stock'
+    ) {
+        stockMessage =
+            getAvailabilityLabel(
+                effectiveAvailability,
+            );
+    } else if (
+        inventoryTrackingEnabled
+    ) {
+        if (
+            inventoryLookup.status ===
+            'loading'
+        ) {
+            stockMessage =
+                'Checking live stock…';
+        } else if (
+            inventoryLookup.status ===
+            'error'
+        ) {
+            stockMessage =
+                'Stock temporarily unavailable.';
+
+            stockMessageClass =
+                'text-danger-700';
+        } else if (
+            inventoryLookup.status ===
+                'ready' &&
+            inventoryLookup.inventory
+        ) {
+            if (
+                inventoryLookup
+                    .inventory
+                    .status ===
+                    'sold-out' ||
+                liveAvailable ===
+                    0
+            ) {
+                stockMessage =
+                    'Sold out';
+
+                stockMessageClass =
+                    'text-danger-700';
+            } else if (
+                inventoryLookup
+                    .inventory
+                    .status ===
+                    'low-stock' &&
+                liveAvailable !==
+                    null
+            ) {
+                stockMessage =
+                    liveAvailable ===
+                    1
+                        ? 'Only 1 left in stock'
+                        : `Only ${liveAvailable} left in stock`;
+
+                stockMessageClass =
+                    'text-accent-800';
+            } else {
+                stockMessage =
+                    'In stock';
+
+                stockMessageClass =
+                    'text-success-700';
+            }
+        }
+    } else if (
+        effectiveAvailability ===
+        'in-stock'
+    ) {
+        stockMessage =
+            'In stock';
+
+        stockMessageClass =
+            'text-success-700';
+    }
 
     const baseButtonLabel =
         product.isDemo
@@ -137,20 +423,57 @@ export default function AddToCartButton({
     let buttonLabel =
         baseButtonLabel;
 
-    if (needsVariantSelection) {
+    if (
+        needsVariantSelection
+    ) {
         buttonLabel =
             'Select an Option';
     } else if (
         effectiveAvailability !==
-        'in-stock'
+            'in-stock'
     ) {
         buttonLabel =
             getAvailabilityLabel(
                 effectiveAvailability,
             );
-    } else if (!effectivePrice) {
+    } else if (
+        !effectivePrice
+    ) {
         buttonLabel =
             'Price Unavailable';
+    } else if (
+        inventoryTrackingEnabled &&
+        inventoryLookup.status ===
+            'loading'
+    ) {
+        buttonLabel =
+            'Checking Stock…';
+    } else if (
+        inventoryTrackingEnabled &&
+        inventoryLookup.status ===
+            'error'
+    ) {
+        buttonLabel =
+            'Stock Unavailable';
+    } else if (
+        inventoryTrackingEnabled &&
+        (
+            inventoryLookup
+                .inventory
+                ?.status ===
+                'sold-out' ||
+            liveAvailable ===
+                0
+        )
+    ) {
+        buttonLabel =
+            'Sold Out';
+    } else if (
+        maxSelectableQuantity ===
+        0
+    ) {
+        buttonLabel =
+            'Maximum in Cart';
     }
 
     function handleAdd(): void {
@@ -158,41 +481,70 @@ export default function AddToCartButton({
             return;
         }
 
-        addCartLine(product.slug, {
-            variantId:
-                selectedVariant?.id,
+        addCartLine(
+            product.slug,
+            {
+                variantId:
+                    selectedVariant
+                        ?.id,
 
-            quantity,
-        });
-
-        setMessage(
-            `${product.name} added to your cart.`,
+                quantity,
+            },
         );
 
-        if (messageTimer.current) {
+        setMessage(
+            quantity ===
+                1
+                ? `${product.name} added to your cart.`
+                : `${quantity} × ${product.name} added to your cart.`,
+        );
+
+        if (
+            messageTimer.current
+        ) {
             window.clearTimeout(
                 messageTimer.current,
             );
         }
 
         messageTimer.current =
-            window.setTimeout(() => {
-                setMessage('');
-            }, 3000);
+            window.setTimeout(
+                () => {
+                    setMessage('');
+                },
+                3000,
+            );
 
         openCartDrawer();
     }
 
-    if (mode === 'card') {
+    if (
+        mode ===
+        'card'
+    ) {
         return (
             <div>
+                {stockMessage && (
+                    <p
+                        className={`mb-2 min-h-5 text-center text-xs font-extrabold ${stockMessageClass}`}
+                        aria-live="polite"
+                    >
+                        {stockMessage}
+                    </p>
+                )}
+
                 <button
                     type="button"
                     className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-brand-600 bg-brand-500 px-4 text-sm font-extrabold text-white shadow-blue transition hover:-translate-y-0.5 hover:bg-brand-600 disabled:cursor-not-allowed disabled:border-sand-dark disabled:bg-sand disabled:text-ink-500 disabled:shadow-none"
-                    disabled={!canAdd}
-                    onClick={handleAdd}
+                    disabled={
+                        !canAdd
+                    }
+                    onClick={
+                        handleAdd
+                    }
                 >
                     <CartIcon />
+
                     {buttonLabel}
                 </button>
 
@@ -223,12 +575,21 @@ export default function AddToCartButton({
                         value={
                             selectedVariantId
                         }
-                        onChange={(event) => {
+                        onChange={(
+                            event,
+                        ) => {
                             setSelectedVariantId(
-                                event.currentTarget.value,
+                                event.currentTarget
+                                    .value,
                             );
 
-                            setMessage('');
+                            setQuantity(
+                                1,
+                            );
+
+                            setMessage(
+                                '',
+                            );
                         }}
                     >
                         <option value="">
@@ -238,8 +599,10 @@ export default function AddToCartButton({
                         {variants.map(
                             (variant) => {
                                 const availability =
-                                    variant.availability ??
-                                    product.availability;
+                                    getEffectiveProductAvailability(
+                                        product,
+                                        variant,
+                                    );
 
                                 const price =
                                     variant.price ??
@@ -251,14 +614,24 @@ export default function AddToCartButton({
 
                                 return (
                                     <option
-                                        key={variant.id}
-                                        value={variant.id}
-                                        disabled={unavailable}
+                                        key={
+                                            variant.id
+                                        }
+                                        value={
+                                            variant.id
+                                        }
+                                        disabled={
+                                            unavailable
+                                        }
                                     >
-                                        {variant.label}
+                                        {
+                                            variant.label
+                                        }
+
                                         {price
                                             ? ` — ${formatProductPrice(price)}`
                                             : ''}
+
                                         {unavailable
                                             ? ` — ${getAvailabilityLabel(availability)}`
                                             : ''}
@@ -273,6 +646,7 @@ export default function AddToCartButton({
             {selectedVariant?.price && (
                 <p className="mt-3 text-sm font-bold text-ink-600">
                     Selected price:{' '}
+
                     <span className="font-black text-ink-900">
                         {formatProductPrice(
                             selectedVariant.price,
@@ -281,23 +655,59 @@ export default function AddToCartButton({
                 </p>
             )}
 
+            {stockMessage && (
+                <div className="mt-4 rounded-2xl border border-sand bg-white-warm px-4 py-3">
+                    <p
+                        className={`text-sm font-extrabold ${stockMessageClass}`}
+                        aria-live="polite"
+                    >
+                        {stockMessage}
+                    </p>
+
+                    {inventoryTrackingEnabled &&
+                        liveAvailable !==
+                            null &&
+                        existingCartQuantity >
+                            0 &&
+                        liveAvailable >
+                            0 && (
+                            <p className="mt-1 text-xs font-bold leading-5 text-ink-500">
+                                You currently
+                                have{' '}
+                                {
+                                    existingCartQuantity
+                                }{' '}
+                                in your cart.
+                            </p>
+                        )}
+                </div>
+            )}
+
             <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
                 <QuantityControl
-                    quantity={quantity}
-                    disableIncrease={!canAdd}
+                    quantity={
+                        quantity
+                    }
+                    disableIncrease={
+                        !canAdd ||
+                        quantity >=
+                            maxSelectableQuantity
+                    }
                     onDecrease={() =>
                         setQuantity(
                             Math.max(
                                 1,
-                                quantity - 1,
+                                quantity -
+                                    1,
                             ),
                         )
                     }
                     onIncrease={() =>
                         setQuantity(
                             Math.min(
-                                99,
-                                quantity + 1,
+                                maxSelectableQuantity,
+                                quantity +
+                                    1,
                             ),
                         )
                     }
@@ -307,10 +717,15 @@ export default function AddToCartButton({
                 <button
                     type="button"
                     className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-full border border-brand-600 bg-brand-500 px-5 font-extrabold text-white shadow-blue transition hover:-translate-y-0.5 hover:bg-brand-600 disabled:cursor-not-allowed disabled:border-sand-dark disabled:bg-sand disabled:text-ink-500 disabled:shadow-none"
-                    disabled={!canAdd}
-                    onClick={handleAdd}
+                    disabled={
+                        !canAdd
+                    }
+                    onClick={
+                        handleAdd
+                    }
                 >
                     <CartIcon />
+
                     {buttonLabel}
                 </button>
             </div>

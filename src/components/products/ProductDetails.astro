@@ -24,6 +24,10 @@ import {
   getPrimaryProductImage,
 } from '../../utils/products';
 
+import {
+  productHasTrackedInventory,
+} from '../../utils/product-inventory';
+
 interface Props {
   product: Product;
 }
@@ -47,6 +51,10 @@ const availabilityClasses: Record<ProductAvailability, string> = {
 
   discontinued: 'border-danger-100 bg-danger-50 text-danger-700',
 };
+
+const showStaticAvailabilityBadge =
+  product.availability !== 'in-stock' ||
+  !productHasTrackedInventory(product);
 
 const hasSpecifications = Boolean(
   product.materials?.length || dimensionText || product.variants?.length,
@@ -114,15 +122,19 @@ const hasSpecifications = Boolean(
                 {categoryLabel}
               </Badge>
 
-              <span
-                class:list={[
-                  'inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-extrabold',
+              {
+                showStaticAvailabilityBadge && (
+                  <span
+                    class:list={[
+                      'inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-extrabold',
 
-                  availabilityClasses[product.availability],
-                ]}
-              >
-                {getAvailabilityLabel(product.availability)}
-              </span>
+                      availabilityClasses[product.availability],
+                    ]}
+                  >
+                    {getAvailabilityLabel(product.availability)}
+                  </span>
+                )
+              }
 
               {
                 product.isDemo && (
