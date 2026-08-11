@@ -29,6 +29,7 @@ export type CheckoutErrorCode =
     | 'stripe-not-configured'
     | 'product-not-found'
     | 'product-unavailable'
+    | 'inventory-not-configured'
     | 'demo-product'
     | 'variant-required'
     | 'variant-not-found'
