@@ -29,6 +29,9 @@ export type SupportedCheckoutEventType =
   | 'checkout.session.async_payment_succeeded'
   | 'checkout.session.async_payment_failed';
 
+export type SupportedCheckoutExpirationEventType =
+  'checkout.session.expired';
+
 export type SupportedRefundEventType =
   | 'refund.created'
   | 'refund.updated'
@@ -36,6 +39,7 @@ export type SupportedRefundEventType =
 
 export type SupportedStripeEventType =
   | SupportedCheckoutEventType
+  | SupportedCheckoutExpirationEventType
   | SupportedRefundEventType;
 
 export type OrderCarrier =

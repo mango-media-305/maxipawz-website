@@ -1,4 +1,6 @@
-import type { Config } from '@netlify/functions';
+import type {
+  Config,
+} from '@netlify/functions';
 
 import Stripe from 'stripe';
 
@@ -6,9 +8,17 @@ import {
   queuePaidOrderEmailJob,
 } from '../../src/server/email/order-email-jobs';
 
+import {
+  completeInventoryReservation,
+  expireInventoryReservation,
+  markInventoryReservationPaymentPending,
+  releaseInventoryReservationAfterPaymentFailure,
+} from '../../src/server/inventory-reservation-lifecycle';
+
 import type {
   ProcessedStripeEvent,
   SupportedCheckoutEventType,
+  SupportedCheckoutExpirationEventType,
   SupportedRefundEventType,
   SupportedStripeEventType,
 } from '../../src/types/order';
@@ -29,6 +39,11 @@ const supportedCheckoutEventTypes =
     'checkout.session.async_payment_failed',
   ]);
 
+const supportedCheckoutExpirationEventTypes =
+  new Set<string>([
+    'checkout.session.expired',
+  ]);
+
 const supportedRefundEventTypes =
   new Set<string>([
     'refund.created',
@@ -43,10 +58,15 @@ class WebhookError extends Error {
     status: number,
     message: string,
   ) {
-    super(message);
+    super(
+      message,
+    );
 
-    this.name = 'WebhookError';
-    this.status = status;
+    this.name =
+      'WebhookError';
+
+    this.status =
+      status;
   }
 }
 
@@ -54,37 +74,60 @@ function jsonResponse(
   value: unknown,
   status = 200,
 ): Response {
-  return Response.json(value, {
-    status,
+  return Response.json(
+    value,
+    {
+      status,
 
-    headers: {
-      'Cache-Control': 'no-store, max-age=0',
+      headers: {
+        'Cache-Control':
+          'no-store, max-age=0',
+      },
     },
-  });
+  );
 }
 
 function getStripeConfiguration(): {
   stripe: Stripe;
+
   webhookSecret: string;
+
   livemode: boolean;
 } {
   const stripeSecretKey =
-    process.env.STRIPE_SECRET_KEY?.trim();
+    Netlify.env
+      .get(
+        'STRIPE_SECRET_KEY',
+      )
+      ?.trim();
 
   const webhookSecret =
-    process.env.STRIPE_WEBHOOK_SECRET?.trim();
+    Netlify.env
+      .get(
+        'STRIPE_WEBHOOK_SECRET',
+      )
+      ?.trim();
 
   const isTestKey =
-    stripeSecretKey?.startsWith('sk_test_') ??
+    stripeSecretKey
+      ?.startsWith(
+        'sk_test_',
+      ) ??
     false;
 
   const isLiveKey =
-    stripeSecretKey?.startsWith('sk_live_') ??
+    stripeSecretKey
+      ?.startsWith(
+        'sk_live_',
+      ) ??
     false;
 
   if (
     !stripeSecretKey ||
-    (!isTestKey && !isLiveKey)
+    (
+      !isTestKey &&
+      !isLiveKey
+    )
   ) {
     throw new WebhookError(
       503,
@@ -94,7 +137,9 @@ function getStripeConfiguration(): {
 
   if (
     !webhookSecret ||
-    !webhookSecret.startsWith('whsec_')
+    !webhookSecret.startsWith(
+      'whsec_',
+    )
   ) {
     throw new WebhookError(
       503,
@@ -103,17 +148,32 @@ function getStripeConfiguration(): {
   }
 
   return {
-    stripe: new Stripe(stripeSecretKey),
+    stripe:
+      new Stripe(
+        stripeSecretKey,
+      ),
+
     webhookSecret,
-    livemode: isLiveKey,
+
+    livemode:
+      isLiveKey,
   };
 }
 
-function getInternalFunctionSecret(): string {
+function getInternalFunctionSecret():
+  string {
   const secret =
-    process.env.MAXIPAWZ_INTERNAL_FUNCTION_SECRET?.trim();
+    Netlify.env
+      .get(
+        'MAXIPAWZ_INTERNAL_FUNCTION_SECRET',
+      )
+      ?.trim();
 
-  if (!secret || secret.length < 32) {
+  if (
+    !secret ||
+    secret.length <
+      32
+  ) {
     throw new WebhookError(
       503,
       'MAXIPAWZ_INTERNAL_FUNCTION_SECRET is missing or too short.',
@@ -126,21 +186,43 @@ function getInternalFunctionSecret(): string {
 function isSupportedCheckoutEventType(
   value: string,
 ): value is SupportedCheckoutEventType {
-  return supportedCheckoutEventTypes.has(value);
+  return supportedCheckoutEventTypes
+    .has(
+      value,
+    );
+}
+
+function isSupportedCheckoutExpirationEventType(
+  value: string,
+): value is SupportedCheckoutExpirationEventType {
+  return supportedCheckoutExpirationEventTypes
+    .has(
+      value,
+    );
 }
 
 function isSupportedRefundEventType(
   value: string,
 ): value is SupportedRefundEventType {
-  return supportedRefundEventTypes.has(value);
+  return supportedRefundEventTypes
+    .has(
+      value,
+    );
 }
 
 function isSupportedStripeEventType(
   value: string,
 ): value is SupportedStripeEventType {
   return (
-    isSupportedCheckoutEventType(value) ||
-    isSupportedRefundEventType(value)
+    isSupportedCheckoutEventType(
+      value,
+    ) ||
+    isSupportedCheckoutExpirationEventType(
+      value,
+    ) ||
+    isSupportedRefundEventType(
+      value,
+    )
   );
 }
 
@@ -148,8 +230,8 @@ function normalizeStripeId(
   value:
     | string
     | {
-        id: string;
-      }
+      id: string;
+    }
     | null
     | undefined,
 ): string | undefined {
@@ -157,34 +239,136 @@ function normalizeStripeId(
     return undefined;
   }
 
-  return typeof value === 'string'
+  return typeof value ===
+    'string'
     ? value
     : value.id;
 }
 
+function getInventoryReservationId(
+  session:
+    Stripe.Checkout.Session,
+): string | undefined {
+  const inventoryReserved =
+    session.metadata
+      ?.inventory_reserved ===
+    'true';
+
+  if (!inventoryReserved) {
+    return undefined;
+  }
+
+  const reservationId =
+    session.metadata
+      ?.inventory_reservation_id
+      ?.trim();
+
+  if (!reservationId) {
+    throw new WebhookError(
+      500,
+      'A Checkout Session marked as inventory-reserved does not contain an inventory reservation ID.',
+    );
+  }
+
+  return reservationId;
+}
+
+async function transitionCheckoutInventory(
+  session:
+    Stripe.Checkout.Session,
+
+  eventType:
+    SupportedCheckoutEventType,
+): Promise<string> {
+  const reservationId =
+    getInventoryReservationId(
+      session,
+    );
+
+  if (!reservationId) {
+    return 'not-tracked';
+  }
+
+  if (
+    eventType ===
+    'checkout.session.async_payment_succeeded'
+  ) {
+    const result =
+      await completeInventoryReservation(
+        reservationId,
+        session.id,
+      );
+
+    return result.status;
+  }
+
+  if (
+    eventType ===
+    'checkout.session.async_payment_failed'
+  ) {
+    const result =
+      await releaseInventoryReservationAfterPaymentFailure(
+        reservationId,
+        session.id,
+      );
+
+    return result.status;
+  }
+
+  if (
+    session.payment_status ===
+      'paid' ||
+    session.payment_status ===
+      'no_payment_required'
+  ) {
+    const result =
+      await completeInventoryReservation(
+        reservationId,
+        session.id,
+      );
+
+    return result.status;
+  }
+
+  const result =
+    await markInventoryReservationPaymentPending(
+      reservationId,
+      session.id,
+    );
+
+  return result.status;
+}
+
 async function getRefundPaymentIntentId(
   stripe: Stripe,
-  refund: Stripe.Refund,
+  refund:
+    Stripe.Refund,
 ): Promise<string | undefined> {
   const directPaymentIntentId =
     normalizeStripeId(
       refund.payment_intent,
     );
 
-  if (directPaymentIntentId) {
+  if (
+    directPaymentIntentId
+  ) {
     return directPaymentIntentId;
   }
 
-  const chargeId = normalizeStripeId(
-    refund.charge,
-  );
+  const chargeId =
+    normalizeStripeId(
+      refund.charge,
+    );
 
   if (!chargeId) {
     return undefined;
   }
 
   const charge =
-    await stripe.charges.retrieve(chargeId);
+    await stripe.charges
+      .retrieve(
+        chargeId,
+      );
 
   return normalizeStripeId(
     charge.payment_intent,
@@ -192,18 +376,33 @@ async function getRefundPaymentIntentId(
 }
 
 async function saveProcessedEvent(
-  event: Stripe.Event,
-  eventType: SupportedStripeEventType,
+  event:
+    Stripe.Event,
+
+  eventType:
+    SupportedStripeEventType,
+
   sessionId: string,
 ): Promise<void> {
-  const processedEvent: ProcessedStripeEvent = {
-    version: 1,
-    eventId: event.id,
-    eventType,
-    sessionId,
-    livemode: event.livemode,
-    processedAt: new Date().toISOString(),
-  };
+  const processedEvent:
+    ProcessedStripeEvent = {
+      version:
+        1,
+
+      eventId:
+        event.id,
+
+      eventType,
+
+      sessionId,
+
+      livemode:
+        event.livemode,
+
+      processedAt:
+        new Date()
+          .toISOString(),
+    };
 
   await recordProcessedStripeEvent(
     processedEvent,
@@ -214,13 +413,20 @@ async function dispatchPaidOrderEmails(
   request: Request,
   sessionId: string,
   livemode: boolean,
-): Promise<'queued' | 'already-completed'> {
-  const job = await queuePaidOrderEmailJob(
-    sessionId,
-    livemode,
-  );
+): Promise<
+  | 'queued'
+  | 'already-completed'
+> {
+  const job =
+    await queuePaidOrderEmailJob(
+      sessionId,
+      livemode,
+    );
 
-  if (job.status === 'completed') {
+  if (
+    job.status ===
+    'completed'
+  ) {
     return 'already-completed';
   }
 
@@ -231,28 +437,38 @@ async function dispatchPaidOrderEmails(
    * Using request.url preserves the current Netlify origin:
    * localhost, a branch deploy, a Deploy Preview, or production.
    */
-  const endpoint = new URL(
-    '/api/internal/send-paid-order-emails',
-    request.url,
-  );
+  const endpoint =
+    new URL(
+      '/api/internal/send-paid-order-emails',
+      request.url,
+    );
 
-  let response: Response;
+  let response:
+    Response;
 
   try {
-    response = await fetch(endpoint, {
-      method: 'POST',
+    response =
+      await fetch(
+        endpoint,
+        {
+          method:
+            'POST',
 
-      headers: {
-        'Content-Type': 'application/json',
-        'X-MaxiPawz-Internal-Secret':
-          internalSecret,
-      },
+          headers: {
+            'Content-Type':
+              'application/json',
 
-      body: JSON.stringify({
-        sessionId,
-        livemode,
-      }),
-    });
+            'X-MaxiPawz-Internal-Secret':
+              internalSecret,
+          },
+
+          body:
+            JSON.stringify({
+              sessionId,
+              livemode,
+            }),
+        },
+      );
   } catch (error) {
     console.error(
       'The paid-order email background function could not be invoked.',
@@ -269,17 +485,25 @@ async function dispatchPaidOrderEmails(
     );
   }
 
-  if (!response.ok) {
-    const responseBody = (
-      await response.text()
-    ).slice(0, 500);
+  if (
+    !response.ok
+  ) {
+    const responseBody =
+      (
+        await response
+          .text()
+      ).slice(
+        0,
+        500,
+      );
 
     console.error(
       'The paid-order email background function rejected the invocation.',
       {
         sessionId,
         livemode,
-        status: response.status,
+        status:
+          response.status,
         responseBody,
       },
     );
@@ -295,11 +519,16 @@ async function dispatchPaidOrderEmails(
 
 async function processRefundEvent(
   stripe: Stripe,
-  event: Stripe.Event,
-  eventType: SupportedRefundEventType,
+  event:
+    Stripe.Event,
+
+  eventType:
+    SupportedRefundEventType,
 ): Promise<Response> {
   const refund =
-    event.data.object as Stripe.Refund;
+    event.data
+      .object as
+      Stripe.Refund;
 
   const paymentIntentId =
     await getRefundPaymentIntentId(
@@ -307,10 +536,16 @@ async function processRefundEvent(
       refund,
     );
 
-  if (!paymentIntentId) {
+  if (
+    !paymentIntentId
+  ) {
     return jsonResponse({
-      received: true,
-      ignored: true,
+      received:
+        true,
+
+      ignored:
+        true,
+
       reason:
         'The Stripe Refund does not contain a PaymentIntent.',
     });
@@ -327,34 +562,50 @@ async function processRefundEvent(
    * Maxi Pawz. A refund for one of those payments must not
    * create a Maxi Pawz order or cause Stripe webhook retries.
    */
-  if (!existingOrder) {
+  if (
+    !existingOrder
+  ) {
     return jsonResponse({
-      received: true,
-      ignored: true,
+      received:
+        true,
+
+      ignored:
+        true,
+
       reason:
         'No Maxi Pawz order matches this Stripe PaymentIntent.',
     });
   }
 
   const refundList =
-    await stripe.refunds.list({
-      payment_intent: paymentIntentId,
-      limit: 100,
-    });
+    await stripe.refunds
+      .list({
+        payment_intent:
+          paymentIntentId,
 
-  if (refundList.has_more) {
+        limit:
+          100,
+      });
+
+  if (
+    refundList.has_more
+  ) {
     throw new WebhookError(
       400,
       'The PaymentIntent contains more refunds than this integration currently supports.',
     );
   }
 
-  const refunds = refundList.data.some(
-    (candidate) =>
-      candidate.id === refund.id,
-  )
-    ? refundList.data
-    : [
+  const refunds =
+    refundList.data.some(
+      (
+        candidate,
+      ) =>
+        candidate.id ===
+        refund.id,
+    )
+      ? refundList.data
+      : [
         refund,
         ...refundList.data,
       ];
@@ -362,12 +613,22 @@ async function processRefundEvent(
   const savedOrder =
     await saveStripeRefundSnapshot({
       paymentIntentId,
-      livemode: event.livemode,
+
+      livemode:
+        event.livemode,
+
       refunds,
-      currentRefundId: refund.id,
-      eventId: event.id,
+
+      currentRefundId:
+        refund.id,
+
+      eventId:
+        event.id,
+
       eventType,
-      eventCreated: event.created,
+
+      eventCreated:
+        event.created,
     });
 
   await saveProcessedEvent(
@@ -377,77 +638,203 @@ async function processRefundEvent(
   );
 
   return jsonResponse({
-    received: true,
-    duplicate: false,
+    received:
+      true,
+
+    duplicate:
+      false,
+
     eventType,
-    sessionId: savedOrder.sessionId,
+
+    sessionId:
+      savedOrder.sessionId,
+
     paymentIntentId,
-    refundStatus: savedOrder.refundStatus,
+
+    refundStatus:
+      savedOrder.refundStatus,
+
     amountRefunded:
       savedOrder.amountRefunded,
+
     amountRefundPending:
       savedOrder.amountRefundPending,
+
     amountRefundable:
       savedOrder.amountRefundable,
   });
 }
 
-async function processCheckoutEvent(
-  request: Request,
-  stripe: Stripe,
-  event: Stripe.Event,
-  eventType: SupportedCheckoutEventType,
+async function processCheckoutExpirationEvent(
+  event:
+    Stripe.Event,
+
+  eventType:
+    SupportedCheckoutExpirationEventType,
 ): Promise<Response> {
-  const eventSession =
+  const session =
     event.data
-      .object as Stripe.Checkout.Session;
+      .object as
+      Stripe.Checkout.Session;
 
   if (
-    eventSession.metadata?.storefront !==
+    session.metadata
+      ?.storefront !==
     'maxipawz'
   ) {
     return jsonResponse({
-      received: true,
-      ignored: true,
+      received:
+        true,
+
+      ignored:
+        true,
+
+      reason:
+        'The Checkout Session does not belong to the Maxi Pawz integration.',
+    });
+  }
+
+  const reservationId =
+    getInventoryReservationId(
+      session,
+    );
+
+  let inventoryStatus =
+    'not-tracked';
+
+  if (
+    reservationId
+  ) {
+    const result =
+      await expireInventoryReservation(
+        reservationId,
+        session.id,
+      );
+
+    inventoryStatus =
+      result.status;
+  }
+
+  await saveProcessedEvent(
+    event,
+    eventType,
+    session.id,
+  );
+
+  return jsonResponse({
+    received:
+      true,
+
+    duplicate:
+      false,
+
+    eventType,
+
+    sessionId:
+      session.id,
+
+    inventoryStatus,
+  });
+}
+
+async function processCheckoutEvent(
+  request: Request,
+
+  stripe: Stripe,
+
+  event:
+    Stripe.Event,
+
+  eventType:
+    SupportedCheckoutEventType,
+): Promise<Response> {
+  const eventSession =
+    event.data
+      .object as
+      Stripe.Checkout.Session;
+
+  if (
+    eventSession.metadata
+      ?.storefront !==
+    'maxipawz'
+  ) {
+    return jsonResponse({
+      received:
+        true,
+
+      ignored:
+        true,
+
       reason:
         'The Checkout Session does not belong to the Maxi Pawz integration.',
     });
   }
 
   const session =
-    await stripe.checkout.sessions.retrieve(
-      eventSession.id,
-    );
+    await stripe.checkout
+      .sessions
+      .retrieve(
+        eventSession.id,
+      );
 
   const lineItemsResponse =
-    await stripe.checkout.sessions.listLineItems(
-      session.id,
-      {
-        limit: 100,
+    await stripe.checkout
+      .sessions
+      .listLineItems(
+        session.id,
+        {
+          limit:
+            100,
 
-        expand: [
-          'data.price.product',
-        ],
-      },
-    );
+          expand: [
+            'data.price.product',
+          ],
+        },
+      );
 
-  if (lineItemsResponse.has_more) {
+  if (
+    lineItemsResponse
+      .has_more
+  ) {
     throw new WebhookError(
       400,
       'The Checkout Session contains more line items than this integration currently supports.',
     );
   }
 
-  const incomingOrder = buildOrderRecord({
-    session,
-    lineItems: lineItemsResponse.data,
-    eventId: event.id,
-    eventType,
-    eventCreated: event.created,
-  });
+  /*
+   * Inventory is transitioned before the order record/email side effects.
+   *
+   * If a later operation fails, Stripe retries the webhook. The database
+   * transition is idempotent, so the retry can safely continue without
+   * decrementing or releasing inventory twice.
+   */
+  const inventoryStatus =
+    await transitionCheckoutInventory(
+      session,
+      eventType,
+    );
+
+  const incomingOrder =
+    buildOrderRecord({
+      session,
+
+      lineItems:
+        lineItemsResponse.data,
+
+      eventId:
+        event.id,
+
+      eventType,
+
+      eventCreated:
+        event.created,
+    });
 
   const savedOrder =
-    await saveOrderRecord(incomingOrder);
+    await saveOrderRecord(
+      incomingOrder,
+    );
 
   let emailJobStatus:
     | 'not-required'
@@ -455,7 +842,11 @@ async function processCheckoutEvent(
     | 'already-completed' =
     'not-required';
 
-  if (savedOrder.paymentStatus === 'paid') {
+  if (
+    savedOrder
+      .paymentStatus ===
+    'paid'
+  ) {
     emailJobStatus =
       await dispatchPaidOrderEmails(
         request,
@@ -471,15 +862,29 @@ async function processCheckoutEvent(
   );
 
   return jsonResponse({
-    received: true,
-    duplicate: false,
-    sessionId: savedOrder.sessionId,
+    received:
+      true,
+
+    duplicate:
+      false,
+
+    sessionId:
+      savedOrder.sessionId,
+
     paymentStatus:
       savedOrder.paymentStatus,
-    orderStatus: savedOrder.orderStatus,
+
+    orderStatus:
+      savedOrder.orderStatus,
+
     fulfillmentStatus:
       savedOrder.fulfillmentStatus,
-    refundStatus: savedOrder.refundStatus,
+
+    refundStatus:
+      savedOrder.refundStatus,
+
+    inventoryStatus,
+
     emailJobStatus,
   });
 }
@@ -487,10 +892,15 @@ async function processCheckoutEvent(
 export default async function handler(
   request: Request,
 ): Promise<Response> {
-  if (request.method !== 'POST') {
+  if (
+    request.method !==
+    'POST'
+  ) {
     return jsonResponse(
       {
-        received: false,
+        received:
+          false,
+
         message:
           'This endpoint accepts POST requests only.',
       },
@@ -502,32 +912,40 @@ export default async function handler(
     const {
       stripe,
       webhookSecret,
-      livemode: configuredLivemode,
-    } = getStripeConfiguration();
+      livemode:
+        configuredLivemode,
+    } =
+      getStripeConfiguration();
 
     const signature =
-      request.headers.get(
-        'stripe-signature',
-      );
+      request.headers
+        .get(
+          'stripe-signature',
+        );
 
-    if (!signature) {
+    if (
+      !signature
+    ) {
       throw new WebhookError(
         400,
         'The Stripe-Signature header is missing.',
       );
     }
 
-    const rawBody = await request.text();
+    const rawBody =
+      await request.text();
 
-    let event: Stripe.Event;
+    let event:
+      Stripe.Event;
 
     try {
       event =
-        stripe.webhooks.constructEvent(
-          rawBody,
-          signature,
-          webhookSecret,
-        );
+        stripe.webhooks
+          .constructEvent(
+            rawBody,
+            signature,
+            webhookSecret,
+          );
     } catch {
       throw new WebhookError(
         400,
@@ -540,7 +958,8 @@ export default async function handler(
      * Sandbox key, or a Sandbox event with a live key.
      */
     if (
-      event.livemode !== configuredLivemode
+      event.livemode !==
+      configuredLivemode
     ) {
       throw new WebhookError(
         400,
@@ -554,9 +973,14 @@ export default async function handler(
       )
     ) {
       return jsonResponse({
-        received: true,
-        ignored: true,
-        eventType: event.type,
+        received:
+          true,
+
+        ignored:
+          true,
+
+        eventType:
+          event.type,
       });
     }
 
@@ -566,11 +990,18 @@ export default async function handler(
         event.livemode,
       );
 
-    if (alreadyProcessed) {
+    if (
+      alreadyProcessed
+    ) {
       return jsonResponse({
-        received: true,
-        duplicate: true,
-        eventId: event.id,
+        received:
+          true,
+
+        duplicate:
+          true,
+
+        eventId:
+          event.id,
       });
     }
 
@@ -586,6 +1017,17 @@ export default async function handler(
       );
     }
 
+    if (
+      isSupportedCheckoutExpirationEventType(
+        event.type,
+      )
+    ) {
+      return await processCheckoutExpirationEvent(
+        event,
+        event.type,
+      );
+    }
+
     return await processCheckoutEvent(
       request,
       stripe,
@@ -593,11 +1035,17 @@ export default async function handler(
       event.type,
     );
   } catch (error) {
-    if (error instanceof WebhookError) {
+    if (
+      error instanceof
+      WebhookError
+    ) {
       return jsonResponse(
         {
-          received: false,
-          message: error.message,
+          received:
+            false,
+
+          message:
+            error.message,
         },
         error.status,
       );
@@ -610,7 +1058,9 @@ export default async function handler(
 
     return jsonResponse(
       {
-        received: false,
+        received:
+          false,
+
         message:
           'The webhook could not be processed.',
       },
@@ -619,6 +1069,8 @@ export default async function handler(
   }
 }
 
-export const config: Config = {
-  path: '/api/stripe-webhook',
+export const config:
+  Config = {
+  path:
+    '/api/stripe-webhook',
 };

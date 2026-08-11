@@ -13,11 +13,20 @@ import type {
 } from '../types/checkout';
 
 import type {
+    InventoryReservationRequestLine,
+} from '../types/inventory-reservation';
+
+import type {
     Product,
     ProductPrice,
     ProductVariant,
     ProductWeight,
 } from '../types/product';
+
+import {
+    getInventorySku,
+    isInventoryTrackingEnabledForSelection,
+} from '../utils/product-inventory';
 
 const MAXIMUM_CART_LINES =
     50;
@@ -31,6 +40,9 @@ export interface ValidatedCheckoutCart {
 
         quantity: number;
     }>;
+
+    inventoryLines:
+        InventoryReservationRequestLine[];
 
     merchandiseSubtotalAmount: number;
 
@@ -377,6 +389,10 @@ export function validateCheckoutCart(
             number
         >();
 
+    const inventoryLines:
+        InventoryReservationRequestLine[] =
+        [];
+
     let merchandiseSubtotalAmount =
         0;
 
@@ -410,6 +426,48 @@ export function validateCheckoutCart(
                     'product-unavailable',
                     `${product.name} is not currently available for checkout.`,
                 );
+            }
+
+            const inventoryTracked =
+                isInventoryTrackingEnabledForSelection(
+                    product,
+                    variant,
+                );
+
+            if (
+                inventoryTracked
+            ) {
+                const inventorySku =
+                    getInventorySku(
+                        product,
+                        variant,
+                    );
+
+                if (!inventorySku) {
+                    throw new CheckoutValidationError(
+                        503,
+                        'inventory-not-configured',
+                        `${product.name} inventory is temporarily unavailable.`,
+                    );
+                }
+
+                inventoryLines.push({
+                    productSlug:
+                        product.slug,
+
+                    ...(variant
+                        ? {
+                            variantId:
+                                variant.id,
+                        }
+                        : {}),
+
+                    sku:
+                        inventorySku,
+
+                    quantity:
+                        line.quantity,
+                });
             }
 
             const price =
@@ -497,6 +555,8 @@ export function validateCheckoutCart(
         merchandiseSubtotalAmount,
 
         shippingWeightOz,
+
+        inventoryLines,
 
         lineItems:
             Array.from(
