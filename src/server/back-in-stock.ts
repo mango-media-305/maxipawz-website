@@ -33,6 +33,11 @@ const EMAIL_PATTERN =
 const MAXIMUM_EMAIL_LENGTH =
     254;
 
+type BackInStockDatabase =
+    ReturnType<
+        typeof getDatabase
+    >;
+
 interface CatalogInventorySelection {
     product: Product;
 
@@ -66,9 +71,7 @@ interface LockedInventoryRow {
 type DatabaseClient =
     Awaited<
         ReturnType<
-            ReturnType<
-                typeof getDatabase
-            >['pool']['connect']
+            BackInStockDatabase['pool']['connect']
         >
     >;
 
@@ -355,17 +358,17 @@ function normalizeDatabaseInteger(
 }
 
 async function withTransaction<T>(
+    database:
+        BackInStockDatabase,
+
     operation:
         (
             client:
                 DatabaseClient,
         ) => Promise<T>,
 ): Promise<T> {
-    const db =
-        getDatabase();
-
     const client =
-        await db.pool.connect();
+        await database.pool.connect();
 
     try {
         await client.query(
@@ -414,19 +417,19 @@ async function lockInventorySelection(
         await client.query(
             `
         SELECT
-            id,
-            product_slug,
-            variant_id,
-            sku,
-            on_hand,
-            reserved
-            FROM inventory_items
-            WHERE
-            product_slug = $1
-            AND variant_id
-                IS NOT DISTINCT FROM $2
-            FOR SHARE
-        `,
+          id,
+          product_slug,
+          variant_id,
+          sku,
+          on_hand,
+          reserved
+        FROM inventory_items
+        WHERE
+          product_slug = $1
+          AND variant_id
+            IS NOT DISTINCT FROM $2
+        FOR SHARE
+      `,
             [
                 productSlug,
 
@@ -456,6 +459,10 @@ async function lockInventorySelection(
 export async function subscribeToBackInStock(
     input:
         BackInStockSubscriptionInput,
+
+    database:
+        BackInStockDatabase =
+        getDatabase(),
 ): Promise<void> {
     const selection =
         resolveCatalogSelection(
@@ -474,6 +481,8 @@ export async function subscribeToBackInStock(
         );
 
     await withTransaction(
+        database,
+
         async (
             client,
         ) => {
@@ -560,100 +569,100 @@ export async function subscribeToBackInStock(
              */
             await client.query(
                 `
-            INSERT INTO back_in_stock_subscriptions (
-                id,
-                inventory_item_id,
-                product_slug,
-                variant_id,
-                sku,
-                email,
-                email_hash,
-                status,
-                source,
-                request_count,
-                notification_count,
-                first_requested_at,
-                last_requested_at
-            )
-            VALUES (
-                $1,
-                $2,
-                $3,
-                $4,
-                $5,
-                $6,
-                $7,
-                'active',
-                $8,
-                1,
-                0,
-                NOW(),
-                NOW()
-            )
-            ON CONFLICT (
-                inventory_item_id,
-                email_hash
-            )
-            DO UPDATE
-            SET
-                product_slug =
-                EXCLUDED.product_slug,
+          INSERT INTO back_in_stock_subscriptions (
+            id,
+            inventory_item_id,
+            product_slug,
+            variant_id,
+            sku,
+            email,
+            email_hash,
+            status,
+            source,
+            request_count,
+            notification_count,
+            first_requested_at,
+            last_requested_at
+          )
+          VALUES (
+            $1,
+            $2,
+            $3,
+            $4,
+            $5,
+            $6,
+            $7,
+            'active',
+            $8,
+            1,
+            0,
+            NOW(),
+            NOW()
+          )
+          ON CONFLICT (
+            inventory_item_id,
+            email_hash
+          )
+          DO UPDATE
+          SET
+            product_slug =
+              EXCLUDED.product_slug,
 
-                variant_id =
-                EXCLUDED.variant_id,
+            variant_id =
+              EXCLUDED.variant_id,
 
-                sku =
-                EXCLUDED.sku,
+            sku =
+              EXCLUDED.sku,
 
-                email =
-                EXCLUDED.email,
+            email =
+              EXCLUDED.email,
 
-                source =
-                EXCLUDED.source,
+            source =
+              EXCLUDED.source,
 
-                status =
-                CASE
-                    WHEN back_in_stock_subscriptions.status = 'processing'
-                    THEN 'processing'
-                    ELSE 'active'
-                END,
+            status =
+              CASE
+                WHEN back_in_stock_subscriptions.status = 'processing'
+                  THEN 'processing'
+                ELSE 'active'
+              END,
 
-                request_count =
-                back_in_stock_subscriptions.request_count + 1,
+            request_count =
+              back_in_stock_subscriptions.request_count + 1,
 
-                last_requested_at =
-                NOW(),
+            last_requested_at =
+              NOW(),
 
-                cancelled_at =
-                CASE
-                    WHEN back_in_stock_subscriptions.status = 'processing'
-                    THEN back_in_stock_subscriptions.cancelled_at
-                    ELSE NULL
-                END,
+            cancelled_at =
+              CASE
+                WHEN back_in_stock_subscriptions.status = 'processing'
+                  THEN back_in_stock_subscriptions.cancelled_at
+                ELSE NULL
+              END,
 
-                claim_token =
-                CASE
-                    WHEN back_in_stock_subscriptions.status = 'processing'
-                    THEN back_in_stock_subscriptions.claim_token
-                    ELSE NULL
-                END,
+            claim_token =
+              CASE
+                WHEN back_in_stock_subscriptions.status = 'processing'
+                  THEN back_in_stock_subscriptions.claim_token
+                ELSE NULL
+              END,
 
-                claim_expires_at =
-                CASE
-                    WHEN back_in_stock_subscriptions.status = 'processing'
-                    THEN back_in_stock_subscriptions.claim_expires_at
-                    ELSE NULL
-                END,
+            claim_expires_at =
+              CASE
+                WHEN back_in_stock_subscriptions.status = 'processing'
+                  THEN back_in_stock_subscriptions.claim_expires_at
+                ELSE NULL
+              END,
 
-                last_error =
-                CASE
-                    WHEN back_in_stock_subscriptions.status = 'processing'
-                    THEN back_in_stock_subscriptions.last_error
-                    ELSE NULL
-                END,
+            last_error =
+              CASE
+                WHEN back_in_stock_subscriptions.status = 'processing'
+                  THEN back_in_stock_subscriptions.last_error
+                ELSE NULL
+              END,
 
-                updated_at =
-                NOW()
+            updated_at =
+              NOW()
         `,
                 [
                     id,
