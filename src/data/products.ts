@@ -52,6 +52,7 @@ const demoProducts: Product[] = [
         category: 'play-and-enrichment',
         status: 'active',
         availability: 'in-stock',
+        trackInventory: true,
 
         shortDescription:
             'A fictional rope-and-ball toy created to test product cards, sale pricing, and dog-toy filters.',
@@ -220,6 +221,7 @@ const demoProducts: Product[] = [
         category: 'walk-and-travel',
         status: 'active',
         availability: 'in-stock',
+        trackInventory: true,
 
         shortDescription:
             'A fictional adjustable harness used to test variants, sizing, featured products, and walk filters.',

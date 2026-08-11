@@ -57,10 +57,10 @@ interface CatalogSelection {
     productName: string;
 
     productStatus:
-    Product['status'];
+        Product['status'];
 
     availability:
-    Product['availability'];
+        Product['availability'];
 
     isDemo: boolean;
 
@@ -80,100 +80,104 @@ interface ManageableCatalogSelection
 
 interface LockedInventoryDatabaseRow {
     id:
-    | string
-    | number;
+        | string
+        | number;
 
     product_slug: string;
 
     variant_id:
-    | string
-    | null;
+        | string
+        | null;
 
     sku: string;
 
     on_hand:
-    | string
-    | number;
+        | string
+        | number;
 
     reserved:
-    | string
-    | number;
+        | string
+        | number;
 
     low_stock_threshold:
-    | string
-    | number;
+        | string
+        | number;
 
     reorder_threshold:
-    | string
-    | number
-    | null;
+        | string
+        | number
+        | null;
+
+    updated_at:
+        | string
+        | Date;
 }
 
 interface InventoryAdjustmentDatabaseRow {
     id:
-    | string
-    | number;
+        | string
+        | number;
 
     inventory_item_id:
-    | string
-    | number
-    | null;
+        | string
+        | number
+        | null;
 
     product_slug: string;
 
     variant_id:
-    | string
-    | null;
+        | string
+        | null;
 
     sku: string;
 
     action:
-    AdminInventoryAdjustmentAction;
+        AdminInventoryAdjustmentAction;
 
     quantity_delta:
-    | string
-    | number
-    | null;
+        | string
+        | number
+        | null;
 
     previous_on_hand:
-    | string
-    | number
-    | null;
+        | string
+        | number
+        | null;
 
     next_on_hand:
-    | string
-    | number
-    | null;
+        | string
+        | number
+        | null;
 
     reserved_at_change:
-    | string
-    | number;
+        | string
+        | number;
 
     previous_low_stock_threshold:
-    | string
-    | number
-    | null;
+        | string
+        | number
+        | null;
 
     next_low_stock_threshold:
-    | string
-    | number
-    | null;
+        | string
+        | number
+        | null;
 
     previous_reorder_threshold:
-    | string
-    | number
-    | null;
+        | string
+        | number
+        | null;
 
     next_reorder_threshold:
-    | string
-    | number
-    | null;
+        | string
+        | number
+        | null;
 
     reason: string;
 
     created_at:
-    | string
-    | Date;
+        | string
+        | Date;
 }
 
 interface InventoryState {
@@ -184,55 +188,55 @@ interface InventoryState {
     lowStockThreshold: number;
 
     reorderThreshold:
-    number |
-    null;
+        number |
+        null;
 }
 
 interface AdjustmentInsert {
     inventoryItemId:
-    | string
-    | number;
+        | string
+        | number;
 
     productSlug: string;
 
     variantId?:
-    string;
+        string;
 
     sku: string;
 
     action:
-    AdminInventoryAdjustmentAction;
+        AdminInventoryAdjustmentAction;
 
     quantityDelta:
-    number |
-    null;
+        number |
+        null;
 
     previousOnHand:
-    number |
-    null;
+        number |
+        null;
 
     nextOnHand:
-    number |
-    null;
+        number |
+        null;
 
     reservedAtChange:
-    number;
+        number;
 
     previousLowStockThreshold:
-    number |
-    null;
+        number |
+        null;
 
     nextLowStockThreshold:
-    number |
-    null;
+        number |
+        null;
 
     previousReorderThreshold:
-    number |
-    null;
+        number |
+        null;
 
     nextReorderThreshold:
-    number |
-    null;
+        number |
+        null;
 
     reason: string;
 }
@@ -273,9 +277,9 @@ function isRecord(
 > {
     return (
         typeof value ===
-        'object' &&
+            'object' &&
         value !==
-        null &&
+            null &&
         !Array.isArray(
             value,
         )
@@ -342,13 +346,43 @@ function parseReason(
     return reason;
 }
 
+function parseExpectedUpdatedAt(
+    value: unknown,
+): string {
+    const rawValue =
+        requiredString(
+            value,
+            'Refresh inventory before making this change.',
+        );
+
+    const timestamp =
+        new Date(
+            rawValue,
+        );
+
+    if (
+        Number.isNaN(
+            timestamp.getTime(),
+        )
+    ) {
+        throw new InventoryManagementError(
+            400,
+            'invalid-request',
+            'The inventory version timestamp is invalid. Refresh inventory and try again.',
+        );
+    }
+
+    return timestamp
+        .toISOString();
+}
+
 function parseInteger(
     value: unknown,
     fieldName: string,
 ): number {
     if (
         typeof value !==
-        'number' ||
+            'number' ||
         !Number.isSafeInteger(
             value,
         )
@@ -375,9 +409,9 @@ function parseStockQuantity(
 
     if (
         quantity <
-        0 ||
+            0 ||
         quantity >
-        MAXIMUM_STOCK_QUANTITY
+            MAXIMUM_STOCK_QUANTITY
     ) {
         throw new InventoryManagementError(
             400,
@@ -437,9 +471,9 @@ function parseThreshold(
 
     if (
         threshold <
-        0 ||
+            0 ||
         threshold >
-        MAXIMUM_THRESHOLD
+            MAXIMUM_THRESHOLD
     ) {
         throw new InventoryManagementError(
             400,
@@ -549,6 +583,11 @@ export function parseAdminInventoryMutationRequest(
         };
     }
 
+    const expectedUpdatedAt =
+        parseExpectedUpdatedAt(
+            value.expectedUpdatedAt,
+        );
+
     if (
         action ===
         'adjust-on-hand'
@@ -557,6 +596,8 @@ export function parseAdminInventoryMutationRequest(
             action,
 
             ...selection,
+
+            expectedUpdatedAt,
 
             quantityDelta:
                 parseQuantityDelta(
@@ -573,6 +614,8 @@ export function parseAdminInventoryMutationRequest(
             action,
 
             ...selection,
+
+            expectedUpdatedAt,
 
             onHand:
                 parseStockQuantity(
@@ -604,6 +647,8 @@ export function parseAdminInventoryMutationRequest(
             action,
 
             ...selection,
+
+            expectedUpdatedAt,
 
             lowStockThreshold:
                 parseThreshold(
@@ -999,7 +1044,7 @@ function normalizeDatabaseTimestamp(
         throw new InventoryManagementError(
             500,
             'inventory-error',
-            'Inventory adjustment history contains an invalid timestamp.',
+            'Inventory data contains an invalid timestamp.',
         );
     }
 
@@ -1244,9 +1289,9 @@ function getDatabaseErrorCode(
 ): string | undefined {
     if (
         typeof error !==
-        'object' ||
+            'object' ||
         error ===
-        null ||
+            null ||
         !(
             'code' in
             error
@@ -1287,7 +1332,8 @@ async function lockConfiguredInventory(
                     on_hand,
                     reserved,
                     low_stock_threshold,
-                    reorder_threshold
+                    reorder_threshold,
+                    updated_at
                 FROM inventory_items
                 WHERE
                     product_slug = $1
@@ -1328,6 +1374,33 @@ async function lockConfiguredInventory(
     }
 
     return inventory;
+}
+
+function assertExpectedInventoryVersion(
+    row:
+        LockedInventoryDatabaseRow,
+    expectedUpdatedAt: string,
+): void {
+    const expected =
+        parseExpectedUpdatedAt(
+            expectedUpdatedAt,
+        );
+
+    const current =
+        normalizeDatabaseTimestamp(
+            row.updated_at,
+        );
+
+    if (
+        current !==
+        expected
+    ) {
+        throw new InventoryManagementError(
+            409,
+            'inventory-stale',
+            'Inventory changed since this dashboard view was loaded. The latest inventory has been refreshed; review it and try again.',
+        );
+    }
 }
 
 async function insertAdjustment(
@@ -1490,7 +1563,7 @@ async function provisionInventory(
             AdminInventoryMutationRequest,
             {
                 action:
-                'provision';
+                    'provision';
             }
         >,
     selection:
@@ -1518,7 +1591,8 @@ async function provisionInventory(
                                     on_hand,
                                     reserved,
                                     low_stock_threshold,
-                                    reorder_threshold
+                                    reorder_threshold,
+                                    updated_at
                                 FROM inventory_items
                                 WHERE
                                     sku = $1
@@ -1558,9 +1632,9 @@ async function provisionInventory(
 
                                     return (
                                         row.sku ===
-                                        selection.sku &&
+                                            selection.sku &&
                                         row.product_slug ===
-                                        selection.productSlug &&
+                                            selection.productSlug &&
                                         variantsMatch(
                                             row.variant_id,
                                             selection.variantId,
@@ -1629,8 +1703,8 @@ async function provisionInventory(
                             .rows[0] as
                         | {
                             id:
-                            | string
-                            | number;
+                                | string
+                                | number;
                         }
                         | undefined;
 
@@ -1731,7 +1805,7 @@ async function adjustInventoryOnHand(
             AdminInventoryMutationRequest,
             {
                 action:
-                'adjust-on-hand';
+                    'adjust-on-hand';
             }
         >,
     selection:
@@ -1749,6 +1823,11 @@ async function adjustInventoryOnHand(
                         client,
                         selection,
                     );
+
+                assertExpectedInventoryVersion(
+                    row,
+                    request.expectedUpdatedAt,
+                );
 
                 const state =
                     normalizeInventoryState(
@@ -1772,9 +1851,9 @@ async function adjustInventoryOnHand(
 
                 if (
                     nextOnHand <
-                    0 ||
+                        0 ||
                     nextOnHand >
-                    MAXIMUM_STOCK_QUANTITY
+                        MAXIMUM_STOCK_QUANTITY
                 ) {
                     throw new InventoryManagementError(
                         400,
@@ -1869,7 +1948,7 @@ async function setInventoryOnHand(
             AdminInventoryMutationRequest,
             {
                 action:
-                'set-on-hand';
+                    'set-on-hand';
             }
         >,
     selection:
@@ -1887,6 +1966,11 @@ async function setInventoryOnHand(
                         client,
                         selection,
                     );
+
+                assertExpectedInventoryVersion(
+                    row,
+                    request.expectedUpdatedAt,
+                );
 
                 const state =
                     normalizeInventoryState(
@@ -2002,7 +2086,7 @@ async function setInventoryThresholds(
             AdminInventoryMutationRequest,
             {
                 action:
-                'set-thresholds';
+                    'set-thresholds';
             }
         >,
     selection:
@@ -2021,6 +2105,11 @@ async function setInventoryThresholds(
                         selection,
                     );
 
+                assertExpectedInventoryVersion(
+                    row,
+                    request.expectedUpdatedAt,
+                );
+
                 const state =
                     normalizeInventoryState(
                         row,
@@ -2028,9 +2117,9 @@ async function setInventoryThresholds(
 
                 if (
                     request.lowStockThreshold ===
-                    state.lowStockThreshold &&
+                        state.lowStockThreshold &&
                     request.reorderThreshold ===
-                    state.reorderThreshold
+                        state.reorderThreshold
                 ) {
                     throw new InventoryManagementError(
                         400,
@@ -2247,7 +2336,7 @@ export async function listAdminInventoryState():
 
                 let configurationState:
                     AdminInventoryCatalogSelection[
-                    'configurationState'
+                        'configurationState'
                     ];
 
                 if (!selection.sku) {
@@ -2323,7 +2412,7 @@ export async function listAdminInventoryState():
                             selection.sku,
                         ) &&
                         configurationState !==
-                        'sku-mismatch',
+                            'sku-mismatch',
 
                     ...(inventory
                         ? {

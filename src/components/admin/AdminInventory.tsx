@@ -152,7 +152,7 @@ function parseNonNegativeWholeNumber(
             number,
         ) ||
         number <
-            0
+        0
     ) {
         throw new Error(
             `${fieldName} must be a whole number of 0 or greater.`,
@@ -216,10 +216,24 @@ function requireReason(
     return normalized;
 }
 
+function requireInventoryVersion(
+    updatedAt?: string,
+): string {
+    if (
+        !updatedAt
+    ) {
+        throw new Error(
+            'Refresh inventory before making this change.',
+        );
+    }
+
+    return updatedAt;
+}
+
 function getConfigurationBadgeClass(
     state:
         AdminInventoryCatalogSelection[
-            'configurationState'
+        'configurationState'
         ],
 ): string {
     switch (
@@ -261,7 +275,7 @@ function ConfigurationBadge({
     selection,
 }: {
     selection:
-        AdminInventoryCatalogSelection;
+    AdminInventoryCatalogSelection;
 }) {
     return (
         <span
@@ -287,7 +301,7 @@ function StockBadge({
     selection,
 }: {
     selection:
-        AdminInventoryCatalogSelection;
+    AdminInventoryCatalogSelection;
 }) {
     if (
         !selection.inventory
@@ -344,13 +358,13 @@ function InventoryMetric({
     label,
     value,
     emphasis =
-        false,
+    false,
 }: {
     label: string;
 
     value:
-        string |
-        number;
+    string |
+    number;
 
     emphasis?: boolean;
 }) {
@@ -378,13 +392,13 @@ function InventoryMetric({
 
 interface InventoryCardProps {
     selection:
-        AdminInventoryCatalogSelection;
+    AdminInventoryCatalogSelection;
 
     onMutation:
-        (
-            request:
-                AdminInventoryMutationRequest,
-        ) => Promise<string>;
+    (
+        request:
+            AdminInventoryMutationRequest,
+    ) => Promise<string>;
 }
 
 function InventoryCard({
@@ -512,9 +526,9 @@ function InventoryCard({
 
         if (
             nextMode ===
-                'add' ||
+            'add' ||
             nextMode ===
-                'remove'
+            'remove'
         ) {
             setQuantity(
                 '',
@@ -523,7 +537,7 @@ function InventoryCard({
 
         if (
             nextMode ===
-                'set' &&
+            'set' &&
             inventory
         ) {
             setExactOnHand(
@@ -535,7 +549,7 @@ function InventoryCard({
 
         if (
             nextMode ===
-                'thresholds' &&
+            'thresholds' &&
             inventory
         ) {
             setLowStockThreshold(
@@ -634,9 +648,9 @@ function InventoryCard({
                 };
             } else if (
                 mode ===
-                    'add' ||
+                'add' ||
                 mode ===
-                    'remove'
+                'remove'
             ) {
                 const adjustment =
                     parsePositiveWholeNumber(
@@ -649,6 +663,12 @@ function InventoryCard({
                         'adjust-on-hand',
 
                     ...selectionFields,
+
+                    expectedUpdatedAt:
+                        requireInventoryVersion(
+                            inventory
+                                ?.updatedAt,
+                        ),
 
                     quantityDelta:
                         mode ===
@@ -666,6 +686,12 @@ function InventoryCard({
 
                     ...selectionFields,
 
+                    expectedUpdatedAt:
+                        requireInventoryVersion(
+                            inventory
+                                ?.updatedAt,
+                        ),
+
                     onHand:
                         parseNonNegativeWholeNumber(
                             exactOnHand,
@@ -678,6 +704,12 @@ function InventoryCard({
                         'set-thresholds',
 
                     ...selectionFields,
+
+                    expectedUpdatedAt:
+                        requireInventoryVersion(
+                            inventory
+                                ?.updatedAt,
+                        ),
 
                     lowStockThreshold:
                         parseNonNegativeWholeNumber(
@@ -716,9 +748,9 @@ function InventoryCard({
 
             if (
                 mode ===
-                    'add' ||
+                'add' ||
                 mode ===
-                    'remove'
+                'remove'
             ) {
                 setQuantity(
                     '',
@@ -741,10 +773,10 @@ function InventoryCard({
     const isConfigurationIssue =
         selection
             .configurationState ===
-            'sku-mismatch' ||
+        'sku-mismatch' ||
         selection
             .configurationState ===
-            'catalog-sku-missing';
+        'catalog-sku-missing';
 
     return (
         <article className="rounded-4xl border border-sand bg-white-warm p-5 shadow-card sm:p-6">
@@ -813,7 +845,7 @@ function InventoryCard({
 
                     {inventory &&
                         inventory.sku !==
-                            selection.sku && (
+                        selection.sku && (
                             <>
                                 <p className="mt-3 text-xs font-extrabold tracking-[0.06em] text-danger-700 uppercase">
                                     Database SKU
@@ -877,22 +909,22 @@ function InventoryCard({
 
             {inventory
                 ?.reorderRecommended && (
-                <div className="mt-4 rounded-2xl border border-accent-200 bg-accent-50 p-4">
-                    <p className="font-extrabold text-accent-700">
-                        Reorder recommended
-                    </p>
+                    <div className="mt-4 rounded-2xl border border-accent-200 bg-accent-50 p-4">
+                        <p className="font-extrabold text-accent-700">
+                            Reorder recommended
+                        </p>
 
-                    <p className="mt-1 text-sm leading-6 text-ink-700">
-                        Available stock is at or below the configured reorder threshold.
-                    </p>
-                </div>
-            )}
+                        <p className="mt-1 text-sm leading-6 text-ink-700">
+                            Available stock is at or below the configured reorder threshold.
+                        </p>
+                    </div>
+                )}
 
             {!selection
                 .trackInventory &&
                 selection
                     .configurationState ===
-                    'configured' && (
+                'configured' && (
                     <div className="mt-4 rounded-2xl border border-brand-200 bg-brand-50 p-4 text-sm leading-6 text-ink-700">
                         This SKU is provisioned in the database, but runtime inventory tracking is still disabled in the catalog. The storefront will not use this stock level until <strong>trackInventory</strong> is explicitly enabled.
                     </div>
@@ -931,72 +963,72 @@ function InventoryCard({
                     {selection
                         .configurationState ===
                         'not-configured' && (
-                        <button
-                            type="button"
-                            className="min-h-10 rounded-full bg-brand-500 px-5 text-sm font-extrabold text-white shadow-blue transition hover:bg-brand-600"
-                            onClick={() => {
-                                openMode(
-                                    'provision',
-                                );
-                            }}
-                        >
-                            Provision Inventory
-                        </button>
-                    )}
+                            <button
+                                type="button"
+                                className="min-h-10 rounded-full bg-brand-500 px-5 text-sm font-extrabold text-white shadow-blue transition hover:bg-brand-600"
+                                onClick={() => {
+                                    openMode(
+                                        'provision',
+                                    );
+                                }}
+                            >
+                                Provision Inventory
+                            </button>
+                        )}
 
                     {selection
                         .configurationState ===
                         'configured' && (
-                        <>
-                            <button
-                                type="button"
-                                className="min-h-10 rounded-full bg-brand-500 px-4 text-sm font-extrabold text-white transition hover:bg-brand-600"
-                                onClick={() => {
-                                    openMode(
-                                        'add',
-                                    );
-                                }}
-                            >
-                                Add Stock
-                            </button>
+                            <>
+                                <button
+                                    type="button"
+                                    className="min-h-10 rounded-full bg-brand-500 px-4 text-sm font-extrabold text-white transition hover:bg-brand-600"
+                                    onClick={() => {
+                                        openMode(
+                                            'add',
+                                        );
+                                    }}
+                                >
+                                    Add Stock
+                                </button>
 
-                            <button
-                                type="button"
-                                className="min-h-10 rounded-full border border-danger-100 bg-danger-50 px-4 text-sm font-extrabold text-danger-700 transition hover:bg-danger-100"
-                                onClick={() => {
-                                    openMode(
-                                        'remove',
-                                    );
-                                }}
-                            >
-                                Remove Stock
-                            </button>
+                                <button
+                                    type="button"
+                                    className="min-h-10 rounded-full border border-danger-100 bg-danger-50 px-4 text-sm font-extrabold text-danger-700 transition hover:bg-danger-100"
+                                    onClick={() => {
+                                        openMode(
+                                            'remove',
+                                        );
+                                    }}
+                                >
+                                    Remove Stock
+                                </button>
 
-                            <button
-                                type="button"
-                                className="min-h-10 rounded-full border border-brand-200 bg-brand-50 px-4 text-sm font-extrabold text-brand-800 transition hover:bg-brand-100"
-                                onClick={() => {
-                                    openMode(
-                                        'set',
-                                    );
-                                }}
-                            >
-                                Set Exact Count
-                            </button>
+                                <button
+                                    type="button"
+                                    className="min-h-10 rounded-full border border-brand-200 bg-brand-50 px-4 text-sm font-extrabold text-brand-800 transition hover:bg-brand-100"
+                                    onClick={() => {
+                                        openMode(
+                                            'set',
+                                        );
+                                    }}
+                                >
+                                    Set Exact Count
+                                </button>
 
-                            <button
-                                type="button"
-                                className="min-h-10 rounded-full border border-sand bg-cream-soft px-4 text-sm font-extrabold text-ink-700 transition hover:bg-white-warm"
-                                onClick={() => {
-                                    openMode(
-                                        'thresholds',
-                                    );
-                                }}
-                            >
-                                Thresholds
-                            </button>
-                        </>
-                    )}
+                                <button
+                                    type="button"
+                                    className="min-h-10 rounded-full border border-sand bg-cream-soft px-4 text-sm font-extrabold text-ink-700 transition hover:bg-white-warm"
+                                    onClick={() => {
+                                        openMode(
+                                            'thresholds',
+                                        );
+                                    }}
+                                >
+                                    Thresholds
+                                </button>
+                            </>
+                        )}
 
                     {mode && (
                         <button
@@ -1049,236 +1081,236 @@ function InventoryCard({
 
                     {mode ===
                         'provision' && (
-                        <div className="grid gap-4 sm:grid-cols-3">
-                            <label className="grid gap-1.5">
-                                <span className="form-label">
-                                    Initial on hand
-                                </span>
+                            <div className="grid gap-4 sm:grid-cols-3">
+                                <label className="grid gap-1.5">
+                                    <span className="form-label">
+                                        Initial on hand
+                                    </span>
 
-                                <input
-                                    className="form-control"
-                                    type="number"
-                                    min="0"
-                                    step="1"
-                                    required
-                                    value={
-                                        exactOnHand
-                                    }
-                                    onInput={(
-                                        event,
-                                    ) => {
-                                        setExactOnHand(
-                                            event
-                                                .currentTarget
-                                                .value,
-                                        );
-                                    }}
-                                />
-                            </label>
+                                    <input
+                                        className="form-control"
+                                        type="number"
+                                        min="0"
+                                        step="1"
+                                        required
+                                        value={
+                                            exactOnHand
+                                        }
+                                        onInput={(
+                                            event,
+                                        ) => {
+                                            setExactOnHand(
+                                                event
+                                                    .currentTarget
+                                                    .value,
+                                            );
+                                        }}
+                                    />
+                                </label>
 
-                            <label className="grid gap-1.5">
-                                <span className="form-label">
-                                    Low-stock threshold
-                                </span>
+                                <label className="grid gap-1.5">
+                                    <span className="form-label">
+                                        Low-stock threshold
+                                    </span>
 
-                                <input
-                                    className="form-control"
-                                    type="number"
-                                    min="0"
-                                    step="1"
-                                    required
-                                    value={
-                                        lowStockThreshold
-                                    }
-                                    onInput={(
-                                        event,
-                                    ) => {
-                                        setLowStockThreshold(
-                                            event
-                                                .currentTarget
-                                                .value,
-                                        );
-                                    }}
-                                />
-                            </label>
+                                    <input
+                                        className="form-control"
+                                        type="number"
+                                        min="0"
+                                        step="1"
+                                        required
+                                        value={
+                                            lowStockThreshold
+                                        }
+                                        onInput={(
+                                            event,
+                                        ) => {
+                                            setLowStockThreshold(
+                                                event
+                                                    .currentTarget
+                                                    .value,
+                                            );
+                                        }}
+                                    />
+                                </label>
 
-                            <label className="grid gap-1.5">
-                                <span className="form-label">
-                                    Reorder threshold
-                                </span>
+                                <label className="grid gap-1.5">
+                                    <span className="form-label">
+                                        Reorder threshold
+                                    </span>
 
-                                <input
-                                    className="form-control"
-                                    type="number"
-                                    min="0"
-                                    step="1"
-                                    placeholder="Optional"
-                                    value={
-                                        reorderThreshold
-                                    }
-                                    onInput={(
-                                        event,
-                                    ) => {
-                                        setReorderThreshold(
-                                            event
-                                                .currentTarget
-                                                .value,
-                                        );
-                                    }}
-                                />
+                                    <input
+                                        className="form-control"
+                                        type="number"
+                                        min="0"
+                                        step="1"
+                                        placeholder="Optional"
+                                        value={
+                                            reorderThreshold
+                                        }
+                                        onInput={(
+                                            event,
+                                        ) => {
+                                            setReorderThreshold(
+                                                event
+                                                    .currentTarget
+                                                    .value,
+                                            );
+                                        }}
+                                    />
 
-                                <span className="text-xs text-ink-500">
-                                    Leave blank to disable reorder recommendations.
-                                </span>
-                            </label>
-                        </div>
-                    )}
+                                    <span className="text-xs text-ink-500">
+                                        Leave blank to disable reorder recommendations.
+                                    </span>
+                                </label>
+                            </div>
+                        )}
 
                     {(mode ===
                         'add' ||
                         mode ===
-                            'remove') && (
-                        <label className="grid gap-1.5 sm:max-w-xs">
-                            <span className="form-label">
-                                Quantity
-                            </span>
+                        'remove') && (
+                            <label className="grid gap-1.5 sm:max-w-xs">
+                                <span className="form-label">
+                                    Quantity
+                                </span>
 
-                            <input
-                                className="form-control"
-                                type="number"
-                                min="1"
-                                step="1"
-                                required
-                                placeholder="1"
-                                value={
-                                    quantity
-                                }
-                                onInput={(
-                                    event,
-                                ) => {
-                                    setQuantity(
-                                        event
-                                            .currentTarget
-                                            .value,
-                                    );
-                                }}
-                            />
-                        </label>
-                    )}
+                                <input
+                                    className="form-control"
+                                    type="number"
+                                    min="1"
+                                    step="1"
+                                    required
+                                    placeholder="1"
+                                    value={
+                                        quantity
+                                    }
+                                    onInput={(
+                                        event,
+                                    ) => {
+                                        setQuantity(
+                                            event
+                                                .currentTarget
+                                                .value,
+                                        );
+                                    }}
+                                />
+                            </label>
+                        )}
 
                     {mode ===
                         'set' && (
-                        <>
-                            {inventory &&
-                                inventory
-                                    .reserved >
+                            <>
+                                {inventory &&
+                                    inventory
+                                        .reserved >
                                     0 && (
-                                    <div className="rounded-2xl border border-accent-200 bg-accent-50 p-3 text-sm font-bold leading-6 text-ink-700">
-                                        There are currently {
-                                            inventory
-                                                .reserved
-                                        } reserved unit{
-                                            inventory
-                                                .reserved ===
-                                                1
-                                                ? ''
-                                                : 's'
-                                        }. The exact count cannot be set below that number.
-                                    </div>
-                                )}
+                                        <div className="rounded-2xl border border-accent-200 bg-accent-50 p-3 text-sm font-bold leading-6 text-ink-700">
+                                            There are currently {
+                                                inventory
+                                                    .reserved
+                                            } reserved unit{
+                                                inventory
+                                                    .reserved ===
+                                                    1
+                                                    ? ''
+                                                    : 's'
+                                            }. The exact count cannot be set below that number.
+                                        </div>
+                                    )}
 
-                            <label className="grid gap-1.5 sm:max-w-xs">
-                                <span className="form-label">
-                                    Exact on-hand quantity
-                                </span>
+                                <label className="grid gap-1.5 sm:max-w-xs">
+                                    <span className="form-label">
+                                        Exact on-hand quantity
+                                    </span>
 
-                                <input
-                                    className="form-control"
-                                    type="number"
-                                    min={
-                                        inventory
-                                            ?.reserved ??
-                                        0
-                                    }
-                                    step="1"
-                                    required
-                                    value={
-                                        exactOnHand
-                                    }
-                                    onInput={(
-                                        event,
-                                    ) => {
-                                        setExactOnHand(
-                                            event
-                                                .currentTarget
-                                                .value,
-                                        );
-                                    }}
-                                />
-                            </label>
-                        </>
-                    )}
+                                    <input
+                                        className="form-control"
+                                        type="number"
+                                        min={
+                                            inventory
+                                                ?.reserved ??
+                                            0
+                                        }
+                                        step="1"
+                                        required
+                                        value={
+                                            exactOnHand
+                                        }
+                                        onInput={(
+                                            event,
+                                        ) => {
+                                            setExactOnHand(
+                                                event
+                                                    .currentTarget
+                                                    .value,
+                                            );
+                                        }}
+                                    />
+                                </label>
+                            </>
+                        )}
 
                     {mode ===
                         'thresholds' && (
-                        <div className="grid gap-4 sm:grid-cols-2">
-                            <label className="grid gap-1.5">
-                                <span className="form-label">
-                                    Low-stock threshold
-                                </span>
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <label className="grid gap-1.5">
+                                    <span className="form-label">
+                                        Low-stock threshold
+                                    </span>
 
-                                <input
-                                    className="form-control"
-                                    type="number"
-                                    min="0"
-                                    step="1"
-                                    required
-                                    value={
-                                        lowStockThreshold
-                                    }
-                                    onInput={(
-                                        event,
-                                    ) => {
-                                        setLowStockThreshold(
-                                            event
-                                                .currentTarget
-                                                .value,
-                                        );
-                                    }}
-                                />
-                            </label>
+                                    <input
+                                        className="form-control"
+                                        type="number"
+                                        min="0"
+                                        step="1"
+                                        required
+                                        value={
+                                            lowStockThreshold
+                                        }
+                                        onInput={(
+                                            event,
+                                        ) => {
+                                            setLowStockThreshold(
+                                                event
+                                                    .currentTarget
+                                                    .value,
+                                            );
+                                        }}
+                                    />
+                                </label>
 
-                            <label className="grid gap-1.5">
-                                <span className="form-label">
-                                    Reorder threshold
-                                </span>
+                                <label className="grid gap-1.5">
+                                    <span className="form-label">
+                                        Reorder threshold
+                                    </span>
 
-                                <input
-                                    className="form-control"
-                                    type="number"
-                                    min="0"
-                                    step="1"
-                                    placeholder="Off"
-                                    value={
-                                        reorderThreshold
-                                    }
-                                    onInput={(
-                                        event,
-                                    ) => {
-                                        setReorderThreshold(
-                                            event
-                                                .currentTarget
-                                                .value,
-                                        );
-                                    }}
-                                />
+                                    <input
+                                        className="form-control"
+                                        type="number"
+                                        min="0"
+                                        step="1"
+                                        placeholder="Off"
+                                        value={
+                                            reorderThreshold
+                                        }
+                                        onInput={(
+                                            event,
+                                        ) => {
+                                            setReorderThreshold(
+                                                event
+                                                    .currentTarget
+                                                    .value,
+                                            );
+                                        }}
+                                    />
 
-                                <span className="text-xs text-ink-500">
-                                    Leave blank to turn reorder recommendations off.
-                                </span>
-                            </label>
-                        </div>
-                    )}
+                                    <span className="text-xs text-ink-500">
+                                        Leave blank to turn reorder recommendations off.
+                                    </span>
+                                </label>
+                            </div>
+                        )}
 
                     <label className="grid gap-1.5">
                         <span className="form-label">
@@ -1294,7 +1326,7 @@ function InventoryCard({
                             required
                             placeholder={
                                 mode ===
-                                'add'
+                                    'add'
                                     ? 'Vendor shipment received'
                                     : mode ===
                                         'remove'
@@ -1462,10 +1494,10 @@ function matchesFilter(
             return (
                 selection
                     .configurationState ===
-                    'sku-mismatch' ||
+                'sku-mismatch' ||
                 selection
                     .configurationState ===
-                    'catalog-sku-missing'
+                'catalog-sku-missing'
             );
     }
 }
@@ -1474,7 +1506,7 @@ function AdjustmentHistory({
     inventory,
 }: {
     inventory:
-        AdminInventoryListData;
+    AdminInventoryListData;
 }) {
     const selectionLabels =
         useMemo(
@@ -1608,40 +1640,40 @@ function AdjustmentHistory({
                                         {adjustment
                                             .quantityDelta !==
                                             undefined && (
-                                            <InventoryMetric
-                                                label="Change"
-                                                value={
-                                                    formatSignedNumber(
-                                                        adjustment
-                                                            .quantityDelta,
-                                                    )
-                                                }
-                                            />
-                                        )}
+                                                <InventoryMetric
+                                                    label="Change"
+                                                    value={
+                                                        formatSignedNumber(
+                                                            adjustment
+                                                                .quantityDelta,
+                                                        )
+                                                    }
+                                                />
+                                            )}
 
                                         {adjustment
                                             .previousOnHand !==
                                             undefined && (
-                                            <InventoryMetric
-                                                label="Previous"
-                                                value={
-                                                    adjustment
-                                                        .previousOnHand
-                                                }
-                                            />
-                                        )}
+                                                <InventoryMetric
+                                                    label="Previous"
+                                                    value={
+                                                        adjustment
+                                                            .previousOnHand
+                                                    }
+                                                />
+                                            )}
 
                                         {adjustment
                                             .nextOnHand !==
                                             undefined && (
-                                            <InventoryMetric
-                                                label="Next"
-                                                value={
-                                                    adjustment
-                                                        .nextOnHand
-                                                }
-                                            />
-                                        )}
+                                                <InventoryMetric
+                                                    label="Next"
+                                                    value={
+                                                        adjustment
+                                                            .nextOnHand
+                                                    }
+                                                />
+                                            )}
 
                                         <InventoryMetric
                                             label="Reserved"
@@ -1655,44 +1687,44 @@ function AdjustmentHistory({
                                     {adjustment
                                         .action ===
                                         'set-thresholds' && (
-                                        <div className="mt-4 rounded-2xl border border-sand bg-white-warm p-3 text-sm leading-6 text-ink-700">
-                                            Low stock:{' '}
-                                            <strong>
-                                                {
-                                                    adjustment
-                                                        .previousLowStockThreshold ??
-                                                    '—'
-                                                }
-                                            </strong>
-                                            {' → '}
-                                            <strong>
-                                                {
-                                                    adjustment
-                                                        .nextLowStockThreshold ??
-                                                    '—'
-                                                }
-                                            </strong>
+                                            <div className="mt-4 rounded-2xl border border-sand bg-white-warm p-3 text-sm leading-6 text-ink-700">
+                                                Low stock:{' '}
+                                                <strong>
+                                                    {
+                                                        adjustment
+                                                            .previousLowStockThreshold ??
+                                                        '—'
+                                                    }
+                                                </strong>
+                                                {' → '}
+                                                <strong>
+                                                    {
+                                                        adjustment
+                                                            .nextLowStockThreshold ??
+                                                        '—'
+                                                    }
+                                                </strong>
 
-                                            {' · '}
+                                                {' · '}
 
-                                            Reorder:{' '}
-                                            <strong>
-                                                {
-                                                    adjustment
-                                                        .previousReorderThreshold ??
-                                                    'Off'
-                                                }
-                                            </strong>
-                                            {' → '}
-                                            <strong>
-                                                {
-                                                    adjustment
-                                                        .nextReorderThreshold ??
-                                                    'Off'
-                                                }
-                                            </strong>
-                                        </div>
-                                    )}
+                                                Reorder:{' '}
+                                                <strong>
+                                                    {
+                                                        adjustment
+                                                            .previousReorderThreshold ??
+                                                        'Off'
+                                                    }
+                                                </strong>
+                                                {' → '}
+                                                <strong>
+                                                    {
+                                                        adjustment
+                                                            .nextReorderThreshold ??
+                                                        'Off'
+                                                    }
+                                                </strong>
+                                            </div>
+                                        )}
 
                                     <p className="mt-4 text-sm leading-6 text-ink-700">
                                         <strong>
@@ -1716,7 +1748,7 @@ function UnmappedInventoryWarning({
     inventory,
 }: {
     inventory:
-        AdminInventoryListData;
+    AdminInventoryListData;
 }) {
     if (
         inventory
@@ -2050,21 +2082,54 @@ export default function AdminInventory() {
             payload.ok !==
             true
         ) {
-            throw new Error(
+            const message =
                 payload &&
                     payload.ok ===
                     false
                     ? payload.message
-                    : 'The inventory operation could not be completed.',
+                    : 'The inventory operation could not be completed.';
+
+            if (
+                payload &&
+                payload.ok ===
+                false &&
+                payload.code ===
+                'inventory-stale'
+            ) {
+                await loadInventory(
+                    token,
+                    {
+                        quiet:
+                            true,
+                    },
+                ).catch(
+                    () =>
+                        undefined,
+                );
+            }
+
+            throw new Error(
+                message,
             );
         }
 
+        /*
+         * The mutation has already committed at this point. A follow-up GET
+         * failure must not make the UI report the write itself as failed.
+         *
+         * If this refresh does fail, the old updatedAt remains in the card.
+         * Any subsequent mutation is therefore rejected as inventory-stale
+         * until the administrator successfully refreshes.
+         */
         await loadInventory(
             token,
             {
                 quiet:
                     true,
             },
+        ).catch(
+            () =>
+                undefined,
         );
 
         return payload.message;
@@ -2194,10 +2259,10 @@ export default function AdminInventory() {
                             ) =>
                                 selection
                                     .configurationState ===
-                                    'sku-mismatch' ||
+                                'sku-mismatch' ||
                                 selection
                                     .configurationState ===
-                                    'catalog-sku-missing',
+                                'catalog-sku-missing',
                         ).length,
 
                     onHand:
@@ -2403,13 +2468,13 @@ export default function AdminInventory() {
     const filters:
         {
             value:
-                InventoryFilter;
+            InventoryFilter;
 
             label:
-                string;
+            string;
 
             count:
-                number;
+            number;
         }[] = [
             {
                 value:

@@ -29,10 +29,10 @@ export interface AdminInventoryCatalogSelection {
     productName: string;
 
     productStatus:
-        ProductStatus;
+    ProductStatus;
 
     availability:
-        ProductAvailability;
+    ProductAvailability;
 
     isDemo: boolean;
 
@@ -45,12 +45,12 @@ export interface AdminInventoryCatalogSelection {
     sku?: string;
 
     configurationState:
-        AdminInventoryConfigurationState;
+    AdminInventoryConfigurationState;
 
     canManage: boolean;
 
     inventory?:
-        InventoryItem;
+    InventoryItem;
 }
 
 export interface AdminInventoryAdjustment {
@@ -65,7 +65,7 @@ export interface AdminInventoryAdjustment {
     sku: string;
 
     action:
-        AdminInventoryAdjustmentAction;
+    AdminInventoryAdjustmentAction;
 
     quantityDelta?: number;
 
@@ -96,46 +96,51 @@ interface AdminInventoryMutationBase {
     reason: string;
 }
 
+interface AdminInventoryVersionedMutationBase
+    extends AdminInventoryMutationBase {
+    expectedUpdatedAt: string;
+}
+
 export interface AdminInventoryProvisionRequest
     extends AdminInventoryMutationBase {
     action:
-        'provision';
+    'provision';
 
     onHand: number;
 
     lowStockThreshold: number;
 
     reorderThreshold?:
-        number |
-        null;
+    number |
+    null;
 }
 
 export interface AdminInventoryAdjustOnHandRequest
-    extends AdminInventoryMutationBase {
+    extends AdminInventoryVersionedMutationBase {
     action:
-        'adjust-on-hand';
+    'adjust-on-hand';
 
     quantityDelta: number;
 }
 
 export interface AdminInventorySetOnHandRequest
-    extends AdminInventoryMutationBase {
+    extends AdminInventoryVersionedMutationBase {
     action:
-        'set-on-hand';
+    'set-on-hand';
 
     onHand: number;
 }
 
 export interface AdminInventorySetThresholdsRequest
-    extends AdminInventoryMutationBase {
+    extends AdminInventoryVersionedMutationBase {
     action:
-        'set-thresholds';
+    'set-thresholds';
 
     lowStockThreshold: number;
 
     reorderThreshold:
-        number |
-        null;
+    number |
+    null;
 }
 
 export type AdminInventoryMutationRequest =
@@ -146,24 +151,24 @@ export type AdminInventoryMutationRequest =
 
 export interface AdminInventoryListData {
     selections:
-        AdminInventoryCatalogSelection[];
+    AdminInventoryCatalogSelection[];
 
     unmappedInventory:
-        InventoryItem[];
+    InventoryItem[];
 
     recentAdjustments:
-        AdminInventoryAdjustment[];
+    AdminInventoryAdjustment[];
 }
 
 export interface AdminInventoryMutationData {
     action:
-        AdminInventoryAdjustmentAction;
+    AdminInventoryAdjustmentAction;
 
     inventory:
-        InventoryItem;
+    InventoryItem;
 
     adjustment:
-        AdminInventoryAdjustment;
+    AdminInventoryAdjustment;
 }
 
 export interface AdminInventoryListResponse
@@ -186,6 +191,7 @@ export type AdminInventoryErrorCode =
     | 'inventory-not-configured'
     | 'inventory-already-configured'
     | 'inventory-conflict'
+    | 'inventory-stale'
     | 'inventory-below-reserved'
     | 'inventory-limit-exceeded'
     | 'no-change'
@@ -195,7 +201,7 @@ export interface AdminInventoryErrorResponse {
     ok: false;
 
     code:
-        AdminInventoryErrorCode;
+    AdminInventoryErrorCode;
 
     message: string;
 }

@@ -17,9 +17,13 @@ import {
 
 import ShippingSummary from './ShippingSummary';
 
+import {
+    useCheckoutInventoryReadiness,
+} from './useCheckoutInventoryReadiness';
+
 interface Props {
     lines:
-    ResolvedCartLine[];
+        ResolvedCartLine[];
 
     compact?: boolean;
 }
@@ -64,22 +68,107 @@ export default function CheckoutButton({
                 getCartTotals(
                     lines,
                 ),
-            [lines],
+            [
+                lines,
+            ],
         );
 
-    const readiness =
+    const catalogReadiness =
         useMemo(
             () =>
                 getCheckoutReadiness(
                     lines,
                 ),
-            [lines],
+            [
+                lines,
+            ],
         );
 
-    const buttonLabel =
-        readiness.ready
-            ? 'Continue to Test Checkout'
-            : 'Checkout Not Ready';
+    const inventoryReadiness =
+        useCheckoutInventoryReadiness({
+            lines,
+
+            enabled:
+                catalogReadiness.ready,
+        });
+
+    const checkoutReady =
+        catalogReadiness.ready &&
+        inventoryReadiness.ready;
+
+    const inventoryChecking =
+        catalogReadiness.ready &&
+        (
+            inventoryReadiness.status ===
+                'idle' ||
+            inventoryReadiness.status ===
+                'checking'
+        );
+
+    const inventoryBlocked =
+        catalogReadiness.ready &&
+        inventoryReadiness.status ===
+            'blocked';
+
+    let buttonLabel =
+        'Checkout Not Ready';
+
+    if (
+        inventoryChecking
+    ) {
+        buttonLabel =
+            'Checking Stock…';
+    } else if (
+        inventoryBlocked
+    ) {
+        buttonLabel =
+            'Recheck Stock';
+    } else if (
+        checkoutReady
+    ) {
+        buttonLabel =
+            'Continue to Test Checkout';
+    }
+
+    const displayedReasons =
+        !catalogReadiness.ready
+            ? catalogReadiness
+                .reasons
+            : inventoryChecking
+                ? [
+                    'Checking live stock before checkout.',
+                ]
+                : inventoryReadiness
+                    .reasons;
+
+    const canInteract =
+        catalogReadiness.ready &&
+        !inventoryChecking;
+
+    async function handleCheckout():
+        Promise<void> {
+        if (
+            !catalogReadiness.ready
+        ) {
+            return;
+        }
+
+        const wasReady =
+            inventoryReadiness.ready;
+
+        const stillReady =
+            await inventoryReadiness
+                .revalidate();
+
+        if (
+            wasReady &&
+            stillReady
+        ) {
+            window.location.assign(
+                '/checkout',
+            );
+        }
+    }
 
     return (
         <div>
@@ -97,20 +186,23 @@ export default function CheckoutButton({
                 type="button"
                 className={[
                     'inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full px-5 font-extrabold transition',
-                    readiness.ready
+
+                    checkoutReady
                         ? 'border border-brand-600 bg-brand-500 text-white shadow-blue hover:-translate-y-0.5 hover:bg-brand-600'
-                        : 'cursor-not-allowed border border-sand-dark bg-ink-200 text-ink-600',
-                ].join(' ')}
+                        : inventoryBlocked
+                            ? 'border border-brand-300 bg-brand-50 text-brand-800 hover:bg-brand-100'
+                            : 'cursor-not-allowed border border-sand-dark bg-ink-200 text-ink-600',
+                ].join(
+                    ' ',
+                )}
                 disabled={
-                    !readiness.ready
+                    !canInteract
                 }
                 aria-describedby={
                     statusId
                 }
                 onClick={() => {
-                    window.location.assign(
-                        '/checkout',
-                    );
+                    void handleCheckout();
                 }}
             >
                 <CheckoutIcon />
@@ -129,40 +221,40 @@ export default function CheckoutButton({
                 }
                 aria-live="polite"
             >
-                {!readiness.ready && (
-                    compact ? (
-                        <div className="rounded-2xl border border-accent-200 bg-accent-50 p-3">
-                            <p className="text-xs font-bold leading-5 text-ink-700">
-                                {
-                                    readiness
-                                        .reasons[0]
-                                }
+                {!checkoutReady &&
+                    displayedReasons
+                        .length >
+                        0 && (
+                        compact ? (
+                            <div className="rounded-2xl border border-accent-200 bg-accent-50 p-3">
+                                <p className="text-xs font-bold leading-5 text-ink-700">
+                                    {
+                                        displayedReasons[
+                                            0
+                                        ]
+                                    }
 
-                                {readiness
-                                    .reasons
-                                    .length >
-                                    1 && (
+                                    {displayedReasons
+                                        .length >
+                                        1 && (
                                         <span className="ml-1 text-ink-500">
                                             +
-                                            {readiness
-                                                .reasons
+                                            {displayedReasons
                                                 .length -
                                                 1}{' '}
                                             more requirements.
                                         </span>
                                     )}
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="rounded-2xl border border-accent-200 bg-accent-50 p-4">
-                            <p className="text-sm font-extrabold text-ink-800">
-                                Checkout requirements
-                            </p>
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="rounded-2xl border border-accent-200 bg-accent-50 p-4">
+                                <p className="text-sm font-extrabold text-ink-800">
+                                    Checkout requirements
+                                </p>
 
-                            <ul className="mt-2 grid gap-1.5">
-                                {readiness
-                                    .reasons
-                                    .map(
+                                <ul className="mt-2 grid gap-1.5">
+                                    {displayedReasons.map(
                                         (
                                             reason,
                                         ) => (
@@ -183,10 +275,10 @@ export default function CheckoutButton({
                                             </li>
                                         ),
                                     )}
-                            </ul>
-                        </div>
-                    )
-                )}
+                                </ul>
+                            </div>
+                        )
+                    )}
             </div>
         </div>
     );

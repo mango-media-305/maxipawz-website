@@ -35,6 +35,10 @@ import {
     useCart,
 } from '../cart/useCart';
 
+import {
+    useCheckoutInventoryReadiness,
+} from './useCheckoutInventoryReadiness';
+
 function isRecord(
     value: unknown,
 ): value is Record<
@@ -114,12 +118,13 @@ export default function EmbeddedCheckout() {
     const {
         state,
         hydrated,
-    } = useCart();
+    } =
+        useCart();
 
     const containerRef =
         useRef<
-            HTMLDivElement
-            | null
+            HTMLDivElement |
+            null
         >(
             null,
         );
@@ -138,17 +143,37 @@ export default function EmbeddedCheckout() {
                 resolveCartLines(
                     state,
                 ),
-            [state],
+            [
+                state,
+            ],
         );
 
-    const readiness =
+    const catalogReadiness =
         useMemo(
             () =>
                 getCheckoutReadiness(
                     resolvedLines,
                 ),
-            [resolvedLines],
+            [
+                resolvedLines,
+            ],
         );
+
+    const inventoryReadiness =
+        useCheckoutInventoryReadiness({
+            lines:
+                resolvedLines,
+
+            enabled:
+                hydrated &&
+                catalogReadiness
+                    .ready,
+        });
+
+    const checkoutReady =
+        hydrated &&
+        catalogReadiness.ready &&
+        inventoryReadiness.ready;
 
     const checkoutRequest =
         useMemo(
@@ -156,7 +181,9 @@ export default function EmbeddedCheckout() {
                 buildCheckoutRequest(
                     resolvedLines,
                 ),
-            [resolvedLines],
+            [
+                resolvedLines,
+            ],
         );
 
     const requestFingerprint =
@@ -165,14 +192,15 @@ export default function EmbeddedCheckout() {
                 JSON.stringify(
                     checkoutRequest,
                 ),
-            [checkoutRequest],
+            [
+                checkoutRequest,
+            ],
         );
 
     useEffect(
         () => {
             if (
-                !hydrated ||
-                !readiness.ready ||
+                !checkoutReady ||
                 !containerRef.current
             ) {
                 return;
@@ -184,19 +212,19 @@ export default function EmbeddedCheckout() {
             let checkout:
                 {
                     mount:
-                    (
-                        selector:
-                            string,
-                    ) => void;
+                        (
+                            selector:
+                                string,
+                        ) => void;
 
                     destroy:
-                    () => void;
+                        () => void;
                 } | null =
                 null;
 
             let clientSecretPromise:
-                Promise<string>
-                | null =
+                Promise<string> |
+                null =
                 null;
 
             async function fetchClientSecret():
@@ -208,54 +236,59 @@ export default function EmbeddedCheckout() {
                 }
 
                 clientSecretPromise =
-                    (async () => {
-                        const response =
-                            await fetch(
-                                commerceConfig
-                                    .checkoutEndpoint,
-                                {
-                                    method:
-                                        'POST',
+                    (
+                        async () => {
+                            const response =
+                                await fetch(
+                                    commerceConfig
+                                        .checkoutEndpoint,
+                                    {
+                                        method:
+                                            'POST',
 
-                                    headers: {
-                                        Accept:
-                                            'application/json',
+                                        headers: {
+                                            Accept:
+                                                'application/json',
 
-                                        'Content-Type':
-                                            'application/json',
+                                            'Content-Type':
+                                                'application/json',
+                                        },
+
+                                        body:
+                                            requestFingerprint,
                                     },
+                                );
 
-                                    body:
-                                        requestFingerprint,
-                                },
-                            );
+                            const payload =
+                                (
+                                    await response
+                                        .json()
+                                        .catch(
+                                            () =>
+                                                null,
+                                        )
+                                ) as
+                                    | CheckoutSessionResponse
+                                    | null;
 
-                        const payload =
-                            (await response
-                                .json()
-                                .catch(
-                                    () => null,
-                                )) as
-                            | CheckoutSessionResponse
-                            | null;
-
-                        if (
-                            !response.ok ||
-                            !isCheckoutSuccess(
-                                payload,
-                            )
-                        ) {
-                            throw new Error(
-                                getErrorMessage(
+                            if (
+                                !response.ok ||
+                                !isCheckoutSuccess(
                                     payload,
-                                    'Checkout could not be started.',
-                                ),
-                            );
-                        }
+                                )
+                            ) {
+                                throw new Error(
+                                    getErrorMessage(
+                                        payload,
+                                        'Checkout could not be started.',
+                                    ),
+                                );
+                            }
 
-                        return payload
-                            .clientSecret;
-                    })();
+                            return payload
+                                .clientSecret;
+                        }
+                    )();
 
                 return clientSecretPromise;
             }
@@ -265,14 +298,14 @@ export default function EmbeddedCheckout() {
             ): Promise<
                 | {
                     type:
-                    'accept';
+                        'accept';
                 }
                 | {
                     type:
-                    'reject';
+                        'reject';
 
                     errorMessage:
-                    string;
+                        string;
                 }
             > {
                 const parsedEvent =
@@ -322,13 +355,16 @@ export default function EmbeddedCheckout() {
                     );
 
                 const payload =
-                    (await response
-                        .json()
-                        .catch(
-                            () => null,
-                        )) as
-                    | ShippingOptionsUpdateResponse
-                    | null;
+                    (
+                        await response
+                            .json()
+                            .catch(
+                                () =>
+                                    null,
+                            )
+                    ) as
+                        | ShippingOptionsUpdateResponse
+                        | null;
 
                 if (
                     !response.ok ||
@@ -431,8 +467,7 @@ export default function EmbeddedCheckout() {
             };
         },
         [
-            hydrated,
-            readiness.ready,
+            checkoutReady,
             requestFingerprint,
         ],
     );
@@ -450,7 +485,7 @@ export default function EmbeddedCheckout() {
     }
 
     if (
-        !readiness.ready
+        !catalogReadiness.ready
     ) {
         return (
             <div className="rounded-[2.5rem] border border-accent-200 bg-accent-50 p-6 shadow-card">
@@ -459,7 +494,7 @@ export default function EmbeddedCheckout() {
                 </h2>
 
                 <ul className="mt-4 grid gap-2">
-                    {readiness
+                    {catalogReadiness
                         .reasons
                         .map(
                             (
@@ -471,7 +506,9 @@ export default function EmbeddedCheckout() {
                                     }
                                     className="text-sm font-bold leading-6 text-ink-700"
                                 >
-                                    • {reason}
+                                    • {
+                                        reason
+                                    }
                                 </li>
                             ),
                         )}
@@ -487,6 +524,82 @@ export default function EmbeddedCheckout() {
         );
     }
 
+    if (
+        inventoryReadiness
+            .status ===
+            'idle' ||
+        inventoryReadiness
+            .status ===
+            'checking'
+    ) {
+        return (
+            <div className="rounded-[2.5rem] border border-brand-200 bg-brand-50 p-8 text-center shadow-card">
+                <p className="font-extrabold text-ink-900">
+                    Checking live stock…
+                </p>
+
+                <p className="mt-2 text-sm leading-6 text-ink-600">
+                    We're confirming that everything in your cart is still available before starting secure checkout.
+                </p>
+            </div>
+        );
+    }
+
+    if (
+        inventoryReadiness
+            .status ===
+        'blocked'
+    ) {
+        return (
+            <div className="rounded-[2.5rem] border border-accent-200 bg-accent-50 p-6 shadow-card">
+                <h2 className="text-2xl text-ink-900">
+                    Checkout isn't ready yet.
+                </h2>
+
+                <ul className="mt-4 grid gap-2">
+                    {inventoryReadiness
+                        .reasons
+                        .map(
+                            (
+                                reason,
+                            ) => (
+                                <li
+                                    key={
+                                        reason
+                                    }
+                                    className="text-sm font-bold leading-6 text-ink-700"
+                                >
+                                    • {
+                                        reason
+                                    }
+                                </li>
+                            ),
+                        )}
+                </ul>
+
+                <div className="mt-6 flex flex-wrap gap-3">
+                    <button
+                        type="button"
+                        className="inline-flex min-h-12 items-center justify-center rounded-full bg-brand-500 px-6 font-extrabold text-white shadow-blue"
+                        onClick={() => {
+                            void inventoryReadiness
+                                .revalidate();
+                        }}
+                    >
+                        Recheck Stock
+                    </button>
+
+                    <a
+                        href="/cart"
+                        className="inline-flex min-h-12 items-center justify-center rounded-full border border-brand-300 bg-white-warm px-6 font-extrabold text-brand-800"
+                    >
+                        Return to Cart
+                    </a>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div>
             <div
@@ -494,7 +607,7 @@ export default function EmbeddedCheckout() {
                 ref={
                     containerRef
                 }
-                className="min-h-[32rem]"
+                className="min-h-128"
             />
 
             {error && (
