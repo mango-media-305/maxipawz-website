@@ -38,35 +38,35 @@ const TEST_SKU =
 
 interface InventoryStateRow {
     on_hand:
-        | string
-        | number;
+    | string
+    | number;
 
     reserved:
-        | string
-        | number;
+    | string
+    | number;
 }
 
 interface InventoryVersionRow {
     updated_at:
-        | string
-        | Date;
+    | string
+    | Date;
 }
 
 interface CountRow {
     count:
-        | string
-        | number;
+    | string
+    | number;
 }
 
 let databaseEmulator:
-    NetlifyDB |
-    undefined;
+    | NetlifyDB
+    | undefined;
 
 let testDatabase:
-    ReturnType<
+    | ReturnType<
         typeof getDatabase
-    > |
-    undefined;
+    >
+    | undefined;
 
 function getTestDatabase():
     ReturnType<
@@ -85,8 +85,8 @@ function futureExpiration():
     return new Date(
         Date.now() +
         60 *
-            60 *
-            1000,
+        60 *
+        1000,
     );
 }
 
@@ -110,52 +110,57 @@ async function waitForVersionClock():
 }
 
 async function seedInventory(
-    onHand: number,
+    onHand:
+        number,
 ): Promise<void> {
     const db =
         getTestDatabase();
 
     await db.sql`
-        INSERT INTO inventory_items (
-            product_slug,
-            variant_id,
-            sku,
-            on_hand,
-            reserved,
-            low_stock_threshold,
-            reorder_threshold
-        )
-        VALUES (
-            ${TEST_PRODUCT_SLUG},
-            ${null},
-            ${TEST_SKU},
-            ${onHand},
-            0,
-            3,
-            4
-        )
-    `;
+    INSERT INTO inventory_items (
+      product_slug,
+      variant_id,
+      sku,
+      on_hand,
+      reserved,
+      low_stock_threshold,
+      reorder_threshold
+    )
+    VALUES (
+      ${TEST_PRODUCT_SLUG},
+      ${null},
+      ${TEST_SKU},
+      ${onHand},
+      0,
+      3,
+      4
+    )
+  `;
 }
 
 async function readInventoryState():
     Promise<{
-        onHand: number;
+        onHand:
+        number;
 
-        reserved: number;
+        reserved:
+        number;
 
-        available: number;
+        available:
+        number;
     }> {
     const db =
         getTestDatabase();
 
     const rows =
         await db.sql<InventoryStateRow>`
-            SELECT
-                on_hand,
-                reserved
-            FROM inventory_items
-            WHERE sku = ${TEST_SKU}
-        `;
+      SELECT
+        on_hand,
+        reserved
+      FROM inventory_items
+      WHERE sku =
+        ${TEST_SKU}
+    `;
 
     const row =
         rows[0];
@@ -205,11 +210,12 @@ async function readInventoryUpdatedAt():
 
     const rows =
         await db.sql<InventoryVersionRow>`
-            SELECT
-                updated_at
-            FROM inventory_items
-            WHERE sku = ${TEST_SKU}
-        `;
+      SELECT
+        updated_at
+      FROM inventory_items
+      WHERE sku =
+        ${TEST_SKU}
+    `;
 
     const row =
         rows[0];
@@ -246,10 +252,10 @@ async function countReservations():
 
     const rows =
         await db.sql<CountRow>`
-            SELECT
-                COUNT(*) AS count
-            FROM inventory_reservations
-        `;
+      SELECT
+        COUNT(*) AS count
+      FROM inventory_reservations
+    `;
 
     const row =
         rows[0];
@@ -270,10 +276,10 @@ async function countAdjustments():
 
     const rows =
         await db.sql<CountRow>`
-            SELECT
-                COUNT(*) AS count
-            FROM inventory_adjustments
-        `;
+      SELECT
+        COUNT(*) AS count
+      FROM inventory_adjustments
+    `;
 
     const row =
         rows[0];
@@ -297,9 +303,12 @@ before(
                 .start();
 
         /*
-         * Application services use getDatabase() without passing a
-         * connection string. Point those calls at this isolated,
-         * in-memory test database.
+         * Application inventory services call getDatabase() without an
+         * explicit connection string.
+         *
+         * Point that default driver at the isolated emulator and use the
+         * same default driver for test helper queries. This avoids creating
+         * a second independent pool solely for the test harness.
          */
         process.env.NETLIFY_DB_URL =
             connectionString;
@@ -310,19 +319,41 @@ before(
             );
 
         testDatabase =
-            getDatabase({
-                connectionString,
-            });
+            getDatabase();
     },
 );
 
 after(
     async () => {
+        /*
+         * Close the database pool before stopping the emulator.
+         *
+         * Stopping NetlifyDB first can terminate idle pg connections while
+         * node:test is still listening for asynchronous socket errors,
+         * causing otherwise successful tests to be reported as failed.
+         */
+        const database =
+            testDatabase;
+
+        testDatabase =
+            undefined;
+
+        if (
+            database
+        ) {
+            await database
+                .pool
+                .end();
+        }
+
         delete process.env
             .NETLIFY_DB_URL;
 
         await databaseEmulator
             ?.stop();
+
+        databaseEmulator =
+            undefined;
     },
 );
 
@@ -332,14 +363,14 @@ beforeEach(
             getTestDatabase();
 
         await db.sql`
-            TRUNCATE TABLE
-                inventory_adjustments,
-                inventory_reservation_items,
-                inventory_reservations,
-                inventory_items
-            RESTART IDENTITY
-            CASCADE
-        `;
+      TRUNCATE TABLE
+        inventory_adjustments,
+        inventory_reservation_items,
+        inventory_reservations,
+        inventory_items
+      RESTART IDENTITY
+      CASCADE
+    `;
     },
 );
 
@@ -419,7 +450,7 @@ test(
             ) => {
                 assert.ok(
                     error instanceof
-                        InventoryReservationError,
+                    InventoryReservationError,
                 );
 
                 assert.equal(
@@ -736,7 +767,7 @@ test(
             ) => {
                 assert.ok(
                     error instanceof
-                        InventoryManagementError,
+                    InventoryManagementError,
                 );
 
                 assert.equal(
@@ -889,7 +920,7 @@ test(
             ) => {
                 assert.ok(
                     error instanceof
-                        InventoryManagementError,
+                    InventoryManagementError,
                 );
 
                 assert.equal(
@@ -988,7 +1019,7 @@ test(
             ) => {
                 assert.ok(
                     error instanceof
-                        InventoryManagementError,
+                    InventoryManagementError,
                 );
 
                 assert.equal(
