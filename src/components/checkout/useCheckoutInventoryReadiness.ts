@@ -16,8 +16,10 @@ import type {
 } from '../../types/inventory';
 
 import {
-    isInventoryTrackingEnabledForSelection,
-} from '../../utils/product-inventory';
+    getCheckoutInventoryAvailabilityReason,
+    getCheckoutInventoryLineLabel,
+    getTrackedCheckoutInventoryLines,
+} from '../../utils/checkout-inventory-readiness';
 
 export type CheckoutInventoryReadinessStatus =
     | 'idle'
@@ -27,168 +29,22 @@ export type CheckoutInventoryReadinessStatus =
 
 export interface CheckoutInventoryReadiness {
     status:
-        CheckoutInventoryReadinessStatus;
+    CheckoutInventoryReadinessStatus;
 
     ready: boolean;
 
     reasons:
-        string[];
+    string[];
 
     revalidate:
-        () => Promise<boolean>;
-}
-
-interface TrackedCheckoutLine {
-    productSlug: string;
-
-    productName: string;
-
-    variantId?: string;
-
-    variantLabel?: string;
-
-    quantity: number;
+    () => Promise<boolean>;
 }
 
 interface UseCheckoutInventoryReadinessOptions {
     lines:
-        ResolvedCartLine[];
+    ResolvedCartLine[];
 
     enabled: boolean;
-}
-
-function getTrackedCheckoutLines(
-    lines:
-        ResolvedCartLine[],
-): TrackedCheckoutLine[] {
-    const grouped =
-        new Map<
-            string,
-            TrackedCheckoutLine
-        >();
-
-    lines.forEach(
-        (
-            item,
-        ) => {
-            if (
-                !item.available ||
-                !item.product ||
-                !isInventoryTrackingEnabledForSelection(
-                    item.product,
-                    item.variant,
-                )
-            ) {
-                return;
-            }
-
-            const key =
-                `${item.product.slug}\u0000${item.variant?.id ?? ''}`;
-
-            const existing =
-                grouped.get(
-                    key,
-                );
-
-            if (
-                existing
-            ) {
-                existing.quantity +=
-                    item.line.quantity;
-
-                return;
-            }
-
-            grouped.set(
-                key,
-                {
-                    productSlug:
-                        item.product.slug,
-
-                    productName:
-                        item.product.name,
-
-                    ...(item.variant
-                        ? {
-                            variantId:
-                                item.variant.id,
-
-                            variantLabel:
-                                item.variant.label,
-                        }
-                        : {}),
-
-                    quantity:
-                        item.line.quantity,
-                },
-            );
-        },
-    );
-
-    return Array.from(
-        grouped.values(),
-    );
-}
-
-function getLineLabel(
-    line:
-        TrackedCheckoutLine,
-): string {
-    if (
-        line.variantLabel
-    ) {
-        return `${line.productName} — ${line.variantLabel}`;
-    }
-
-    return line.productName;
-}
-
-function getAvailabilityReason(
-    line:
-        TrackedCheckoutLine,
-    response:
-        ProductInventoryResponse,
-): string | undefined {
-    const inventory =
-        response.inventory;
-
-    const label =
-        getLineLabel(
-            line,
-        );
-
-    if (
-        !inventory.tracked ||
-        inventory.available ===
-            null
-    ) {
-        return `${label} live stock could not be verified.`;
-    }
-
-    if (
-        inventory.status ===
-            'sold-out' ||
-        inventory.available <=
-            0
-    ) {
-        return `${label} is currently sold out. Remove it from your cart before checkout.`;
-    }
-
-    if (
-        line.quantity >
-        inventory.available
-    ) {
-        if (
-            inventory.available ===
-            1
-        ) {
-            return `Only 1 unit of ${label} is currently available. Reduce the cart quantity before checkout.`;
-        }
-
-        return `Only ${inventory.available} units of ${label} are currently available. Reduce the cart quantity before checkout.`;
-    }
-
-    return undefined;
 }
 
 export function useCheckoutInventoryReadiness({
@@ -199,7 +55,7 @@ export function useCheckoutInventoryReadiness({
     const trackedLines =
         useMemo(
             () =>
-                getTrackedCheckoutLines(
+                getTrackedCheckoutInventoryLines(
                     lines,
                 ),
             [
@@ -340,8 +196,8 @@ export function useCheckoutInventoryReadiness({
                                         try {
                                             body =
                                                 await response.json() as
-                                                    | ProductInventoryResponse
-                                                    | ProductInventoryErrorResponse;
+                                                | ProductInventoryResponse
+                                                | ProductInventoryErrorResponse;
                                         } catch {
                                             body =
                                                 null;
@@ -351,28 +207,28 @@ export function useCheckoutInventoryReadiness({
                                             !response.ok ||
                                             !body ||
                                             body.ok ===
-                                                false
+                                            false
                                         ) {
-                                            return `${getLineLabel(line)} stock could not be verified. Refresh or recheck stock before checkout.`;
+                                            return `${getCheckoutInventoryLineLabel(line)} stock could not be verified. Refresh or recheck stock before checkout.`;
                                         }
 
-                                        return getAvailabilityReason(
+                                        return getCheckoutInventoryAvailabilityReason(
                                             line,
-                                            body,
+                                            body.inventory,
                                         );
                                     } catch (
                                     error
                                     ) {
                                         if (
                                             error instanceof
-                                                DOMException &&
+                                            DOMException &&
                                             error.name ===
-                                                'AbortError'
+                                            'AbortError'
                                         ) {
                                             throw error;
                                         }
 
-                                        return `${getLineLabel(line)} stock could not be verified. Refresh or recheck stock before checkout.`;
+                                        return `${getCheckoutInventoryLineLabel(line)} stock could not be verified. Refresh or recheck stock before checkout.`;
                                     }
                                 },
                             ),
@@ -424,9 +280,9 @@ export function useCheckoutInventoryReadiness({
                 ) {
                     if (
                         error instanceof
-                            DOMException &&
+                        DOMException &&
                         error.name ===
-                            'AbortError'
+                        'AbortError'
                     ) {
                         return false;
                     }

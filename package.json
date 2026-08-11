@@ -14,9 +14,10 @@
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "npm run test:inventory",
+    "test": "npm run test:inventory && npm run test:checkout-inventory",
     "test:inventory": "tsx --test tests/inventory/*.test.ts",
-    "validate": "npm run check && npm run lint && npm run format:check && npm run test:inventory && npm run build",
+    "test:checkout-inventory": "tsx --test tests/checkout/*.test.ts",
+    "validate": "npm run check && npm run lint && npm run format:check && npm test && npm run build",
     "stripe:create-test-catalog": "tsx scripts/stripe/create-test-catalog.ts"
   },
   "engines": {
