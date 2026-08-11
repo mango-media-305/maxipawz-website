@@ -27,6 +27,8 @@ VALUES (
     0,
     1
 )
+
+-- Temporary Phase 1B acceptance inventory
 ON CONFLICT (sku)
 DO UPDATE SET
     product_slug =
