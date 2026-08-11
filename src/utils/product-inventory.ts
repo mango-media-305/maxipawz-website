@@ -1,7 +1,3 @@
-import {
-    isInventoryReservationAcceptanceProduct,
-} from '../config/inventory-reservation-acceptance';
-
 import type {
     Product,
     ProductAvailability,
@@ -34,15 +30,6 @@ export function isInventoryTrackingEnabledForSelection(
         return false;
     }
 
-    if (
-        !variant &&
-        isInventoryReservationAcceptanceProduct(
-            product.slug,
-        )
-    ) {
-        return true;
-    }
-
     return (
         variant?.trackInventory ??
         product.trackInventory ??
@@ -53,14 +40,6 @@ export function isInventoryTrackingEnabledForSelection(
 export function productHasTrackedInventory(
     product: Product,
 ): boolean {
-    if (
-        isInventoryReservationAcceptanceProduct(
-            product.slug,
-        )
-    ) {
-        return true;
-    }
-
     if (
         product.trackInventory ===
         true
