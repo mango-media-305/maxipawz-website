@@ -35,6 +35,9 @@ const SEND_DELAY_MILLISECONDS = 250;
 
 export type BackInStockNotificationMode = 'test' | 'live';
 
+export type BackInStockNotificationDatabase =
+    ReturnType<typeof getDatabase>;
+
 export interface BackInStockNotificationRuntimeConfig {
     enabled: boolean;
 
@@ -65,6 +68,46 @@ export interface BackInStockNotificationSummary {
     cancelled: number;
 
     manualReview: number;
+}
+
+export interface BackInStockNotificationEmailTag {
+    name: string;
+
+    value: string;
+}
+
+export interface BackInStockNotificationEmailRequest {
+    from: string;
+
+    to: string;
+
+    replyToEmail?: string;
+
+    subject: string;
+
+    html: string;
+
+    text: string;
+
+    tags: BackInStockNotificationEmailTag[];
+
+    idempotencyKey: string;
+}
+
+export interface BackInStockNotificationEmailResult {
+    id?: string;
+
+    errorMessage?: string;
+}
+
+export type BackInStockNotificationEmailSender = (
+    request: BackInStockNotificationEmailRequest,
+) => Promise<BackInStockNotificationEmailResult>;
+
+export interface BackInStockNotificationDependencies {
+    database?: BackInStockNotificationDatabase;
+
+    sendEmail?: BackInStockNotificationEmailSender;
 }
 
 interface NotificationCandidateRow {
@@ -120,7 +163,7 @@ interface ResolvedNotificationSelection {
 }
 
 type DatabaseClient = Awaited<
-    ReturnType<ReturnType<typeof getDatabase>['pool']['connect']>
+    ReturnType<BackInStockNotificationDatabase['pool']['connect']>
 >;
 
 class PermanentBackInStockNotificationError extends Error {
@@ -135,7 +178,10 @@ function normalizeDatabaseInteger(
     value: string | number,
     fieldName: string,
 ): number {
-    const normalized = typeof value === 'number' ? value : Number(value);
+    const normalized =
+        typeof value === 'number'
+            ? value
+            : Number(value);
 
     if (!Number.isSafeInteger(normalized)) {
         throw new Error(
@@ -146,37 +192,126 @@ function normalizeDatabaseInteger(
     return normalized;
 }
 
-function getSafeErrorMessage(error: unknown): string {
+function getSafeErrorMessage(
+    error: unknown,
+): string {
     if (error instanceof Error) {
-        return error.message.slice(0, MAXIMUM_ERROR_LENGTH);
+        return error.message.slice(
+            0,
+            MAXIMUM_ERROR_LENGTH,
+        );
     }
 
     return 'Unknown back-in-stock notification error.';
 }
 
-function delay(milliseconds: number): Promise<void> {
+function delay(
+    milliseconds: number,
+): Promise<void> {
     return new Promise((resolve) => {
-        setTimeout(resolve, milliseconds);
+        setTimeout(
+            resolve,
+            milliseconds,
+        );
     });
 }
 
-async function withTransaction<T>(
-    operation: (client: DatabaseClient) => Promise<T>,
-): Promise<T> {
-    const db = getDatabase();
+function createResendEmailSender(
+    apiKey: string,
+): BackInStockNotificationEmailSender {
+    const resend =
+        new Resend(apiKey);
 
-    const client = await db.pool.connect();
+    return async (
+        request,
+    ) => {
+        const result =
+            await resend.emails.send(
+                {
+                    from:
+                        request.from,
+
+                    to:
+                        request.to,
+
+                    ...(request.replyToEmail
+                        ? {
+                            replyTo:
+                                request.replyToEmail,
+                        }
+                        : {}),
+
+                    subject:
+                        request.subject,
+
+                    html:
+                        request.html,
+
+                    text:
+                        request.text,
+
+                    tags:
+                        request.tags,
+                },
+                {
+                    idempotencyKey:
+                        request.idempotencyKey,
+                },
+            );
+
+        if (result.error) {
+            return {
+                errorMessage:
+                    result.error.message,
+            };
+        }
+
+        if (!result.data?.id) {
+            return {};
+        }
+
+        return {
+            id:
+                result.data.id,
+        };
+    };
+}
+
+async function withTransaction<T>(
+    database:
+        BackInStockNotificationDatabase,
+
+    operation:
+        (
+            client: DatabaseClient,
+        ) => Promise<T>,
+): Promise<T> {
+    const client =
+        await database.pool.connect();
 
     try {
-        await client.query('BEGIN');
+        await client.query(
+            'BEGIN',
+        );
 
-        const result = await operation(client);
+        const result =
+            await operation(
+                client,
+            );
 
-        await client.query('COMMIT');
+        await client.query(
+            'COMMIT',
+        );
 
         return result;
     } catch (error) {
-        await client.query('ROLLBACK').catch(() => undefined);
+        await client
+            .query(
+                'ROLLBACK',
+            )
+            .catch(
+                () => undefined,
+            );
 
         throw error;
     } finally {
@@ -184,160 +319,201 @@ async function withTransaction<T>(
     }
 }
 
-async function claimNextEligibleNotification(): Promise<
-    BackInStockNotificationClaim | null
-> {
-    return await withTransaction(async (client) => {
-        /*
-         * Values used to construct time intervals are real PostgreSQL bind
-         * parameters. Do not interpolate a bind parameter inside an
-         * INTERVAL '...' string, because PostgreSQL treats the entire string
-         * as a literal and cannot bind the value.
-         */
-        const result = await client.query(
-            `
-        SELECT
-          subscription.id,
-          subscription.inventory_item_id,
-          subscription.product_slug,
-          subscription.variant_id,
-          subscription.sku,
-          subscription.email,
-          subscription.email_hash,
-          subscription.status,
-          subscription.notification_count
-        FROM back_in_stock_subscriptions
-          AS subscription
-        INNER JOIN inventory_items
-          AS inventory
-          ON inventory.id =
-            subscription.inventory_item_id
-        WHERE
-          (
-            subscription.status = 'active'
-            OR (
-              subscription.status = 'processing'
-              AND subscription.claim_expires_at <= NOW()
-              AND subscription.last_attempt_at IS NOT NULL
-              AND subscription.last_attempt_at >=
-                NOW() - make_interval(hours => $1)
-            )
-          )
-          AND inventory.product_slug =
-            subscription.product_slug
-          AND inventory.variant_id
-            IS NOT DISTINCT FROM
-            subscription.variant_id
-          AND inventory.sku =
-            subscription.sku
-          AND (
-            inventory.on_hand -
-            inventory.reserved
-          ) > 0
-        ORDER BY
-          subscription.last_requested_at ASC,
-          subscription.created_at ASC
-        LIMIT 1
-        FOR UPDATE OF subscription
-        SKIP LOCKED
-      `,
-            [AUTOMATIC_RETRY_WINDOW_HOURS],
-        );
+async function claimNextEligibleNotification(
+    database:
+        BackInStockNotificationDatabase,
+): Promise<BackInStockNotificationClaim | null> {
+    return await withTransaction(
+        database,
 
-        const row = result.rows[0] as NotificationCandidateRow | undefined;
+        async (
+            client,
+        ) => {
+            const result =
+                await client.query(
+                    `
+            SELECT
+              subscription.id,
+              subscription.inventory_item_id,
+              subscription.product_slug,
+              subscription.variant_id,
+              subscription.sku,
+              subscription.email,
+              subscription.email_hash,
+              subscription.status,
+              subscription.notification_count
+            FROM back_in_stock_subscriptions
+              AS subscription
+            INNER JOIN inventory_items
+              AS inventory
+              ON inventory.id =
+                subscription.inventory_item_id
+            WHERE
+              (
+                subscription.status = 'active'
+                OR (
+                  subscription.status = 'processing'
+                  AND subscription.claim_expires_at <= NOW()
+                  AND subscription.last_attempt_at IS NOT NULL
+                  AND subscription.last_attempt_at >=
+                    NOW() - make_interval(hours => $1)
+                )
+              )
+              AND inventory.product_slug =
+                subscription.product_slug
+              AND inventory.variant_id
+                IS NOT DISTINCT FROM
+                subscription.variant_id
+              AND inventory.sku =
+                subscription.sku
+              AND (
+                inventory.on_hand -
+                inventory.reserved
+              ) > 0
+            ORDER BY
+              subscription.last_requested_at ASC,
+              subscription.created_at ASC
+            LIMIT 1
+            FOR UPDATE OF subscription
+            SKIP LOCKED
+          `,
+                    [
+                        AUTOMATIC_RETRY_WINDOW_HOURS,
+                    ],
+                );
 
-        if (!row) {
-            return null;
-        }
+            const row =
+                result.rows[0] as
+                | NotificationCandidateRow
+                | undefined;
 
-        if (row.status !== 'active' && row.status !== 'processing') {
-            throw new Error(
-                'An invalid back-in-stock subscription state was selected.',
-            );
-        }
+            if (!row) {
+                return null;
+            }
 
-        const notificationCount = normalizeDatabaseInteger(
-            row.notification_count,
-            'notification_count',
-        );
+            if (
+                row.status !== 'active' &&
+                row.status !== 'processing'
+            ) {
+                throw new Error(
+                    'An invalid back-in-stock subscription state was selected.',
+                );
+            }
 
-        if (notificationCount < 0) {
-            throw new Error(
-                'Back-in-stock notification count cannot be negative.',
-            );
-        }
+            const notificationCount =
+                normalizeDatabaseInteger(
+                    row.notification_count,
+                    'notification_count',
+                );
 
-        const claimToken = randomUUID();
+            if (
+                notificationCount <
+                0
+            ) {
+                throw new Error(
+                    'Back-in-stock notification count cannot be negative.',
+                );
+            }
 
-        const updateResult = await client.query(
-            `
-        UPDATE back_in_stock_subscriptions
-        SET
-          status = 'processing',
+            const claimToken =
+                randomUUID();
 
-          claim_token = $2,
+            const updateResult =
+                await client.query(
+                    `
+            UPDATE back_in_stock_subscriptions
+            SET
+              status = 'processing',
 
-          claim_expires_at =
-            NOW() + make_interval(mins => $4),
+              claim_token = $2,
 
-          last_attempt_at =
-            CASE
-              WHEN $3 = 'active'
-                THEN NOW()
-              ELSE last_attempt_at
-            END,
+              claim_expires_at =
+                NOW() + make_interval(mins => $4),
 
-          last_error = NULL
-        WHERE id = $1
-        RETURNING id
-      `,
-            [
-                row.id,
+              last_attempt_at =
+                CASE
+                  WHEN $3 = 'active'
+                    THEN NOW()
+                  ELSE last_attempt_at
+                END,
+
+              last_error = NULL
+            WHERE id = $1
+            RETURNING id
+          `,
+                    [
+                        row.id,
+
+                        claimToken,
+
+                        row.status,
+
+                        CLAIM_MINUTES,
+                    ],
+                );
+
+            if (
+                updateResult.rows.length !==
+                1
+            ) {
+                throw new Error(
+                    'The back-in-stock notification claim could not be created.',
+                );
+            }
+
+            return {
+                subscriptionId:
+                    row.id,
+
+                inventoryItemId:
+                    String(
+                        row.inventory_item_id,
+                    ),
+
+                productSlug:
+                    row.product_slug,
+
+                ...(row.variant_id
+                    ? {
+                        variantId:
+                            row.variant_id,
+                    }
+                    : {}),
+
+                sku:
+                    row.sku,
+
+                email:
+                    row.email,
+
+                emailHash:
+                    row.email_hash,
+
+                deliverySequence:
+                    notificationCount +
+                    1,
+
                 claimToken,
-                row.status,
-                CLAIM_MINUTES,
-            ],
-        );
-
-        if (updateResult.rows.length !== 1) {
-            throw new Error(
-                'The back-in-stock notification claim could not be created.',
-            );
-        }
-
-        return {
-            subscriptionId: row.id,
-
-            inventoryItemId: String(row.inventory_item_id),
-
-            productSlug: row.product_slug,
-
-            ...(row.variant_id
-                ? {
-                    variantId: row.variant_id,
-                }
-                : {}),
-
-            sku: row.sku,
-
-            email: row.email,
-
-            emailHash: row.email_hash,
-
-            deliverySequence: notificationCount + 1,
-
-            claimToken,
-        };
-    });
+            };
+        },
+    );
 }
 
 function resolveNotificationSelection(
-    claim: BackInStockNotificationClaim,
-    siteUrl: string,
+    claim:
+        BackInStockNotificationClaim,
+
+    siteUrl:
+        string,
 ): ResolvedNotificationSelection {
-    const product = products.find(
-        (candidate) => candidate.slug === claim.productSlug,
-    );
+    const product =
+        products.find(
+            (
+                candidate,
+            ) =>
+                candidate.slug ===
+                claim.productSlug,
+        );
 
     if (!product) {
         throw new PermanentBackInStockNotificationError(
@@ -345,25 +521,41 @@ function resolveNotificationSelection(
         );
     }
 
-    const variant = claim.variantId
-        ? product.variants?.find(
-            (candidate) => candidate.id === claim.variantId,
-        )
-        : undefined;
+    const variant =
+        claim.variantId
+            ? product.variants
+                ?.find(
+                    (
+                        candidate,
+                    ) =>
+                        candidate.id ===
+                        claim.variantId,
+                )
+            : undefined;
 
-    if (claim.variantId && !variant) {
+    if (
+        claim.variantId &&
+        !variant
+    ) {
         throw new PermanentBackInStockNotificationError(
             'The subscribed product variant no longer exists in the catalog.',
         );
     }
 
-    if (product.variants?.length && !claim.variantId) {
+    if (
+        product.variants
+            ?.length &&
+        !claim.variantId
+    ) {
         throw new PermanentBackInStockNotificationError(
             'The subscribed catalog selection is missing its required variant.',
         );
     }
 
-    if (product.status !== 'active') {
+    if (
+        product.status !==
+        'active'
+    ) {
         throw new PermanentBackInStockNotificationError(
             'The subscribed product is no longer active.',
         );
@@ -373,7 +565,8 @@ function resolveNotificationSelection(
         getEffectiveProductAvailability(
             product,
             variant,
-        ) !== 'in-stock'
+        ) !==
+        'in-stock'
     ) {
         throw new PermanentBackInStockNotificationError(
             'The subscribed selection is no longer eligible for runtime stock notifications.',
@@ -391,28 +584,36 @@ function resolveNotificationSelection(
         );
     }
 
-    const catalogSku = getInventorySku(
-        product,
-        variant,
-    )?.trim();
+    const catalogSku =
+        getInventorySku(
+            product,
+            variant,
+        )?.trim();
 
-    if (!catalogSku || catalogSku !== claim.sku) {
+    if (
+        !catalogSku ||
+        catalogSku !==
+        claim.sku
+    ) {
         throw new PermanentBackInStockNotificationError(
             'The subscribed inventory SKU no longer matches the catalog.',
         );
     }
 
-    const productUrl = new URL(
-        `/shop/${encodeURIComponent(product.slug)}`,
-        `${siteUrl}/`,
-    ).toString();
+    const productUrl =
+        new URL(
+            `/shop/${encodeURIComponent(product.slug)}`,
+            `${siteUrl}/`,
+        ).toString();
 
     return {
-        productName: product.name,
+        productName:
+            product.name,
 
         ...(variant
             ? {
-                variantLabel: variant.label,
+                variantLabel:
+                    variant.label,
             }
             : {}),
 
@@ -421,48 +622,55 @@ function resolveNotificationSelection(
 }
 
 async function markNotificationSent(
-    claim: BackInStockNotificationClaim,
+    database:
+        BackInStockNotificationDatabase,
+
+    claim:
+        BackInStockNotificationClaim,
 ): Promise<void> {
-    const db = getDatabase();
-
     const previousNotificationCount =
-        claim.deliverySequence - 1;
+        claim.deliverySequence -
+        1;
 
-    const result = await db.sql`
-    UPDATE back_in_stock_subscriptions
-    SET
-      status = 'notified',
+    const result =
+        await database.sql`
+      UPDATE back_in_stock_subscriptions
+      SET
+        status = 'notified',
 
-      notification_count =
-        ${claim.deliverySequence},
+        notification_count =
+          ${claim.deliverySequence},
 
-      last_notified_at =
-        NOW(),
+        last_notified_at =
+          NOW(),
 
-      claim_token =
-        NULL,
+        claim_token =
+          NULL,
 
-      claim_expires_at =
-        NULL,
+        claim_expires_at =
+          NULL,
 
-      last_error =
-        NULL
-    WHERE
-      id =
-        ${claim.subscriptionId}
+        last_error =
+          NULL
+      WHERE
+        id =
+          ${claim.subscriptionId}
 
-      AND status =
-        'processing'
+        AND status =
+          'processing'
 
-      AND claim_token =
-        ${claim.claimToken}
+        AND claim_token =
+          ${claim.claimToken}
 
-      AND notification_count =
-        ${previousNotificationCount}
-    RETURNING id
-  `;
+        AND notification_count =
+          ${previousNotificationCount}
+      RETURNING id
+    `;
 
-    if (result.length !== 1) {
+    if (
+        result.length !==
+        1
+    ) {
         throw new Error(
             'The delivered back-in-stock notification could not be committed.',
         );
@@ -470,12 +678,16 @@ async function markNotificationSent(
 }
 
 async function markNotificationFailed(
-    claim: BackInStockNotificationClaim,
-    error: unknown,
-): Promise<void> {
-    const db = getDatabase();
+    database:
+        BackInStockNotificationDatabase,
 
-    await db.sql`
+    claim:
+        BackInStockNotificationClaim,
+
+    error:
+        unknown,
+): Promise<void> {
+    await database.sql`
     UPDATE back_in_stock_subscriptions
     SET
       last_error =
@@ -493,83 +705,85 @@ async function markNotificationFailed(
 }
 
 async function cancelNotificationClaim(
-    claim: BackInStockNotificationClaim,
-    error: unknown,
+    database:
+        BackInStockNotificationDatabase,
+
+    claim:
+        BackInStockNotificationClaim,
+
+    error:
+        unknown,
 ): Promise<void> {
-    const db = getDatabase();
+    const result =
+        await database.sql`
+      UPDATE back_in_stock_subscriptions
+      SET
+        status =
+          'cancelled',
 
-    const result = await db.sql`
-    UPDATE back_in_stock_subscriptions
-    SET
-      status =
-        'cancelled',
+        cancelled_at =
+          NOW(),
 
-      cancelled_at =
-        NOW(),
+        claim_token =
+          NULL,
 
-      claim_token =
-        NULL,
+        claim_expires_at =
+          NULL,
 
-      claim_expires_at =
-        NULL,
+        last_error =
+          ${getSafeErrorMessage(error)}
+      WHERE
+        id =
+          ${claim.subscriptionId}
 
-      last_error =
-        ${getSafeErrorMessage(error)}
-    WHERE
-      id =
-        ${claim.subscriptionId}
+        AND status =
+          'processing'
 
-      AND status =
-        'processing'
+        AND claim_token =
+          ${claim.claimToken}
+      RETURNING id
+    `;
 
-      AND claim_token =
-        ${claim.claimToken}
-    RETURNING id
-  `;
-
-    if (result.length !== 1) {
+    if (
+        result.length !==
+        1
+    ) {
         throw new Error(
             'The obsolete back-in-stock notification could not be cancelled.',
         );
     }
 }
 
-async function countNotificationsNeedingManualReview(): Promise<number> {
-    const db = getDatabase();
-
+async function countNotificationsNeedingManualReview(
+    database:
+        BackInStockNotificationDatabase,
+): Promise<number> {
     /*
-     * db.sql automatically converts interpolated values into bind
-     * parameters. Keep the parameter outside any SQL string literal.
-     *
-     * This generates:
-     *
-     *   make_interval(hours => $1)
-     *
-     * rather than the invalid:
-     *
-     *   INTERVAL '$1 hours'
+     * Keep the bind parameter outside any INTERVAL string literal.
      */
-    const rows = await db.sql<CountRow>`
-    SELECT
-      COUNT(*) AS count
-    FROM back_in_stock_subscriptions
-    WHERE
-      status =
-        'processing'
+    const rows =
+        await database.sql<CountRow>`
+      SELECT
+        COUNT(*) AS count
+      FROM back_in_stock_subscriptions
+      WHERE
+        status =
+          'processing'
 
-      AND claim_expires_at <=
-        NOW()
+        AND claim_expires_at <=
+          NOW()
 
-      AND (
-        last_attempt_at IS NULL
-        OR last_attempt_at <
-          NOW() - make_interval(
-            hours => ${AUTOMATIC_RETRY_WINDOW_HOURS}
-          )
-      )
-  `;
+        AND (
+          last_attempt_at IS NULL
+          OR last_attempt_at <
+            NOW() - make_interval(
+              hours => ${AUTOMATIC_RETRY_WINDOW_HOURS}
+            )
+        )
+    `;
 
-    const row = rows[0];
+    const row =
+        rows[0];
 
     if (!row) {
         return 0;
@@ -582,7 +796,8 @@ async function countNotificationsNeedingManualReview(): Promise<number> {
 }
 
 function validateRuntimeConfig(
-    config: BackInStockNotificationRuntimeConfig,
+    config:
+        BackInStockNotificationRuntimeConfig,
 ): void {
     if (!config.enabled) {
         return;
@@ -590,20 +805,28 @@ function validateRuntimeConfig(
 
     if (
         !config.apiKey ||
-        !config.apiKey.startsWith('re_')
+        !config.apiKey.startsWith(
+            're_',
+        )
     ) {
         throw new Error(
             'A valid Resend API key is required for back-in-stock notifications.',
         );
     }
 
-    if (!config.fromName.trim()) {
+    if (
+        !config.fromName.trim()
+    ) {
         throw new Error(
             'A sender name is required for back-in-stock notifications.',
         );
     }
 
-    if (!config.fromEmail.includes('@')) {
+    if (
+        !config.fromEmail.includes(
+            '@',
+        )
+    ) {
         throw new Error(
             'A valid sender email is required for back-in-stock notifications.',
         );
@@ -611,7 +834,9 @@ function validateRuntimeConfig(
 
     if (
         config.replyToEmail &&
-        !config.replyToEmail.includes('@')
+        !config.replyToEmail.includes(
+            '@',
+        )
     ) {
         throw new Error(
             'The back-in-stock reply-to email is invalid.',
@@ -619,7 +844,8 @@ function validateRuntimeConfig(
     }
 
     if (
-        config.mode === 'test' &&
+        config.mode ===
+        'test' &&
         !config.sandboxRecipientEmail
     ) {
         throw new Error(
@@ -627,13 +853,16 @@ function validateRuntimeConfig(
         );
     }
 
-    const parsedSiteUrl = new URL(
-        config.siteUrl,
-    );
+    const parsedSiteUrl =
+        new URL(
+            config.siteUrl,
+        );
 
     if (
-        parsedSiteUrl.protocol !== 'https:' &&
-        parsedSiteUrl.protocol !== 'http:'
+        parsedSiteUrl.protocol !==
+        'https:' &&
+        parsedSiteUrl.protocol !==
+        'http:'
     ) {
         throw new Error(
             'The back-in-stock site URL must use HTTP or HTTPS.',
@@ -642,50 +871,83 @@ function validateRuntimeConfig(
 }
 
 export async function processBackInStockNotifications(
-    config: BackInStockNotificationRuntimeConfig,
-    batchLimit = DEFAULT_BATCH_LIMIT,
+    config:
+        BackInStockNotificationRuntimeConfig,
+
+    batchLimit =
+        DEFAULT_BATCH_LIMIT,
+
+    dependencies:
+        BackInStockNotificationDependencies =
+        {},
 ): Promise<BackInStockNotificationSummary> {
-    validateRuntimeConfig(config);
+    validateRuntimeConfig(
+        config,
+    );
+
+    const database =
+        dependencies.database ??
+        getDatabase();
 
     if (!config.enabled) {
         return {
-            enabled: false,
+            enabled:
+                false,
 
-            claimed: 0,
+            claimed:
+                0,
 
-            sent: 0,
+            sent:
+                0,
 
-            failed: 0,
+            failed:
+                0,
 
-            cancelled: 0,
+            cancelled:
+                0,
 
             manualReview:
-                await countNotificationsNeedingManualReview(),
+                await countNotificationsNeedingManualReview(
+                    database,
+                ),
         };
     }
 
-    const normalizedBatchLimit = Math.min(
-        Math.max(
-            Math.trunc(batchLimit),
-            1,
-        ),
-        MAXIMUM_BATCH_LIMIT,
-    );
+    const normalizedBatchLimit =
+        Math.min(
+            Math.max(
+                Math.trunc(
+                    batchLimit,
+                ),
+                1,
+            ),
+            MAXIMUM_BATCH_LIMIT,
+        );
 
-    const resend = new Resend(
-        config.apiKey,
-    );
+    /*
+     * Production gets the real Resend adapter.
+     * Tests can inject a deterministic in-memory sender instead.
+     */
+    const sendEmail =
+        dependencies.sendEmail ??
+        createResendEmailSender(
+            config.apiKey,
+        );
 
     const from =
         `${config.fromName} <${config.fromEmail}>`;
 
-    let claimed = 0;
+    let claimed =
+        0;
 
-    let sent = 0;
+    let sent =
+        0;
 
-    let failed = 0;
+    let failed =
+        0;
 
-    let cancelled = 0;
+    let cancelled =
+        0;
 
     for (
         let index = 0;
@@ -693,13 +955,16 @@ export async function processBackInStockNotifications(
         index += 1
     ) {
         const claim =
-            await claimNextEligibleNotification();
+            await claimNextEligibleNotification(
+                database,
+            );
 
         if (!claim) {
             break;
         }
 
-        claimed += 1;
+        claimed +=
+            1;
 
         try {
             const selection =
@@ -709,7 +974,8 @@ export async function processBackInStockNotifications(
                 );
 
             const recipient =
-                config.mode === 'test'
+                config.mode ===
+                    'test'
                     ? config.sandboxRecipientEmail
                     : claim.email;
 
@@ -738,109 +1004,131 @@ export async function processBackInStockNotifications(
                         config.siteUrl,
 
                     testMode:
-                        config.mode === 'test',
+                        config.mode ===
+                        'test',
                 });
 
-            const result =
-                await resend.emails.send(
-                    {
-                        from,
+            const emailResult =
+                await sendEmail({
+                    from,
 
-                        to: recipient,
+                    to:
+                        recipient,
 
-                        ...(config.replyToEmail
-                            ? {
-                                replyTo:
-                                    config.replyToEmail,
-                            }
-                            : {}),
+                    ...(config.replyToEmail
+                        ? {
+                            replyToEmail:
+                                config.replyToEmail,
+                        }
+                        : {}),
 
-                        subject:
-                            content.subject,
+                    subject:
+                        content.subject,
 
-                        html:
-                            content.html,
+                    html:
+                        content.html,
 
-                        text:
-                            content.text,
+                    text:
+                        content.text,
 
-                        tags: [
-                            {
-                                name: 'category',
-                                value: 'back-in-stock',
-                            },
+                    tags: [
+                        {
+                            name:
+                                'category',
 
-                            {
-                                name: 'storefront',
-                                value: 'maxipawz',
-                            },
+                            value:
+                                'back-in-stock',
+                        },
 
-                            {
-                                name: 'mode',
-                                value: config.mode,
-                            },
+                        {
+                            name:
+                                'storefront',
 
-                            {
-                                name: 'subscription_id',
-                                value:
-                                    claim.subscriptionId,
-                            },
+                            value:
+                                'maxipawz',
+                        },
 
-                            {
-                                name: 'recipient_hash',
-                                value:
-                                    claim.emailHash,
-                            },
-                        ],
-                    },
-                    {
-                        idempotencyKey:
-                            `back-in-stock/${claim.subscriptionId}/${claim.deliverySequence}`,
-                    },
-                );
+                        {
+                            name:
+                                'mode',
 
-            if (result.error) {
+                            value:
+                                config.mode,
+                        },
+
+                        {
+                            name:
+                                'subscription_id',
+
+                            value:
+                                claim.subscriptionId,
+                        },
+
+                        {
+                            name:
+                                'recipient_hash',
+
+                            value:
+                                claim.emailHash,
+                        },
+                    ],
+
+                    idempotencyKey:
+                        `back-in-stock/${claim.subscriptionId}/${claim.deliverySequence}`,
+                });
+
+            if (
+                emailResult.errorMessage
+            ) {
                 throw new Error(
-                    result.error.message,
+                    emailResult.errorMessage,
                 );
             }
 
-            if (!result.data?.id) {
+            if (
+                !emailResult.id
+            ) {
                 throw new Error(
                     'Resend did not return an email ID for the back-in-stock notification.',
                 );
             }
 
             /*
-             * Commit only after Resend confirms the request.
+             * Commit only after the provider confirms the request.
              *
-             * If the process dies after Resend accepts the email but before this
-             * update commits, the next claim uses the same deliverySequence and
-             * therefore the same Resend idempotency key.
+             * If the process dies after the email provider accepts the message but
+             * before this update commits, the next retry keeps the same
+             * deliverySequence and therefore the same idempotency key.
              */
             await markNotificationSent(
+                database,
                 claim,
             );
 
-            sent += 1;
+            sent +=
+                1;
         } catch (error) {
             if (
                 error instanceof
                 PermanentBackInStockNotificationError
             ) {
                 await cancelNotificationClaim(
+                    database,
                     claim,
                     error,
                 );
 
-                cancelled += 1;
+                cancelled +=
+                    1;
             } else {
                 await markNotificationFailed(
+                    database,
                     claim,
                     error,
                 );
 
-                failed += 1;
+                failed +=
+                    1;
             }
 
             console.error(
@@ -865,7 +1153,8 @@ export async function processBackInStockNotifications(
 
         if (
             index <
-            normalizedBatchLimit - 1
+            normalizedBatchLimit -
+            1
         ) {
             await delay(
                 SEND_DELAY_MILLISECONDS,
@@ -874,7 +1163,8 @@ export async function processBackInStockNotifications(
     }
 
     return {
-        enabled: true,
+        enabled:
+            true,
 
         claimed,
 
@@ -885,6 +1175,8 @@ export async function processBackInStockNotifications(
         cancelled,
 
         manualReview:
-            await countNotificationsNeedingManualReview(),
+            await countNotificationsNeedingManualReview(
+                database,
+            ),
     };
 }
