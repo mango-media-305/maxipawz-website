@@ -3,24 +3,18 @@
  *
  * Migrations 005 and 006 are intentionally preserved as immutable history.
  *
- * The acceptance reservations must be removed before the temporary
- * inventory item because inventory_reservation_items references
- * inventory_items with ON DELETE RESTRICT.
+ * The temporary acceptance SKU exists solely for the isolated Phase 1B
+ * reservation tests. Any reservation containing only that exact acceptance
+ * selection can therefore be removed regardless of lifecycle status.
  *
- * Only single-item, terminal-state reservations containing the exact
- * acceptance SKU are eligible for deletion. If an active, payment-pending,
- * or mixed-item reservation unexpectedly references this SKU, the later
- * inventory delete will fail rather than silently deleting unrelated data.
+ * Mixed reservations are intentionally preserved. If one unexpectedly
+ * references the acceptance SKU, the final inventory delete will fail
+ * closed rather than deleting unrelated reservation data.
  */
 
 DELETE FROM inventory_reservations AS reservation
 WHERE
-    reservation.status IN (
-        'completed',
-        'released',
-        'expired'
-    )
-    AND EXISTS (
+    EXISTS (
         SELECT 1
         FROM inventory_reservation_items AS item
         WHERE
