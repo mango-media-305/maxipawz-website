@@ -24,6 +24,10 @@ export interface InventoryItem {
 
     lowStockThreshold: number;
 
+    reorderThreshold?: number;
+
+    reorderRecommended: boolean;
+
     status: InventoryStockStatus;
 
     createdAt: string;
@@ -41,8 +45,8 @@ export interface PublicInventorySnapshot {
     sku?: string;
 
     status:
-    | InventoryStockStatus
-    | 'not-tracked';
+        | InventoryStockStatus
+        | 'not-tracked';
 
     available: number | null;
 
@@ -52,17 +56,18 @@ export interface PublicInventorySnapshot {
 export interface ProductInventoryResponse {
     ok: true;
 
-    inventory: PublicInventorySnapshot;
+    inventory:
+        PublicInventorySnapshot;
 }
 
 export interface ProductInventoryErrorResponse {
     ok: false;
 
     code:
-    | 'invalid-request'
-    | 'product-not-found'
-    | 'variant-not-found'
-    | 'inventory-error';
+        | 'invalid-request'
+        | 'product-not-found'
+        | 'variant-not-found'
+        | 'inventory-error';
 
     message: string;
 }

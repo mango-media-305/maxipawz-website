@@ -1,0 +1,43 @@
+---
+import AdminReservations from '@components/admin/AdminReservations';
+import BaseLayout from '@layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+    title="Inventory Reservations"
+    description="Private Maxi Pawz inventory reservation inspection dashboard."
+    noIndex={true}
+>
+    <section class="section-spacing">
+        <div class="site-container">
+            <nav
+                class="mb-6 flex flex-wrap gap-2"
+                aria-label="Admin navigation"
+            >
+                <a
+                    href="/admin/inventory"
+                    class="rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-sm font-extrabold text-brand-800 transition hover:bg-brand-100"
+                >
+                    Inventory
+                </a>
+
+                <a
+                    href="/admin/reservations"
+                    aria-current="page"
+                    class="rounded-full bg-brand-500 px-4 py-2 text-sm font-extrabold text-white"
+                >
+                    Reservations
+                </a>
+
+                <a
+                    href="/admin/orders"
+                    class="rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-sm font-extrabold text-brand-800 transition hover:bg-brand-100"
+                >
+                    Orders
+                </a>
+            </nav>
+
+            <AdminReservations client:load />
+        </div>
+    </section>
+</BaseLayout>

@@ -9,7 +9,9 @@ import type {
 } from '../types/inventory';
 
 interface InventoryDatabaseRow {
-    id: string | number;
+    id:
+        | string
+        | number;
 
     product_slug: string;
 
@@ -19,11 +21,22 @@ interface InventoryDatabaseRow {
 
     sku: string;
 
-    on_hand: number | string;
+    on_hand:
+        | number
+        | string;
 
-    reserved: number | string;
+    reserved:
+        | number
+        | string;
 
-    low_stock_threshold: number | string;
+    low_stock_threshold:
+        | number
+        | string;
+
+    reorder_threshold:
+        | number
+        | string
+        | null;
 
     created_at:
         | string
@@ -41,9 +54,12 @@ function normalizeInteger(
     fieldName: string,
 ): number {
     const normalized =
-        typeof value === 'number'
+        typeof value ===
+            'number'
             ? value
-            : Number(value);
+            : Number(
+                value,
+            );
 
     if (
         !Number.isSafeInteger(
@@ -58,19 +74,42 @@ function normalizeInteger(
     return normalized;
 }
 
+function normalizeOptionalInteger(
+    value:
+        | number
+        | string
+        | null,
+    fieldName: string,
+): number | undefined {
+    if (
+        value ===
+        null
+    ) {
+        return undefined;
+    }
+
+    return normalizeInteger(
+        value,
+        fieldName,
+    );
+}
+
 function normalizeTimestamp(
     value:
         | string
         | Date,
 ): string {
     if (
-        value instanceof Date
+        value instanceof
+        Date
     ) {
         return value.toISOString();
     }
 
     const date =
-        new Date(value);
+        new Date(
+            value,
+        );
 
     if (
         Number.isNaN(
@@ -90,7 +129,8 @@ function getInventoryStatus(
     lowStockThreshold: number,
 ): InventoryStockStatus {
     if (
-        available <= 0
+        available <=
+        0
     ) {
         return 'sold-out';
     }
@@ -106,7 +146,8 @@ function getInventoryStatus(
 }
 
 function mapInventoryRow(
-    row: InventoryDatabaseRow,
+    row:
+        InventoryDatabaseRow,
 ): InventoryItem {
     const onHand =
         normalizeInteger(
@@ -126,12 +167,24 @@ function mapInventoryRow(
             'low_stock_threshold',
         );
 
+    const reorderThreshold =
+        normalizeOptionalInteger(
+            row.reorder_threshold,
+            'reorder_threshold',
+        );
+
     const available =
         Math.max(
             0,
             onHand -
                 reserved,
         );
+
+    const reorderRecommended =
+        reorderThreshold !==
+            undefined &&
+        available <=
+            reorderThreshold;
 
     return {
         id:
@@ -160,6 +213,15 @@ function mapInventoryRow(
 
         lowStockThreshold,
 
+        ...(reorderThreshold !==
+            undefined
+            ? {
+                reorderThreshold,
+            }
+            : {}),
+
+        reorderRecommended,
+
         status:
             getInventoryStatus(
                 available,
@@ -182,8 +244,8 @@ export async function getInventoryItem(
     productSlug: string,
     variantId?: string,
 ): Promise<
-    InventoryItem
-    | undefined
+    InventoryItem |
+    undefined
 > {
     const db =
         getDatabase();
@@ -198,6 +260,7 @@ export async function getInventoryItem(
                 on_hand,
                 reserved,
                 low_stock_threshold,
+                reorder_threshold,
                 created_at,
                 updated_at
             FROM inventory_items
@@ -224,8 +287,8 @@ export async function getInventoryItem(
 export async function getInventoryItemBySku(
     sku: string,
 ): Promise<
-    InventoryItem
-    | undefined
+    InventoryItem |
+    undefined
 > {
     const db =
         getDatabase();
@@ -240,6 +303,7 @@ export async function getInventoryItemBySku(
                 on_hand,
                 reserved,
                 low_stock_threshold,
+                reorder_threshold,
                 created_at,
                 updated_at
             FROM inventory_items
@@ -261,9 +325,8 @@ export async function getInventoryItemBySku(
     );
 }
 
-export async function getInventoryItemsForProduct(
-    productSlug: string,
-): Promise<InventoryItem[]> {
+export async function listInventoryItems():
+    Promise<InventoryItem[]> {
     const db =
         getDatabase();
 
@@ -277,6 +340,44 @@ export async function getInventoryItemsForProduct(
                 on_hand,
                 reserved,
                 low_stock_threshold,
+                reorder_threshold,
+                created_at,
+                updated_at
+            FROM inventory_items
+            ORDER BY
+                product_slug ASC,
+                variant_id NULLS FIRST,
+                sku ASC
+        `;
+
+    return rows.map(
+        (row) =>
+            mapInventoryRow(
+                row as
+                    InventoryDatabaseRow,
+            ),
+    );
+}
+
+export async function getInventoryItemsForProduct(
+    productSlug: string,
+): Promise<
+    InventoryItem[]
+> {
+    const db =
+        getDatabase();
+
+    const rows =
+        await db.sql`
+            SELECT
+                id,
+                product_slug,
+                variant_id,
+                sku,
+                on_hand,
+                reserved,
+                low_stock_threshold,
+                reorder_threshold,
                 created_at,
                 updated_at
             FROM inventory_items
@@ -289,7 +390,8 @@ export async function getInventoryItemsForProduct(
     return rows.map(
         (row) =>
             mapInventoryRow(
-                row as InventoryDatabaseRow,
+                row as
+                    InventoryDatabaseRow,
             ),
     );
 }
@@ -297,7 +399,9 @@ export async function getInventoryItemsForProduct(
 export async function getPublicInventorySnapshot(
     productSlug: string,
     variantId?: string,
-): Promise<PublicInventorySnapshot> {
+): Promise<
+    PublicInventorySnapshot
+> {
     const inventory =
         await getInventoryItem(
             productSlug,
@@ -306,7 +410,8 @@ export async function getPublicInventorySnapshot(
 
     if (!inventory) {
         return {
-            tracked: false,
+            tracked:
+                false,
 
             productSlug,
 
@@ -328,15 +433,18 @@ export async function getPublicInventorySnapshot(
     }
 
     return {
-        tracked: true,
+        tracked:
+            true,
 
         productSlug:
-            inventory.productSlug,
+            inventory
+                .productSlug,
 
         ...(inventory.variantId
             ? {
                 variantId:
-                    inventory.variantId,
+                    inventory
+                        .variantId,
             }
             : {}),
 
