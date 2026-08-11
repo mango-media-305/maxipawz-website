@@ -325,6 +325,40 @@ export async function getInventoryItemBySku(
     );
 }
 
+export async function listInventoryItems():
+    Promise<InventoryItem[]> {
+    const db =
+        getDatabase();
+
+    const rows =
+        await db.sql`
+            SELECT
+                id,
+                product_slug,
+                variant_id,
+                sku,
+                on_hand,
+                reserved,
+                low_stock_threshold,
+                reorder_threshold,
+                created_at,
+                updated_at
+            FROM inventory_items
+            ORDER BY
+                product_slug ASC,
+                variant_id NULLS FIRST,
+                sku ASC
+        `;
+
+    return rows.map(
+        (row) =>
+            mapInventoryRow(
+                row as
+                    InventoryDatabaseRow,
+            ),
+    );
+}
+
 export async function getInventoryItemsForProduct(
     productSlug: string,
 ): Promise<
