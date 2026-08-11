@@ -1,0 +1,19 @@
+---
+import AdminBackInStock from '@components/admin/AdminBackInStock';
+import AdminNavigation from '@components/admin/AdminNavigation.astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+    title="Back-in-Stock Alerts"
+    description="Private Maxi Pawz back-in-stock notification inspection dashboard."
+    noIndex={true}
+>
+    <section class="section-spacing">
+        <div class="site-container">
+        <AdminNavigation current="back-in-stock" />
+
+        <AdminBackInStock client:load />
+        </div>
+    </section>
+</BaseLayout>
