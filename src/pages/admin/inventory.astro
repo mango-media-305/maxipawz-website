@@ -1,5 +1,6 @@
 ---
 import AdminInventory from '@components/admin/AdminInventory';
+import AdminNavigation from '@components/admin/AdminNavigation.astro';
 import BaseLayout from '@layouts/BaseLayout.astro';
 ---
 
@@ -10,32 +11,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 >
     <section class="section-spacing">
         <div class="site-container">
-            <nav
-                class="mb-6 flex flex-wrap gap-2"
-                aria-label="Admin navigation"
-            >
-                <a
-                    href="/admin/inventory"
-                    aria-current="page"
-                    class="rounded-full bg-brand-500 px-4 py-2 text-sm font-extrabold text-white"
-                >
-                    Inventory
-                </a>
-
-                <a
-                    href="/admin/reservations"
-                    class="rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-sm font-extrabold text-brand-800 transition hover:bg-brand-100"
-                >
-                    Reservations
-                </a>
-
-                <a
-                    href="/admin/orders"
-                    class="rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-sm font-extrabold text-brand-800 transition hover:bg-brand-100"
-                >
-                    Orders
-                </a>
-            </nav>
+            <AdminNavigation current="inventory" />
 
             <AdminInventory client:load />
         </div>
