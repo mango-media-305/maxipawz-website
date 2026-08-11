@@ -12,6 +12,7 @@ export type InventoryReservationStatus =
 export const inventoryReservationReleaseReasons = [
     'checkout-session-creation-failed',
     'checkout-session-expired',
+    'stale-reservation-timeout',
     'async-payment-failed',
     'manual',
 ] as const;
