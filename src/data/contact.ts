@@ -1,185 +1,173 @@
 import { businessConfig } from '../config/business';
 
 export type ContactTopicIcon =
-    | 'general'
-    | 'product'
-    | 'partnership'
-    | 'feedback'
-    | 'order'
-    | 'return';
+  | 'general'
+  | 'product'
+  | 'partnership'
+  | 'feedback'
+  | 'order'
+  | 'return';
 
 export type ContactTopicValue =
-    | 'general-question'
-    | 'product-question'
-    | 'partnership'
-    | 'website-feedback'
-    | 'order-support'
-    | 'return-request';
+  | 'general-question'
+  | 'product-question'
+  | 'partnership'
+  | 'website-feedback'
+  | 'order-support'
+  | 'return-request';
 
 export interface ContactTopic {
-    label: string;
-    value: ContactTopicValue;
-    title: string;
-    description: string;
-    icon: ContactTopicIcon;
-    liveOnly?: boolean;
+  label: string;
+  value: ContactTopicValue;
+  title: string;
+  description: string;
+  icon: ContactTopicIcon;
+  liveOnly?: boolean;
 }
 
 export interface ContactPrinciple {
-    title: string;
-    description: string;
+  title: string;
+  description: string;
 }
 
 export interface ContactChannel {
-    title: string;
-    email: string;
-    description: string;
-    icon: ContactTopicIcon;
+  title: string;
+  email: string;
+  description: string;
+  icon: ContactTopicIcon;
 }
 
 export const contactTopics: ContactTopic[] = [
-    {
-        label: 'General question',
-        value: 'general-question',
+  {
+    label: 'General question',
+    value: 'general-question',
 
-        title: 'General Questions',
+    title: 'General Questions',
 
-        description:
-            `Ask about ${businessConfig.shortName}, our story, the upcoming store, Pet Guides, or anything else related to the brand.`,
+    description: `Ask about ${businessConfig.shortName}, our story, the upcoming store, Pet Guides, or anything else related to the brand.`,
 
-        icon: 'general',
-    },
+    icon: 'general',
+  },
 
-    {
-        label: 'Product question',
-        value: 'product-question',
+  {
+    label: 'Product question',
+    value: 'product-question',
 
-        title: 'Product Questions',
+    title: 'Product Questions',
 
-        description:
-            'Tell us what type of product, pet routine, size, feature, or category you would like to learn more about.',
+    description:
+      'Tell us what type of product, pet routine, size, feature, or category you would like to learn more about.',
 
-        icon: 'product',
-    },
+    icon: 'product',
+  },
 
-    {
-        label: 'Partnership or collaboration',
-        value: 'partnership',
+  {
+    label: 'Partnership or collaboration',
+    value: 'partnership',
 
-        title: 'Partnerships',
+    title: 'Partnerships',
 
-        description:
-            'Share a thoughtful partnership, collaboration, wholesale, creator, or community opportunity.',
+    description:
+      'Share a thoughtful partnership, collaboration, wholesale, creator, or community opportunity.',
 
-        icon: 'partnership',
-    },
+    icon: 'partnership',
+  },
 
-    {
-        label: 'Website feedback',
-        value: 'website-feedback',
+  {
+    label: 'Website feedback',
+    value: 'website-feedback',
 
-        title: 'Website Feedback',
+    title: 'Website Feedback',
 
-        description:
-            'Let us know about an accessibility concern, broken link, confusing section, or suggestion for the website.',
+    description:
+      'Let us know about an accessibility concern, broken link, confusing section, or suggestion for the website.',
 
-        icon: 'feedback',
-    },
+    icon: 'feedback',
+  },
 
-    {
-        label: 'Order support',
-        value: 'order-support',
+  {
+    label: 'Order support',
+    value: 'order-support',
 
-        title: 'Order Support',
+    title: 'Order Support',
 
-        description:
-            `Contact us about an existing ${businessConfig.shortName} order and include the order number when it is available.`,
+    description: `Contact us about an existing ${businessConfig.shortName} order and include the order number when it is available.`,
 
-        icon: 'order',
-        liveOnly: true,
-    },
+    icon: 'order',
+    liveOnly: true,
+  },
 
-    {
-        label: 'Return request',
-        value: 'return-request',
+  {
+    label: 'Return request',
+    value: 'return-request',
 
-        title: 'Returns',
+    title: 'Returns',
 
-        description:
-            `Start a return-related conversation for an eligible ${businessConfig.shortName} purchase after the store opens.`,
+    description: `Start a return-related conversation for an eligible ${businessConfig.shortName} purchase after the store opens.`,
 
-        icon: 'return',
-        liveOnly: true,
-    },
+    icon: 'return',
+    liveOnly: true,
+  },
 ];
 
 export const contactChannels: ContactChannel[] = [
-    {
-        title: 'General Questions',
+  {
+    title: 'General Questions',
 
-        email:
-            businessConfig.generalEmail,
+    email: businessConfig.generalEmail,
 
-        description:
-            'General questions, product questions, partnerships, collaborations, Pet Guides, and website feedback.',
+    description:
+      'General questions, product questions, partnerships, collaborations, Pet Guides, and website feedback.',
 
-        icon: 'general',
-    },
+    icon: 'general',
+  },
 
-    {
-        title: 'Order Support',
+  {
+    title: 'Order Support',
 
-        email:
-            businessConfig.ordersEmail,
+    email: businessConfig.ordersEmail,
 
-        description:
-            'Questions about an existing order, payment confirmation, shipping update, or order information.',
+    description:
+      'Questions about an existing order, payment confirmation, shipping update, or order information.',
 
-        icon: 'order',
-    },
+    icon: 'order',
+  },
 
-    {
-        title: 'Returns and Product Issues',
+  {
+    title: 'Returns and Product Issues',
 
-        email:
-            businessConfig.supportEmail,
+    email: businessConfig.supportEmail,
 
-        description:
-            'Return requests and reports about damaged, defective, incorrect, missing, or incomplete products.',
+    description:
+      'Return requests and reports about damaged, defective, incorrect, missing, or incomplete products.',
 
-        icon: 'return',
-    },
+    icon: 'return',
+  },
 ];
 
 export const contactPrinciples: ContactPrinciple[] = [
-    {
-        title: 'Include helpful details',
+  {
+    title: 'Include helpful details',
 
-        description:
-            'Names, product categories, order numbers, page links, and clear descriptions help us understand your message.',
-    },
+    description:
+      'Names, product categories, order numbers, page links, and clear descriptions help us understand your message.',
+  },
 
-    {
-        title: 'Protect sensitive information',
+  {
+    title: 'Protect sensitive information',
 
-        description:
-            'Do not submit card numbers, passwords, full payment details, or other highly sensitive information through this form.',
-    },
+    description:
+      'Do not submit card numbers, passwords, full payment details, or other highly sensitive information through this form.',
+  },
 
-    {
-        title: 'Choose the closest topic',
+  {
+    title: 'Choose the closest topic',
 
-        description:
-            'Selecting the most relevant topic helps keep questions, feedback, partnerships, and future order support organized.',
-    },
+    description:
+      'Selecting the most relevant topic helps keep questions, feedback, partnerships, and future order support organized.',
+  },
 ];
 
-export function getAvailableContactTopics(
-    isStoreLive: boolean,
-): ContactTopic[] {
-    return contactTopics.filter(
-        (topic) =>
-            isStoreLive ||
-            !topic.liveOnly,
-    );
+export function getAvailableContactTopics(isStoreLive: boolean): ContactTopic[] {
+  return contactTopics.filter((topic) => isStoreLive || !topic.liveOnly);
 }

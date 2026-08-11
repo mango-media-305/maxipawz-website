@@ -1,16 +1,9 @@
 export interface StripeDemoCatalogProduct {
-    stripeProductId: string;
+  stripeProductId: string;
 
-    stripeDefaultPriceId?: string;
+  stripeDefaultPriceId?: string;
 
-    variantPriceIds: Record<
-        string,
-        string
-    >;
+  variantPriceIds: Record<string, string>;
 }
 
-export type StripeDemoCatalog =
-    Record<
-        string,
-        StripeDemoCatalogProduct
-    >;
+export type StripeDemoCatalog = Record<string, StripeDemoCatalogProduct>;

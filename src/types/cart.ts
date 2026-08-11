@@ -1,48 +1,43 @@
-import type {
-    Product,
-    ProductImage,
-    ProductPrice,
-    ProductVariant,
-} from './product';
+import type { Product, ProductImage, ProductPrice, ProductVariant } from './product';
 
 export interface CartLine {
-    productSlug: string;
-    variantId?: string;
-    quantity: number;
+  productSlug: string;
+  variantId?: string;
+  quantity: number;
 }
 
 export interface CartState {
-    version: 1;
-    lines: CartLine[];
-    updatedAt: number;
+  version: 1;
+  lines: CartLine[];
+  updatedAt: number;
 }
 
 export interface ResolvedCartLine {
-    key: string;
-    line: CartLine;
+  key: string;
+  line: CartLine;
 
-    product?: Product;
-    variant?: ProductVariant;
-    image?: ProductImage;
+  product?: Product;
+  variant?: ProductVariant;
+  image?: ProductImage;
 
-    unitPrice?: ProductPrice;
-    compareAtUnitPrice?: ProductPrice;
+  unitPrice?: ProductPrice;
+  compareAtUnitPrice?: ProductPrice;
 
-    lineTotalAmount: number;
-    compareAtLineTotalAmount: number;
+  lineTotalAmount: number;
+  compareAtLineTotalAmount: number;
 
-    available: boolean;
-    issue?: string;
+  available: boolean;
+  issue?: string;
 }
 
 export interface CartTotals {
-    itemCount: number;
-    validItemCount: number;
+  itemCount: number;
+  validItemCount: number;
 
-    subtotalAmount: number;
-    compareAtSubtotalAmount: number;
-    savingsAmount: number;
+  subtotalAmount: number;
+  compareAtSubtotalAmount: number;
+  savingsAmount: number;
 
-    unavailableLineCount: number;
-    hasDemoItems: boolean;
+  unavailableLineCount: number;
+  hasDemoItems: boolean;
 }

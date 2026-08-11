@@ -1,257 +1,137 @@
-import {
-    getDatabase,
-} from '@netlify/database';
+import { getDatabase } from '@netlify/database';
 
 import type {
-    InventoryItem,
-    InventoryStockStatus,
-    PublicInventorySnapshot,
+  InventoryItem,
+  InventoryStockStatus,
+  PublicInventorySnapshot,
 } from '../types/inventory';
 
 interface InventoryDatabaseRow {
-    id:
-        | string
-        | number;
+  id: string | number;
 
-    product_slug: string;
+  product_slug: string;
 
-    variant_id:
-        | string
-        | null;
+  variant_id: string | null;
 
-    sku: string;
+  sku: string;
 
-    on_hand:
-        | number
-        | string;
+  on_hand: number | string;
 
-    reserved:
-        | number
-        | string;
+  reserved: number | string;
 
-    low_stock_threshold:
-        | number
-        | string;
+  low_stock_threshold: number | string;
 
-    reorder_threshold:
-        | number
-        | string
-        | null;
+  reorder_threshold: number | string | null;
 
-    created_at:
-        | string
-        | Date;
+  created_at: string | Date;
 
-    updated_at:
-        | string
-        | Date;
+  updated_at: string | Date;
 }
 
-function normalizeInteger(
-    value:
-        | number
-        | string,
-    fieldName: string,
-): number {
-    const normalized =
-        typeof value ===
-            'number'
-            ? value
-            : Number(
-                value,
-            );
+function normalizeInteger(value: number | string, fieldName: string): number {
+  const normalized = typeof value === 'number' ? value : Number(value);
 
-    if (
-        !Number.isSafeInteger(
-            normalized,
-        )
-    ) {
-        throw new Error(
-            `Inventory field "${fieldName}" contains an invalid integer.`,
-        );
-    }
+  if (!Number.isSafeInteger(normalized)) {
+    throw new Error(`Inventory field "${fieldName}" contains an invalid integer.`);
+  }
 
-    return normalized;
+  return normalized;
 }
 
 function normalizeOptionalInteger(
-    value:
-        | number
-        | string
-        | null,
-    fieldName: string,
+  value: number | string | null,
+  fieldName: string,
 ): number | undefined {
-    if (
-        value ===
-        null
-    ) {
-        return undefined;
-    }
+  if (value === null) {
+    return undefined;
+  }
 
-    return normalizeInteger(
-        value,
-        fieldName,
-    );
+  return normalizeInteger(value, fieldName);
 }
 
-function normalizeTimestamp(
-    value:
-        | string
-        | Date,
-): string {
-    if (
-        value instanceof
-        Date
-    ) {
-        return value.toISOString();
-    }
+function normalizeTimestamp(value: string | Date): string {
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
 
-    const date =
-        new Date(
-            value,
-        );
+  const date = new Date(value);
 
-    if (
-        Number.isNaN(
-            date.getTime(),
-        )
-    ) {
-        throw new Error(
-            'Inventory contains an invalid timestamp.',
-        );
-    }
+  if (Number.isNaN(date.getTime())) {
+    throw new Error('Inventory contains an invalid timestamp.');
+  }
 
-    return date.toISOString();
+  return date.toISOString();
 }
 
-function getInventoryStatus(
-    available: number,
-    lowStockThreshold: number,
-): InventoryStockStatus {
-    if (
-        available <=
-        0
-    ) {
-        return 'sold-out';
-    }
+function getInventoryStatus(available: number, lowStockThreshold: number): InventoryStockStatus {
+  if (available <= 0) {
+    return 'sold-out';
+  }
 
-    if (
-        available <=
-        lowStockThreshold
-    ) {
-        return 'low-stock';
-    }
+  if (available <= lowStockThreshold) {
+    return 'low-stock';
+  }
 
-    return 'in-stock';
+  return 'in-stock';
 }
 
-function mapInventoryRow(
-    row:
-        InventoryDatabaseRow,
-): InventoryItem {
-    const onHand =
-        normalizeInteger(
-            row.on_hand,
-            'on_hand',
-        );
+function mapInventoryRow(row: InventoryDatabaseRow): InventoryItem {
+  const onHand = normalizeInteger(row.on_hand, 'on_hand');
 
-    const reserved =
-        normalizeInteger(
-            row.reserved,
-            'reserved',
-        );
+  const reserved = normalizeInteger(row.reserved, 'reserved');
 
-    const lowStockThreshold =
-        normalizeInteger(
-            row.low_stock_threshold,
-            'low_stock_threshold',
-        );
+  const lowStockThreshold = normalizeInteger(row.low_stock_threshold, 'low_stock_threshold');
 
-    const reorderThreshold =
-        normalizeOptionalInteger(
-            row.reorder_threshold,
-            'reorder_threshold',
-        );
+  const reorderThreshold = normalizeOptionalInteger(row.reorder_threshold, 'reorder_threshold');
 
-    const available =
-        Math.max(
-            0,
-            onHand -
-                reserved,
-        );
+  const available = Math.max(0, onHand - reserved);
 
-    const reorderRecommended =
-        reorderThreshold !==
-            undefined &&
-        available <=
-            reorderThreshold;
+  const reorderRecommended = reorderThreshold !== undefined && available <= reorderThreshold;
 
-    return {
-        id:
-            String(
-                row.id,
-            ),
+  return {
+    id: String(row.id),
 
-        productSlug:
-            row.product_slug,
+    productSlug: row.product_slug,
 
-        ...(row.variant_id
-            ? {
-                variantId:
-                    row.variant_id,
-            }
-            : {}),
+    ...(row.variant_id
+      ? {
+          variantId: row.variant_id,
+        }
+      : {}),
 
-        sku:
-            row.sku,
+    sku: row.sku,
 
-        onHand,
+    onHand,
 
-        reserved,
+    reserved,
 
-        available,
+    available,
 
-        lowStockThreshold,
+    lowStockThreshold,
 
-        ...(reorderThreshold !==
-            undefined
-            ? {
-                reorderThreshold,
-            }
-            : {}),
+    ...(reorderThreshold !== undefined
+      ? {
+          reorderThreshold,
+        }
+      : {}),
 
-        reorderRecommended,
+    reorderRecommended,
 
-        status:
-            getInventoryStatus(
-                available,
-                lowStockThreshold,
-            ),
+    status: getInventoryStatus(available, lowStockThreshold),
 
-        createdAt:
-            normalizeTimestamp(
-                row.created_at,
-            ),
+    createdAt: normalizeTimestamp(row.created_at),
 
-        updatedAt:
-            normalizeTimestamp(
-                row.updated_at,
-            ),
-    };
+    updatedAt: normalizeTimestamp(row.updated_at),
+  };
 }
 
 export async function getInventoryItem(
-    productSlug: string,
-    variantId?: string,
-): Promise<
-    InventoryItem |
-    undefined
-> {
-    const db =
-        getDatabase();
+  productSlug: string,
+  variantId?: string,
+): Promise<InventoryItem | undefined> {
+  const db = getDatabase();
 
-    const rows =
-        await db.sql`
+  const rows = await db.sql`
             SELECT
                 id,
                 product_slug,
@@ -270,31 +150,19 @@ export async function getInventoryItem(
             LIMIT 1
         `;
 
-    const row =
-        rows[0] as
-            | InventoryDatabaseRow
-            | undefined;
+  const row = rows[0] as InventoryDatabaseRow | undefined;
 
-    if (!row) {
-        return undefined;
-    }
+  if (!row) {
+    return undefined;
+  }
 
-    return mapInventoryRow(
-        row,
-    );
+  return mapInventoryRow(row);
 }
 
-export async function getInventoryItemBySku(
-    sku: string,
-): Promise<
-    InventoryItem |
-    undefined
-> {
-    const db =
-        getDatabase();
+export async function getInventoryItemBySku(sku: string): Promise<InventoryItem | undefined> {
+  const db = getDatabase();
 
-    const rows =
-        await db.sql`
+  const rows = await db.sql`
             SELECT
                 id,
                 product_slug,
@@ -311,27 +179,19 @@ export async function getInventoryItemBySku(
             LIMIT 1
         `;
 
-    const row =
-        rows[0] as
-            | InventoryDatabaseRow
-            | undefined;
+  const row = rows[0] as InventoryDatabaseRow | undefined;
 
-    if (!row) {
-        return undefined;
-    }
+  if (!row) {
+    return undefined;
+  }
 
-    return mapInventoryRow(
-        row,
-    );
+  return mapInventoryRow(row);
 }
 
-export async function listInventoryItems():
-    Promise<InventoryItem[]> {
-    const db =
-        getDatabase();
+export async function listInventoryItems(): Promise<InventoryItem[]> {
+  const db = getDatabase();
 
-    const rows =
-        await db.sql`
+  const rows = await db.sql`
             SELECT
                 id,
                 product_slug,
@@ -350,25 +210,13 @@ export async function listInventoryItems():
                 sku ASC
         `;
 
-    return rows.map(
-        (row) =>
-            mapInventoryRow(
-                row as
-                    InventoryDatabaseRow,
-            ),
-    );
+  return rows.map((row) => mapInventoryRow(row as InventoryDatabaseRow));
 }
 
-export async function getInventoryItemsForProduct(
-    productSlug: string,
-): Promise<
-    InventoryItem[]
-> {
-    const db =
-        getDatabase();
+export async function getInventoryItemsForProduct(productSlug: string): Promise<InventoryItem[]> {
+  const db = getDatabase();
 
-    const rows =
-        await db.sql`
+  const rows = await db.sql`
             SELECT
                 id,
                 product_slug,
@@ -387,78 +235,52 @@ export async function getInventoryItemsForProduct(
                 sku ASC
         `;
 
-    return rows.map(
-        (row) =>
-            mapInventoryRow(
-                row as
-                    InventoryDatabaseRow,
-            ),
-    );
+  return rows.map((row) => mapInventoryRow(row as InventoryDatabaseRow));
 }
 
 export async function getPublicInventorySnapshot(
-    productSlug: string,
-    variantId?: string,
-): Promise<
-    PublicInventorySnapshot
-> {
-    const inventory =
-        await getInventoryItem(
-            productSlug,
-            variantId,
-        );
+  productSlug: string,
+  variantId?: string,
+): Promise<PublicInventorySnapshot> {
+  const inventory = await getInventoryItem(productSlug, variantId);
 
-    if (!inventory) {
-        return {
-            tracked:
-                false,
-
-            productSlug,
-
-            ...(variantId
-                ? {
-                    variantId,
-                }
-                : {}),
-
-            status:
-                'not-tracked',
-
-            available:
-                null,
-
-            canPurchase:
-                false,
-        };
-    }
-
+  if (!inventory) {
     return {
-        tracked:
-            true,
+      tracked: false,
 
-        productSlug:
-            inventory
-                .productSlug,
+      productSlug,
 
-        ...(inventory.variantId
-            ? {
-                variantId:
-                    inventory
-                        .variantId,
-            }
-            : {}),
+      ...(variantId
+        ? {
+            variantId,
+          }
+        : {}),
 
-        sku:
-            inventory.sku,
+      status: 'not-tracked',
 
-        status:
-            inventory.status,
+      available: null,
 
-        available:
-            inventory.available,
-
-        canPurchase:
-            inventory.available >
-            0,
+      canPurchase: false,
     };
+  }
+
+  return {
+    tracked: true,
+
+    productSlug: inventory.productSlug,
+
+    ...(inventory.variantId
+      ? {
+          variantId: inventory.variantId,
+        }
+      : {}),
+
+    sku: inventory.sku,
+
+    status: inventory.status,
+
+    available: inventory.available,
+
+    canPurchase: inventory.available > 0,
+  };
 }

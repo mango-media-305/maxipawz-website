@@ -1,98 +1,91 @@
-import type {
-    InventoryReservationStatus,
-} from './inventory-reservation';
+import type { InventoryReservationStatus } from './inventory-reservation';
 
 export interface AdminInventoryReservationItem {
-    inventoryItemId: string;
+  inventoryItemId: string;
 
-    productSlug: string;
+  productSlug: string;
 
-    productName: string;
+  productName: string;
 
-    variantId?: string;
+  variantId?: string;
 
-    variantLabel?: string;
+  variantLabel?: string;
 
-    sku: string;
+  sku: string;
 
-    quantity: number;
+  quantity: number;
 }
 
 export interface AdminInventoryReservation {
-    id: string;
+  id: string;
 
-    cartReference: string;
+  cartReference: string;
 
-    stripeSessionId?: string;
+  stripeSessionId?: string;
 
-    status:
-        InventoryReservationStatus;
+  status: InventoryReservationStatus;
 
-    releaseReason?: string;
+  releaseReason?: string;
 
-    expiresAt: string;
+  expiresAt: string;
 
-    createdAt: string;
+  createdAt: string;
 
-    updatedAt: string;
+  updatedAt: string;
 
-    completedAt?: string;
+  completedAt?: string;
 
-    releasedAt?: string;
+  releasedAt?: string;
 
-    expiredAt?: string;
+  expiredAt?: string;
 
-    holdsInventory: boolean;
+  holdsInventory: boolean;
 
-    heldUnits: number;
+  heldUnits: number;
 
-    expirationPastDue: boolean;
+  expirationPastDue: boolean;
 
-    items:
-        AdminInventoryReservationItem[];
+  items: AdminInventoryReservationItem[];
 }
 
 export interface AdminInventoryReservationSummary {
-    total: number;
+  total: number;
 
-    active: number;
+  active: number;
 
-    paymentPending: number;
+  paymentPending: number;
 
-    completed: number;
+  completed: number;
 
-    released: number;
+  released: number;
 
-    expired: number;
+  expired: number;
 
-    heldUnits: number;
+  heldUnits: number;
 
-    expirationPastDue: number;
+  expirationPastDue: number;
 }
 
 export interface AdminInventoryReservationsData {
-    reservations:
-        AdminInventoryReservation[];
+  reservations: AdminInventoryReservation[];
 
-    summary:
-        AdminInventoryReservationSummary;
+  summary: AdminInventoryReservationSummary;
 
-    displayLimit: number;
+  displayLimit: number;
 
-    truncated: boolean;
+  truncated: boolean;
 }
 
-export interface AdminInventoryReservationsSuccessResponse
-    extends AdminInventoryReservationsData {
-    ok: true;
+export interface AdminInventoryReservationsSuccessResponse extends AdminInventoryReservationsData {
+  ok: true;
 }
 
 export interface AdminInventoryReservationsErrorResponse {
-    ok: false;
+  ok: false;
 
-    message: string;
+  message: string;
 }
 
 export type AdminInventoryReservationsResponse =
-    | AdminInventoryReservationsSuccessResponse
-    | AdminInventoryReservationsErrorResponse;
+  | AdminInventoryReservationsSuccessResponse
+  | AdminInventoryReservationsErrorResponse;

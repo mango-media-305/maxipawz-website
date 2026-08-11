@@ -1,294 +1,193 @@
-import {
-    businessConfig,
-} from '../../config/business';
+import { businessConfig } from '../../config/business';
 
-import type {
-    MarketingEmailDataMode,
-} from '../../types/email';
+import type { MarketingEmailDataMode } from '../../types/email';
 
-import {
-    buildEmailSiteUrl,
-    escapeEmailHtml,
-} from './branding';
+import { buildEmailSiteUrl, escapeEmailHtml } from './branding';
 
-const EMAIL_PATTERN =
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 interface DisabledMarketingEmailRuntimeConfig {
-    enabled: false;
+  enabled: false;
 
-    mode:
-        MarketingEmailDataMode;
+  mode: MarketingEmailDataMode;
 }
 
 interface EnabledMarketingEmailRuntimeConfig {
-    enabled: true;
+  enabled: true;
 
-    mode:
-        MarketingEmailDataMode;
+  mode: MarketingEmailDataMode;
 
-    apiKey: string;
+  apiKey: string;
 
-    fromName: string;
+  fromName: string;
 
-    fromEmail: string;
+  fromEmail: string;
 
-    replyToEmail: string;
+  replyToEmail: string;
 
-    mailingAddress: string;
+  mailingAddress: string;
 
-    sandboxRecipientEmail?: string;
+  sandboxRecipientEmail?: string;
 }
 
 export type MarketingEmailRuntimeConfig =
-    | DisabledMarketingEmailRuntimeConfig
-    | EnabledMarketingEmailRuntimeConfig;
+  | DisabledMarketingEmailRuntimeConfig
+  | EnabledMarketingEmailRuntimeConfig;
 
 interface MarketingComplianceOptions {
-    mailingAddress: string;
+  mailingAddress: string;
 
-    unsubscribeUrl: string;
+  unsubscribeUrl: string;
 }
 
-export class MarketingEmailConfigurationError
-    extends Error {
-    constructor(
-        message: string,
-    ) {
-        super(
-            message,
-        );
+export class MarketingEmailConfigurationError extends Error {
+  constructor(message: string) {
+    super(message);
 
-        this.name =
-            'MarketingEmailConfigurationError';
-    }
+    this.name = 'MarketingEmailConfigurationError';
+  }
 }
 
 function parseBoolean(
-    value:
-        string
-        | undefined,
+  value: string | undefined,
 
-    fallback:
-        boolean,
+  fallback: boolean,
 ): boolean {
-    const normalized =
-        value
-            ?.trim()
-            .toLowerCase();
+  const normalized = value?.trim().toLowerCase();
 
-    if (
-        normalized ===
-        'true'
-    ) {
-        return true;
-    }
+  if (normalized === 'true') {
+    return true;
+  }
 
-    if (
-        normalized ===
-        'false'
-    ) {
-        return false;
-    }
+  if (normalized === 'false') {
+    return false;
+  }
 
-    return fallback;
+  return fallback;
 }
 
-function getRequiredEnvironmentVariable(
-    name: string,
-): string {
-    const value =
-        process.env[
-            name
-        ]?.trim();
+function getRequiredEnvironmentVariable(name: string): string {
+  const value = process.env[name]?.trim();
 
-    if (!value) {
-        throw new MarketingEmailConfigurationError(
-            `${name} is missing.`,
-        );
-    }
+  if (!value) {
+    throw new MarketingEmailConfigurationError(`${name} is missing.`);
+  }
 
-    return value;
+  return value;
 }
 
-function getMarketingEmailMode():
-    MarketingEmailDataMode {
-    const configured =
-        process.env
-            .NEWSLETTER_DATA_MODE
-            ?.trim()
-            .toLowerCase();
+function getMarketingEmailMode(): MarketingEmailDataMode {
+  const configured = process.env.NEWSLETTER_DATA_MODE?.trim().toLowerCase();
 
-    if (
-        configured ===
-        'test' ||
-        configured ===
-        'live'
-    ) {
-        return configured;
-    }
+  if (configured === 'test' || configured === 'live') {
+    return configured;
+  }
 
-    throw new MarketingEmailConfigurationError(
-        'NEWSLETTER_DATA_MODE must be explicitly configured as "test" or "live".',
-    );
+  throw new MarketingEmailConfigurationError(
+    'NEWSLETTER_DATA_MODE must be explicitly configured as "test" or "live".',
+  );
 }
 
 function validateEmailAddress(
-    value: string,
+  value: string,
 
-    environmentVariableName:
-        string,
+  environmentVariableName: string,
 ): string {
-    const normalized =
-        value
-            .trim()
-            .toLowerCase();
+  const normalized = value.trim().toLowerCase();
 
-    if (
-        !normalized ||
-        normalized.length >
-            254 ||
-        !EMAIL_PATTERN.test(
-            normalized,
-        )
-    ) {
-        throw new MarketingEmailConfigurationError(
-            `${environmentVariableName} is not a valid email address.`,
-        );
-    }
+  if (!normalized || normalized.length > 254 || !EMAIL_PATTERN.test(normalized)) {
+    throw new MarketingEmailConfigurationError(
+      `${environmentVariableName} is not a valid email address.`,
+    );
+  }
 
-    return normalized;
+  return normalized;
 }
 
-export function getMarketingEmailRuntimeConfig():
-    MarketingEmailRuntimeConfig {
-    const enabled =
-        parseBoolean(
-            process.env
-                .MARKETING_EMAILS_ENABLED,
-            false,
-        );
+export function getMarketingEmailRuntimeConfig(): MarketingEmailRuntimeConfig {
+  const enabled = parseBoolean(process.env.MARKETING_EMAILS_ENABLED, false);
 
-    const mode =
-        getMarketingEmailMode();
+  const mode = getMarketingEmailMode();
 
-    if (!enabled) {
-        return {
-            enabled:
-                false,
-
-            mode,
-        };
-    }
-
-    const apiKey =
-        getRequiredEnvironmentVariable(
-            'RESEND_API_KEY',
-        );
-
-    if (
-        !apiKey.startsWith(
-            're_',
-        )
-    ) {
-        throw new MarketingEmailConfigurationError(
-            'RESEND_API_KEY is invalid.',
-        );
-    }
-
-    const fromName =
-        getRequiredEnvironmentVariable(
-            'RESEND_MARKETING_FROM_NAME',
-        );
-
-    const fromEmail =
-        validateEmailAddress(
-            getRequiredEnvironmentVariable(
-                'RESEND_MARKETING_FROM_EMAIL',
-            ),
-            'RESEND_MARKETING_FROM_EMAIL',
-        );
-
-    const replyToEmail =
-        validateEmailAddress(
-            getRequiredEnvironmentVariable(
-                'RESEND_REPLY_TO_EMAIL',
-            ),
-            'RESEND_REPLY_TO_EMAIL',
-        );
-
-    const mailingAddress =
-        getRequiredEnvironmentVariable(
-            'MARKETING_MAILING_ADDRESS',
-        );
-
-    if (
-        mailingAddress.length <
-        10
-    ) {
-        throw new MarketingEmailConfigurationError(
-            'MARKETING_MAILING_ADDRESS is too short to be a valid postal address.',
-        );
-    }
-
-    /*
-     * Test-mode marketing is deliberately fail-closed.
-     *
-     * Once marketing email is enabled in a test environment, every
-     * outbound marketing message must be routed to one controlled inbox.
-     * A missing override is treated as configuration failure rather than
-     * risking delivery to a submitted lead.
-     */
-    const sandboxRecipientEmail =
-        mode ===
-        'test'
-            ? validateEmailAddress(
-                getRequiredEnvironmentVariable(
-                    'RESEND_MARKETING_SANDBOX_RECIPIENT_EMAIL',
-                ),
-                'RESEND_MARKETING_SANDBOX_RECIPIENT_EMAIL',
-            )
-            : undefined;
-
+  if (!enabled) {
     return {
-        enabled:
-            true,
+      enabled: false,
 
-        mode,
-
-        apiKey,
-
-        fromName,
-
-        fromEmail,
-
-        replyToEmail,
-
-        mailingAddress,
-
-        ...(sandboxRecipientEmail
-            ? {
-                sandboxRecipientEmail,
-            }
-            : {}),
+      mode,
     };
+  }
+
+  const apiKey = getRequiredEnvironmentVariable('RESEND_API_KEY');
+
+  if (!apiKey.startsWith('re_')) {
+    throw new MarketingEmailConfigurationError('RESEND_API_KEY is invalid.');
+  }
+
+  const fromName = getRequiredEnvironmentVariable('RESEND_MARKETING_FROM_NAME');
+
+  const fromEmail = validateEmailAddress(
+    getRequiredEnvironmentVariable('RESEND_MARKETING_FROM_EMAIL'),
+    'RESEND_MARKETING_FROM_EMAIL',
+  );
+
+  const replyToEmail = validateEmailAddress(
+    getRequiredEnvironmentVariable('RESEND_REPLY_TO_EMAIL'),
+    'RESEND_REPLY_TO_EMAIL',
+  );
+
+  const mailingAddress = getRequiredEnvironmentVariable('MARKETING_MAILING_ADDRESS');
+
+  if (mailingAddress.length < 10) {
+    throw new MarketingEmailConfigurationError(
+      'MARKETING_MAILING_ADDRESS is too short to be a valid postal address.',
+    );
+  }
+
+  /*
+   * Test-mode marketing is deliberately fail-closed.
+   *
+   * Once marketing email is enabled in a test environment, every
+   * outbound marketing message must be routed to one controlled inbox.
+   * A missing override is treated as configuration failure rather than
+   * risking delivery to a submitted lead.
+   */
+  const sandboxRecipientEmail =
+    mode === 'test'
+      ? validateEmailAddress(
+          getRequiredEnvironmentVariable('RESEND_MARKETING_SANDBOX_RECIPIENT_EMAIL'),
+          'RESEND_MARKETING_SANDBOX_RECIPIENT_EMAIL',
+        )
+      : undefined;
+
+  return {
+    enabled: true,
+
+    mode,
+
+    apiKey,
+
+    fromName,
+
+    fromEmail,
+
+    replyToEmail,
+
+    mailingAddress,
+
+    ...(sandboxRecipientEmail
+      ? {
+          sandboxRecipientEmail,
+        }
+      : {}),
+  };
 }
 
-export function buildMarketingComplianceHtml(
-    options:
-        MarketingComplianceOptions,
-): string {
-    const {
-        mailingAddress,
-        unsubscribeUrl,
-    } = options;
+export function buildMarketingComplianceHtml(options: MarketingComplianceOptions): string {
+  const { mailingAddress, unsubscribeUrl } = options;
 
-    const privacyUrl =
-        buildEmailSiteUrl(
-            '/privacy-policy',
-        );
+  const privacyUrl = buildEmailSiteUrl('/privacy-policy');
 
-    return `
+  return `
         <div
             style="
                 margin-top:30px;
@@ -312,9 +211,7 @@ export function buildMarketingComplianceHtml(
                     color:#654630;
                 "
             >
-                ${escapeEmailHtml(
-                    businessConfig.publicName,
-                )}
+                ${escapeEmailHtml(businessConfig.publicName)}
             </div>
 
             <div
@@ -322,9 +219,7 @@ export function buildMarketingComplianceHtml(
                     margin-top:3px;
                 "
             >
-                ${escapeEmailHtml(
-                    mailingAddress,
-                )}
+                ${escapeEmailHtml(mailingAddress)}
             </div>
 
             <div
@@ -333,9 +228,7 @@ export function buildMarketingComplianceHtml(
                 "
             >
                 <a
-                    href="${escapeEmailHtml(
-                        unsubscribeUrl,
-                    )}"
+                    href="${escapeEmailHtml(unsubscribeUrl)}"
                     style="
                         color:#0074d4;
                         text-decoration:underline;
@@ -355,9 +248,7 @@ export function buildMarketingComplianceHtml(
                 </span>
 
                 <a
-                    href="${escapeEmailHtml(
-                        privacyUrl,
-                    )}"
+                    href="${escapeEmailHtml(privacyUrl)}"
                     style="
                         color:#0074d4;
                         text-decoration:underline;
@@ -374,51 +265,36 @@ export function buildMarketingComplianceHtml(
             >
                 Questions?
                 <a
-                    href="mailto:${escapeEmailHtml(
-                        businessConfig.supportEmail,
-                    )}"
+                    href="mailto:${escapeEmailHtml(businessConfig.supportEmail)}"
                     style="
                         color:#0074d4;
                         text-decoration:none;
                         font-weight:700;
                     "
                 >
-                    ${escapeEmailHtml(
-                        businessConfig.supportEmail,
-                    )}
+                    ${escapeEmailHtml(businessConfig.supportEmail)}
                 </a>
             </div>
         </div>
     `.trim();
 }
 
-export function buildMarketingComplianceText(
-    options:
-        MarketingComplianceOptions,
-): string {
-    const {
-        mailingAddress,
-        unsubscribeUrl,
-    } = options;
+export function buildMarketingComplianceText(options: MarketingComplianceOptions): string {
+  const { mailingAddress, unsubscribeUrl } = options;
 
-    const privacyUrl =
-        buildEmailSiteUrl(
-            '/privacy-policy',
-        );
+  const privacyUrl = buildEmailSiteUrl('/privacy-policy');
 
-    return [
-        '',
-        '---',
-        '',
-        `You're receiving this marketing email because your ${businessConfig.shortName} email preference is currently set to receive news, product updates, pet guides, or offers.`,
-        '',
-        businessConfig.publicName,
-        mailingAddress,
-        '',
-        `Unsubscribe from marketing emails: ${unsubscribeUrl}`,
-        `Privacy Policy: ${privacyUrl}`,
-        `Questions: ${businessConfig.supportEmail}`,
-    ].join(
-        '\n',
-    );
+  return [
+    '',
+    '---',
+    '',
+    `You're receiving this marketing email because your ${businessConfig.shortName} email preference is currently set to receive news, product updates, pet guides, or offers.`,
+    '',
+    businessConfig.publicName,
+    mailingAddress,
+    '',
+    `Unsubscribe from marketing emails: ${unsubscribeUrl}`,
+    `Privacy Policy: ${privacyUrl}`,
+    `Questions: ${businessConfig.supportEmail}`,
+  ].join('\n');
 }

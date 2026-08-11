@@ -1,489 +1,276 @@
-import {
-    getStore,
-} from '@netlify/blobs';
+import { getStore } from '@netlify/blobs';
 
-import type {
-    MarketingEmailDataMode,
-    WelcomeEmailJobRecord,
-} from '../../types/email';
+import type { MarketingEmailDataMode, WelcomeEmailJobRecord } from '../../types/email';
 
-const EMAIL_HASH_PATTERN =
-    /^[0-9a-f]{64}$/;
+const EMAIL_HASH_PATTERN = /^[0-9a-f]{64}$/;
 
-const MAXIMUM_ERROR_MESSAGE_LENGTH =
-    500;
+const MAXIMUM_ERROR_MESSAGE_LENGTH = 500;
 
-function validateEmailHash(
-    emailHash: string,
-): string {
-    const normalized =
-        emailHash
-            .trim()
-            .toLowerCase();
+function validateEmailHash(emailHash: string): string {
+  const normalized = emailHash.trim().toLowerCase();
 
-    if (
-        !EMAIL_HASH_PATTERN.test(
-            normalized,
-        )
-    ) {
-        throw new Error(
-            'The welcome-email job contains an invalid email hash.',
-        );
-    }
+  if (!EMAIL_HASH_PATTERN.test(normalized)) {
+    throw new Error('The welcome-email job contains an invalid email hash.');
+  }
 
-    return normalized;
+  return normalized;
 }
 
-function getJobStore(
-    dataMode:
-        MarketingEmailDataMode,
-) {
-    return getStore(
-        `maxipawz-welcome-email-jobs-${dataMode}`,
-        {
-            consistency:
-                'strong',
-        },
-    );
+function getJobStore(dataMode: MarketingEmailDataMode) {
+  return getStore(`maxipawz-welcome-email-jobs-${dataMode}`, {
+    consistency: 'strong',
+  });
 }
 
-function getJobKey(
-    emailHash: string,
-): string {
-    return `email/${emailHash}`;
+function getJobKey(emailHash: string): string {
+  return `email/${emailHash}`;
 }
 
-function getSafeErrorMessage(
-    error: unknown,
-): string {
-    if (
-        error instanceof
-        Error
-    ) {
-        return error.message.slice(
-            0,
-            MAXIMUM_ERROR_MESSAGE_LENGTH,
-        );
-    }
+function getSafeErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message.slice(0, MAXIMUM_ERROR_MESSAGE_LENGTH);
+  }
 
-    return 'Unknown welcome-email job error.';
+  return 'Unknown welcome-email job error.';
 }
 
 export async function getWelcomeEmailJob(
-    emailHash: string,
+  emailHash: string,
 
-    dataMode:
-        MarketingEmailDataMode,
+  dataMode: MarketingEmailDataMode,
 ): Promise<WelcomeEmailJobRecord | null> {
-    const normalizedEmailHash =
-        validateEmailHash(
-            emailHash,
-        );
+  const normalizedEmailHash = validateEmailHash(emailHash);
 
-    const store =
-        getJobStore(
-            dataMode,
-        );
+  const store = getJobStore(dataMode);
 
-    return await store.get(
-        getJobKey(
-            normalizedEmailHash,
-        ),
-        {
-            type:
-                'json',
-        },
-    ) as
-        | WelcomeEmailJobRecord
-        | null;
+  return (await store.get(getJobKey(normalizedEmailHash), {
+    type: 'json',
+  })) as WelcomeEmailJobRecord | null;
 }
 
 export async function queueWelcomeEmailJob(
-    emailHash: string,
+  emailHash: string,
 
-    dataMode:
-        MarketingEmailDataMode,
+  dataMode: MarketingEmailDataMode,
 ): Promise<WelcomeEmailJobRecord> {
-    const normalizedEmailHash =
-        validateEmailHash(
-            emailHash,
-        );
+  const normalizedEmailHash = validateEmailHash(emailHash);
 
-    const store =
-        getJobStore(
-            dataMode,
-        );
+  const store = getJobStore(dataMode);
 
-    const existing =
-        await getWelcomeEmailJob(
-            normalizedEmailHash,
-            dataMode,
-        );
+  const existing = await getWelcomeEmailJob(normalizedEmailHash, dataMode);
 
-    /*
-     * A completed welcome email must never be sent again.
-     *
-     * A skipped job may be queued again later. This matters when a
-     * visitor opts out before the background job runs and then chooses
-     * to join the pack again in the future.
-     */
-    if (
-        existing &&
-        (
-            existing.status ===
-            'queued' ||
-            existing.status ===
-            'processing' ||
-            existing.status ===
-            'completed'
-        )
-    ) {
-        return existing;
-    }
+  /*
+   * A completed welcome email must never be sent again.
+   *
+   * A skipped job may be queued again later. This matters when a
+   * visitor opts out before the background job runs and then chooses
+   * to join the pack again in the future.
+   */
+  if (
+    existing &&
+    (existing.status === 'queued' ||
+      existing.status === 'processing' ||
+      existing.status === 'completed')
+  ) {
+    return existing;
+  }
 
-    const now =
-        new Date()
-            .toISOString();
+  const now = new Date().toISOString();
 
-    const record:
-        WelcomeEmailJobRecord = {
-        version: 1,
+  const record: WelcomeEmailJobRecord = {
+    version: 1,
 
-        emailHash:
-            normalizedEmailHash,
+    emailHash: normalizedEmailHash,
 
-        dataMode,
+    dataMode,
 
-        status:
-            'queued',
+    status: 'queued',
 
-        attemptCount:
-            existing
-                ?.attemptCount ??
-            0,
+    attemptCount: existing?.attemptCount ?? 0,
 
-        lastError:
-            undefined,
+    lastError: undefined,
 
-        skipReason:
-            undefined,
+    skipReason: undefined,
 
-        createdAt:
-            existing
-                ?.createdAt ??
-            now,
+    createdAt: existing?.createdAt ?? now,
 
-        updatedAt:
-            now,
+    updatedAt: now,
 
-        completedAt:
-            undefined,
+    completedAt: undefined,
 
-        skippedAt:
-            undefined,
-    };
+    skippedAt: undefined,
+  };
 
-    await store.setJSON(
-        getJobKey(
-            normalizedEmailHash,
-        ),
-        record,
-    );
+  await store.setJSON(getJobKey(normalizedEmailHash), record);
 
-    return record;
+  return record;
 }
 
 export async function markWelcomeEmailJobProcessing(
-    emailHash: string,
+  emailHash: string,
 
-    dataMode:
-        MarketingEmailDataMode,
+  dataMode: MarketingEmailDataMode,
 ): Promise<WelcomeEmailJobRecord> {
-    const normalizedEmailHash =
-        validateEmailHash(
-            emailHash,
-        );
+  const normalizedEmailHash = validateEmailHash(emailHash);
 
-    const store =
-        getJobStore(
-            dataMode,
-        );
+  const store = getJobStore(dataMode);
 
-    const existing =
-        await getWelcomeEmailJob(
-            normalizedEmailHash,
-            dataMode,
-        );
+  const existing = await getWelcomeEmailJob(normalizedEmailHash, dataMode);
 
-    if (!existing) {
-        throw new Error(
-            'The welcome-email job does not exist.',
-        );
-    }
+  if (!existing) {
+    throw new Error('The welcome-email job does not exist.');
+  }
 
-    if (
-        existing.status ===
-        'completed' ||
-        existing.status ===
-        'skipped'
-    ) {
-        return existing;
-    }
+  if (existing.status === 'completed' || existing.status === 'skipped') {
+    return existing;
+  }
 
-    const record:
-        WelcomeEmailJobRecord = {
-        ...existing,
+  const record: WelcomeEmailJobRecord = {
+    ...existing,
 
-        status:
-            'processing',
+    status: 'processing',
 
-        attemptCount:
-            existing
-                .attemptCount +
-            1,
+    attemptCount: existing.attemptCount + 1,
 
-        lastError:
-            undefined,
+    lastError: undefined,
 
-        skipReason:
-            undefined,
+    skipReason: undefined,
 
-        updatedAt:
-            new Date()
-                .toISOString(),
-    };
+    updatedAt: new Date().toISOString(),
+  };
 
-    await store.setJSON(
-        getJobKey(
-            normalizedEmailHash,
-        ),
-        record,
-    );
+  await store.setJSON(getJobKey(normalizedEmailHash), record);
 
-    return record;
+  return record;
 }
 
 export async function markWelcomeEmailJobCompleted(
-    emailHash: string,
+  emailHash: string,
 
-    dataMode:
-        MarketingEmailDataMode,
+  dataMode: MarketingEmailDataMode,
 ): Promise<WelcomeEmailJobRecord> {
-    const normalizedEmailHash =
-        validateEmailHash(
-            emailHash,
-        );
+  const normalizedEmailHash = validateEmailHash(emailHash);
 
-    const store =
-        getJobStore(
-            dataMode,
-        );
+  const store = getJobStore(dataMode);
 
-    const existing =
-        await getWelcomeEmailJob(
-            normalizedEmailHash,
-            dataMode,
-        );
+  const existing = await getWelcomeEmailJob(normalizedEmailHash, dataMode);
 
-    if (!existing) {
-        throw new Error(
-            'The welcome-email job does not exist.',
-        );
-    }
+  if (!existing) {
+    throw new Error('The welcome-email job does not exist.');
+  }
 
-    if (
-        existing.status ===
-        'completed'
-    ) {
-        return existing;
-    }
+  if (existing.status === 'completed') {
+    return existing;
+  }
 
-    const now =
-        new Date()
-            .toISOString();
+  const now = new Date().toISOString();
 
-    const record:
-        WelcomeEmailJobRecord = {
-        ...existing,
+  const record: WelcomeEmailJobRecord = {
+    ...existing,
 
-        status:
-            'completed',
+    status: 'completed',
 
-        lastError:
-            undefined,
+    lastError: undefined,
 
-        skipReason:
-            undefined,
+    skipReason: undefined,
 
-        updatedAt:
-            now,
+    updatedAt: now,
 
-        completedAt:
-            now,
+    completedAt: now,
 
-        skippedAt:
-            undefined,
-    };
+    skippedAt: undefined,
+  };
 
-    await store.setJSON(
-        getJobKey(
-            normalizedEmailHash,
-        ),
-        record,
-    );
+  await store.setJSON(getJobKey(normalizedEmailHash), record);
 
-    return record;
+  return record;
 }
 
 export async function markWelcomeEmailJobSkipped(
-    emailHash: string,
+  emailHash: string,
 
-    dataMode:
-        MarketingEmailDataMode,
+  dataMode: MarketingEmailDataMode,
 
-    reason: string,
+  reason: string,
 ): Promise<WelcomeEmailJobRecord> {
-    const normalizedEmailHash =
-        validateEmailHash(
-            emailHash,
-        );
+  const normalizedEmailHash = validateEmailHash(emailHash);
 
-    const store =
-        getJobStore(
-            dataMode,
-        );
+  const store = getJobStore(dataMode);
 
-    const existing =
-        await getWelcomeEmailJob(
-            normalizedEmailHash,
-            dataMode,
-        );
+  const existing = await getWelcomeEmailJob(normalizedEmailHash, dataMode);
 
-    if (!existing) {
-        throw new Error(
-            'The welcome-email job does not exist.',
-        );
-    }
+  if (!existing) {
+    throw new Error('The welcome-email job does not exist.');
+  }
 
-    /*
-     * A duplicate invocation can never downgrade a completed job.
-     */
-    if (
-        existing.status ===
-        'completed'
-    ) {
-        return existing;
-    }
+  /*
+   * A duplicate invocation can never downgrade a completed job.
+   */
+  if (existing.status === 'completed') {
+    return existing;
+  }
 
-    const now =
-        new Date()
-            .toISOString();
+  const now = new Date().toISOString();
 
-    const record:
-        WelcomeEmailJobRecord = {
-        ...existing,
+  const record: WelcomeEmailJobRecord = {
+    ...existing,
 
-        status:
-            'skipped',
+    status: 'skipped',
 
-        lastError:
-            undefined,
+    lastError: undefined,
 
-        skipReason:
-            reason.slice(
-                0,
-                MAXIMUM_ERROR_MESSAGE_LENGTH,
-            ),
+    skipReason: reason.slice(0, MAXIMUM_ERROR_MESSAGE_LENGTH),
 
-        updatedAt:
-            now,
+    updatedAt: now,
 
-        completedAt:
-            undefined,
+    completedAt: undefined,
 
-        skippedAt:
-            now,
-    };
+    skippedAt: now,
+  };
 
-    await store.setJSON(
-        getJobKey(
-            normalizedEmailHash,
-        ),
-        record,
-    );
+  await store.setJSON(getJobKey(normalizedEmailHash), record);
 
-    return record;
+  return record;
 }
 
 export async function markWelcomeEmailJobFailed(
-    emailHash: string,
+  emailHash: string,
 
-    dataMode:
-        MarketingEmailDataMode,
+  dataMode: MarketingEmailDataMode,
 
-    error: unknown,
+  error: unknown,
 ): Promise<WelcomeEmailJobRecord> {
-    const normalizedEmailHash =
-        validateEmailHash(
-            emailHash,
-        );
+  const normalizedEmailHash = validateEmailHash(emailHash);
 
-    const store =
-        getJobStore(
-            dataMode,
-        );
+  const store = getJobStore(dataMode);
 
-    const existing =
-        await getWelcomeEmailJob(
-            normalizedEmailHash,
-            dataMode,
-        );
+  const existing = await getWelcomeEmailJob(normalizedEmailHash, dataMode);
 
-    if (!existing) {
-        throw new Error(
-            'The welcome-email job does not exist.',
-        );
-    }
+  if (!existing) {
+    throw new Error('The welcome-email job does not exist.');
+  }
 
-    if (
-        existing.status ===
-        'completed'
-    ) {
-        return existing;
-    }
+  if (existing.status === 'completed') {
+    return existing;
+  }
 
-    const record:
-        WelcomeEmailJobRecord = {
-        ...existing,
+  const record: WelcomeEmailJobRecord = {
+    ...existing,
 
-        status:
-            'failed',
+    status: 'failed',
 
-        lastError:
-            getSafeErrorMessage(
-                error,
-            ),
+    lastError: getSafeErrorMessage(error),
 
-        skipReason:
-            undefined,
+    skipReason: undefined,
 
-        updatedAt:
-            new Date()
-                .toISOString(),
+    updatedAt: new Date().toISOString(),
 
-        completedAt:
-            undefined,
+    completedAt: undefined,
 
-        skippedAt:
-            undefined,
-    };
+    skippedAt: undefined,
+  };
 
-    await store.setJSON(
-        getJobKey(
-            normalizedEmailHash,
-        ),
-        record,
-    );
+  await store.setJSON(getJobKey(normalizedEmailHash), record);
 
-    return record;
+  return record;
 }

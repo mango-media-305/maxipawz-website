@@ -1,100 +1,62 @@
-import {
-    businessConfig,
-} from './business';
+import { businessConfig } from './business';
 
-import {
-    isStoreLive,
-} from './storefront';
+import { isStoreLive } from './storefront';
 
-import {
-    shippingConfig,
-} from './shipping';
+import { shippingConfig } from './shipping';
 
-import {
-    charityConfig,
-} from './charity';
+import { charityConfig } from './charity';
 
-export type CheckoutMode =
-    | 'disabled'
-    | 'test';
+export type CheckoutMode = 'disabled' | 'test';
 
-const configuredCheckoutMode =
-    import.meta.env
-        .PUBLIC_CHECKOUT_MODE;
+const configuredCheckoutMode = import.meta.env.PUBLIC_CHECKOUT_MODE;
 
-export const checkoutMode:
-    CheckoutMode =
-    configuredCheckoutMode ===
-        'test'
-        ? 'test'
-        : 'disabled';
+export const checkoutMode: CheckoutMode = configuredCheckoutMode === 'test' ? 'test' : 'disabled';
 
 export const sandboxCatalogCheckoutEnabled =
-    checkoutMode === 'test' &&
-    import.meta.env
-        .PUBLIC_SANDBOX_CATALOG_CHECKOUT ===
-    'true';
+  checkoutMode === 'test' && import.meta.env.PUBLIC_SANDBOX_CATALOG_CHECKOUT === 'true';
 
-export const checkoutEndpoint =
-    '/api/create-embedded-checkout-session';
+export const checkoutEndpoint = '/api/create-embedded-checkout-session';
 
-export const shippingOptionsEndpoint =
-    '/api/update-shipping-options';
+export const shippingOptionsEndpoint = '/api/update-shipping-options';
 
-export const orderStatusEndpoint =
-    '/api/get-order-status';
+export const orderStatusEndpoint = '/api/get-order-status';
 
-export const stripeWebhookEndpoint =
-    '/api/stripe-webhook';
+export const stripeWebhookEndpoint = '/api/stripe-webhook';
 
-export const stripePublishableKey =
-    import.meta.env
-        .PUBLIC_STRIPE_PUBLISHABLE_KEY
-        ?.trim() ?? '';
+export const stripePublishableKey = import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY?.trim() ?? '';
 
 export const commerceConfig = {
-    checkoutMode,
+  checkoutMode,
 
-    sandboxCatalogCheckoutEnabled,
+  sandboxCatalogCheckoutEnabled,
 
-    checkoutEndpoint,
+  checkoutEndpoint,
 
-    shippingOptionsEndpoint,
+  shippingOptionsEndpoint,
 
-    orderStatusEndpoint,
+  orderStatusEndpoint,
 
-    stripeWebhookEndpoint,
+  stripeWebhookEndpoint,
 
-    stripePublishableKey,
+  stripePublishableKey,
 
-    storefrontLive:
-        isStoreLive,
+  storefrontLive: isStoreLive,
 
-    policiesFinalized:
-        businessConfig
-            .commercePoliciesFinalized,
+  policiesFinalized: businessConfig.commercePoliciesFinalized,
 
-    publicSiteUrl:
-        import.meta.env
-            .PUBLIC_SITE_URL
-            ?.trim() ?? '',
+  publicSiteUrl: import.meta.env.PUBLIC_SITE_URL?.trim() ?? '',
 
-    shipping: {
-        ...shippingConfig,
-    },
+  shipping: {
+    ...shippingConfig,
+  },
 
-    charity: {
-        planned:
-            charityConfig.planned,
+  charity: {
+    planned: charityConfig.planned,
 
-        enabled:
-            charityConfig.enabled,
+    enabled: charityConfig.enabled,
 
-        countsTowardFreeShipping:
-            charityConfig
-                .countsTowardFreeShipping,
-    },
+    countsTowardFreeShipping: charityConfig.countsTowardFreeShipping,
+  },
 } as const;
 
-export const isTestCheckoutEnabled =
-    checkoutMode === 'test';
+export const isTestCheckoutEnabled = checkoutMode === 'test';

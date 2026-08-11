@@ -1,134 +1,81 @@
-import {
-    primaryNavigation,
-} from '../../data/navigation';
+import { primaryNavigation } from '../../data/navigation';
 
 interface BrandedEmailShellOptions {
-    content: string;
+  content: string;
 
-    preheader: string;
+  preheader: string;
 
-    testMode: boolean;
+  testMode: boolean;
 
-    testBannerText?: string;
+  testBannerText?: string;
 }
 
-const fallbackSiteUrl =
-    'https://maxipawz.com';
+const fallbackSiteUrl = 'https://maxipawz.com';
 
-export function escapeEmailHtml(
-    value: string,
-): string {
-    return value
-        .replaceAll(
-            '&',
-            '&amp;',
-        )
-        .replaceAll(
-            '<',
-            '&lt;',
-        )
-        .replaceAll(
-            '>',
-            '&gt;',
-        )
-        .replaceAll(
-            '"',
-            '&quot;',
-        )
-        .replaceAll(
-            "'",
-            '&#039;',
-        );
+export function escapeEmailHtml(value: string): string {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
 }
 
-function getEmailSiteOrigin():
-    string {
-    const configured =
-        process.env
-            .PUBLIC_SITE_URL
-            ?.trim();
+function getEmailSiteOrigin(): string {
+  const configured = process.env.PUBLIC_SITE_URL?.trim();
 
-    if (!configured) {
-        return fallbackSiteUrl;
+  if (!configured) {
+    return fallbackSiteUrl;
+  }
+
+  try {
+    const url = new URL(configured);
+
+    if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+      return fallbackSiteUrl;
     }
 
-    try {
-        const url =
-            new URL(
-                configured,
-            );
-
-        if (
-            url.protocol !==
-            'https:' &&
-            url.protocol !==
-            'http:'
-        ) {
-            return fallbackSiteUrl;
-        }
-
-        return url.origin;
-    } catch {
-        return fallbackSiteUrl;
-    }
+    return url.origin;
+  } catch {
+    return fallbackSiteUrl;
+  }
 }
 
-export function buildEmailSiteUrl(
-    path = '/',
-): string {
-    const origin =
-        getEmailSiteOrigin();
+export function buildEmailSiteUrl(path = '/'): string {
+  const origin = getEmailSiteOrigin();
 
-    return new URL(
-        path,
-        `${origin}/`,
-    ).toString();
+  return new URL(path, `${origin}/`).toString();
 }
 
-function buildNavigationHtml():
-    string {
-    return primaryNavigation
-        .map(
-            (
-                item,
-            ) => {
-                const href =
-                    buildEmailSiteUrl(
-                        item.href,
-                    );
+function buildNavigationHtml(): string {
+  return primaryNavigation
+    .map((item) => {
+      const href = buildEmailSiteUrl(item.href);
 
-                return `
+      return `
             <a
-                href="${escapeEmailHtml(
-                    href,
-                )}"
+                href="${escapeEmailHtml(href)}"
                 style="color:#fff8dc;text-decoration:none;font-size:13px;font-weight:700;"
             >
-                ${escapeEmailHtml(
-                    item.label,
-                )}
+                ${escapeEmailHtml(item.label)}
             </a>
             `;
-            },
-        )
-        .join(
-            `
+    })
+    .join(
+      `
             <span style="padding:0 8px;color:#ecdab7;">•</span>
         `,
-        );
+    );
 }
 
 export function buildWebsiteButton(
-    label: string,
+  label: string,
 
-    path = '/',
+  path = '/',
 ): string {
-    const href =
-        buildEmailSiteUrl(
-            path,
-        );
+  const href = buildEmailSiteUrl(path);
 
-    return `
+  return `
         <table
         role="presentation"
         cellspacing="0"
@@ -142,14 +89,10 @@ export function buildWebsiteButton(
             style="border-radius:999px;background:#ff6600;"
             >
             <a
-                href="${escapeEmailHtml(
-        href,
-    )}"
+                href="${escapeEmailHtml(href)}"
                 style="display:inline-block;padding:13px 22px;color:#ffffff;text-decoration:none;font-size:14px;font-weight:800;"
             >
-                ${escapeEmailHtml(
-        label,
-    )}
+                ${escapeEmailHtml(label)}
             </a>
             </td>
         </tr>
@@ -158,41 +101,31 @@ export function buildWebsiteButton(
 }
 
 export function buildBrandedEmailShell({
-    content,
-    preheader,
-    testMode,
-    testBannerText,
+  content,
+  preheader,
+  testMode,
+  testBannerText,
 }: BrandedEmailShellOptions): string {
-    const homeUrl =
-        buildEmailSiteUrl(
-            '/',
-        );
+  const homeUrl = buildEmailSiteUrl('/');
 
-    const logoUrl =
-        buildEmailSiteUrl(
-            '/images/brand/maxipawz-email-logo.png',
-        );
+  const logoUrl = buildEmailSiteUrl('/images/brand/maxipawz-email-logo.png');
 
-    const navigation =
-        buildNavigationHtml();
+  const navigation = buildNavigationHtml();
 
-    const banner =
-        testMode &&
-            testBannerText
-            ? `
+  const banner =
+    testMode && testBannerText
+      ? `
             <tr>
             <td
                 style="background:#fff3e8;color:#9a3e00;padding:11px 18px;text-align:center;font-size:12px;font-weight:800;"
             >
-                ${escapeEmailHtml(
-                testBannerText,
-            )}
+                ${escapeEmailHtml(testBannerText)}
             </td>
             </tr>
         `
-            : '';
+      : '';
 
-    return `
+  return `
         <!doctype html>
         <html lang="en">
         <head>
@@ -214,9 +147,7 @@ export function buildBrandedEmailShell({
             <div
             style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;"
             >
-            ${escapeEmailHtml(
-        preheader,
-    )}
+            ${escapeEmailHtml(preheader)}
             </div>
 
             <table
@@ -248,15 +179,11 @@ export function buildBrandedEmailShell({
                         style="padding:26px 30px 20px;background:#fff8dc;"
                     >
                         <a
-                        href="${escapeEmailHtml(
-        homeUrl,
-    )}"
+                        href="${escapeEmailHtml(homeUrl)}"
                         style="display:inline-block;text-decoration:none;"
                         >
                         <img
-                            src="${escapeEmailHtml(
-        logoUrl,
-    )}"
+                            src="${escapeEmailHtml(logoUrl)}"
                             width="300"
                             alt="Maxi Pawz Store"
                             style="display:block;width:100%;max-width:300px;height:auto;margin:0 auto;border:0;outline:none;text-decoration:none;"
@@ -316,9 +243,7 @@ export function buildBrandedEmailShell({
                         style="margin-top:9px;font-size:12px;"
                         >
                         <a
-                            href="${escapeEmailHtml(
-        homeUrl,
-    )}"
+                            href="${escapeEmailHtml(homeUrl)}"
                             style="color:#8fcfff;text-decoration:none;font-weight:700;"
                         >
                             maxipawz.com

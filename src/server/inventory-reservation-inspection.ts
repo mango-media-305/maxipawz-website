@@ -1,518 +1,270 @@
-import {
-    getDatabase,
-} from '@netlify/database';
+import { getDatabase } from '@netlify/database';
 
-import {
-    products,
-} from '../data/products';
+import { products } from '../data/products';
 
 import type {
-    AdminInventoryReservation,
-    AdminInventoryReservationItem,
-    AdminInventoryReservationsData,
-    AdminInventoryReservationSummary,
+  AdminInventoryReservation,
+  AdminInventoryReservationItem,
+  AdminInventoryReservationsData,
+  AdminInventoryReservationSummary,
 } from '../types/admin-inventory-reservation';
 
-import type {
-    InventoryReservationStatus,
-} from '../types/inventory-reservation';
+import type { InventoryReservationStatus } from '../types/inventory-reservation';
 
-const RESERVATION_DISPLAY_LIMIT =
-    200;
+const RESERVATION_DISPLAY_LIMIT = 200;
 
 interface ReservationInspectionDatabaseRow {
-    id: string;
+  id: string;
 
-    cart_reference: string;
+  cart_reference: string;
 
-    stripe_session_id:
-        | string
-        | null;
+  stripe_session_id: string | null;
 
-    status:
-        InventoryReservationStatus;
+  status: InventoryReservationStatus;
 
-    expires_at:
-        | string
-        | Date;
+  expires_at: string | Date;
 
-    release_reason:
-        | string
-        | null;
+  release_reason: string | null;
 
-    created_at:
-        | string
-        | Date;
+  created_at: string | Date;
 
-    updated_at:
-        | string
-        | Date;
+  updated_at: string | Date;
 
-    completed_at:
-        | string
-        | Date
-        | null;
+  completed_at: string | Date | null;
 
-    released_at:
-        | string
-        | Date
-        | null;
+  released_at: string | Date | null;
 
-    expired_at:
-        | string
-        | Date
-        | null;
+  expired_at: string | Date | null;
 
-    inventory_item_id:
-        | string
-        | number
-        | null;
+  inventory_item_id: string | number | null;
 
-    item_product_slug:
-        | string
-        | null;
+  item_product_slug: string | null;
 
-    item_variant_id:
-        | string
-        | null;
+  item_variant_id: string | null;
 
-    item_sku:
-        | string
-        | null;
+  item_sku: string | null;
 
-    item_quantity:
-        | string
-        | number
-        | null;
+  item_quantity: string | number | null;
 }
 
 interface ReservationSummaryDatabaseRow {
-    total:
-        | string
-        | number;
+  total: string | number;
 
-    active:
-        | string
-        | number;
+  active: string | number;
 
-    payment_pending:
-        | string
-        | number;
+  payment_pending: string | number;
 
-    completed:
-        | string
-        | number;
+  completed: string | number;
 
-    released:
-        | string
-        | number;
+  released: string | number;
 
-    expired:
-        | string
-        | number;
+  expired: string | number;
 
-    expiration_past_due:
-        | string
-        | number;
+  expiration_past_due: string | number;
 }
 
 interface HeldUnitsDatabaseRow {
-    held_units:
-        | string
-        | number;
+  held_units: string | number;
 }
 
 interface CatalogSelectionLabel {
-    productName: string;
+  productName: string;
 
-    variantLabel?: string;
+  variantLabel?: string;
 }
 
-function normalizeInteger(
-    value:
-        | string
-        | number,
-    fieldName: string,
-): number {
-    const normalized =
-        typeof value ===
-            'number'
-            ? value
-            : Number(
-                value,
-            );
+function normalizeInteger(value: string | number, fieldName: string): number {
+  const normalized = typeof value === 'number' ? value : Number(value);
 
-    if (
-        !Number.isSafeInteger(
-            normalized,
-        )
-    ) {
-        throw new Error(
-            `Reservation inspection field "${fieldName}" contains an invalid integer.`,
-        );
+  if (!Number.isSafeInteger(normalized)) {
+    throw new Error(`Reservation inspection field "${fieldName}" contains an invalid integer.`);
+  }
+
+  return normalized;
+}
+
+function normalizeTimestamp(value: string | Date): string {
+  const timestamp = value instanceof Date ? value : new Date(value);
+
+  if (Number.isNaN(timestamp.getTime())) {
+    throw new Error('Reservation inspection contains an invalid timestamp.');
+  }
+
+  return timestamp.toISOString();
+}
+
+function normalizeOptionalTimestamp(value: string | Date | null): string | undefined {
+  if (value === null) {
+    return undefined;
+  }
+
+  return normalizeTimestamp(value);
+}
+
+function selectionKey(productSlug: string, variantId?: string): string {
+  return `${productSlug}\u0000${variantId ?? ''}`;
+}
+
+function buildCatalogLabelMap(): Map<string, CatalogSelectionLabel> {
+  const labels = new Map<string, CatalogSelectionLabel>();
+
+  products.forEach((product) => {
+    if (product.variants?.length) {
+      product.variants.forEach((variant) => {
+        labels.set(selectionKey(product.slug, variant.id), {
+          productName: product.name,
+
+          variantLabel: variant.label,
+        });
+      });
+
+      return;
     }
 
-    return normalized;
-}
+    labels.set(selectionKey(product.slug), {
+      productName: product.name,
+    });
+  });
 
-function normalizeTimestamp(
-    value:
-        | string
-        | Date,
-): string {
-    const timestamp =
-        value instanceof
-            Date
-            ? value
-            : new Date(
-                value,
-            );
-
-    if (
-        Number.isNaN(
-            timestamp.getTime(),
-        )
-    ) {
-        throw new Error(
-            'Reservation inspection contains an invalid timestamp.',
-        );
-    }
-
-    return timestamp
-        .toISOString();
-}
-
-function normalizeOptionalTimestamp(
-    value:
-        | string
-        | Date
-        | null,
-): string | undefined {
-    if (
-        value ===
-        null
-    ) {
-        return undefined;
-    }
-
-    return normalizeTimestamp(
-        value,
-    );
-}
-
-function selectionKey(
-    productSlug: string,
-    variantId?: string,
-): string {
-    return `${productSlug}\u0000${variantId ?? ''}`;
-}
-
-function buildCatalogLabelMap():
-    Map<
-        string,
-        CatalogSelectionLabel
-    > {
-    const labels =
-        new Map<
-            string,
-            CatalogSelectionLabel
-        >();
-
-    products.forEach(
-        (
-            product,
-        ) => {
-            if (
-                product.variants
-                    ?.length
-            ) {
-                product.variants.forEach(
-                    (
-                        variant,
-                    ) => {
-                        labels.set(
-                            selectionKey(
-                                product.slug,
-                                variant.id,
-                            ),
-                            {
-                                productName:
-                                    product.name,
-
-                                variantLabel:
-                                    variant.label,
-                            },
-                        );
-                    },
-                );
-
-                return;
-            }
-
-            labels.set(
-                selectionKey(
-                    product.slug,
-                ),
-                {
-                    productName:
-                        product.name,
-                },
-            );
-        },
-    );
-
-    return labels;
+  return labels;
 }
 
 function mapReservationItem(
-    row:
-        ReservationInspectionDatabaseRow,
-    labels:
-        Map<
-            string,
-            CatalogSelectionLabel
-        >,
+  row: ReservationInspectionDatabaseRow,
+  labels: Map<string, CatalogSelectionLabel>,
 ): AdminInventoryReservationItem | undefined {
-    if (
-        row.inventory_item_id ===
-            null ||
-        row.item_product_slug ===
-            null ||
-        row.item_sku ===
-            null ||
-        row.item_quantity ===
-            null
-    ) {
-        return undefined;
-    }
+  if (
+    row.inventory_item_id === null ||
+    row.item_product_slug === null ||
+    row.item_sku === null ||
+    row.item_quantity === null
+  ) {
+    return undefined;
+  }
 
-    const variantId =
-        row.item_variant_id ??
-        undefined;
+  const variantId = row.item_variant_id ?? undefined;
 
-    const catalogLabel =
-        labels.get(
-            selectionKey(
-                row.item_product_slug,
-                variantId,
-            ),
-        );
+  const catalogLabel = labels.get(selectionKey(row.item_product_slug, variantId));
 
-    return {
-        inventoryItemId:
-            String(
-                row.inventory_item_id,
-            ),
+  return {
+    inventoryItemId: String(row.inventory_item_id),
 
-        productSlug:
-            row.item_product_slug,
+    productSlug: row.item_product_slug,
 
-        productName:
-            catalogLabel
-                ?.productName ??
-            row.item_product_slug,
+    productName: catalogLabel?.productName ?? row.item_product_slug,
 
-        ...(variantId
-            ? {
-                variantId,
-            }
-            : {}),
+    ...(variantId
+      ? {
+          variantId,
+        }
+      : {}),
 
-        ...(catalogLabel
-            ?.variantLabel
-            ? {
-                variantLabel:
-                    catalogLabel
-                        .variantLabel,
-            }
-            : {}),
+    ...(catalogLabel?.variantLabel
+      ? {
+          variantLabel: catalogLabel.variantLabel,
+        }
+      : {}),
 
-        sku:
-            row.item_sku,
+    sku: row.item_sku,
 
-        quantity:
-            normalizeInteger(
-                row.item_quantity,
-                'item_quantity',
-            ),
-    };
+    quantity: normalizeInteger(row.item_quantity, 'item_quantity'),
+  };
 }
 
-function createReservation(
-    row:
-        ReservationInspectionDatabaseRow,
-): AdminInventoryReservation {
-    const expiresAt =
-        normalizeTimestamp(
-            row.expires_at,
-        );
+function createReservation(row: ReservationInspectionDatabaseRow): AdminInventoryReservation {
+  const expiresAt = normalizeTimestamp(row.expires_at);
 
-    const holdsInventory =
-        row.status ===
-            'active' ||
-        row.status ===
-            'payment-pending';
+  const holdsInventory = row.status === 'active' || row.status === 'payment-pending';
 
-    const expirationPastDue =
-        row.status ===
-            'active' &&
-        new Date(
-            expiresAt,
-        ).getTime() <=
-            Date.now();
+  const expirationPastDue = row.status === 'active' && new Date(expiresAt).getTime() <= Date.now();
 
-    const completedAt =
-        normalizeOptionalTimestamp(
-            row.completed_at,
-        );
+  const completedAt = normalizeOptionalTimestamp(row.completed_at);
 
-    const releasedAt =
-        normalizeOptionalTimestamp(
-            row.released_at,
-        );
+  const releasedAt = normalizeOptionalTimestamp(row.released_at);
 
-    const expiredAt =
-        normalizeOptionalTimestamp(
-            row.expired_at,
-        );
+  const expiredAt = normalizeOptionalTimestamp(row.expired_at);
 
-    return {
-        id:
-            row.id,
+  return {
+    id: row.id,
 
-        cartReference:
-            row.cart_reference,
+    cartReference: row.cart_reference,
 
-        ...(row.stripe_session_id
-            ? {
-                stripeSessionId:
-                    row.stripe_session_id,
-            }
-            : {}),
+    ...(row.stripe_session_id
+      ? {
+          stripeSessionId: row.stripe_session_id,
+        }
+      : {}),
 
-        status:
-            row.status,
+    status: row.status,
 
-        ...(row.release_reason
-            ? {
-                releaseReason:
-                    row.release_reason,
-            }
-            : {}),
+    ...(row.release_reason
+      ? {
+          releaseReason: row.release_reason,
+        }
+      : {}),
 
-        expiresAt,
+    expiresAt,
 
-        createdAt:
-            normalizeTimestamp(
-                row.created_at,
-            ),
+    createdAt: normalizeTimestamp(row.created_at),
 
-        updatedAt:
-            normalizeTimestamp(
-                row.updated_at,
-            ),
+    updatedAt: normalizeTimestamp(row.updated_at),
 
-        ...(completedAt
-            ? {
-                completedAt,
-            }
-            : {}),
+    ...(completedAt
+      ? {
+          completedAt,
+        }
+      : {}),
 
-        ...(releasedAt
-            ? {
-                releasedAt,
-            }
-            : {}),
+    ...(releasedAt
+      ? {
+          releasedAt,
+        }
+      : {}),
 
-        ...(expiredAt
-            ? {
-                expiredAt,
-            }
-            : {}),
+    ...(expiredAt
+      ? {
+          expiredAt,
+        }
+      : {}),
 
-        holdsInventory,
+    holdsInventory,
 
-        heldUnits:
-            0,
+    heldUnits: 0,
 
-        expirationPastDue,
+    expirationPastDue,
 
-        items: [],
-    };
+    items: [],
+  };
 }
 
 function mapSummary(
-    row:
-        ReservationSummaryDatabaseRow,
-    heldUnits:
-        HeldUnitsDatabaseRow,
+  row: ReservationSummaryDatabaseRow,
+  heldUnits: HeldUnitsDatabaseRow,
 ): AdminInventoryReservationSummary {
-    return {
-        total:
-            normalizeInteger(
-                row.total,
-                'total',
-            ),
+  return {
+    total: normalizeInteger(row.total, 'total'),
 
-        active:
-            normalizeInteger(
-                row.active,
-                'active',
-            ),
+    active: normalizeInteger(row.active, 'active'),
 
-        paymentPending:
-            normalizeInteger(
-                row.payment_pending,
-                'payment_pending',
-            ),
+    paymentPending: normalizeInteger(row.payment_pending, 'payment_pending'),
 
-        completed:
-            normalizeInteger(
-                row.completed,
-                'completed',
-            ),
+    completed: normalizeInteger(row.completed, 'completed'),
 
-        released:
-            normalizeInteger(
-                row.released,
-                'released',
-            ),
+    released: normalizeInteger(row.released, 'released'),
 
-        expired:
-            normalizeInteger(
-                row.expired,
-                'expired',
-            ),
+    expired: normalizeInteger(row.expired, 'expired'),
 
-        heldUnits:
-            normalizeInteger(
-                heldUnits
-                    .held_units,
-                'held_units',
-            ),
+    heldUnits: normalizeInteger(heldUnits.held_units, 'held_units'),
 
-        expirationPastDue:
-            normalizeInteger(
-                row.expiration_past_due,
-                'expiration_past_due',
-            ),
-    };
+    expirationPastDue: normalizeInteger(row.expiration_past_due, 'expiration_past_due'),
+  };
 }
 
-export async function inspectInventoryReservations():
-    Promise<
-        AdminInventoryReservationsData
-    > {
-    const db =
-        getDatabase();
+export async function inspectInventoryReservations(): Promise<AdminInventoryReservationsData> {
+  const db = getDatabase();
 
-    const [
-        reservationRows,
-        summaryRows,
-        heldUnitRows,
-    ] =
-        await Promise.all([
-            db.sql`
+  const [reservationRows, summaryRows, heldUnitRows] = await Promise.all([
+    db.sql`
                 WITH recent_reservations AS (
                     SELECT
                         id,
@@ -573,7 +325,7 @@ export async function inspectInventoryReservations():
                     item.sku ASC
             `,
 
-            db.sql`
+    db.sql`
                 SELECT
                     COUNT(*) AS total,
 
@@ -613,7 +365,7 @@ export async function inspectInventoryReservations():
                 FROM inventory_reservations
             `,
 
-            db.sql`
+    db.sql`
                 SELECT
                     COALESCE(
                         SUM(
@@ -636,129 +388,57 @@ export async function inspectInventoryReservations():
                         'payment-pending'
                     )
             `,
-        ]);
+  ]);
 
-    const summaryRow =
-        summaryRows[0] as
-            | ReservationSummaryDatabaseRow
-            | undefined;
+  const summaryRow = summaryRows[0] as ReservationSummaryDatabaseRow | undefined;
 
-    const heldUnitsRow =
-        heldUnitRows[0] as
-            | HeldUnitsDatabaseRow
-            | undefined;
+  const heldUnitsRow = heldUnitRows[0] as HeldUnitsDatabaseRow | undefined;
 
-    if (
-        !summaryRow ||
-        !heldUnitsRow
-    ) {
-        throw new Error(
-            'Reservation summary could not be loaded.',
-        );
+  if (!summaryRow || !heldUnitsRow) {
+    throw new Error('Reservation summary could not be loaded.');
+  }
+
+  const labels = buildCatalogLabelMap();
+
+  const reservationMap = new Map<string, AdminInventoryReservation>();
+
+  reservationRows.forEach((rawRow) => {
+    const row = rawRow as ReservationInspectionDatabaseRow;
+
+    let reservation = reservationMap.get(row.id);
+
+    if (!reservation) {
+      reservation = createReservation(row);
+
+      reservationMap.set(row.id, reservation);
     }
 
-    const labels =
-        buildCatalogLabelMap();
+    const item = mapReservationItem(row, labels);
 
-    const reservationMap =
-        new Map<
-            string,
-            AdminInventoryReservation
-        >();
+    if (item) {
+      reservation.items.push(item);
+    }
+  });
 
-    reservationRows.forEach(
-        (
-            rawRow,
-        ) => {
-            const row =
-                rawRow as
-                    ReservationInspectionDatabaseRow;
+  const reservations = Array.from(reservationMap.values());
 
-            let reservation =
-                reservationMap.get(
-                    row.id,
-                );
+  reservations.forEach((reservation) => {
+    if (!reservation.holdsInventory) {
+      return;
+    }
 
-            if (
-                !reservation
-            ) {
-                reservation =
-                    createReservation(
-                        row,
-                    );
+    reservation.heldUnits = reservation.items.reduce((total, item) => total + item.quantity, 0);
+  });
 
-                reservationMap.set(
-                    row.id,
-                    reservation,
-                );
-            }
+  const summary = mapSummary(summaryRow, heldUnitsRow);
 
-            const item =
-                mapReservationItem(
-                    row,
-                    labels,
-                );
+  return {
+    reservations,
 
-            if (
-                item
-            ) {
-                reservation
-                    .items
-                    .push(
-                        item,
-                    );
-            }
-        },
-    );
+    summary,
 
-    const reservations =
-        Array.from(
-            reservationMap
-                .values(),
-        );
+    displayLimit: RESERVATION_DISPLAY_LIMIT,
 
-    reservations.forEach(
-        (
-            reservation,
-        ) => {
-            if (
-                !reservation
-                    .holdsInventory
-            ) {
-                return;
-            }
-
-            reservation.heldUnits =
-                reservation
-                    .items
-                    .reduce(
-                        (
-                            total,
-                            item,
-                        ) =>
-                            total +
-                            item.quantity,
-                        0,
-                    );
-        },
-    );
-
-    const summary =
-        mapSummary(
-            summaryRow,
-            heldUnitsRow,
-        );
-
-    return {
-        reservations,
-
-        summary,
-
-        displayLimit:
-            RESERVATION_DISPLAY_LIMIT,
-
-        truncated:
-            summary.total >
-            reservations.length,
-    };
+    truncated: summary.total > reservations.length,
+  };
 }

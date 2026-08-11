@@ -5,15 +5,15 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 ---
 
 <BaseLayout
-    title="Inventory Management"
-    description="Private Maxi Pawz inventory management dashboard."
-    noIndex={true}
+  title="Inventory Management"
+  description="Private Maxi Pawz inventory management dashboard."
+  noIndex={true}
 >
-    <section class="section-spacing">
-        <div class="site-container">
-            <AdminNavigation current="inventory" />
+  <section class="section-spacing">
+    <div class="site-container">
+      <AdminNavigation current="inventory" />
 
-            <AdminInventory client:load />
-        </div>
-    </section>
+      <AdminInventory client:load />
+    </div>
+  </section>
 </BaseLayout>

@@ -2,21 +2,21 @@ export type HeroSlideTone = 'brand' | 'accent' | 'sand';
 export type HeroImageFit = 'cover' | 'contain';
 
 export interface HeroSlide {
-    id: string;
-    eyebrow: string;
-    title: string;
-    description: string;
+  id: string;
+  eyebrow: string;
+  title: string;
+  description: string;
 
-    image: string;
-    imageAlt: string;
-    imageFit?: HeroImageFit;
-    objectPosition?: string;
+  image: string;
+  imageAlt: string;
+  imageFit?: HeroImageFit;
+  objectPosition?: string;
 
-    tone?: HeroSlideTone;
-    meta?: string;
+  tone?: HeroSlideTone;
+  meta?: string;
 
-    href?: string;
-    linkLabel?: string;
+  href?: string;
+  linkLabel?: string;
 }
 
 /*
@@ -27,99 +27,90 @@ export interface HeroSlide {
  * hydration products, grooming items, or other pet essentials.
  */
 export interface HeroProductPreview {
-    name: string;
-    description: string;
-    href: string;
+  name: string;
+  description: string;
+  href: string;
 
-    image: string;
-    imageAlt: string;
+  image: string;
+  imageAlt: string;
 
-    priceLabel?: string;
-    badge?: string;
+  priceLabel?: string;
+  badge?: string;
 }
 
 export const prelaunchHeroSlides: HeroSlide[] = [
-    {
-        id: 'everyday-pet-joy',
+  {
+    id: 'everyday-pet-joy',
 
-        eyebrow: 'The Maxi Pawz spirit',
+    eyebrow: 'The Maxi Pawz spirit',
 
-        title: 'More joy for every part of pet life',
+    title: 'More joy for every part of pet life',
 
-        description:
-            'We are creating a friendly destination for playtime, walks, travel, feeding, hydration, comfort, care, and everyday moments together.',
+    description:
+      'We are creating a friendly destination for playtime, walks, travel, feeding, hydration, comfort, care, and everyday moments together.',
 
-        image: "https://miro.medium.com/v2/resize:fit:2000/1*rnRDOjGuPaRpoetcAoZxHA.png",
-        imageAlt: 'Happy brown Maxi Pawz dog mascot',
-        imageFit: 'cover',
-        objectPosition: 'center 28%',
+    image: 'https://miro.medium.com/v2/resize:fit:2000/1*rnRDOjGuPaRpoetcAoZxHA.png',
+    imageAlt: 'Happy brown Maxi Pawz dog mascot',
+    imageFit: 'cover',
+    objectPosition: 'center 28%',
 
-        tone: 'accent',
+    tone: 'accent',
 
-        href: '/#join-the-pack',
-        linkLabel: 'Join the Pack',
-    },
+    href: '/#join-the-pack',
+    linkLabel: 'Join the Pack',
+  },
 
-    {
-        id: 'playful-and-practical',
+  {
+    id: 'playful-and-practical',
 
-        eyebrow: 'Playful and practical',
+    eyebrow: 'Playful and practical',
 
-        title: 'Useful essentials with a joyful personality',
+    title: 'Useful essentials with a joyful personality',
 
-        description:
-            'Discover future products ranging from toys and enrichment items to water bottles, collars, walking accessories, travel gear, and everyday supplies.',
+    description:
+      'Discover future products ranging from toys and enrichment items to water bottles, collars, walking accessories, travel gear, and everyday supplies.',
 
-        image: "https://static.tildacdn.com/tild6635-6330-4165-a233-393634353438/13364.jpg",
-        imageAlt: 'Blue and orange Maxi Pawz brand mark',
-        imageFit: 'cover',
+    image: 'https://static.tildacdn.com/tild6635-6330-4165-a233-393634353438/13364.jpg',
+    imageAlt: 'Blue and orange Maxi Pawz brand mark',
+    imageFit: 'cover',
 
-        tone: 'brand',
+    tone: 'brand',
 
-        href: '/about',
-        linkLabel: 'Discover Maxi Pawz',
-    },
+    href: '/about',
+    linkLabel: 'Discover Maxi Pawz',
+  },
 
-    {
-        id: 'complete-pet-store',
+  {
+    id: 'complete-pet-store',
 
-        eyebrow: 'Coming soon',
+    eyebrow: 'Coming soon',
 
-        title: 'A complete pet-shopping experience is taking shape',
+    title: 'A complete pet-shopping experience is taking shape',
 
-        description:
-            'Maxi Pawz is preparing thoughtful products, helpful pet guidance, and a warm shopping experience for pets and their people.',
+    description:
+      'Maxi Pawz is preparing thoughtful products, helpful pet guidance, and a warm shopping experience for pets and their people.',
 
-        image: "https://m.media-amazon.com/images/I/71pou1A0rDL._AC_UF1000,1000_QL80_.jpg",
-        imageAlt: 'Maxi Pawz Store horizontal logo',
-        imageFit: 'cover',
+    image: 'https://m.media-amazon.com/images/I/71pou1A0rDL._AC_UF1000,1000_QL80_.jpg',
+    imageAlt: 'Maxi Pawz Store horizontal logo',
+    imageFit: 'cover',
 
-        tone: 'sand',
+    tone: 'sand',
 
-        href: '/pet-guides',
-        linkLabel: 'Explore Pet Guides',
-    },
+    href: '/pet-guides',
+    linkLabel: 'Explore Pet Guides',
+  },
 ];
 
-const productSlideTones: HeroSlideTone[] = [
-    'accent',
-    'brand',
-    'sand',
-];
+const productSlideTones: HeroSlideTone[] = ['accent', 'brand', 'sand'];
 
-function createProductSlideId(
-    productName: string,
-    index: number,
-): string {
-    const normalizedName = productName
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
+function createProductSlideId(productName: string, index: number): string {
+  const normalizedName = productName
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 
-    return normalizedName
-        ? `product-${normalizedName}`
-        : `product-${index + 1}`;
+  return normalizedName ? `product-${normalizedName}` : `product-${index + 1}`;
 }
 
 /*
@@ -129,33 +120,25 @@ function createProductSlideId(
  * toys, accessories, supplies, hydration products, travel gear, collars,
  * grooming products, and other Maxi Pawz merchandise.
  */
-export function createProductHeroSlides(
-    products: HeroProductPreview[],
-): HeroSlide[] {
-    return products.slice(0, 5).map((product, index) => ({
-        id: createProductSlideId(product.name, index),
+export function createProductHeroSlides(products: HeroProductPreview[]): HeroSlide[] {
+  return products.slice(0, 5).map((product, index) => ({
+    id: createProductSlideId(product.name, index),
 
-        eyebrow:
-            product.badge ??
-            (index === 0
-                ? 'Featured Maxi Pawz pick'
-                : 'Customer favorite'),
+    eyebrow: product.badge ?? (index === 0 ? 'Featured Maxi Pawz pick' : 'Customer favorite'),
 
-        title: product.name,
-        description: product.description,
+    title: product.name,
+    description: product.description,
 
-        image: product.image,
-        imageAlt: product.imageAlt,
-        imageFit: 'cover',
-        objectPosition: 'center',
+    image: product.image,
+    imageAlt: product.imageAlt,
+    imageFit: 'cover',
+    objectPosition: 'center',
 
-        tone:
-            productSlideTones[index % productSlideTones.length] ??
-            'accent',
+    tone: productSlideTones[index % productSlideTones.length] ?? 'accent',
 
-        meta: product.priceLabel,
+    meta: product.priceLabel,
 
-        href: product.href,
-        linkLabel: 'View product',
-    }));
+    href: product.href,
+    linkLabel: 'View product',
+  }));
 }

@@ -1,29 +1,21 @@
 export const charityConfig = {
-    planned: true,
+  planned: true,
 
-    enabled: false,
+  enabled: false,
 
-    partnerName: '',
+  partnerName: '',
 
-    partnerWebsite: '',
+  partnerWebsite: '',
 
-    programName:
-        'Support a Local Animal Shelter',
+  programName: 'Support a Local Animal Shelter',
 
-    suggestedContributionAmounts: [
-        100,
-        300,
-        500,
-    ],
+  suggestedContributionAmounts: [100, 300, 500],
 
-    countsTowardFreeShipping:
-        false,
+  countsTowardFreeShipping: false,
 
-    disclosure:
-        'Any future optional contribution will be identified separately from merchandise, tax, and shipping charges. Maxi Pawz will not represent a contribution as tax-deductible unless the partner, payment structure, receipts, and applicable legal requirements have been confirmed.',
+  disclosure:
+    'Any future optional contribution will be identified separately from merchandise, tax, and shipping charges. Maxi Pawz will not represent a contribution as tax-deductible unless the partner, payment structure, receipts, and applicable legal requirements have been confirmed.',
 } as const;
 
 export const charityPartnershipReady =
-    charityConfig.enabled &&
-    charityConfig.partnerName.trim()
-        .length > 0;
+  charityConfig.enabled && charityConfig.partnerName.trim().length > 0;

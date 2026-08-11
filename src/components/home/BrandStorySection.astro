@@ -43,47 +43,28 @@ const backgroundSlides = [
     aria-hidden="true"
   >
     {
-      backgroundSlides.map(
-        (
-          slide,
-          index,
-        ) => (
-          <div
-            class="brand-story-background__slide absolute inset-0"
-            style={`--story-background-delay: ${index * 8}s;`}
-          >
-            <Image
-              src={slide.src}
-              alt=""
-              class="brand-story-background__image absolute inset-0 size-full object-cover"
-              loading="lazy"
-              fetchpriority="low"
-              widths={[
-                768,
-                1024,
-                1280,
-                1600,
-                1920,
-              ]}
-              sizes="100vw"
-              quality={78}
-            />
-          </div>
-        ),
-      )
+      backgroundSlides.map((slide, index) => (
+        <div
+          class="brand-story-background__slide absolute inset-0"
+          style={`--story-background-delay: ${index * 8}s;`}
+        >
+          <Image
+            src={slide.src}
+            alt=""
+            class="brand-story-background__image absolute inset-0 size-full object-cover"
+            loading="lazy"
+            fetchpriority="low"
+            widths={[768, 1024, 1280, 1600, 1920]}
+            sizes="100vw"
+            quality={78}
+          />
+        </div>
+      ))
     }
 
-    <div
-      class="brand-story-background__overlay absolute inset-0"
-      aria-hidden="true"
-    >
-    </div>
+    <div class="brand-story-background__overlay absolute inset-0" aria-hidden="true"></div>
 
-    <div
-      class="brand-story-background__edge-fade absolute inset-0"
-      aria-hidden="true"
-    >
-    </div>
+    <div class="brand-story-background__edge-fade absolute inset-0" aria-hidden="true"></div>
   </div>
 
   <div
@@ -99,10 +80,7 @@ const backgroundSlides = [
     data-motion-continuous
     aria-hidden="true"
   >
-    <div
-      class="size-96 rounded-full bg-brand-500/24 blur-3xl"
-    >
-    </div>
+    <div class="size-96 rounded-full bg-brand-500/24 blur-3xl"></div>
   </div>
 
   <div
@@ -112,10 +90,7 @@ const backgroundSlides = [
     data-motion-continuous
     aria-hidden="true"
   >
-    <div
-      class="size-112 rounded-full bg-accent-500/20 blur-3xl"
-    >
-    </div>
+    <div class="size-112 rounded-full bg-accent-500/20 blur-3xl"></div>
   </div>
 
   <div
@@ -123,9 +98,7 @@ const backgroundSlides = [
     data-motion-continuous
     aria-hidden="true"
   >
-    <PawPrintBold
-      class="size-16 rotate-12"
-    />
+    <PawPrintBold class="size-16 rotate-12" />
   </div>
 
   <div
@@ -133,29 +106,21 @@ const backgroundSlides = [
     data-motion-continuous
     aria-hidden="true"
   >
-    <PawPrintBold
-      class="size-12 -rotate-12"
-    />
+    <PawPrintBold class="size-12 -rotate-12" />
   </div>
 
-  <div
-    class="site-container relative z-10"
-  >
+  <div class="site-container relative z-10">
     <div
       class="mb-10 flex flex-col gap-5 border-b border-white/10 pb-8 sm:mb-12 sm:flex-row sm:items-end sm:justify-between"
       data-reveal
     >
       <div>
-        <p
-          class="mt-4 max-w-xl text-sm font-extrabold tracking-[0.18em] text-white/55 uppercase"
-        >
+        <p class="mt-4 max-w-xl text-sm font-extrabold tracking-[0.18em] text-white/55 uppercase">
           Meet Maxi · Discover our story
         </p>
       </div>
 
-      <p
-        class="max-w-xl text-sm leading-6 text-white/60 sm:text-right"
-      >
+      <p class="max-w-xl text-sm leading-6 text-white/60 sm:text-right">
         A pet store shaped by real experience, everyday routines, and the dog who inspired it all.
       </p>
     </div>
@@ -166,9 +131,7 @@ const backgroundSlides = [
       CSS changes this to two columns only at the exact same
       breakpoint where the foreground slider becomes visible.
     -->
-    <div
-      class="brand-story-layout grid items-center gap-12"
-    >
+    <div class="brand-story-layout grid items-center gap-12">
       <!-- Foreground visual slider: large desktop only -->
       <div
         class="brand-story-visual-desktop-only mx-auto w-full max-w-lg"
@@ -185,10 +148,7 @@ const backgroundSlides = [
             data-tilt-root
             data-tilt-strength="1.8"
           >
-            <div
-              class="motion-tilt-surface brand-story-visual-surface relative"
-              data-tilt-surface
-            >
+            <div class="motion-tilt-surface brand-story-visual-surface relative" data-tilt-surface>
               <BrandStoryVisualSlider />
             </div>
           </div>
@@ -196,24 +156,12 @@ const backgroundSlides = [
       </div>
 
       <!-- Story copy -->
-      <div
-        class="brand-story-copy w-full"
-      >
-        <div
-          data-reveal="right"
-          style="--reveal-delay: 120ms;"
-        >
-          <h2
-            id="brand-story-title"
-            class="section-title text-4xl text-white sm:text-5xl"
-          >
+      <div class="brand-story-copy w-full">
+        <div data-reveal="right" style="--reveal-delay: 120ms;">
+          <h2 id="brand-story-title" class="section-title text-4xl text-white sm:text-5xl">
             The dog behind the name—and the{' '}
 
-            <span
-              class="brand-story-accent-text text-accent-300"
-            >
-              heart behind our store.
-            </span>
+            <span class="brand-story-accent-text text-accent-300"> heart behind our store. </span>
           </h2>
 
           <p
@@ -242,31 +190,21 @@ const backgroundSlides = [
           data-reveal="right"
           style="--reveal-delay: 290ms;"
         >
-          <div
-            class="relative z-10"
-          >
-            <div
-              class="flex items-start gap-3"
-            >
+          <div class="relative z-10">
+            <div class="flex items-start gap-3">
               <div>
-                <p
-                  class="font-display text-lg text-white sm:text-xl"
-                >
+                <p class="font-display text-lg text-white sm:text-xl">
                   More than a mascot. This is where the story starts.
                 </p>
 
-                <p
-                  class="mt-2 text-sm leading-6 text-white/65"
-                >
+                <p class="mt-2 text-sm leading-6 text-white/65">
                   Learn how Maxi, two friends, and a shared love for pets became the foundation of
                   Maxi Pawz.
                 </p>
               </div>
             </div>
 
-            <div
-              class="mt-5 flex flex-col gap-3 sm:flex-row"
-            >
+            <div class="mt-5 flex flex-col gap-3 sm:flex-row">
               <Button
                 href="/about"
                 variant="primary"
@@ -274,10 +212,7 @@ const backgroundSlides = [
                 iconPosition="right"
                 class="w-full sm:w-auto"
               >
-                <ArrowRightBold
-                  slot="icon"
-                  aria-hidden="true"
-                />
+                <ArrowRightBold slot="icon" aria-hidden="true" />
 
                 Meet Maxi & Our Story
               </Button>
@@ -291,11 +226,7 @@ const backgroundSlides = [
                     iconPosition="right"
                     class="w-full sm:w-auto"
                   >
-                    <ShoppingBagOpenBold
-                      slot="icon"
-                      aria-hidden="true"
-                    />
-
+                    <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
                     Explore the Shop
                   </Button>
                 ) : (
@@ -306,11 +237,7 @@ const backgroundSlides = [
                     iconPosition="right"
                     class="w-full sm:w-auto"
                   >
-                    <HeartBold
-                      slot="icon"
-                      aria-hidden="true"
-                    />
-
+                    <HeartBold slot="icon" aria-hidden="true" />
                     Join the Pack
                   </Button>
                 )
@@ -331,24 +258,19 @@ const backgroundSlides = [
    * contains only the story-copy item and remains one column.
    */
   .brand-story-visual-desktop-only {
-    display:
-      none !important;
+    display: none !important;
   }
 
   .brand-story-layout {
-    grid-template-columns:
-      minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .brand-story-copy {
-    width:
-      100%;
+    width: 100%;
 
-    max-width:
-      48rem;
+    max-width: 48rem;
 
-    margin-inline:
-      auto;
+    margin-inline: auto;
   }
 
   /*
@@ -364,30 +286,23 @@ const backgroundSlides = [
         minmax(0, 0.92fr)
         minmax(0, 1.08fr);
 
-      column-gap:
-        4rem;
+      column-gap: 4rem;
     }
 
     .brand-story-visual-desktop-only {
-      display:
-        block !important;
+      display: block !important;
 
-      margin-inline:
-        0;
+      margin-inline: 0;
     }
 
     .brand-story-copy {
-      max-width:
-        none;
+      max-width: none;
 
-      margin-inline:
-        0;
+      margin-inline: 0;
     }
 
-    .brand-story-copy
-      .section-title {
-      font-size:
-        3.65rem;
+    .brand-story-copy .section-title {
+      font-size: 3.65rem;
     }
   }
 
@@ -395,49 +310,31 @@ const backgroundSlides = [
    * Background slider remains visible at every viewport.
    */
   .brand-story-background {
-    background-color:
-      rgb(20 15 12);
+    background-color: rgb(20 15 12);
   }
 
   .brand-story-background__slide {
-    opacity:
-      0;
+    opacity: 0;
 
-    animation:
-      brand-story-background-fade
-      24s
-      linear
-      infinite;
+    animation: brand-story-background-fade 24s linear infinite;
 
-    animation-delay:
-      var(--story-background-delay);
+    animation-delay: var(--story-background-delay);
   }
 
   .brand-story-background__slide:first-child {
-    opacity:
-      1;
+    opacity: 1;
   }
 
   .brand-story-background__image {
-    opacity:
-      0.48;
+    opacity: 0.48;
 
-    transform:
-      scale(1.08);
+    transform: scale(1.08);
 
-    filter:
-      saturate(0.88)
-      contrast(0.96)
-      brightness(0.72);
+    filter: saturate(0.88) contrast(0.96) brightness(0.72);
 
-    animation:
-      brand-story-background-ken-burns
-      24s
-      ease-in-out
-      infinite;
+    animation: brand-story-background-ken-burns 24s ease-in-out infinite;
 
-    animation-delay:
-      var(--story-background-delay);
+    animation-delay: var(--story-background-delay);
   }
 
   .brand-story-background__overlay {
@@ -458,281 +355,170 @@ const backgroundSlides = [
 
   .brand-story-background__edge-fade {
     box-shadow:
-      inset 0 8rem 8rem -6rem
-        rgb(20 15 12 / 92%),
-      inset 0 -8rem 8rem -6rem
-        rgb(20 15 12 / 94%);
+      inset 0 8rem 8rem -6rem rgb(20 15 12 / 92%),
+      inset 0 -8rem 8rem -6rem rgb(20 15 12 / 94%);
   }
 
   .brand-story-editorial__pattern {
     background-image:
-      linear-gradient(
-        rgb(255 255 255 / 3%) 1px,
-        transparent 1px
-      ),
-      linear-gradient(
-        90deg,
-        rgb(255 255 255 / 3%) 1px,
-        transparent 1px
-      );
+      linear-gradient(rgb(255 255 255 / 3%) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 3%) 1px, transparent 1px);
 
-    background-size:
-      3.5rem 3.5rem;
+    background-size: 3.5rem 3.5rem;
 
-    mask-image:
-      linear-gradient(
-        to bottom,
-        transparent,
-        black 12%,
-        black 88%,
-        transparent
-      );
+    mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
 
-    opacity:
-      0.36;
+    opacity: 0.36;
   }
 
   .brand-story-editorial__glow.is-motion-active {
-    animation:
-      brand-story-glow-drift
-      11s
-      ease-in-out
-      infinite;
+    animation: brand-story-glow-drift 11s ease-in-out infinite;
   }
 
   .brand-story-editorial__glow--orange.is-motion-active {
-    animation-delay:
-      -5s;
+    animation-delay: -5s;
 
-    animation-direction:
-      reverse;
+    animation-direction: reverse;
   }
 
   .brand-story-editorial__paw.is-motion-active {
-    animation:
-      brand-story-paw-float
-      7.5s
-      ease-in-out
-      infinite;
+    animation: brand-story-paw-float 7.5s ease-in-out infinite;
 
-    will-change:
-      transform;
+    will-change: transform;
   }
 
   .brand-story-editorial__paw--two.is-motion-active {
-    animation-delay:
-      -3.5s;
+    animation-delay: -3.5s;
 
-    animation-direction:
-      reverse;
+    animation-direction: reverse;
   }
 
   .brand-story-accent-text {
-    background:
-      linear-gradient(
-        110deg,
-        #ffae66 0%,
-        #ff8433 45%,
-        #8ed3ff 100%
-      );
+    background: linear-gradient(110deg, #ffae66 0%, #ff8433 45%, #8ed3ff 100%);
 
-    background-clip:
-      text;
+    background-clip: text;
 
-    color:
-      transparent;
+    color: transparent;
   }
 
   .brand-story-cta {
-    position:
-      relative;
+    position: relative;
   }
 
   .brand-story-cta::before {
-    position:
-      absolute;
+    position: absolute;
 
-    top:
-      -7rem;
+    top: -7rem;
 
-    right:
-      -5rem;
+    right: -5rem;
 
-    width:
-      17rem;
+    width: 17rem;
 
-    height:
-      17rem;
+    height: 17rem;
 
-    border-radius:
-      9999px;
+    border-radius: 9999px;
 
-    background:
-      rgb(0 138 255 / 18%);
+    background: rgb(0 138 255 / 18%);
 
-    content:
-      '';
+    content: '';
 
-    filter:
-      blur(2.5rem);
+    filter: blur(2.5rem);
 
-    pointer-events:
-      none;
+    pointer-events: none;
   }
 
   .brand-story-cta::after {
-    position:
-      absolute;
+    position: absolute;
 
-    bottom:
-      -8rem;
+    bottom: -8rem;
 
-    left:
-      15%;
+    left: 15%;
 
-    width:
-      16rem;
+    width: 16rem;
 
-    height:
-      16rem;
+    height: 16rem;
 
-    border-radius:
-      9999px;
+    border-radius: 9999px;
 
-    background:
-      rgb(255 102 0 / 16%);
+    background: rgb(255 102 0 / 16%);
 
-    content:
-      '';
+    content: '';
 
-    filter:
-      blur(2.5rem);
+    filter: blur(2.5rem);
 
-    pointer-events:
-      none;
+    pointer-events: none;
   }
 
   @keyframes brand-story-background-fade {
     0%,
     29% {
-      opacity:
-        1;
+      opacity: 1;
     }
 
     38%,
     100% {
-      opacity:
-        0;
+      opacity: 0;
     }
   }
 
   @keyframes brand-story-background-ken-burns {
     0% {
-      transform:
-        scale(1.08)
-        translate3d(
-          0,
-          0,
-          0
-        );
+      transform: scale(1.08) translate3d(0, 0, 0);
     }
 
     50% {
-      transform:
-        scale(1.14)
-        translate3d(
-          -1%,
-          -0.8%,
-          0
-        );
+      transform: scale(1.14) translate3d(-1%, -0.8%, 0);
     }
 
     100% {
-      transform:
-        scale(1.19)
-        translate3d(
-          1%,
-          0.8%,
-          0
-        );
+      transform: scale(1.19) translate3d(1%, 0.8%, 0);
     }
   }
 
   @keyframes brand-story-glow-drift {
     0%,
     100% {
-      transform:
-        translate3d(
-          0,
-          var(--motion-parallax-y),
-          0
-        )
-        scale(1);
+      transform: translate3d(0, var(--motion-parallax-y), 0) scale(1);
     }
 
     50% {
-      transform:
-        translate3d(
-          1rem,
-          calc(
-            var(--motion-parallax-y) -
-            1rem
-          ),
-          0
-        )
-        scale(1.06);
+      transform: translate3d(1rem, calc(var(--motion-parallax-y) - 1rem), 0) scale(1.06);
     }
   }
 
   @keyframes brand-story-paw-float {
     0%,
     100% {
-      transform:
-        translate3d(
-          0,
-          0,
-          0
-        )
-        rotate(-4deg);
+      transform: translate3d(0, 0, 0) rotate(-4deg);
     }
 
     50% {
-      transform:
-        translate3d(
-          0.45rem,
-          -0.8rem,
-          0
-        )
-        rotate(5deg);
+      transform: translate3d(0.45rem, -0.8rem, 0) rotate(5deg);
     }
   }
 
   @media (max-width: 1023px) {
     .brand-story-background__image {
-      opacity:
-        0.42;
+      opacity: 0.42;
     }
 
     .brand-story-background__overlay {
-      background:
-        linear-gradient(
-          180deg,
-          rgb(20 15 12 / 72%) 0%,
-          rgb(20 15 12 / 54%) 40%,
-          rgb(20 15 12 / 78%) 100%
-        );
+      background: linear-gradient(
+        180deg,
+        rgb(20 15 12 / 72%) 0%,
+        rgb(20 15 12 / 54%) 40%,
+        rgb(20 15 12 / 78%) 100%
+      );
     }
   }
 
   @media (max-width: 639px) {
     .brand-story-background__image {
-      opacity:
-        0.36;
+      opacity: 0.36;
     }
 
     .brand-story-copy {
-      max-width:
-        none;
+      max-width: none;
     }
   }
 
@@ -741,29 +527,23 @@ const backgroundSlides = [
     .brand-story-background__image,
     .brand-story-editorial__glow,
     .brand-story-editorial__paw {
-      animation:
-        none !important;
+      animation: none !important;
 
-      transition:
-        none !important;
+      transition: none !important;
 
-      will-change:
-        auto !important;
+      will-change: auto !important;
     }
 
     .brand-story-background__slide {
-      opacity:
-        0 !important;
+      opacity: 0 !important;
     }
 
     .brand-story-background__slide:first-child {
-      opacity:
-        1 !important;
+      opacity: 1 !important;
     }
 
     .brand-story-background__image {
-      transform:
-        scale(1.08) !important;
+      transform: scale(1.08) !important;
     }
   }
 </style>

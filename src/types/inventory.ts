@@ -1,73 +1,61 @@
-export const inventoryStockStatuses = [
-    'in-stock',
-    'low-stock',
-    'sold-out',
-] as const;
+export const inventoryStockStatuses = ['in-stock', 'low-stock', 'sold-out'] as const;
 
-export type InventoryStockStatus =
-    (typeof inventoryStockStatuses)[number];
+export type InventoryStockStatus = (typeof inventoryStockStatuses)[number];
 
 export interface InventoryItem {
-    id: string;
+  id: string;
 
-    productSlug: string;
+  productSlug: string;
 
-    variantId?: string;
+  variantId?: string;
 
-    sku: string;
+  sku: string;
 
-    onHand: number;
+  onHand: number;
 
-    reserved: number;
+  reserved: number;
 
-    available: number;
+  available: number;
 
-    lowStockThreshold: number;
+  lowStockThreshold: number;
 
-    reorderThreshold?: number;
+  reorderThreshold?: number;
 
-    reorderRecommended: boolean;
+  reorderRecommended: boolean;
 
-    status: InventoryStockStatus;
+  status: InventoryStockStatus;
 
-    createdAt: string;
+  createdAt: string;
 
-    updatedAt: string;
+  updatedAt: string;
 }
 
 export interface PublicInventorySnapshot {
-    tracked: boolean;
+  tracked: boolean;
 
-    productSlug: string;
+  productSlug: string;
 
-    variantId?: string;
+  variantId?: string;
 
-    sku?: string;
+  sku?: string;
 
-    status:
-        | InventoryStockStatus
-        | 'not-tracked';
+  status: InventoryStockStatus | 'not-tracked';
 
-    available: number | null;
+  available: number | null;
 
-    canPurchase: boolean;
+  canPurchase: boolean;
 }
 
 export interface ProductInventoryResponse {
-    ok: true;
+  ok: true;
 
-    inventory:
-        PublicInventorySnapshot;
+  inventory: PublicInventorySnapshot;
 }
 
 export interface ProductInventoryErrorResponse {
-    ok: false;
+  ok: false;
 
-    code:
-        | 'invalid-request'
-        | 'product-not-found'
-        | 'variant-not-found'
-        | 'inventory-error';
+  code: 'invalid-request' | 'product-not-found' | 'variant-not-found' | 'inventory-error';
 
-    message: string;
+  message: string;
 }

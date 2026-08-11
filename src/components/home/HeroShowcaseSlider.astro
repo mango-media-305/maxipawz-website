@@ -15,15 +15,15 @@ import maxiGuideImage from '../../assets/home/hero-slide-3.webp';
 import ProductImage from '../products/ProductImage.astro';
 
 import {
-    formatProductPrice,
-    getAvailabilityLabel,
-    getCategoryLabel,
-    getFeaturedProducts,
-    getPrimaryProductImage,
+  formatProductPrice,
+  getAvailabilityLabel,
+  getCategoryLabel,
+  getFeaturedProducts,
+  getPrimaryProductImage,
 } from '../../utils/products';
 
 interface Props {
-    storeLive: boolean;
+  storeLive: boolean;
 }
 
 const { storeLive } = Astro.props;
@@ -33,68 +33,68 @@ const featuredProducts = storeLive ? getFeaturedProducts().slice(0, 5) : [];
 const showFeaturedProducts = storeLive && featuredProducts.length > 0;
 
 const editorialSlides = [
-    {
-        image: maxiHeroImage,
+  {
+    image: maxiHeroImage,
 
-        alt: 'Maxi, the dog who inspired Maxi Pawz Store',
+    alt: 'Maxi, the dog who inspired Maxi Pawz Store',
 
-        eyebrow: 'Meet Maxi',
+    eyebrow: 'Meet Maxi',
 
-        title: 'The happy face behind the Maxi Pawz name.',
+    title: 'The happy face behind the Maxi Pawz name.',
 
-        description:
-        'Real experiences with Maxi inspired a store focused on joy, usefulness, comfort, and stronger everyday moments with pets.',
+    description:
+      'Real experiences with Maxi inspired a store focused on joy, usefulness, comfort, and stronger everyday moments with pets.',
 
-        href: '/about',
+    href: '/about',
 
-        linkLabel: 'Meet Maxi',
+    linkLabel: 'Meet Maxi',
 
-        accentClass: 'text-accent-200',
+    accentClass: 'text-accent-200',
 
-        icon: HeartBold,
-    },
+    icon: HeartBold,
+  },
 
-    {
-        image: maxiPlayImage,
+  {
+    image: maxiPlayImage,
 
-        alt: 'Dog enjoying a playful enrichment activity',
+    alt: 'Dog enjoying a playful enrichment activity',
 
-        eyebrow: 'Play & enrichment',
+    eyebrow: 'Play & enrichment',
 
-        title: 'Products that make playtime count.',
+    title: 'Products that make playtime count.',
 
-        description:
-        'Explore playful ideas and future product categories designed around enrichment, interaction, and happy everyday routines.',
+    description:
+      'Explore playful ideas and future product categories designed around enrichment, interaction, and happy everyday routines.',
 
-        href: '/#shop-by-lifestyle',
+    href: '/#shop-by-lifestyle',
 
-        linkLabel: 'Preview the category',
+    linkLabel: 'Preview the category',
 
-        accentClass: 'text-accent-200',
+    accentClass: 'text-accent-200',
 
-        icon: SparkleBold,
-    },
+    icon: SparkleBold,
+  },
 
-    {
-        image: maxiGuideImage,
+  {
+    image: maxiGuideImage,
 
-        alt: 'Dog prepared for a walk and outdoor adventure',
+    alt: 'Dog prepared for a walk and outdoor adventure',
 
-        eyebrow: 'Practical guidance',
+    eyebrow: 'Practical guidance',
 
-        title: 'Helpful ideas for everyday pet life.',
+    title: 'Helpful ideas for everyday pet life.',
 
-        description:
-        'Discover friendly guidance for choosing products, supporting everyday routines, and making thoughtful decisions for your pet.',
+    description:
+      'Discover friendly guidance for choosing products, supporting everyday routines, and making thoughtful decisions for your pet.',
 
-        href: '/pet-guides',
+    href: '/pet-guides',
 
-        linkLabel: 'Explore Pet Guides',
+    linkLabel: 'Explore Pet Guides',
 
-        accentClass: 'text-brand-200',
+    accentClass: 'text-brand-200',
 
-        icon: PawPrintBold,
-    },
+    icon: PawPrintBold,
+  },
 ];
 
 const slideCount = showFeaturedProducts ? featuredProducts.length : editorialSlides.length;
@@ -103,558 +103,557 @@ const sliderLabel = showFeaturedProducts ? 'Featured Maxi Pawz products' : 'Expl
 ---
 
 <section class="hero-showcase relative" aria-label={sliderLabel} data-hero-showcase>
-    <div
-        class="hero-showcase__floating-label motion-bob pointer-events-none absolute -top-4 left-8 z-40 hidden items-center gap-2 rounded-full border border-white/90 bg-white-warm/96 px-4 py-2 text-sm font-extrabold text-ink-800 shadow-card sm:flex"
-        data-motion-continuous
-        aria-hidden="true"
-    >
-        <span class="grid size-7 place-items-center rounded-full bg-accent-100 text-accent-700">
-        {
-            showFeaturedProducts ? (
-            <ShoppingBagOpenBold class="size-4" />
-            ) : (
-            <PawPrintBold class="size-4" />
-            )
-        }
-        </span>
+  <div
+    class="hero-showcase__floating-label motion-bob pointer-events-none absolute -top-4 left-8 z-40 hidden items-center gap-2 rounded-full border border-white/90 bg-white-warm/96 px-4 py-2 text-sm font-extrabold text-ink-800 shadow-card sm:flex"
+    data-motion-continuous
+    aria-hidden="true"
+  >
+    <span class="grid size-7 place-items-center rounded-full bg-accent-100 text-accent-700">
+      {
+        showFeaturedProducts ? (
+          <ShoppingBagOpenBold class="size-4" />
+        ) : (
+          <PawPrintBold class="size-4" />
+        )
+      }
+    </span>
 
-        {showFeaturedProducts ? 'Featured favorites' : 'Happy pets • happy life'}
-    </div>
+    {showFeaturedProducts ? 'Featured favorites' : 'Happy pets • happy life'}
+  </div>
 
-    <div
-        class="hero-showcase__viewport relative overflow-hidden rounded-card-lg"
-        data-hero-slider-viewport
-    >
-        {
-        showFeaturedProducts
-            ? featuredProducts.map((product, index) => {
-                const image = getPrimaryProductImage(product);
+  <div
+    class="hero-showcase__viewport relative overflow-hidden rounded-card-lg"
+    data-hero-slider-viewport
+  >
+    {
+      showFeaturedProducts
+        ? featuredProducts.map((product, index) => {
+            const image = getPrimaryProductImage(product);
 
-                const category = getCategoryLabel(product.category);
+            const category = getCategoryLabel(product.category);
 
-                const availability = getAvailabilityLabel(product.availability);
+            const availability = getAvailabilityLabel(product.availability);
 
-                return (
-                <article
-                    class:list={[
-                    'hero-showcase__slide group absolute inset-0 overflow-hidden rounded-card-lg border border-white/90 bg-white-warm shadow-card',
-                    index === 0 && 'is-active',
-                    ]}
-                    data-hero-slide
-                    aria-hidden={index === 0 ? 'false' : 'true'}
-                >
-                    <ProductImage
-                    image={image}
-                    eager={index === 0}
-                    variant="detail"
-                    class="absolute inset-0 size-full"
-                    imageClass="transition duration-700 ease-out group-hover:scale-[1.035]"
-                    sizes="(min-width: 1280px) 620px, (min-width: 1024px) 48vw, calc(100vw - 2rem)"
-                    widths={[480, 640, 800, 960, 1200]}
-                    quality={82}
-                    />
+            return (
+              <article
+                class:list={[
+                  'hero-showcase__slide group absolute inset-0 overflow-hidden rounded-card-lg border border-white/90 bg-white-warm shadow-card',
+                  index === 0 && 'is-active',
+                ]}
+                data-hero-slide
+                aria-hidden={index === 0 ? 'false' : 'true'}
+              >
+                <ProductImage
+                  image={image}
+                  eager={index === 0}
+                  variant="detail"
+                  class="absolute inset-0 size-full"
+                  imageClass="transition duration-700 ease-out group-hover:scale-[1.035]"
+                  sizes="(min-width: 1280px) 620px, (min-width: 1024px) 48vw, calc(100vw - 2rem)"
+                  widths={[480, 640, 800, 960, 1200]}
+                  quality={82}
+                />
 
-                    <div
-                    class="absolute inset-0 bg-linear-to-t from-ink-950/92 via-ink-950/30 to-ink-950/4"
-                    aria-hidden="true"
-                    ></div>
+                <div
+                  class="absolute inset-0 bg-linear-to-t from-ink-950/92 via-ink-950/30 to-ink-950/4"
+                  aria-hidden="true"
+                />
 
-                    <div class="absolute inset-x-0 top-0 flex flex-wrap items-start justify-end gap-3 p-5 sm:p-6">
+                <div class="absolute inset-x-0 top-0 flex flex-wrap items-start justify-end gap-3 p-5 sm:p-6">
+                  <span class="rounded-full border border-white/20 bg-white/92 px-3 py-2 text-xs font-extrabold text-ink-700">
+                    {availability}
+                  </span>
+                </div>
 
-                    <span class="rounded-full border border-white/20 bg-white/92 px-3 py-2 text-xs font-extrabold text-ink-700">
-                        {availability}
-                    </span>
+                <div class="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8">
+                  <p class="text-sm font-extrabold tracking-[0.08em] text-accent-200 uppercase">
+                    {category}
+                  </p>
+
+                  <h2 class="mt-2 max-w-xl text-3xl text-white sm:text-4xl">{product.name}</h2>
+
+                  <p class="mt-3 max-w-xl leading-7 text-white/82">{product.shortDescription}</p>
+
+                  <div class="mt-5 flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex flex-wrap items-baseline gap-2">
+                      {product.price ? (
+                        <span class="text-2xl font-black text-white">
+                          {formatProductPrice(product.price)}
+                        </span>
+                      ) : (
+                        <span class="font-extrabold text-white">Price coming soon</span>
+                      )}
+
+                      {product.compareAtPrice && (
+                        <span class="text-sm font-bold text-white/58 line-through">
+                          {formatProductPrice(product.compareAtPrice)}
+                        </span>
+                      )}
                     </div>
-
-                    <div class="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8">
-                    <p class="text-sm font-extrabold tracking-[0.08em] text-accent-200 uppercase">
-                        {category}
-                    </p>
-
-                    <h2 class="mt-2 max-w-xl text-3xl text-white sm:text-4xl">{product.name}</h2>
-
-                    <p class="mt-3 max-w-xl leading-7 text-white/82">{product.shortDescription}</p>
-
-                    <div class="mt-5 flex flex-wrap items-center justify-between gap-4">
-                        <div class="flex flex-wrap items-baseline gap-2">
-                        {product.price ? (
-                            <span class="text-2xl font-black text-white">
-                            {formatProductPrice(product.price)}
-                            </span>
-                        ) : (
-                            <span class="font-extrabold text-white">Price coming soon</span>
-                        )}
-
-                        {product.compareAtPrice && (
-                            <span class="text-sm font-bold text-white/58 line-through">
-                            {formatProductPrice(product.compareAtPrice)}
-                            </span>
-                        )}
-                        </div>
-
-                        <a
-                        href={`/shop/${product.slug}`}
-                        class="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/25 bg-white px-5 text-sm font-extrabold text-ink-900 shadow-sm transition hover:-translate-y-0.5 hover:bg-cream-soft focus-visible:-translate-y-0.5"
-                        >
-                        View product
-                        <ArrowRightBold class="size-4" aria-hidden="true" />
-                        </a>
-                    </div>
-                    </div>
-                </article>
-                );
-            })
-            : editorialSlides.map((slide, index) => {
-                const Icon = slide.icon;
-
-                return (
-                <article
-                    class:list={[
-                    'hero-showcase__slide group absolute inset-0 overflow-hidden rounded-card-lg border border-white/90 bg-white-warm shadow-card',
-                    index === 0 && 'is-active',
-                    ]}
-                    data-hero-slide
-                    aria-hidden={index === 0 ? 'false' : 'true'}
-                >
-                    <Image
-                    src={slide.image}
-                    alt={slide.alt}
-                    class="absolute inset-0 size-full object-cover object-center transition duration-700 ease-out group-hover:scale-[1.035]"
-                    loading={index === 0 ? 'eager' : 'lazy'}
-                    fetchpriority={index === 0 ? 'high' : 'low'}
-                    widths={[480, 640, 800, 960, 1200]}
-                    sizes="(min-width: 1280px) 620px, (min-width: 1024px) 48vw, calc(100vw - 2rem)"
-                    quality={82}
-                    />
-
-                    <div
-                    class="absolute inset-0 bg-linear-to-t from-ink-950/90 via-ink-950/24 to-transparent"
-                    aria-hidden="true"
-                    ></div>
-
-                    <div class="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8">
-                    <span
-                        class:list={[
-                        'inline-flex items-center gap-2 text-sm font-extrabold tracking-[0.06em] uppercase',
-                        slide.accentClass,
-                        ]}
-                    >
-                        <Icon class="size-5" aria-hidden="true" />
-
-                        {slide.eyebrow}
-                    </span>
-
-                    <h2 class="mt-3 max-w-xl text-3xl text-white sm:text-4xl">{slide.title}</h2>
-
-                    <p class="mt-3 max-w-xl leading-7 text-white/82">{slide.description}</p>
 
                     <a
-                        href={slide.href}
-                        class="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/25 bg-white/12 px-5 text-sm font-extrabold text-white transition hover:-translate-y-0.5 hover:bg-white/20 focus-visible:-translate-y-0.5"
+                      href={`/shop/${product.slug}`}
+                      class="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/25 bg-white px-5 text-sm font-extrabold text-ink-900 shadow-sm transition hover:-translate-y-0.5 hover:bg-cream-soft focus-visible:-translate-y-0.5"
                     >
-                        {slide.linkLabel}
-
-                        <ArrowRightBold
-                        class="size-4 transition group-hover:translate-x-1"
-                        aria-hidden="true"
-                        />
+                      View product
+                      <ArrowRightBold class="size-4" aria-hidden="true" />
                     </a>
-                    </div>
-                </article>
-                );
-            })
-        }
-    </div>
+                  </div>
+                </div>
+              </article>
+            );
+          })
+        : editorialSlides.map((slide, index) => {
+            const Icon = slide.icon;
 
-    {
-        slideCount > 1 && (
-        <div class="mt-4 flex items-center justify-between gap-4">
-            <div class="flex items-center gap-2" aria-label="Choose a slide">
-            {Array.from(
-                {
-                length: slideCount,
-                },
-                (_, index) => (
-                <button
-                    type="button"
+            return (
+              <article
+                class:list={[
+                  'hero-showcase__slide group absolute inset-0 overflow-hidden rounded-card-lg border border-white/90 bg-white-warm shadow-card',
+                  index === 0 && 'is-active',
+                ]}
+                data-hero-slide
+                aria-hidden={index === 0 ? 'false' : 'true'}
+              >
+                <Image
+                  src={slide.image}
+                  alt={slide.alt}
+                  class="absolute inset-0 size-full object-cover object-center transition duration-700 ease-out group-hover:scale-[1.035]"
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  fetchpriority={index === 0 ? 'high' : 'low'}
+                  widths={[480, 640, 800, 960, 1200]}
+                  sizes="(min-width: 1280px) 620px, (min-width: 1024px) 48vw, calc(100vw - 2rem)"
+                  quality={82}
+                />
+
+                <div
+                  class="absolute inset-0 bg-linear-to-t from-ink-950/90 via-ink-950/24 to-transparent"
+                  aria-hidden="true"
+                />
+
+                <div class="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8">
+                  <span
                     class:list={[
-                    'hero-showcase__dot size-2.5 rounded-full bg-ink-300 transition',
-                    index === 0 && 'is-active',
+                      'inline-flex items-center gap-2 text-sm font-extrabold tracking-[0.06em] uppercase',
+                      slide.accentClass,
                     ]}
-                    aria-label={`Show slide ${index + 1} of ${slideCount}`}
-                    aria-current={index === 0 ? 'true' : undefined}
-                    data-hero-slider-dot
-                    data-slide-index={index}
-                ></button>
-                ),
-            )}
-            </div>
+                  >
+                    <Icon class="size-5" aria-hidden="true" />
 
-            <div class="flex items-center gap-2">
-            <button
-                type="button"
-                class="grid size-11 place-items-center rounded-full border border-sand-dark bg-white-warm text-ink-700 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-300 hover:text-brand-700 focus-visible:-translate-y-0.5"
-                aria-label="Show previous slide"
-                data-hero-slider-previous
-            >
-                <ArrowLeftBold class="size-5" aria-hidden="true" />
-            </button>
+                    {slide.eyebrow}
+                  </span>
 
-            <button
-                type="button"
-                class="grid size-11 place-items-center rounded-full border border-brand-600 bg-brand-500 text-white shadow-blue transition hover:-translate-y-0.5 hover:bg-brand-600 focus-visible:-translate-y-0.5"
-                aria-label="Show next slide"
-                data-hero-slider-next
-            >
-                <ArrowRightBold class="size-5" aria-hidden="true" />
-            </button>
-            </div>
-        </div>
-        )
+                  <h2 class="mt-3 max-w-xl text-3xl text-white sm:text-4xl">{slide.title}</h2>
+
+                  <p class="mt-3 max-w-xl leading-7 text-white/82">{slide.description}</p>
+
+                  <a
+                    href={slide.href}
+                    class="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/25 bg-white/12 px-5 text-sm font-extrabold text-white transition hover:-translate-y-0.5 hover:bg-white/20 focus-visible:-translate-y-0.5"
+                  >
+                    {slide.linkLabel}
+
+                    <ArrowRightBold
+                      class="size-4 transition group-hover:translate-x-1"
+                      aria-hidden="true"
+                    />
+                  </a>
+                </div>
+              </article>
+            );
+          })
     }
+  </div>
+
+  {
+    slideCount > 1 && (
+      <div class="mt-4 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-2" aria-label="Choose a slide">
+          {Array.from(
+            {
+              length: slideCount,
+            },
+            (_, index) => (
+              <button
+                type="button"
+                class:list={[
+                  'hero-showcase__dot size-2.5 rounded-full bg-ink-300 transition',
+                  index === 0 && 'is-active',
+                ]}
+                aria-label={`Show slide ${index + 1} of ${slideCount}`}
+                aria-current={index === 0 ? 'true' : undefined}
+                data-hero-slider-dot
+                data-slide-index={index}
+              />
+            ),
+          )}
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            class="grid size-11 place-items-center rounded-full border border-sand-dark bg-white-warm text-ink-700 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-300 hover:text-brand-700 focus-visible:-translate-y-0.5"
+            aria-label="Show previous slide"
+            data-hero-slider-previous
+          >
+            <ArrowLeftBold class="size-5" aria-hidden="true" />
+          </button>
+
+          <button
+            type="button"
+            class="grid size-11 place-items-center rounded-full border border-brand-600 bg-brand-500 text-white shadow-blue transition hover:-translate-y-0.5 hover:bg-brand-600 focus-visible:-translate-y-0.5"
+            aria-label="Show next slide"
+            data-hero-slider-next
+          >
+            <ArrowRightBold class="size-5" aria-hidden="true" />
+          </button>
+        </div>
+      </div>
+    )
+  }
 </section>
 
 <style>
+  .hero-showcase__viewport {
+    min-height: 30rem;
+  }
+
+  .hero-showcase__slide {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transform: translate3d(1rem, 0, 0) scale(0.99);
+
+    transition:
+      opacity 420ms var(--ease-friendly),
+      visibility 420ms var(--ease-friendly),
+      transform 520ms var(--ease-friendly);
+  }
+
+  .hero-showcase__slide.is-active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  .hero-showcase__dot.is-active {
+    width: 2rem;
+
+    background-color: rgb(0 138 255);
+  }
+
+  @media (min-width: 640px) {
     .hero-showcase__viewport {
-        min-height: 30rem;
+      min-height: 35rem;
     }
+  }
 
-    .hero-showcase__slide {
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-
-        transform: translate3d(1rem, 0, 0) scale(0.99);
-
-        transition:
-        opacity 420ms var(--ease-friendly),
-        visibility 420ms var(--ease-friendly),
-        transform 520ms var(--ease-friendly);
+  @media (prefers-reduced-motion: reduce) {
+    .hero-showcase__slide,
+    .hero-showcase__dot {
+      transition: none !important;
     }
-
-    .hero-showcase__slide.is-active {
-        opacity: 1;
-        visibility: visible;
-        pointer-events: auto;
-
-        transform: translate3d(0, 0, 0) scale(1);
-    }
-
-    .hero-showcase__dot.is-active {
-        width: 2rem;
-
-        background-color: rgb(0 138 255);
-    }
-
-    @media (min-width: 640px) {
-        .hero-showcase__viewport {
-        min-height: 35rem;
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .hero-showcase__slide,
-        .hero-showcase__dot {
-        transition: none !important;
-        }
-    }
+  }
 </style>
 
 <script>
-    const HERO_AUTOPLAY_DELAY = 5000;
+  const HERO_AUTOPLAY_DELAY = 5000;
 
-    const initializeHeroShowcaseSliders = (): void => {
-        const sliders = Array.from(document.querySelectorAll<HTMLElement>('[data-hero-showcase]'));
+  const initializeHeroShowcaseSliders = (): void => {
+    const sliders = Array.from(document.querySelectorAll<HTMLElement>('[data-hero-showcase]'));
 
-        for (const slider of sliders) {
-        if (slider.dataset.heroShowcaseInitialized === 'true') {
-            continue;
+    for (const slider of sliders) {
+      if (slider.dataset.heroShowcaseInitialized === 'true') {
+        continue;
+      }
+
+      slider.dataset.heroShowcaseInitialized = 'true';
+
+      const slides = Array.from(slider.querySelectorAll<HTMLElement>('[data-hero-slide]'));
+
+      const dots = Array.from(slider.querySelectorAll<HTMLButtonElement>('[data-hero-slider-dot]'));
+
+      const previousButton = slider.querySelector<HTMLButtonElement>('[data-hero-slider-previous]');
+
+      const nextButton = slider.querySelector<HTMLButtonElement>('[data-hero-slider-next]');
+
+      const viewport = slider.querySelector<HTMLElement>('[data-hero-slider-viewport]');
+
+      if (slides.length <= 1 || !previousButton || !nextButton) {
+        continue;
+      }
+
+      const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+      let activeIndex = 0;
+
+      let pointerStartX: number | null = null;
+
+      let autoplayTimer = 0;
+
+      let isHovered = false;
+
+      let isFocusWithin = false;
+
+      const pauseAutoplay = (): void => {
+        if (autoplayTimer === 0) {
+          return;
         }
 
-        slider.dataset.heroShowcaseInitialized = 'true';
+        window.clearTimeout(autoplayTimer);
 
-        const slides = Array.from(slider.querySelectorAll<HTMLElement>('[data-hero-slide]'));
+        autoplayTimer = 0;
+      };
 
-        const dots = Array.from(slider.querySelectorAll<HTMLButtonElement>('[data-hero-slider-dot]'));
+      const scheduleAutoplay = (): void => {
+        pauseAutoplay();
 
-        const previousButton = slider.querySelector<HTMLButtonElement>('[data-hero-slider-previous]');
-
-        const nextButton = slider.querySelector<HTMLButtonElement>('[data-hero-slider-next]');
-
-        const viewport = slider.querySelector<HTMLElement>('[data-hero-slider-viewport]');
-
-        if (slides.length <= 1 || !previousButton || !nextButton) {
-            continue;
+        if (reducedMotionQuery.matches || isHovered || isFocusWithin || document.hidden) {
+          return;
         }
 
-        const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+        autoplayTimer = window.setTimeout(() => {
+          showSlide(activeIndex + 1);
 
-        let activeIndex = 0;
+          scheduleAutoplay();
+        }, HERO_AUTOPLAY_DELAY);
+      };
 
-        let pointerStartX: number | null = null;
+      const restartAutoplay = (): void => {
+        pauseAutoplay();
+        scheduleAutoplay();
+      };
 
-        let autoplayTimer = 0;
+      const showSlide = (requestedIndex: number, userInitiated = false): void => {
+        const normalizedIndex = (requestedIndex + slides.length) % slides.length;
 
-        let isHovered = false;
+        activeIndex = normalizedIndex;
 
-        let isFocusWithin = false;
+        slides.forEach((slide, index) => {
+          const isActive = index === activeIndex;
 
-        const pauseAutoplay = (): void => {
-            if (autoplayTimer === 0) {
-            return;
-            }
+          slide.classList.toggle('is-active', isActive);
 
-            window.clearTimeout(autoplayTimer);
+          slide.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+        });
 
-            autoplayTimer = 0;
+        dots.forEach((dot, index) => {
+          const isActive = index === activeIndex;
+
+          dot.classList.toggle('is-active', isActive);
+
+          if (isActive) {
+            dot.setAttribute('aria-current', 'true');
+          } else {
+            dot.removeAttribute('aria-current');
+          }
+        });
+
+        if (userInitiated) {
+          restartAutoplay();
+        }
+      };
+
+      const showPrevious = (): void => {
+        showSlide(activeIndex - 1, true);
+      };
+
+      const showNext = (): void => {
+        showSlide(activeIndex + 1, true);
+      };
+
+      previousButton.addEventListener('click', showPrevious);
+
+      nextButton.addEventListener('click', showNext);
+
+      const dotCleanup: Array<() => void> = [];
+
+      for (const dot of dots) {
+        const handleDotClick = (): void => {
+          const index = Number(dot.dataset.slideIndex);
+
+          if (Number.isInteger(index)) {
+            showSlide(index, true);
+          }
         };
 
-        const scheduleAutoplay = (): void => {
-            pauseAutoplay();
+        dot.addEventListener('click', handleDotClick);
 
-            if (reducedMotionQuery.matches || isHovered || isFocusWithin || document.hidden) {
-            return;
-            }
+        dotCleanup.push(() => {
+          dot.removeEventListener('click', handleDotClick);
+        });
+      }
 
-            autoplayTimer = window.setTimeout(() => {
-            showSlide(activeIndex + 1);
+      const handleKeyDown = (event: KeyboardEvent): void => {
+        if (event.key === 'ArrowLeft') {
+          event.preventDefault();
 
-            scheduleAutoplay();
-            }, HERO_AUTOPLAY_DELAY);
-        };
-
-        const restartAutoplay = (): void => {
-            pauseAutoplay();
-            scheduleAutoplay();
-        };
-
-        const showSlide = (requestedIndex: number, userInitiated = false): void => {
-            const normalizedIndex = (requestedIndex + slides.length) % slides.length;
-
-            activeIndex = normalizedIndex;
-
-            slides.forEach((slide, index) => {
-            const isActive = index === activeIndex;
-
-            slide.classList.toggle('is-active', isActive);
-
-            slide.setAttribute('aria-hidden', isActive ? 'false' : 'true');
-            });
-
-            dots.forEach((dot, index) => {
-            const isActive = index === activeIndex;
-
-            dot.classList.toggle('is-active', isActive);
-
-            if (isActive) {
-                dot.setAttribute('aria-current', 'true');
-            } else {
-                dot.removeAttribute('aria-current');
-            }
-            });
-
-            if (userInitiated) {
-            restartAutoplay();
-            }
-        };
-
-        const showPrevious = (): void => {
-            showSlide(activeIndex - 1, true);
-        };
-
-        const showNext = (): void => {
-            showSlide(activeIndex + 1, true);
-        };
-
-        previousButton.addEventListener('click', showPrevious);
-
-        nextButton.addEventListener('click', showNext);
-
-        const dotCleanup: Array<() => void> = [];
-
-        for (const dot of dots) {
-            const handleDotClick = (): void => {
-            const index = Number(dot.dataset.slideIndex);
-
-            if (Number.isInteger(index)) {
-                showSlide(index, true);
-            }
-            };
-
-            dot.addEventListener('click', handleDotClick);
-
-            dotCleanup.push(() => {
-            dot.removeEventListener('click', handleDotClick);
-            });
+          showPrevious();
         }
 
-        const handleKeyDown = (event: KeyboardEvent): void => {
-            if (event.key === 'ArrowLeft') {
-            event.preventDefault();
+        if (event.key === 'ArrowRight') {
+          event.preventDefault();
 
-            showPrevious();
-            }
+          showNext();
+        }
+      };
 
-            if (event.key === 'ArrowRight') {
-            event.preventDefault();
+      const handlePointerDown = (event: PointerEvent): void => {
+        pointerStartX = event.clientX;
 
-            showNext();
-            }
-        };
+        pauseAutoplay();
+      };
 
-        const handlePointerDown = (event: PointerEvent): void => {
-            pointerStartX = event.clientX;
+      const handlePointerUp = (event: PointerEvent): void => {
+        if (pointerStartX === null) {
+          scheduleAutoplay();
 
-            pauseAutoplay();
-        };
+          return;
+        }
 
-        const handlePointerUp = (event: PointerEvent): void => {
-            if (pointerStartX === null) {
-            scheduleAutoplay();
+        const distance = event.clientX - pointerStartX;
 
-            return;
-            }
+        pointerStartX = null;
 
-            const distance = event.clientX - pointerStartX;
+        if (Math.abs(distance) < 48) {
+          scheduleAutoplay();
 
-            pointerStartX = null;
+          return;
+        }
 
-            if (Math.abs(distance) < 48) {
-            scheduleAutoplay();
+        if (distance > 0) {
+          showPrevious();
+        } else {
+          showNext();
+        }
+      };
 
-            return;
-            }
-
-            if (distance > 0) {
-            showPrevious();
-            } else {
-            showNext();
-            }
-        };
-
-        const handlePointerCancel = (): void => {
-            pointerStartX = null;
-
-            scheduleAutoplay();
-        };
-
-        const handleMouseEnter = (): void => {
-            isHovered = true;
-
-            pauseAutoplay();
-        };
-
-        const handleMouseLeave = (): void => {
-            isHovered = false;
-
-            scheduleAutoplay();
-        };
-
-        const handleFocusIn = (): void => {
-            isFocusWithin = true;
-
-            pauseAutoplay();
-        };
-
-        const handleFocusOut = (event: FocusEvent): void => {
-            const nextFocusedElement = event.relatedTarget;
-
-            if (nextFocusedElement instanceof Node && slider.contains(nextFocusedElement)) {
-            return;
-            }
-
-            isFocusWithin = false;
-
-            scheduleAutoplay();
-        };
-
-        const handleVisibilityChange = (): void => {
-            if (document.hidden) {
-            pauseAutoplay();
-
-            return;
-            }
-
-            scheduleAutoplay();
-        };
-
-        const handleReducedMotionChange = (): void => {
-            if (reducedMotionQuery.matches) {
-            pauseAutoplay();
-
-            return;
-            }
-
-            scheduleAutoplay();
-        };
-
-        slider.addEventListener('keydown', handleKeyDown);
-
-        slider.addEventListener('mouseenter', handleMouseEnter);
-
-        slider.addEventListener('mouseleave', handleMouseLeave);
-
-        slider.addEventListener('focusin', handleFocusIn);
-
-        slider.addEventListener('focusout', handleFocusOut);
-
-        viewport?.addEventListener('pointerdown', handlePointerDown, {
-            passive: true,
-        });
-
-        viewport?.addEventListener('pointerup', handlePointerUp, {
-            passive: true,
-        });
-
-        viewport?.addEventListener('pointercancel', handlePointerCancel, {
-            passive: true,
-        });
-
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-
-        reducedMotionQuery.addEventListener('change', handleReducedMotionChange);
+      const handlePointerCancel = (): void => {
+        pointerStartX = null;
 
         scheduleAutoplay();
+      };
 
-        const cleanup = (): void => {
-            pauseAutoplay();
+      const handleMouseEnter = (): void => {
+        isHovered = true;
 
-            previousButton.removeEventListener('click', showPrevious);
+        pauseAutoplay();
+      };
 
-            nextButton.removeEventListener('click', showNext);
+      const handleMouseLeave = (): void => {
+        isHovered = false;
 
-            slider.removeEventListener('keydown', handleKeyDown);
+        scheduleAutoplay();
+      };
 
-            slider.removeEventListener('mouseenter', handleMouseEnter);
+      const handleFocusIn = (): void => {
+        isFocusWithin = true;
 
-            slider.removeEventListener('mouseleave', handleMouseLeave);
+        pauseAutoplay();
+      };
 
-            slider.removeEventListener('focusin', handleFocusIn);
+      const handleFocusOut = (event: FocusEvent): void => {
+        const nextFocusedElement = event.relatedTarget;
 
-            slider.removeEventListener('focusout', handleFocusOut);
-
-            viewport?.removeEventListener('pointerdown', handlePointerDown);
-
-            viewport?.removeEventListener('pointerup', handlePointerUp);
-
-            viewport?.removeEventListener('pointercancel', handlePointerCancel);
-
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-
-            reducedMotionQuery.removeEventListener('change', handleReducedMotionChange);
-
-            for (const cleanupDot of dotCleanup) {
-            cleanupDot();
-            }
-        };
-
-        document.addEventListener('astro:before-swap', cleanup, {
-            once: true,
-        });
+        if (nextFocusedElement instanceof Node && slider.contains(nextFocusedElement)) {
+          return;
         }
-    };
 
-    initializeHeroShowcaseSliders();
+        isFocusWithin = false;
 
-    document.addEventListener('astro:page-load', initializeHeroShowcaseSliders);
+        scheduleAutoplay();
+      };
+
+      const handleVisibilityChange = (): void => {
+        if (document.hidden) {
+          pauseAutoplay();
+
+          return;
+        }
+
+        scheduleAutoplay();
+      };
+
+      const handleReducedMotionChange = (): void => {
+        if (reducedMotionQuery.matches) {
+          pauseAutoplay();
+
+          return;
+        }
+
+        scheduleAutoplay();
+      };
+
+      slider.addEventListener('keydown', handleKeyDown);
+
+      slider.addEventListener('mouseenter', handleMouseEnter);
+
+      slider.addEventListener('mouseleave', handleMouseLeave);
+
+      slider.addEventListener('focusin', handleFocusIn);
+
+      slider.addEventListener('focusout', handleFocusOut);
+
+      viewport?.addEventListener('pointerdown', handlePointerDown, {
+        passive: true,
+      });
+
+      viewport?.addEventListener('pointerup', handlePointerUp, {
+        passive: true,
+      });
+
+      viewport?.addEventListener('pointercancel', handlePointerCancel, {
+        passive: true,
+      });
+
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+
+      reducedMotionQuery.addEventListener('change', handleReducedMotionChange);
+
+      scheduleAutoplay();
+
+      const cleanup = (): void => {
+        pauseAutoplay();
+
+        previousButton.removeEventListener('click', showPrevious);
+
+        nextButton.removeEventListener('click', showNext);
+
+        slider.removeEventListener('keydown', handleKeyDown);
+
+        slider.removeEventListener('mouseenter', handleMouseEnter);
+
+        slider.removeEventListener('mouseleave', handleMouseLeave);
+
+        slider.removeEventListener('focusin', handleFocusIn);
+
+        slider.removeEventListener('focusout', handleFocusOut);
+
+        viewport?.removeEventListener('pointerdown', handlePointerDown);
+
+        viewport?.removeEventListener('pointerup', handlePointerUp);
+
+        viewport?.removeEventListener('pointercancel', handlePointerCancel);
+
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+
+        reducedMotionQuery.removeEventListener('change', handleReducedMotionChange);
+
+        for (const cleanupDot of dotCleanup) {
+          cleanupDot();
+        }
+      };
+
+      document.addEventListener('astro:before-swap', cleanup, {
+        once: true,
+      });
+    }
+  };
+
+  initializeHeroShowcaseSliders();
+
+  document.addEventListener('astro:page-load', initializeHeroShowcaseSliders);
 </script>

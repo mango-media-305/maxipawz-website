@@ -1,100 +1,91 @@
 export const inventoryReservationStatuses = [
-    'active',
-    'payment-pending',
-    'completed',
-    'released',
-    'expired',
+  'active',
+  'payment-pending',
+  'completed',
+  'released',
+  'expired',
 ] as const;
 
-export type InventoryReservationStatus =
-    (typeof inventoryReservationStatuses)[number];
+export type InventoryReservationStatus = (typeof inventoryReservationStatuses)[number];
 
 export const inventoryReservationReleaseReasons = [
-    'checkout-session-creation-failed',
-    'checkout-session-expired',
-    'stale-reservation-timeout',
-    'async-payment-failed',
-    'manual',
+  'checkout-session-creation-failed',
+  'checkout-session-expired',
+  'stale-reservation-timeout',
+  'async-payment-failed',
+  'manual',
 ] as const;
 
-export type InventoryReservationReleaseReason =
-    (typeof inventoryReservationReleaseReasons)[number];
+export type InventoryReservationReleaseReason = (typeof inventoryReservationReleaseReasons)[number];
 
 export interface InventoryReservationRequestLine {
-    productSlug: string;
+  productSlug: string;
 
-    variantId?: string;
+  variantId?: string;
 
-    sku: string;
+  sku: string;
 
-    quantity: number;
+  quantity: number;
 }
 
 export interface InventoryReservationItem {
-    inventoryItemId: string;
+  inventoryItemId: string;
 
-    productSlug: string;
+  productSlug: string;
 
-    variantId?: string;
+  variantId?: string;
 
-    sku: string;
+  sku: string;
 
-    quantity: number;
+  quantity: number;
 }
 
 export interface InventoryReservation {
-    id: string;
+  id: string;
 
-    cartReference: string;
+  cartReference: string;
 
-    stripeSessionId?: string;
+  stripeSessionId?: string;
 
-    status:
-        InventoryReservationStatus;
+  status: InventoryReservationStatus;
 
-    expiresAt: string;
+  expiresAt: string;
 
-    releaseReason?:
-        InventoryReservationReleaseReason;
+  releaseReason?: InventoryReservationReleaseReason;
 
-    items:
-        InventoryReservationItem[];
+  items: InventoryReservationItem[];
 
-    createdAt: string;
+  createdAt: string;
 
-    updatedAt: string;
+  updatedAt: string;
 
-    completedAt?: string;
+  completedAt?: string;
 
-    releasedAt?: string;
+  releasedAt?: string;
 
-    expiredAt?: string;
+  expiredAt?: string;
 }
 
 export interface CreateInventoryReservationInput {
-    cartReference: string;
+  cartReference: string;
 
-    expiresAt:
-        string |
-        Date;
+  expiresAt: string | Date;
 
-    lines:
-        InventoryReservationRequestLine[];
+  lines: InventoryReservationRequestLine[];
 }
 
 export type InventoryReservationErrorCode =
-    | 'invalid-reservation'
-    | 'inventory-not-configured'
-    | 'insufficient-stock'
-    | 'reservation-not-found'
-    | 'reservation-conflict'
-    | 'inventory-state-invalid';
+  | 'invalid-reservation'
+  | 'inventory-not-configured'
+  | 'insufficient-stock'
+  | 'reservation-not-found'
+  | 'reservation-conflict'
+  | 'inventory-state-invalid';
 
 export interface InventoryReservationReleaseResult {
-    reservationId: string;
+  reservationId: string;
 
-    status:
-        InventoryReservationStatus;
+  status: InventoryReservationStatus;
 
-    changed: boolean;
+  changed: boolean;
 }

@@ -317,8 +317,8 @@ import Button from '../ui/Button.astro';
                         </span>
 
                         <span class="mt-1 block text-sm leading-6 text-ink-600">
-                          I want launch updates, new-product news, helpful pet guides, and occasional
-                          Maxi Pawz offers by email.
+                          I want launch updates, new-product news, helpful pet guides, and
+                          occasional Maxi Pawz offers by email.
                         </span>
 
                         <span class="mt-2 block text-xs leading-5 text-ink-500">
@@ -780,8 +780,9 @@ import Button from '../ui/Button.astro';
 
       const formStatus = form.querySelector<HTMLElement>('[data-launch-form-status]');
 
-      const marketingConsentCheckbox =
-        form.querySelector<HTMLInputElement>('#launch-marketing-consent');
+      const marketingConsentCheckbox = form.querySelector<HTMLInputElement>(
+        '#launch-marketing-consent',
+      );
 
       const fields = Array.from(form.querySelectorAll<HTMLInputElement>('[data-launch-field]'));
 

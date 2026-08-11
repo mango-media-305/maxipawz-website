@@ -1,192 +1,121 @@
-import {
-    useEffect,
-    useState,
-} from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 
 import type {
-    ProductInventoryErrorResponse,
-    ProductInventoryResponse,
-    PublicInventorySnapshot,
+  ProductInventoryErrorResponse,
+  ProductInventoryResponse,
+  PublicInventorySnapshot,
 } from '../../types/inventory';
 
-export type ProductInventoryLookupStatus =
-    | 'idle'
-    | 'loading'
-    | 'ready'
-    | 'error';
+export type ProductInventoryLookupStatus = 'idle' | 'loading' | 'ready' | 'error';
 
 interface UseProductInventoryOptions {
-    productSlug: string;
+  productSlug: string;
 
-    variantId?: string;
+  variantId?: string;
 
-    enabled: boolean;
+  enabled: boolean;
 }
 
 interface ProductInventoryLookupResult {
-    status:
-        ProductInventoryLookupStatus;
+  status: ProductInventoryLookupStatus;
 
-    inventory?:
-        PublicInventorySnapshot;
+  inventory?: PublicInventorySnapshot;
 
-    message?: string;
+  message?: string;
 }
 
 export function useProductInventory({
-    productSlug,
-    variantId,
-    enabled,
-}: UseProductInventoryOptions):
-    ProductInventoryLookupResult {
-    const [
-        result,
-        setResult,
-    ] =
-        useState<ProductInventoryLookupResult>(
-            {
-                status:
-                    'idle',
-            },
-        );
+  productSlug,
+  variantId,
+  enabled,
+}: UseProductInventoryOptions): ProductInventoryLookupResult {
+  const [result, setResult] = useState<ProductInventoryLookupResult>({
+    status: 'idle',
+  });
 
-    useEffect(() => {
-        if (!enabled) {
-            setResult({
-                status:
-                    'idle',
-            });
+  useEffect(() => {
+    if (!enabled) {
+      setResult({
+        status: 'idle',
+      });
 
-            return;
-        }
+      return;
+    }
 
-        const controller =
-            new AbortController();
+    const controller = new AbortController();
 
-        setResult({
-            status:
-                'loading',
+    setResult({
+      status: 'loading',
+    });
+
+    const loadInventory = async (): Promise<void> => {
+      try {
+        const searchParams = new URLSearchParams({
+          product: productSlug,
         });
 
-        const loadInventory =
-            async (): Promise<void> => {
-                try {
-                    const searchParams =
-                        new URLSearchParams({
-                            product:
-                                productSlug,
-                        });
+        if (variantId) {
+          searchParams.set('variant', variantId);
+        }
 
-                    if (variantId) {
-                        searchParams.set(
-                            'variant',
-                            variantId,
-                        );
-                    }
+        const response = await fetch(`/api/product-inventory?${searchParams.toString()}`, {
+          method: 'GET',
 
-                    const response =
-                        await fetch(
-                            `/api/product-inventory?${searchParams.toString()}`,
-                            {
-                                method:
-                                    'GET',
+          headers: {
+            Accept: 'application/json',
+          },
 
-                                headers: {
-                                    Accept:
-                                        'application/json',
-                                },
+          cache: 'no-store',
 
-                                cache:
-                                    'no-store',
+          signal: controller.signal,
+        });
 
-                                signal:
-                                    controller.signal,
-                            },
-                        );
+        let body: ProductInventoryResponse | ProductInventoryErrorResponse | null = null;
 
-                    let body:
-                        | ProductInventoryResponse
-                        | ProductInventoryErrorResponse
-                        | null =
-                        null;
+        try {
+          body = (await response.json()) as
+            | ProductInventoryResponse
+            | ProductInventoryErrorResponse;
+        } catch {
+          body = null;
+        }
 
-                    try {
-                        body =
-                            await response.json() as
-                                | ProductInventoryResponse
-                                | ProductInventoryErrorResponse;
-                    } catch {
-                        body =
-                            null;
-                    }
+        if (!response.ok || !body || body.ok === false) {
+          const message =
+            body && body.ok === false ? body.message : 'Inventory information could not be loaded.';
 
-                    if (
-                        !response.ok ||
-                        !body ||
-                        body.ok ===
-                            false
-                    ) {
-                        const message =
-                            body &&
-                            body.ok ===
-                                false
-                                ? body.message
-                                : 'Inventory information could not be loaded.';
+          throw new Error(message);
+        }
 
-                        throw new Error(
-                            message,
-                        );
-                    }
+        if (!body.inventory.tracked) {
+          throw new Error('Live inventory is not configured for this product.');
+        }
 
-                    if (
-                        !body.inventory
-                            .tracked
-                    ) {
-                        throw new Error(
-                            'Live inventory is not configured for this product.',
-                        );
-                    }
+        setResult({
+          status: 'ready',
 
-                    setResult({
-                        status:
-                            'ready',
+          inventory: body.inventory,
+        });
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          return;
+        }
 
-                        inventory:
-                            body.inventory,
-                    });
-                } catch (error) {
-                    if (
-                        error instanceof
-                            DOMException &&
-                        error.name ===
-                            'AbortError'
-                    ) {
-                        return;
-                    }
+        setResult({
+          status: 'error',
 
-                    setResult({
-                        status:
-                            'error',
+          message:
+            error instanceof Error ? error.message : 'Inventory information could not be loaded.',
+        });
+      }
+    };
 
-                        message:
-                            error instanceof
-                                Error
-                                ? error.message
-                                : 'Inventory information could not be loaded.',
-                    });
-                }
-            };
+    void loadInventory();
 
-        void loadInventory();
+    return () => {
+      controller.abort();
+    };
+  }, [enabled, productSlug, variantId]);
 
-        return () => {
-            controller.abort();
-        };
-    }, [
-        enabled,
-        productSlug,
-        variantId,
-    ]);
-
-    return result;
+  return result;
 }

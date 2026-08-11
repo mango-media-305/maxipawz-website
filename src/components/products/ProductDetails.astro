@@ -24,9 +24,7 @@ import {
   getPrimaryProductImage,
 } from '../../utils/products';
 
-import {
-  productHasTrackedInventory,
-} from '../../utils/product-inventory';
+import { productHasTrackedInventory } from '../../utils/product-inventory';
 
 interface Props {
   product: Product;
@@ -53,8 +51,7 @@ const availabilityClasses: Record<ProductAvailability, string> = {
 };
 
 const showStaticAvailabilityBadge =
-  product.availability !== 'in-stock' ||
-  !productHasTrackedInventory(product);
+  product.availability !== 'in-stock' || !productHasTrackedInventory(product);
 
 const hasSpecifications = Boolean(
   product.materials?.length || dimensionText || product.variants?.length,
