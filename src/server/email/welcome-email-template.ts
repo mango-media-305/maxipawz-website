@@ -1,107 +1,67 @@
 import {
-    buildBrandedEmailShell,
-    buildEmailSiteUrl,
-    buildWebsiteButton,
-    escapeEmailHtml,
+  buildBrandedEmailShell,
+  buildEmailSiteUrl,
+  buildWebsiteButton,
+  escapeEmailHtml,
 } from './branding';
 
-import {
-    buildMarketingComplianceHtml,
-    buildMarketingComplianceText,
-} from './marketing';
+import { buildMarketingComplianceHtml, buildMarketingComplianceText } from './marketing';
 
 interface WelcomeEmailTemplateOptions {
-    firstName?:
-    string;
+  firstName?: string;
 
-    testMode:
-    boolean;
+  testMode: boolean;
 
-    mailingAddress:
-    string;
+  mailingAddress: string;
 
-    unsubscribeUrl:
-    string;
+  unsubscribeUrl: string;
 }
 
 export interface WelcomeEmailContent {
-    subject: string;
+  subject: string;
 
-    html: string;
+  html: string;
 
-    text: string;
+  text: string;
 }
 
-function getGreetingName(
-    firstName:
-        string
-        | undefined,
-): string {
-    const normalized =
-        firstName
-            ?.trim();
+function getGreetingName(firstName: string | undefined): string {
+  const normalized = firstName?.trim();
 
-    return normalized ||
-        'there';
+  return normalized || 'there';
 }
 
-export function buildWelcomeToPackEmail(
-    options:
-        WelcomeEmailTemplateOptions,
-): WelcomeEmailContent {
-    const {
-        firstName,
-        testMode,
-        mailingAddress,
-        unsubscribeUrl,
-    } = options;
+export function buildWelcomeToPackEmail(options: WelcomeEmailTemplateOptions): WelcomeEmailContent {
+  const { firstName, testMode, mailingAddress, unsubscribeUrl } = options;
 
-    const greetingName =
-        getGreetingName(
-            firstName,
-        );
+  const greetingName = getGreetingName(firstName);
 
-    const subject =
-        `${testMode
-            ? '[TEST] '
-            : ''
-        }Welcome to Maxi Pawz 🐾`;
+  const subject = `${testMode ? '[TEST] ' : ''}Welcome to Maxi Pawz 🐾`;
 
-    const petGuidesUrl =
-        buildEmailSiteUrl(
-            '/pet-guides',
-        );
+  const petGuidesUrl = buildEmailSiteUrl('/pet-guides');
 
-    const shopUrl =
-        buildEmailSiteUrl(
-            '/shop',
-        );
+  const shopUrl = buildEmailSiteUrl('/shop');
 
-    const complianceHtml =
-        buildMarketingComplianceHtml({
-            mailingAddress,
+  const complianceHtml = buildMarketingComplianceHtml({
+    mailingAddress,
 
-            unsubscribeUrl,
-        });
+    unsubscribeUrl,
+  });
 
-    const complianceText =
-        buildMarketingComplianceText({
-            mailingAddress,
+  const complianceText = buildMarketingComplianceText({
+    mailingAddress,
 
-            unsubscribeUrl,
-        });
+    unsubscribeUrl,
+  });
 
-    const html =
-        buildBrandedEmailShell({
-            testMode,
+  const html = buildBrandedEmailShell({
+    testMode,
 
-            testBannerText:
-                'MAXI PAWZ MARKETING TEST — NOT A LIVE CAMPAIGN',
+    testBannerText: 'MAXI PAWZ MARKETING TEST — NOT A LIVE CAMPAIGN',
 
-            preheader:
-                'Welcome to Maxi Pawz. Happy pets, happy life!',
+    preheader: 'Welcome to Maxi Pawz. Happy pets, happy life!',
 
-            content: `
+    content: `
                 <h1
                     style="
                         margin:4px 0 12px;
@@ -110,9 +70,7 @@ export function buildWelcomeToPackEmail(
                         color:#3f2f29;
                     "
                 >
-                    Welcome to Maxi Pawz, ${escapeEmailHtml(
-                greetingName,
-            )}! 🐾
+                    Welcome to Maxi Pawz, ${escapeEmailHtml(greetingName)}! 🐾
                 </h1>
 
                 <p
@@ -189,10 +147,7 @@ export function buildWelcomeToPackEmail(
                     with more confidence — without making things complicated.
                 </p>
 
-                ${buildWebsiteButton(
-                'Explore Pet Guides',
-                '/pet-guides',
-            )}
+                ${buildWebsiteButton('Explore Pet Guides', '/pet-guides')}
 
                 <p
                     style="
@@ -204,9 +159,7 @@ export function buildWelcomeToPackEmail(
                 >
                     Want to see what's happening in the store?
                     <a
-                        href="${escapeEmailHtml(
-                shopUrl,
-            )}"
+                        href="${escapeEmailHtml(shopUrl)}"
                         style="
                             color:#0074d4;
                             text-decoration:none;
@@ -234,10 +187,9 @@ export function buildWelcomeToPackEmail(
 
                 ${complianceHtml}
             `,
-        });
+  });
 
-    const text =
-        `
+  const text = `
 MAXI PAWZ STORE
 HAPPY PETS • HAPPY LIFE
 
@@ -269,11 +221,11 @@ Thanks for joining us.
 ${complianceText}
         `.trim();
 
-    return {
-        subject,
+  return {
+    subject,
 
-        html,
+    html,
 
-        text,
-    };
+    text,
+  };
 }

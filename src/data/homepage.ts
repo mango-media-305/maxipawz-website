@@ -7,202 +7,186 @@ import comfortAndHomeImage from '../assets/categories/comfort-and-home.webp';
 import groomingAndCareImage from '../assets/categories/grooming-and-care.webp';
 import collarsAndAccessoriesImage from '../assets/categories/collars-and-accessories.webp';
 
-export type CategoryBackgroundPosition =
-    | 'center'
-    | 'top'
-    | 'bottom'
-    | 'left'
-    | 'right';
+export type CategoryBackgroundPosition = 'center' | 'top' | 'bottom' | 'left' | 'right';
 
-export type CategoryBackgroundOverlay =
-    | 'light'
-    | 'medium'
-    | 'dark';
+export type CategoryBackgroundOverlay = 'light' | 'medium' | 'dark';
 
-export type LifestyleCategoryTone =
-    | 'brand'
-    | 'accent'
-    | 'sand';
+export type LifestyleCategoryTone = 'brand' | 'accent' | 'sand';
 
 export type LifestyleCategoryIcon =
-    | 'play'
-    | 'travel'
-    | 'hydration'
-    | 'comfort'
-    | 'care'
-    | 'accessories';
+  | 'play'
+  | 'travel'
+  | 'hydration'
+  | 'comfort'
+  | 'care'
+  | 'accessories';
 
 export interface LifestyleCategory {
-    title: string;
-    description: string;
-    slug: string;
-    icon: LifestyleCategoryIcon;
-    tone: LifestyleCategoryTone;
+  title: string;
+  description: string;
+  slug: string;
+  icon: LifestyleCategoryIcon;
+  tone: LifestyleCategoryTone;
 
-    backgroundImage?: ImageMetadata;
+  backgroundImage?: ImageMetadata;
 
-    backgroundPosition?: CategoryBackgroundPosition;
+  backgroundPosition?: CategoryBackgroundPosition;
 
-    backgroundOverlay?: CategoryBackgroundOverlay;
+  backgroundOverlay?: CategoryBackgroundOverlay;
 }
 
 export interface LifestyleCategory {
-    title: string;
-    description: string;
-    slug: string;
-    icon: LifestyleCategoryIcon;
-    tone: LifestyleCategoryTone;
+  title: string;
+  description: string;
+  slug: string;
+  icon: LifestyleCategoryIcon;
+  tone: LifestyleCategoryTone;
 
-    backgroundImage?: ImageMetadata;
-    backgroundPosition?: CategoryBackgroundPosition;
-    backgroundOverlay?: CategoryBackgroundOverlay;
+  backgroundImage?: ImageMetadata;
+  backgroundPosition?: CategoryBackgroundPosition;
+  backgroundOverlay?: CategoryBackgroundOverlay;
 }
 
-export type BrandStoryPrincipleIcon =
-    | 'experience'
-    | 'purpose'
-    | 'community';
+export type BrandStoryPrincipleIcon = 'experience' | 'purpose' | 'community';
 
 export interface BrandStoryPrinciple {
-    title: string;
-    description: string;
-    icon: BrandStoryPrincipleIcon;
+  title: string;
+  description: string;
+  icon: BrandStoryPrincipleIcon;
 }
 
 export const lifestyleCategories: LifestyleCategory[] = [
-    {
-        title: 'Play & Enrichment',
+  {
+    title: 'Play & Enrichment',
 
-        description:
-            'Toys, puzzles, interactive products, and engaging activities that help keep pets active, curious, and entertained.',
+    description:
+      'Toys, puzzles, interactive products, and engaging activities that help keep pets active, curious, and entertained.',
 
-        slug: 'play-and-enrichment',
-        icon: 'play',
-        tone: 'accent',
+    slug: 'play-and-enrichment',
+    icon: 'play',
+    tone: 'accent',
 
-        backgroundImage: playAndEnrichmentImage,
-        backgroundPosition: 'center',
-        backgroundOverlay: 'medium',
-    },
+    backgroundImage: playAndEnrichmentImage,
+    backgroundPosition: 'center',
+    backgroundOverlay: 'medium',
+  },
 
-    {
-        title: 'Walk & Travel',
+  {
+    title: 'Walk & Travel',
 
-        description:
-            'Portable essentials, walking accessories, travel gear, and practical products for comfortable adventures together.',
+    description:
+      'Portable essentials, walking accessories, travel gear, and practical products for comfortable adventures together.',
 
-        slug: 'walk-and-travel',
-        icon: 'travel',
-        tone: 'brand',
+    slug: 'walk-and-travel',
+    icon: 'travel',
+    tone: 'brand',
 
-        backgroundImage: walkAndTravelImage,
-        backgroundPosition: 'center',
-        backgroundOverlay: 'medium',
-    },
+    backgroundImage: walkAndTravelImage,
+    backgroundPosition: 'center',
+    backgroundOverlay: 'medium',
+  },
 
-    {
-        title: 'Feeding & Hydration',
+  {
+    title: 'Feeding & Hydration',
 
-        description:
-            'Water bottles, bowls, feeding accessories, and helpful products for meals, treats, and hydration at home or away.',
+    description:
+      'Water bottles, bowls, feeding accessories, and helpful products for meals, treats, and hydration at home or away.',
 
-        slug: 'feeding-and-hydration',
-        icon: 'hydration',
-        tone: 'sand',
+    slug: 'feeding-and-hydration',
+    icon: 'hydration',
+    tone: 'sand',
 
-        backgroundImage: feedingAndHydrationImage,
-        backgroundPosition: 'center',
-        backgroundOverlay: 'medium',
-    },
+    backgroundImage: feedingAndHydrationImage,
+    backgroundPosition: 'center',
+    backgroundOverlay: 'medium',
+  },
 
-    {
-        title: 'Comfort & Home',
+  {
+    title: 'Comfort & Home',
 
-        description:
-            'Cozy, calming, and practical products designed to make resting and everyday life at home more comfortable.',
+    description:
+      'Cozy, calming, and practical products designed to make resting and everyday life at home more comfortable.',
 
-        slug: 'comfort-and-home',
-        icon: 'comfort',
-        tone: 'brand',
+    slug: 'comfort-and-home',
+    icon: 'comfort',
+    tone: 'brand',
 
-        backgroundImage: comfortAndHomeImage,
-        backgroundPosition: 'center',
-        backgroundOverlay: 'medium',
-    },
+    backgroundImage: comfortAndHomeImage,
+    backgroundPosition: 'center',
+    backgroundOverlay: 'medium',
+  },
 
-    {
-        title: 'Grooming & Care',
+  {
+    title: 'Grooming & Care',
 
-        description:
-            'Useful care products and grooming essentials that help make regular pet-care routines simpler and more enjoyable.',
+    description:
+      'Useful care products and grooming essentials that help make regular pet-care routines simpler and more enjoyable.',
 
-        slug: 'grooming-and-care',
-        icon: 'care',
-        tone: 'accent',
+    slug: 'grooming-and-care',
+    icon: 'care',
+    tone: 'accent',
 
-        backgroundImage: groomingAndCareImage,
-        backgroundPosition: 'center',
-        backgroundOverlay: 'light',
-    },
+    backgroundImage: groomingAndCareImage,
+    backgroundPosition: 'center',
+    backgroundOverlay: 'light',
+  },
 
-    {
-        title: 'Collars & Accessories',
+  {
+    title: 'Collars & Accessories',
 
-        description:
-            'Collars, wearable accessories, identification products, and expressive details for everyday pet style.',
+    description:
+      'Collars, wearable accessories, identification products, and expressive details for everyday pet style.',
 
-        slug: 'collars-and-accessories',
-        icon: 'accessories',
-        tone: 'sand',
+    slug: 'collars-and-accessories',
+    icon: 'accessories',
+    tone: 'sand',
 
-        backgroundImage: collarsAndAccessoriesImage,
-        backgroundPosition: 'right',
-        backgroundOverlay: 'medium',
-    },
+    backgroundImage: collarsAndAccessoriesImage,
+    backgroundPosition: 'right',
+    backgroundOverlay: 'medium',
+  },
 ];
 
 export const brandStory = {
-    eyebrow: 'Inspired by Maxi',
+  eyebrow: 'Inspired by Maxi',
 
-    title:
-        'The dog behind the name—and the heart behind our store.',
+  title: 'The dog behind the name—and the heart behind our store.',
 
-    introduction:
-        'Maxi is our dog, our daily companion, and the inspiration behind the Maxi Pawz mascot and everything this store represents.',
+  introduction:
+    'Maxi is our dog, our daily companion, and the inspiration behind the Maxi Pawz mascot and everything this store represents.',
 
-    experience:
-        'Raising Maxi from puppyhood gave us firsthand experience choosing toys, collars, walking accessories, portable water bottles, comfort products, and everyday essentials. Over time, we learned which products create excitement, which ones make daily routines easier, and which ones truly earn a place in a dog owner’s home.',
+  experience:
+    'Raising Maxi from puppyhood gave us firsthand experience choosing toys, collars, walking accessories, portable water bottles, comfort products, and everyday essentials. Over time, we learned which products create excitement, which ones make daily routines easier, and which ones truly earn a place in a dog owner’s home.',
 
-    community:
-        'Maxi inspired the beginning, and our friends helped the idea grow. Their encouragement, feedback, creativity, and belief in the vision helped us take Maxi Pawz from zero to hero.',
+  community:
+    'Maxi inspired the beginning, and our friends helped the idea grow. Their encouragement, feedback, creativity, and belief in the vision helped us take Maxi Pawz from zero to hero.',
 } as const;
 
 export const brandStoryPrinciples: BrandStoryPrinciple[] = [
-    {
-        title: 'Real-life experience',
+  {
+    title: 'Real-life experience',
 
-        description:
-            'Our perspective comes from caring for Maxi from puppyhood and learning what dogs actually enjoy and use.',
+    description:
+      'Our perspective comes from caring for Maxi from puppyhood and learning what dogs actually enjoy and use.',
 
-        icon: 'experience',
-    },
+    icon: 'experience',
+  },
 
-    {
-        title: 'Chosen with purpose',
+  {
+    title: 'Chosen with purpose',
 
-        description:
-            'We look beyond appearance and consider play value, usefulness, comfort, portability, and everyday practicality.',
+    description:
+      'We look beyond appearance and consider play value, usefulness, comfort, portability, and everyday practicality.',
 
-        icon: 'purpose',
-    },
+    icon: 'purpose',
+  },
 
-    {
-        title: 'Grown together',
+  {
+    title: 'Grown together',
 
-        description:
-            'Maxi inspired the store, while the support and ideas of our friends helped transform the vision into a growing brand.',
+    description:
+      'Maxi inspired the store, while the support and ideas of our friends helped transform the vision into a growing brand.',
 
-        icon: 'community',
-    },
+    icon: 'community',
+  },
 ];
-

@@ -4,16 +4,11 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'astro/config';
 
 const site =
-    process.env.PUBLIC_SITE_URL?.trim() ||
-    process.env.URL?.trim() ||
-    'https://maxipawz.com';
+  process.env.PUBLIC_SITE_URL?.trim() || process.env.URL?.trim() || 'https://maxipawz.com';
 
-const storefrontMode =
-    process.env.PUBLIC_STOREFRONT_MODE?.trim() ??
-    'prelaunch';
+const storefrontMode = process.env.PUBLIC_STOREFRONT_MODE?.trim() ?? 'prelaunch';
 
-const storeIsLive =
-    storefrontMode === 'live';
+const storeIsLive = storefrontMode === 'live';
 
 /*
  * These routes are functional, administrative, transactional,
@@ -23,97 +18,74 @@ const storeIsLive =
  * submitted to search engines through the generated sitemap.
  */
 const alwaysExcludedSitemapPaths = [
-    '/404',
-    '/admin',
-    '/api',
-    '/cart',
-    '/checkout',
-    '/contact/success',
-    '/join/success',
-    '/privacy-policy',
-    '/terms',
-    '/shipping-policy',
-    '/return-policy',
-    '/accessibility',
+  '/404',
+  '/admin',
+  '/api',
+  '/cart',
+  '/checkout',
+  '/contact/success',
+  '/join/success',
+  '/privacy-policy',
+  '/terms',
+  '/shipping-policy',
+  '/return-policy',
+  '/accessibility',
 ];
 
 function normalizePathname(pathname) {
-    if (pathname === '/') {
-        return '/';
-    }
+  if (pathname === '/') {
+    return '/';
+  }
 
-    return pathname.replace(/\/+$/, '');
+  return pathname.replace(/\/+$/, '');
 }
 
-function matchesPathOrDescendant(
-    pathname,
-    excludedPath,
-) {
-    return (
-        pathname === excludedPath ||
-        pathname.startsWith(
-            `${excludedPath}/`,
-        )
-    );
+function matchesPathOrDescendant(pathname, excludedPath) {
+  return pathname === excludedPath || pathname.startsWith(`${excludedPath}/`);
 }
 
 function shouldIncludeInSitemap(page) {
-    const pageURL = new URL(page);
+  const pageURL = new URL(page);
 
-    const pathname =
-        normalizePathname(
-            pageURL.pathname,
-        );
+  const pathname = normalizePathname(pageURL.pathname);
 
-    const isAlwaysExcluded =
-        alwaysExcludedSitemapPaths.some(
-            (excludedPath) =>
-                matchesPathOrDescendant(
-                    pathname,
-                    excludedPath,
-                ),
-        );
+  const isAlwaysExcluded = alwaysExcludedSitemapPaths.some((excludedPath) =>
+    matchesPathOrDescendant(pathname, excludedPath),
+  );
 
-    if (isAlwaysExcluded) {
-        return false;
-    }
+  if (isAlwaysExcluded) {
+    return false;
+  }
 
-    /*
-     * During prelaunch, the shop and its fictional/demo
-     * product-detail pages use noindex and should not be
-     * submitted through the sitemap.
-     *
-     * Once PUBLIC_STOREFRONT_MODE becomes "live", the shop
-     * and real product pages become eligible for inclusion.
-     */
-    if (
-        !storeIsLive &&
-        matchesPathOrDescendant(
-            pathname,
-            '/shop',
-        )
-    ) {
-        return false;
-    }
+  /*
+   * During prelaunch, the shop and its fictional/demo
+   * product-detail pages use noindex and should not be
+   * submitted through the sitemap.
+   *
+   * Once PUBLIC_STOREFRONT_MODE becomes "live", the shop
+   * and real product pages become eligible for inclusion.
+   */
+  if (!storeIsLive && matchesPathOrDescendant(pathname, '/shop')) {
+    return false;
+  }
 
-    return true;
+  return true;
 }
 
 export default defineConfig({
-    site,
+  site,
 
-    output: 'static',
+  output: 'static',
 
-    integrations: [
-        preact(),
+  integrations: [
+    preact(),
 
-        sitemap({
-            filter:
-                shouldIncludeInSitemap,
-        }),
-    ],
+    sitemap({
+      filter: shouldIncludeInSitemap,
+    }),
+  ],
 
-    vite: {
-        plugins: [tailwindcss()],
-    },
+  vite: {
+    plugins: [tailwindcss()],
+  },
 });

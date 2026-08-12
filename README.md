@@ -817,7 +817,7 @@ Replace this address with the official Maxi Pawz security or support email befor
 
 ## Accessibility
 
-  Store aims to meet WCAG 2.2 Level AA.
+Store aims to meet WCAG 2.2 Level AA.
 
 Accessibility testing should include:
 

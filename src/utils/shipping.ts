@@ -1,83 +1,40 @@
-import {
-    shippingConfig,
-} from '../config/shipping';
+import { shippingConfig } from '../config/shipping';
 
-import type {
-    ShippingThresholdState,
-} from '../types/shipping';
+import type { ShippingThresholdState } from '../types/shipping';
 
-function normalizeAmount(
-    amount: number,
-): number {
-    if (
-        !Number.isFinite(
-            amount,
-        )
-    ) {
-        return 0;
-    }
+function normalizeAmount(amount: number): number {
+  if (!Number.isFinite(amount)) {
+    return 0;
+  }
 
-    return Math.max(
-        0,
-        Math.round(
-            amount,
-        ),
-    );
+  return Math.max(0, Math.round(amount));
 }
 
 export function getShippingThresholdState(
-    merchandiseSubtotalAmount: number,
+  merchandiseSubtotalAmount: number,
 ): ShippingThresholdState {
-    const normalizedSubtotal =
-        normalizeAmount(
-            merchandiseSubtotalAmount,
-        );
+  const normalizedSubtotal = normalizeAmount(merchandiseSubtotalAmount);
 
-    const threshold =
-        shippingConfig
-            .freeShippingThresholdAmount;
+  const threshold = shippingConfig.freeShippingThresholdAmount;
 
-    const qualifiesForFreeShipping =
-        normalizedSubtotal >=
-        threshold;
+  const qualifiesForFreeShipping = normalizedSubtotal >= threshold;
 
-    const amountUntilFreeShipping =
-        Math.max(
-            0,
-            threshold -
-            normalizedSubtotal,
-        );
+  const amountUntilFreeShipping = Math.max(0, threshold - normalizedSubtotal);
 
-    const progress =
-        threshold <= 0
-            ? 100
-            : Math.min(
-                100,
-                Math.round(
-                    (
-                        normalizedSubtotal /
-                        threshold
-                    ) *
-                    100,
-                ),
-            );
+  const progress =
+    threshold <= 0 ? 100 : Math.min(100, Math.round((normalizedSubtotal / threshold) * 100));
 
-    return {
-        merchandiseSubtotalAmount:
-            normalizedSubtotal,
+  return {
+    merchandiseSubtotalAmount: normalizedSubtotal,
 
-        qualifiesForFreeShipping,
+    qualifiesForFreeShipping,
 
-        amountUntilFreeShipping,
+    amountUntilFreeShipping,
 
-        progress,
-    };
+    progress,
+  };
 }
 
-export function getFreeShippingProgress(
-    merchandiseSubtotalAmount: number,
-): number {
-    return getShippingThresholdState(
-        merchandiseSubtotalAmount,
-    ).progress;
+export function getFreeShippingProgress(merchandiseSubtotalAmount: number): number {
+  return getShippingThresholdState(merchandiseSubtotalAmount).progress;
 }

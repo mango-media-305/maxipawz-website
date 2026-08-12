@@ -1,211 +1,108 @@
 import type Stripe from 'stripe';
 
-import type {
-    OrderItem,
-    OrderRecord,
-} from '../../types/order';
+import type { OrderItem, OrderRecord } from '../../types/order';
 
 import {
-    buildBrandedEmailShell,
-    buildEmailSiteUrl,
-    buildWebsiteButton,
-    escapeEmailHtml,
+  buildBrandedEmailShell,
+  buildEmailSiteUrl,
+  buildWebsiteButton,
+  escapeEmailHtml,
 } from './branding';
 
 export interface EmailContent {
-    subject: string;
+  subject: string;
 
-    html: string;
+  html: string;
 
-    text: string;
+  text: string;
 }
 
 function formatMoney(
-    amount: number,
+  amount: number,
 
-    currency: string,
+  currency: string,
 ): string {
-    return new Intl.NumberFormat(
-        'en-US',
-        {
-            style:
-                'currency',
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
 
-            currency:
-                currency.toUpperCase(),
-        },
-    ).format(
-        amount /
-        100,
-    );
+    currency: currency.toUpperCase(),
+  }).format(amount / 100);
 }
 
-function getOrderReference(
-    sessionId: string,
-): string {
-    const suffix =
-        sessionId
-            .replace(
-                /^cs_(?:test|live)_/,
-                '',
-            )
-            .slice(
-                -10,
-            )
-            .toUpperCase();
+function getOrderReference(sessionId: string): string {
+  const suffix = sessionId
+    .replace(/^cs_(?:test|live)_/, '')
+    .slice(-10)
+    .toUpperCase();
 
-    return `MPZ-${suffix}`;
+  return `MPZ-${suffix}`;
 }
 
-function getShippingDetails(
-    session:
-        Stripe.Checkout.Session,
-) {
-    return (
-        session
-            .collected_information
-            ?.shipping_details ??
-        null
-    );
+function getShippingDetails(session: Stripe.Checkout.Session) {
+  return session.collected_information?.shipping_details ?? null;
 }
 
-function getCustomerName(
-    session:
-        Stripe.Checkout.Session,
-): string {
-    const name =
-        getShippingDetails(
-            session,
-        )
-            ?.name
-            ?.trim();
+function getCustomerName(session: Stripe.Checkout.Session): string {
+  const name = getShippingDetails(session)?.name?.trim();
 
-    return name ||
-        'there';
+  return name || 'there';
 }
 
-function formatShippingAddressText(
-    session:
-        Stripe.Checkout.Session,
-): string {
-    const shippingDetails =
-        getShippingDetails(
-            session,
-        );
+function formatShippingAddressText(session: Stripe.Checkout.Session): string {
+  const shippingDetails = getShippingDetails(session);
 
-    if (!shippingDetails) {
-        return 'Shipping address unavailable';
-    }
+  if (!shippingDetails) {
+    return 'Shipping address unavailable';
+  }
 
-    const {
-        address,
-    } = shippingDetails;
+  const { address } = shippingDetails;
 
-    const cityLine =
-        [
-            address.city,
-            address.state,
-            address.postal_code,
-        ]
-            .filter(
-                Boolean,
-            )
-            .join(
-                ' ',
-            );
+  const cityLine = [address.city, address.state, address.postal_code].filter(Boolean).join(' ');
 
-    return [
-        shippingDetails.name,
-        address.line1,
-        address.line2,
-        cityLine,
-        address.country,
-    ]
-        .filter(
-            Boolean,
-        )
-        .join(
-            '\n',
-        );
+  return [shippingDetails.name, address.line1, address.line2, cityLine, address.country]
+    .filter(Boolean)
+    .join('\n');
 }
 
-function formatShippingAddressHtml(
-    session:
-        Stripe.Checkout.Session,
-): string {
-    return escapeEmailHtml(
-        formatShippingAddressText(
-            session,
+function formatShippingAddressHtml(session: Stripe.Checkout.Session): string {
+  return escapeEmailHtml(formatShippingAddressText(session)).replaceAll('\n', '<br />');
+}
+
+function getItemLabel(item: OrderItem): string {
+  if (!item.variantLabel) {
+    return item.productName;
+  }
+
+  return `${item.productName} — ${item.variantLabel}`;
+}
+
+function buildItemsText(order: OrderRecord): string {
+  return order.items
+    .map(
+      (item) =>
+        `${item.quantity} × ${getItemLabel(item)} — ${formatMoney(
+          item.unitAmount * item.quantity,
+
+          item.currency,
+        )}`,
+    )
+    .join('\n');
+}
+
+function buildItemsHtml(order: OrderRecord): string {
+  return order.items
+    .map((item) => {
+      const label = escapeEmailHtml(getItemLabel(item));
+
+      const total = escapeEmailHtml(
+        formatMoney(
+          item.unitAmount * item.quantity,
+
+          item.currency,
         ),
-    ).replaceAll(
-        '\n',
-        '<br />',
-    );
-}
+      );
 
-function getItemLabel(
-    item:
-        OrderItem,
-): string {
-    if (
-        !item.variantLabel
-    ) {
-        return item.productName;
-    }
-
-    return `${item.productName} — ${item.variantLabel}`;
-}
-
-function buildItemsText(
-    order:
-        OrderRecord,
-): string {
-    return order.items
-        .map(
-            (
-                item,
-            ) =>
-                `${item.quantity} × ${getItemLabel(
-                    item,
-                )} — ${formatMoney(
-                    item.unitAmount *
-                    item.quantity,
-
-                    item.currency,
-                )}`,
-        )
-        .join(
-            '\n',
-        );
-}
-
-function buildItemsHtml(
-    order:
-        OrderRecord,
-): string {
-    return order.items
-        .map(
-            (
-                item,
-            ) => {
-                const label =
-                    escapeEmailHtml(
-                        getItemLabel(
-                            item,
-                        ),
-                    );
-
-                const total =
-                    escapeEmailHtml(
-                        formatMoney(
-                            item.unitAmount *
-                            item.quantity,
-
-                            item.currency,
-                        ),
-                    );
-
-                return `
+      return `
           <tr>
             <td
               style="padding:12px 0;border-bottom:1px solid #ecdab7;color:#3f2f29;font-size:14px;line-height:1.5;"
@@ -222,211 +119,97 @@ function buildItemsHtml(
             </td>
           </tr>
         `;
-            },
-        )
-        .join(
-            '',
-        );
+    })
+    .join('');
 }
 
-function buildTotalsText(
-    order:
-        OrderRecord,
-): string {
-    const lines = [
-        `Merchandise subtotal: ${formatMoney(
-            order.amountSubtotal,
-            order.currency,
-        )}`,
-    ];
+function buildTotalsText(order: OrderRecord): string {
+  const lines = [`Merchandise subtotal: ${formatMoney(order.amountSubtotal, order.currency)}`];
 
-    if (
-        order.amountDiscount >
-        0
-    ) {
-        lines.push(
-            `Discount: -${formatMoney(
-                order.amountDiscount,
-                order.currency,
-            )}`,
-        );
-    }
+  if (order.amountDiscount > 0) {
+    lines.push(`Discount: -${formatMoney(order.amountDiscount, order.currency)}`);
+  }
 
-    lines.push(
-        `Shipping: ${formatMoney(
-            order.amountShipping,
-            order.currency,
-        )}`,
-    );
+  lines.push(`Shipping: ${formatMoney(order.amountShipping, order.currency)}`);
 
-    lines.push(
-        `Tax: ${formatMoney(
-            order.amountTax,
-            order.currency,
-        )}`,
-    );
+  lines.push(`Tax: ${formatMoney(order.amountTax, order.currency)}`);
 
-    lines.push(
-        `Total: ${formatMoney(
-            order.amountTotal,
-            order.currency,
-        )}`,
-    );
+  lines.push(`Total: ${formatMoney(order.amountTotal, order.currency)}`);
 
-    return lines.join(
-        '\n',
-    );
+  return lines.join('\n');
 }
 
-function buildTotalsHtml(
-    order:
-        OrderRecord,
-): string {
-    const rows:
-        [
-            string,
-            string,
-        ][] = [
-            [
-                'Merchandise subtotal',
+function buildTotalsHtml(order: OrderRecord): string {
+  const rows: [string, string][] = [
+    ['Merchandise subtotal', formatMoney(order.amountSubtotal, order.currency)],
+  ];
 
-                formatMoney(
-                    order.amountSubtotal,
-                    order.currency,
-                ),
-            ],
-        ];
+  if (order.amountDiscount > 0) {
+    rows.push(['Discount', `−${formatMoney(order.amountDiscount, order.currency)}`]);
+  }
 
-    if (
-        order.amountDiscount >
-        0
-    ) {
-        rows.push([
-            'Discount',
+  rows.push(['Shipping', formatMoney(order.amountShipping, order.currency)]);
 
-            `−${formatMoney(
-                order.amountDiscount,
-                order.currency,
-            )}`,
-        ]);
-    }
+  rows.push(['Tax', formatMoney(order.amountTax, order.currency)]);
 
-    rows.push([
-        'Shipping',
+  rows.push(['Total', formatMoney(order.amountTotal, order.currency)]);
 
-        formatMoney(
-            order.amountShipping,
-            order.currency,
-        ),
-    ]);
+  return rows
+    .map(
+      (
+        [label, value],
 
-    rows.push([
-        'Tax',
+        index,
+      ) => {
+        const isLast = index === rows.length - 1;
 
-        formatMoney(
-            order.amountTax,
-            order.currency,
-        ),
-    ]);
-
-    rows.push([
-        'Total',
-
-        formatMoney(
-            order.amountTotal,
-            order.currency,
-        ),
-    ]);
-
-    return rows
-        .map(
-            (
-                [
-                    label,
-                    value,
-                ],
-
-                index,
-            ) => {
-                const isLast =
-                    index ===
-                    rows.length -
-                    1;
-
-                return `
+        return `
           <tr>
             <td
               style="padding:${isLast ? '14px 0 0' : '5px 0'};color:${isLast ? '#3f2f29' : '#725c50'};font-size:${isLast ? '17px' : '14px'};font-weight:${isLast ? '800' : '600'};"
             >
-              ${escapeEmailHtml(
-                    label,
-                )}
+              ${escapeEmailHtml(label)}
             </td>
 
             <td
               style="padding:${isLast ? '14px 0 0' : '5px 0'};color:#3f2f29;font-size:${isLast ? '19px' : '14px'};font-weight:${isLast ? '900' : '700'};text-align:right;"
             >
-              ${escapeEmailHtml(
-                    value,
-                )}
+              ${escapeEmailHtml(value)}
             </td>
           </tr>
         `;
-            },
-        )
-        .join(
-            '',
-        );
+      },
+    )
+    .join('');
 }
 
 export function buildCustomerOrderConfirmation(
-    session:
-        Stripe.Checkout.Session,
+  session: Stripe.Checkout.Session,
 
-    order:
-        OrderRecord,
+  order: OrderRecord,
 ): EmailContent {
-    const customerName =
-        getCustomerName(
-            session,
-        );
+  const customerName = getCustomerName(session);
 
-    const orderReference =
-        getOrderReference(
-            session.id,
-        );
+  const orderReference = getOrderReference(session.id);
 
-    const testPrefix =
-        order.livemode
-            ? ''
-            : '[SANDBOX] ';
+  const testPrefix = order.livemode ? '' : '[SANDBOX] ';
 
-    const subject =
-        `${testPrefix}We received your Maxi Pawz order — ${orderReference}`;
+  const subject = `${testPrefix}We received your Maxi Pawz order — ${orderReference}`;
 
-    const homeUrl =
-        buildEmailSiteUrl(
-            '/',
-        );
+  const homeUrl = buildEmailSiteUrl('/');
 
-    const html =
-        buildBrandedEmailShell({
-            testMode:
-                !order.livemode,
+  const html = buildBrandedEmailShell({
+    testMode: !order.livemode,
 
-            testBannerText:
-                'STRIPE SANDBOX TEST — NO REAL PAYMENT WAS PROCESSED',
+    testBannerText: 'STRIPE SANDBOX TEST — NO REAL PAYMENT WAS PROCESSED',
 
-            preheader:
-                `We received your Maxi Pawz order ${orderReference}.`,
+    preheader: `We received your Maxi Pawz order ${orderReference}.`,
 
-            content: `
+    content: `
         <h1
           style="margin:4px 0 12px;font-size:28px;line-height:1.2;color:#3f2f29;"
         >
-          Thanks, ${escapeEmailHtml(
-                customerName,
-            )}! 🐾
+          Thanks, ${escapeEmailHtml(customerName)}! 🐾
         </h1>
 
         <p
@@ -447,9 +230,7 @@ export function buildCustomerOrderConfirmation(
           <div
             style="margin-top:5px;font-size:20px;font-weight:900;color:#3f2f29;"
           >
-            ${escapeEmailHtml(
-                orderReference,
-            )}
+            ${escapeEmailHtml(orderReference)}
           </div>
         </div>
 
@@ -466,9 +247,7 @@ export function buildCustomerOrderConfirmation(
           cellpadding="0"
           border="0"
         >
-          ${buildItemsHtml(
-                order,
-            )}
+          ${buildItemsHtml(order)}
         </table>
 
         <table
@@ -479,9 +258,7 @@ export function buildCustomerOrderConfirmation(
           border="0"
           style="margin-top:14px;"
         >
-          ${buildTotalsHtml(
-                order,
-            )}
+          ${buildTotalsHtml(order)}
         </table>
 
         <h2
@@ -493,15 +270,10 @@ export function buildCustomerOrderConfirmation(
         <div
           style="padding:15px 17px;background:#fff8dc;border-radius:16px;color:#725c50;font-size:14px;line-height:1.7;"
         >
-          ${formatShippingAddressHtml(
-                session,
-            )}
+          ${formatShippingAddressHtml(session)}
         </div>
 
-        ${buildWebsiteButton(
-                'Visit Maxi Pawz',
-                '/',
-            )}
+        ${buildWebsiteButton('Visit Maxi Pawz', '/')}
 
         <p
           style="margin:26px 0 0;color:#725c50;font-size:13px;line-height:1.7;"
@@ -509,9 +281,9 @@ export function buildCustomerOrderConfirmation(
           This is your Maxi Pawz order confirmation. Payment receipts and refund receipts are handled separately by Stripe.
         </p>
       `,
-        });
+  });
 
-    const text = `
+  const text = `
 Maxi Pawz Store
 HAPPY PETS • HAPPY LIFE
 
@@ -535,53 +307,36 @@ ${homeUrl}
 This is your Maxi Pawz order confirmation. Payment receipts and refund receipts are handled separately by Stripe.
 `.trim();
 
-    return {
-        subject,
+  return {
+    subject,
 
-        html,
+    html,
 
-        text,
-    };
+    text,
+  };
 }
 
 export function buildInternalNewOrderNotification(
-    session:
-        Stripe.Checkout.Session,
+  session: Stripe.Checkout.Session,
 
-    order:
-        OrderRecord,
+  order: OrderRecord,
 ): EmailContent {
-    const orderReference =
-        getOrderReference(
-            session.id,
-        );
+  const orderReference = getOrderReference(session.id);
 
-    const customerEmail =
-        session
-            .customer_details
-            ?.email ??
-        'Unavailable';
+  const customerEmail = session.customer_details?.email ?? 'Unavailable';
 
-    const testPrefix =
-        order.livemode
-            ? ''
-            : '[SANDBOX] ';
+  const testPrefix = order.livemode ? '' : '[SANDBOX] ';
 
-    const subject =
-        `${testPrefix}New Maxi Pawz order — ${orderReference}`;
+  const subject = `${testPrefix}New Maxi Pawz order — ${orderReference}`;
 
-    const html =
-        buildBrandedEmailShell({
-            testMode:
-                !order.livemode,
+  const html = buildBrandedEmailShell({
+    testMode: !order.livemode,
 
-            testBannerText:
-                'STRIPE SANDBOX TEST — NO REAL PAYMENT WAS PROCESSED',
+    testBannerText: 'STRIPE SANDBOX TEST — NO REAL PAYMENT WAS PROCESSED',
 
-            preheader:
-                `New Maxi Pawz order ${orderReference}.`,
+    preheader: `New Maxi Pawz order ${orderReference}.`,
 
-            content: `
+    content: `
         <h1
             style="margin:4px 0 12px;font-size:28px;color:#3f2f29;"
         >
@@ -598,9 +353,7 @@ export function buildInternalNewOrderNotification(
                 Reference:
                 </strong>
 
-                ${escapeEmailHtml(
-                orderReference,
-            )}
+                ${escapeEmailHtml(orderReference)}
 
                 <br />
 
@@ -608,9 +361,7 @@ export function buildInternalNewOrderNotification(
                 Stripe Session:
                 </strong>
 
-                ${escapeEmailHtml(
-                session.id,
-            )}
+                ${escapeEmailHtml(session.id)}
 
                 <br />
 
@@ -618,9 +369,7 @@ export function buildInternalNewOrderNotification(
                 Customer:
                 </strong>
 
-                ${escapeEmailHtml(
-                customerEmail,
-            )}
+                ${escapeEmailHtml(customerEmail)}
 
                 <br />
 
@@ -628,9 +377,7 @@ export function buildInternalNewOrderNotification(
                 Payment:
                 </strong>
 
-                ${escapeEmailHtml(
-                order.paymentStatus,
-            )}
+                ${escapeEmailHtml(order.paymentStatus)}
             </div>
         </div>
 
@@ -647,9 +394,7 @@ export function buildInternalNewOrderNotification(
             cellpadding="0"
             border="0"
         >
-            ${buildItemsHtml(
-                order,
-            )}
+            ${buildItemsHtml(order)}
         </table>
 
         <table
@@ -660,9 +405,7 @@ export function buildInternalNewOrderNotification(
             border="0"
             style="margin-top:14px;"
         >
-            ${buildTotalsHtml(
-                order,
-            )}
+            ${buildTotalsHtml(order)}
         </table>
 
         <h2
@@ -674,14 +417,12 @@ export function buildInternalNewOrderNotification(
         <div
             style="padding:15px 17px;background:#fff8dc;border-radius:16px;color:#725c50;font-size:14px;line-height:1.7;"
         >
-            ${formatShippingAddressHtml(
-                session,
-            )}
+            ${formatShippingAddressHtml(session)}
         </div>
         `,
-        });
+  });
 
-    const text = `
+  const text = `
 NEW MAXIPAWZ ORDER
 
 Reference: ${orderReference}
@@ -698,11 +439,11 @@ SHIPPING ADDRESS
 ${formatShippingAddressText(session)}
 `.trim();
 
-    return {
-        subject,
+  return {
+    subject,
 
-        html,
+    html,
 
-        text,
-    };
+    text,
+  };
 }

@@ -1,222 +1,135 @@
-import type {
-    Config,
-} from '@netlify/functions';
+import type { Config } from '@netlify/functions';
 
-import {
-    AdminAuthError,
-    assertAdminAuthorized,
-} from '../../src/server/admin-auth';
+import { AdminAuthError, assertAdminAuthorized } from '../../src/server/admin-auth';
 
-import type {
-    AdminOrder,
-    AdminOrdersResponse,
-} from '../../src/types/admin-order';
+import type { AdminOrder, AdminOrdersResponse } from '../../src/types/admin-order';
 
-import type {
-    OrderRecord,
-} from '../../src/types/order';
+import type { OrderRecord } from '../../src/types/order';
 
-import {
-    listOrders,
-} from '../../src/utils/orders';
+import { listOrders } from '../../src/utils/orders';
 
-function getOrderReference(
-    sessionId: string,
-): string {
-    const suffix =
-        sessionId
-            .replace(
-                /^cs_(?:test|live)_/,
-                '',
-            )
-            .slice(
-                -10,
-            )
-            .toUpperCase();
+function getOrderReference(sessionId: string): string {
+  const suffix = sessionId
+    .replace(/^cs_(?:test|live)_/, '')
+    .slice(-10)
+    .toUpperCase();
 
-    return `MPZ-${suffix}`;
+  return `MPZ-${suffix}`;
 }
 
-function toAdminOrder(
-    order:
-        OrderRecord,
-): AdminOrder {
-    return {
-        sessionId:
-            order.sessionId,
+function toAdminOrder(order: OrderRecord): AdminOrder {
+  return {
+    sessionId: order.sessionId,
 
-        reference:
-            getOrderReference(
-                order.sessionId,
-            ),
+    reference: getOrderReference(order.sessionId),
 
-        livemode:
-            order.livemode,
+    livemode: order.livemode,
 
-        paymentIntentId:
-            order.paymentIntentId,
+    paymentIntentId: order.paymentIntentId,
 
-        paymentStatus:
-            order.paymentStatus,
+    paymentStatus: order.paymentStatus,
 
-        orderStatus:
-            order.orderStatus,
+    orderStatus: order.orderStatus,
 
-        fulfillmentStatus:
-            order.fulfillmentStatus ??
-            'unfulfilled',
+    fulfillmentStatus: order.fulfillmentStatus ?? 'unfulfilled',
 
-        refundStatus:
-            order.refundStatus ??
-            'none',
+    refundStatus: order.refundStatus ?? 'none',
 
-        amountRefunded:
-            order.amountRefunded ??
-            0,
+    amountRefunded: order.amountRefunded ?? 0,
 
-        amountRefundPending:
-            order.amountRefundPending ??
-            0,
+    amountRefundPending: order.amountRefundPending ?? 0,
 
-        amountRefundable:
-            order.amountRefundable ??
-            Math.max(
-                0,
-                order.amountTotal,
-            ),
+    amountRefundable: order.amountRefundable ?? Math.max(0, order.amountTotal),
 
-        refunds:
-            order.refunds ??
-            [],
+    refunds: order.refunds ?? [],
 
-        customer:
-            order.customer,
+    customer: order.customer,
 
-        shippingAddress:
-            order.shippingAddress,
+    shippingAddress: order.shippingAddress,
 
-        fulfillment:
-            order.fulfillment,
+    fulfillment: order.fulfillment,
 
-        currency:
-            order.currency,
+    currency: order.currency,
 
-        amountSubtotal:
-            order.amountSubtotal,
+    amountSubtotal: order.amountSubtotal,
 
-        amountShipping:
-            order.amountShipping,
+    amountShipping: order.amountShipping,
 
-        amountTax:
-            order.amountTax,
+    amountTax: order.amountTax,
 
-        amountDiscount:
-            order.amountDiscount,
+    amountDiscount: order.amountDiscount,
 
-        amountTotal:
-            order.amountTotal,
+    amountTotal: order.amountTotal,
 
-        items:
-            order.items,
+    items: order.items,
 
-        createdAt:
-            order.createdAt,
+    createdAt: order.createdAt,
 
-        updatedAt:
-            order.updatedAt,
-    };
+    updatedAt: order.updatedAt,
+  };
 }
 
 function jsonResponse(
-    body:
-        AdminOrdersResponse,
+  body: AdminOrdersResponse,
 
-    status = 200,
+  status = 200,
 ): Response {
-    return Response.json(
-        body,
-        {
-            status,
+  return Response.json(body, {
+    status,
 
-            headers: {
-                'Cache-Control':
-                    'no-store, max-age=0',
-            },
-        },
+    headers: {
+      'Cache-Control': 'no-store, max-age=0',
+    },
+  });
+}
+
+export default async function handler(request: Request): Promise<Response> {
+  if (request.method !== 'GET') {
+    return jsonResponse(
+      {
+        ok: false,
+
+        message: 'This endpoint accepts GET requests only.',
+      },
+      405,
     );
-}
+  }
 
-export default async function handler(
-    request: Request,
-): Promise<Response> {
-    if (
-        request.method !==
-        'GET'
-    ) {
-        return jsonResponse(
-            {
-                ok: false,
+  try {
+    assertAdminAuthorized(request);
 
-                message:
-                    'This endpoint accepts GET requests only.',
-            },
-            405,
-        );
+    const orders = await listOrders(false);
+
+    return jsonResponse({
+      ok: true,
+
+      orders: orders.map(toAdminOrder),
+    });
+  } catch (error) {
+    if (error instanceof AdminAuthError) {
+      return jsonResponse(
+        {
+          ok: false,
+
+          message: error.message,
+        },
+        error.status,
+      );
     }
 
-    try {
-        assertAdminAuthorized(
-            request,
-        );
+    console.error('Admin order listing failed.', error);
 
-        const orders =
-            await listOrders(
-                false,
-            );
+    return jsonResponse(
+      {
+        ok: false,
 
-        return jsonResponse({
-            ok: true,
-
-            orders:
-                orders.map(
-                    toAdminOrder,
-                ),
-        });
-    } catch (error) {
-        if (
-            error instanceof
-            AdminAuthError
-        ) {
-            return jsonResponse(
-                {
-                    ok: false,
-
-                    message:
-                        error.message,
-                },
-                error.status,
-            );
-        }
-
-        console.error(
-            'Admin order listing failed.',
-            error,
-        );
-
-        return jsonResponse(
-            {
-                ok: false,
-
-                message:
-                    'Orders could not be loaded.',
-            },
-            500,
-        );
-    }
+        message: 'Orders could not be loaded.',
+      },
+      500,
+    );
+  }
 }
 
-export const config:
-    Config = {
-    path:
-        '/api/admin/orders',
+export const config: Config = {
+  path: '/api/admin/orders',
 };

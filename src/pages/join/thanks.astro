@@ -13,99 +13,99 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 ---
 
 <BaseLayout
-    title="Thanks for Joining Us"
-    description="Your interest in Maxi Pawz was recorded successfully."
-    noIndex={true}
+  title="Thanks for Joining Us"
+  description="Your interest in Maxi Pawz was recorded successfully."
+  noIndex={true}
 >
-    <AnalyticsEvent
-        name="generate_lead"
-        clarityName="launchLeadNoMarketing"
-        parameters={{
-        lead_source: 'launch_list',
-        email_marketing_opt_in: false,
-        }}
-    />
+  <AnalyticsEvent
+    name="generate_lead"
+    clarityName="launchLeadNoMarketing"
+    parameters={{
+      lead_source: 'launch_list',
+      email_marketing_opt_in: false,
+    }}
+  />
 
-    <section
-        class="relative flex min-h-[70vh] items-center overflow-hidden py-16 sm:py-20"
-        aria-labelledby="join-thanks-title"
+  <section
+    class="relative flex min-h-[70vh] items-center overflow-hidden py-16 sm:py-20"
+    aria-labelledby="join-thanks-title"
+  >
+    <div
+      class="pointer-events-none absolute -top-40 -left-40 size-128 rounded-full bg-brand-300/25 blur-3xl"
+      aria-hidden="true"
     >
-        <div
-        class="pointer-events-none absolute -top-40 -left-40 size-128 rounded-full bg-brand-300/25 blur-3xl"
-        aria-hidden="true"
+    </div>
+
+    <div
+      class="pointer-events-none absolute -right-40 -bottom-40 size-136 rounded-full bg-accent-300/25 blur-3xl"
+      aria-hidden="true"
+    >
+    </div>
+
+    <div class="site-container relative">
+      <div
+        class="mx-auto max-w-3xl overflow-hidden rounded-[2.5rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 text-center shadow-card sm:p-8 lg:p-12"
+      >
+        <span
+          class="mx-auto grid size-20 place-items-center rounded-full bg-success-100 text-success-700 shadow-soft"
+          aria-hidden="true"
         >
-        </div>
+          <CheckCircleFill class="size-10" />
+        </span>
 
-        <div
-        class="pointer-events-none absolute -right-40 -bottom-40 size-136 rounded-full bg-accent-300/25 blur-3xl"
-        aria-hidden="true"
+        <Badge variant="brand" size="md" class="mx-auto mt-7">
+          <HeartBold slot="icon" aria-hidden="true" />
+
+          Thanks for Your Interest
+        </Badge>
+
+        <h1
+          id="join-thanks-title"
+          class="mx-auto mt-6 max-w-2xl text-4xl text-ink-900 sm:text-5xl lg:text-6xl"
         >
+          Thanks for checking out Maxi Pawz.
+        </h1>
+
+        <p class="mx-auto mt-5 max-w-xl text-base leading-7 text-ink-600 sm:text-lg sm:leading-8">
+          Your information was saved successfully. You chose not to receive Maxi Pawz marketing
+          emails, and we'll respect that preference.
+        </p>
+
+        <div class="mx-auto mt-8 max-w-xl rounded-3xl border border-brand-200 bg-white-warm p-5">
+          <p class="font-extrabold text-ink-900">Changed your mind later?</p>
+
+          <p class="mt-2 text-sm leading-6 text-ink-600">
+            You can return to the Maxi Pawz Updates form at any time and submit it again with email
+            updates selected.
+          </p>
         </div>
 
-        <div class="site-container relative">
-        <div
-            class="mx-auto max-w-3xl overflow-hidden rounded-[2.5rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 text-center shadow-card sm:p-8 lg:p-12"
-        >
-            <span
-            class="mx-auto grid size-20 place-items-center rounded-full bg-success-100 text-success-700 shadow-soft"
-            aria-hidden="true"
-            >
-            <CheckCircleFill class="size-10" />
-            </span>
+        <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <Button
+            href="/pet-guides"
+            variant="primary"
+            size="lg"
+            iconPosition="right"
+            class="w-full sm:w-auto"
+          >
+            <PawPrintBold slot="icon" aria-hidden="true" />
 
-            <Badge variant="brand" size="md" class="mx-auto mt-7">
-            <HeartBold slot="icon" aria-hidden="true" />
+            Explore Pet Guides
+          </Button>
 
-            Thanks for Your Interest
-            </Badge>
+          <Button
+            href="/"
+            variant="secondary"
+            size="lg"
+            iconPosition="right"
+            class="w-full sm:w-auto"
+          >
+            <ArrowRightBold slot="icon" aria-hidden="true" />
 
-            <h1
-            id="join-thanks-title"
-            class="mx-auto mt-6 max-w-2xl text-4xl text-ink-900 sm:text-5xl lg:text-6xl"
-            >
-            Thanks for checking out Maxi Pawz.
-            </h1>
-
-            <p class="mx-auto mt-5 max-w-xl text-base leading-7 text-ink-600 sm:text-lg sm:leading-8">
-            Your information was saved successfully. You chose not to receive Maxi Pawz marketing
-            emails, and we'll respect that preference.
-            </p>
-
-            <div class="mx-auto mt-8 max-w-xl rounded-3xl border border-brand-200 bg-white-warm p-5">
-            <p class="font-extrabold text-ink-900">Changed your mind later?</p>
-
-            <p class="mt-2 text-sm leading-6 text-ink-600">
-                You can return to the Maxi Pawz Updates form at any time and submit it again with email
-                updates selected.
-            </p>
-            </div>
-
-            <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Button
-                href="/pet-guides"
-                variant="primary"
-                size="lg"
-                iconPosition="right"
-                class="w-full sm:w-auto"
-            >
-                <PawPrintBold slot="icon" aria-hidden="true" />
-
-                Explore Pet Guides
-            </Button>
-
-            <Button
-                href="/"
-                variant="secondary"
-                size="lg"
-                iconPosition="right"
-                class="w-full sm:w-auto"
-            >
-                <ArrowRightBold slot="icon" aria-hidden="true" />
-
-                Return Home
-            </Button>
-            </div>
+            Return Home
+          </Button>
         </div>
-        </div>
-    </section>
+      </div>
+    </div>
+  </section>
 </BaseLayout>

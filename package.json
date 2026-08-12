@@ -10,11 +10,15 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "lint": "eslint \"src/**/*.{astro,js,jsx,ts,tsx,mjs,cjs}\" \"netlify/functions/**/*.{js,ts,mjs,cjs}\" \"*.{js,mjs,cjs}\" --no-error-on-unmatched-pattern",
+    "lint": "eslint \"src/**/*.{astro,js,jsx,ts,tsx,mjs,cjs}\" \"netlify/functions/**/*.{js,ts,mjs,cjs}\" \"tests/**/*.{js,jsx,ts,tsx,mjs,cjs}\" \"*.{js,mjs,cjs}\" --no-error-on-unmatched-pattern",
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "validate": "npm run check && npm run lint && npm run format:check && npm run build",
+    "test": "npm run test:inventory && npm run test:checkout-inventory && npm run test:back-in-stock",
+    "test:inventory": "tsx --test tests/inventory/*.test.ts",
+    "test:checkout-inventory": "tsx --test tests/checkout/*.test.ts",
+    "test:back-in-stock": "tsx --test tests/back-in-stock/*.test.ts",
+    "validate": "npm run check && npm run lint && npm run format:check && npm test && npm run build",
     "stripe:create-test-catalog": "tsx scripts/stripe/create-test-catalog.ts"
   },
   "engines": {
@@ -25,6 +29,7 @@
     "@astrojs/sitemap": "^3.7.3",
     "@fontsource-variable/nunito-sans": "^5.3.0",
     "@netlify/blobs": "^10.7.10",
+    "@netlify/database": "^1.1.0",
     "@netlify/functions": "^5.3.0",
     "@stripe/stripe-js": "9.12.0",
     "astro": "7.1.3",
@@ -36,6 +41,7 @@
   "devDependencies": {
     "@astrojs/check": "0.9.8",
     "@eslint/js": "10.0.1",
+    "@netlify/database-dev": "0.10.1",
     "@tailwindcss/vite": "4.3.3",
     "eslint": "10.7.0",
     "eslint-plugin-astro": "3.0.1",

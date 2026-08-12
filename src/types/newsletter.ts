@@ -1,77 +1,68 @@
-export type NewsletterSource =
-    'homepage-join-the-pack';
+export type NewsletterSource = 'homepage-join-the-pack';
 
 export type NewsletterMarketingPreferenceMethod =
-    | 'prechecked-checkbox-submission'
-    | 'checkbox-unchecked-submission'
-    | 'unsubscribe-link';
+  | 'prechecked-checkbox-submission'
+  | 'checkbox-unchecked-submission'
+  | 'unsubscribe-link';
 
-export type NewsletterResendSyncStatus =
-    | 'pending'
-    | 'synced'
-    | 'failed';
+export type NewsletterResendSyncStatus = 'pending' | 'synced' | 'failed';
 
 export interface NewsletterLeadInput {
-    email: string;
+  email: string;
 
-    firstName?: string;
+  firstName?: string;
 
-    marketingConsent: boolean;
+  marketingConsent: boolean;
 
-    source:
-        NewsletterSource;
+  source: NewsletterSource;
 }
 
 export interface NewsletterLeadRecord {
-    version: 1;
+  version: 1;
 
-    email: string;
+  email: string;
 
-    emailHash: string;
+  emailHash: string;
 
-    firstName?: string;
+  firstName?: string;
 
-    source:
-        NewsletterSource;
+  source: NewsletterSource;
 
-    marketingConsent: boolean;
+  marketingConsent: boolean;
 
-    marketingPreferenceMethod:
-        NewsletterMarketingPreferenceMethod;
+  marketingPreferenceMethod: NewsletterMarketingPreferenceMethod;
 
-    consentTextVersion: string;
+  consentTextVersion: string;
 
-    firstSubmittedAt: string;
+  firstSubmittedAt: string;
 
-    lastSubmittedAt: string;
+  lastSubmittedAt: string;
 
-    marketingPreferenceUpdatedAt: string;
+  marketingPreferenceUpdatedAt: string;
 
-    lastOptInAt?: string;
+  lastOptInAt?: string;
 
-    lastOptOutAt?: string;
+  lastOptOutAt?: string;
 
-    submissionCount: number;
+  submissionCount: number;
 
-    resendContactId?: string;
+  resendContactId?: string;
 
-    resendTopicId: string;
+  resendTopicId: string;
 
-    resendSyncStatus:
-        NewsletterResendSyncStatus;
+  resendSyncStatus: NewsletterResendSyncStatus;
 
-    lastError?: string;
+  lastError?: string;
 
-    createdAt: string;
+  createdAt: string;
 
-    updatedAt: string;
+  updatedAt: string;
 }
 
 export interface NewsletterSubmissionResult {
-    accepted: true;
+  accepted: true;
 
-    marketingConsent: boolean;
+  marketingConsent: boolean;
 
-    resendSyncStatus:
-        NewsletterResendSyncStatus;
+  resendSyncStatus: NewsletterResendSyncStatus;
 }

@@ -10,90 +10,90 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 ---
 
 <BaseLayout
-    title="Email Preference Updated"
-    description="Your Maxi Pawz marketing email preference has been updated."
-    noIndex={true}
+  title="Email Preference Updated"
+  description="Your Maxi Pawz marketing email preference has been updated."
+  noIndex={true}
 >
-    <section
-        class="relative flex min-h-[70vh] items-center overflow-hidden py-16 sm:py-20"
-        aria-labelledby="unsubscribed-title"
+  <section
+    class="relative flex min-h-[70vh] items-center overflow-hidden py-16 sm:py-20"
+    aria-labelledby="unsubscribed-title"
+  >
+    <div
+      class="pointer-events-none absolute -top-40 -left-40 size-128 rounded-full bg-brand-300/20 blur-3xl"
+      aria-hidden="true"
     >
-        <div
-        class="pointer-events-none absolute -top-40 -left-40 size-128 rounded-full bg-brand-300/20 blur-3xl"
-        aria-hidden="true"
+    </div>
+
+    <div
+      class="pointer-events-none absolute -right-40 -bottom-40 size-136 rounded-full bg-accent-300/20 blur-3xl"
+      aria-hidden="true"
+    >
+    </div>
+
+    <div class="site-container relative">
+      <div
+        class="mx-auto max-w-3xl overflow-hidden rounded-[2.5rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 text-center shadow-card sm:p-8 lg:p-12"
+      >
+        <span
+          class="mx-auto grid size-20 place-items-center rounded-full bg-success-100 text-success-700 shadow-soft"
+          aria-hidden="true"
         >
+          <CheckCircleFill class="size-10" />
+        </span>
+
+        <Badge variant="brand" size="md" class="mx-auto mt-7">
+          <PawPrintBold slot="icon" aria-hidden="true" />
+
+          Preference Updated
+        </Badge>
+
+        <h1
+          id="unsubscribed-title"
+          class="mx-auto mt-6 max-w-2xl text-4xl text-ink-900 sm:text-5xl lg:text-6xl"
+        >
+          You've been unsubscribed.
+        </h1>
+
+        <p class="mx-auto mt-5 max-w-xl text-base leading-7 text-ink-600 sm:text-lg sm:leading-8">
+          We updated your Maxi Pawz marketing preference. You will no longer receive our marketing
+          emails unless you choose to join the pack again in the future.
+        </p>
+
+        <div class="mx-auto mt-8 max-w-xl rounded-3xl border border-sand bg-white-warm p-5">
+          <p class="font-extrabold text-ink-900">We'll still be here when you need us.</p>
+
+          <p class="mt-2 text-sm leading-6 text-ink-600">
+            Essential messages related to your orders, payments, shipments, or support requests are
+            transactional communications and are not affected by this marketing preference.
+          </p>
         </div>
 
-        <div
-        class="pointer-events-none absolute -right-40 -bottom-40 size-136 rounded-full bg-accent-300/20 blur-3xl"
-        aria-hidden="true"
-        >
-        </div>
-
-        <div class="site-container relative">
-        <div
-            class="mx-auto max-w-3xl overflow-hidden rounded-[2.5rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 text-center shadow-card sm:p-8 lg:p-12"
-        >
-            <span
-            class="mx-auto grid size-20 place-items-center rounded-full bg-success-100 text-success-700 shadow-soft"
-            aria-hidden="true"
-            >
-            <CheckCircleFill class="size-10" />
-            </span>
-
-            <Badge variant="brand" size="md" class="mx-auto mt-7">
+        <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <Button
+            href="/pet-guides"
+            variant="primary"
+            size="lg"
+            iconPosition="right"
+            class="w-full sm:w-auto"
+          >
             <PawPrintBold slot="icon" aria-hidden="true" />
 
-            Preference Updated
-            </Badge>
+            Explore Pet Guides
+          </Button>
 
-            <h1
-            id="unsubscribed-title"
-            class="mx-auto mt-6 max-w-2xl text-4xl text-ink-900 sm:text-5xl lg:text-6xl"
-            >
-            You've been unsubscribed.
-            </h1>
+          <Button
+            href="/"
+            variant="secondary"
+            size="lg"
+            iconPosition="right"
+            class="w-full sm:w-auto"
+          >
+            <ArrowRightBold slot="icon" aria-hidden="true" />
 
-            <p class="mx-auto mt-5 max-w-xl text-base leading-7 text-ink-600 sm:text-lg sm:leading-8">
-            We updated your Maxi Pawz marketing preference. You will no longer receive our marketing
-            emails unless you choose to join the pack again in the future.
-            </p>
-
-            <div class="mx-auto mt-8 max-w-xl rounded-3xl border border-sand bg-white-warm p-5">
-            <p class="font-extrabold text-ink-900">We'll still be here when you need us.</p>
-
-            <p class="mt-2 text-sm leading-6 text-ink-600">
-                Essential messages related to your orders, payments, shipments, or support requests are
-                transactional communications and are not affected by this marketing preference.
-            </p>
-            </div>
-
-            <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Button
-                href="/pet-guides"
-                variant="primary"
-                size="lg"
-                iconPosition="right"
-                class="w-full sm:w-auto"
-            >
-                <PawPrintBold slot="icon" aria-hidden="true" />
-
-                Explore Pet Guides
-            </Button>
-
-            <Button
-                href="/"
-                variant="secondary"
-                size="lg"
-                iconPosition="right"
-                class="w-full sm:w-auto"
-            >
-                <ArrowRightBold slot="icon" aria-hidden="true" />
-
-                Return Home
-            </Button>
-            </div>
+            Return Home
+          </Button>
         </div>
-        </div>
-    </section>
+      </div>
+    </div>
+  </section>
 </BaseLayout>

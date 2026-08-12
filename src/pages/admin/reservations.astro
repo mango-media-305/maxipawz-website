@@ -1,0 +1,19 @@
+---
+import AdminNavigation from '@components/admin/AdminNavigation.astro';
+import AdminReservations from '@components/admin/AdminReservations';
+import BaseLayout from '@layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Inventory Reservations"
+  description="Private Maxi Pawz inventory reservation inspection dashboard."
+  noIndex={true}
+>
+  <section class="section-spacing">
+    <div class="site-container">
+      <AdminNavigation current="reservations" />
+
+      <AdminReservations client:load />
+    </div>
+  </section>
+</BaseLayout>

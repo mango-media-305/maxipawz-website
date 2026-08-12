@@ -1,0 +1,57 @@
+---
+interface Props {
+    current: 'inventory' | 'reservations' | 'orders' | 'back-in-stock';
+}
+
+const { current } = Astro.props;
+
+const baseClass = 'rounded-full px-4 py-2 text-sm font-extrabold transition';
+
+const activeClass = 'bg-brand-500 text-white';
+
+const inactiveClass = 'border border-brand-200 bg-brand-50 text-brand-800 hover:bg-brand-100';
+
+const links = [
+    {
+        id: 'inventory',
+        label: 'Inventory',
+        href: '/admin/inventory',
+    },
+
+    {
+        id: 'reservations',
+        label: 'Reservations',
+        href: '/admin/reservations',
+    },
+
+    {
+        id: 'orders',
+        label: 'Orders',
+        href: '/admin/orders',
+    },
+
+    {
+        id: 'back-in-stock',
+        label: 'Back in Stock',
+        href: '/admin/back-in-stock',
+    },
+] as const;
+---
+
+<nav class="mb-6 flex flex-wrap gap-2" aria-label="Admin navigation">
+    {
+        links.map((link) => {
+        const active = current === link.id;
+
+        return (
+            <a
+            href={link.href}
+            aria-current={active ? 'page' : undefined}
+            class:list={[baseClass, active ? activeClass : inactiveClass]}
+            >
+            {link.label}
+            </a>
+        );
+        })
+    }
+</nav>

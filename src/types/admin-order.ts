@@ -1,162 +1,137 @@
 import type {
-    OrderCarrier,
-    OrderCustomer,
-    OrderFulfillment,
-    OrderFulfillmentStatus,
-    OrderItem,
-    OrderPaymentStatus,
-    OrderRefundRecord,
-    OrderRefundStatus,
-    OrderShippingAddress,
-    OrderStatus,
+  OrderCarrier,
+  OrderCustomer,
+  OrderFulfillment,
+  OrderFulfillmentStatus,
+  OrderItem,
+  OrderPaymentStatus,
+  OrderRefundRecord,
+  OrderRefundStatus,
+  OrderShippingAddress,
+  OrderStatus,
 } from './order';
 
 export interface AdminOrder {
-    sessionId: string;
+  sessionId: string;
 
-    reference: string;
+  reference: string;
 
-    livemode: boolean;
+  livemode: boolean;
 
-    paymentIntentId?: string;
+  paymentIntentId?: string;
 
-    paymentStatus:
-    OrderPaymentStatus;
+  paymentStatus: OrderPaymentStatus;
 
-    orderStatus:
-    OrderStatus;
+  orderStatus: OrderStatus;
 
-    fulfillmentStatus:
-    OrderFulfillmentStatus;
+  fulfillmentStatus: OrderFulfillmentStatus;
 
-    refundStatus:
-    OrderRefundStatus;
+  refundStatus: OrderRefundStatus;
 
-    amountRefunded: number;
+  amountRefunded: number;
 
-    amountRefundPending: number;
+  amountRefundPending: number;
 
-    amountRefundable: number;
+  amountRefundable: number;
 
-    refunds:
-    OrderRefundRecord[];
+  refunds: OrderRefundRecord[];
 
-    customer?:
-    OrderCustomer;
+  customer?: OrderCustomer;
 
-    shippingAddress?:
-    OrderShippingAddress;
+  shippingAddress?: OrderShippingAddress;
 
-    fulfillment?:
-    OrderFulfillment;
+  fulfillment?: OrderFulfillment;
 
-    currency: string;
+  currency: string;
 
-    amountSubtotal: number;
+  amountSubtotal: number;
 
-    amountShipping: number;
+  amountShipping: number;
 
-    amountTax: number;
+  amountTax: number;
 
-    amountDiscount: number;
+  amountDiscount: number;
 
-    amountTotal: number;
+  amountTotal: number;
 
-    items:
-    OrderItem[];
+  items: OrderItem[];
 
-    createdAt: string;
+  createdAt: string;
 
-    updatedAt: string;
+  updatedAt: string;
 }
 
 export interface AdminOrdersSuccessResponse {
-    ok: true;
+  ok: true;
 
-    orders:
-    AdminOrder[];
+  orders: AdminOrder[];
 }
 
 export interface AdminOrdersErrorResponse {
-    ok: false;
+  ok: false;
 
-    message: string;
+  message: string;
 }
 
-export type AdminOrdersResponse =
-    | AdminOrdersSuccessResponse
-    | AdminOrdersErrorResponse;
+export type AdminOrdersResponse = AdminOrdersSuccessResponse | AdminOrdersErrorResponse;
 
-export type AdminOrderAction =
-    | 'save-fulfillment'
-    | 'resend-shipping-email'
-    | 'mark-delivered';
+export type AdminOrderAction = 'save-fulfillment' | 'resend-shipping-email' | 'mark-delivered';
 
 export interface AdminSaveFulfillmentRequest {
-    action:
-    'save-fulfillment';
+  action: 'save-fulfillment';
 
-    sessionId: string;
+  sessionId: string;
 
-    carrier:
-    OrderCarrier;
+  carrier: OrderCarrier;
 
-    service?: string;
+  service?: string;
 
-    trackingNumber: string;
+  trackingNumber: string;
 
-    trackingUrl?: string;
+  trackingUrl?: string;
 
-    postageAmount: number;
+  postageAmount: number;
 
-    sendEmail: boolean;
+  sendEmail: boolean;
 }
 
 export interface AdminResendShippingEmailRequest {
-    action:
-    'resend-shipping-email';
+  action: 'resend-shipping-email';
 
-    sessionId: string;
+  sessionId: string;
 }
 
 export interface AdminMarkDeliveredRequest {
-    action:
-    'mark-delivered';
+  action: 'mark-delivered';
 
-    sessionId: string;
+  sessionId: string;
 }
 
 export type AdminFulfillOrderRequest =
-    | AdminSaveFulfillmentRequest
-    | AdminResendShippingEmailRequest
-    | AdminMarkDeliveredRequest;
+  | AdminSaveFulfillmentRequest
+  | AdminResendShippingEmailRequest
+  | AdminMarkDeliveredRequest;
 
-export type AdminEmailStatus =
-    | 'sent'
-    | 'skipped'
-    | 'failed';
+export type AdminEmailStatus = 'sent' | 'skipped' | 'failed';
 
 export interface AdminFulfillOrderSuccessResponse {
-    ok: true;
+  ok: true;
 
-    action:
-    AdminOrderAction;
+  action: AdminOrderAction;
 
-    order:
-    AdminOrder;
+  order: AdminOrder;
 
-    emailStatus:
-    AdminEmailStatus;
+  emailStatus: AdminEmailStatus;
 
-    message: string;
+  message: string;
 }
 
 export interface AdminFulfillOrderErrorResponse {
-    ok: false;
+  ok: false;
 
-    message: string;
+  message: string;
 }
 
 export type AdminFulfillOrderResponse =
-    | AdminFulfillOrderSuccessResponse
-    | AdminFulfillOrderErrorResponse;
+  | AdminFulfillOrderSuccessResponse
+  | AdminFulfillOrderErrorResponse;

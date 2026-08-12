@@ -4,110 +4,110 @@ import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
 import type { PetGuideTone } from '../../data/pet-guides';
 
 interface Props {
-    title: string;
-    description: string;
-    href: string;
-    tone?: PetGuideTone;
-    eyebrow?: string;
-    linkLabel?: string;
-    class?: string;
+  title: string;
+  description: string;
+  href: string;
+  tone?: PetGuideTone;
+  eyebrow?: string;
+  linkLabel?: string;
+  class?: string;
 }
 
 const {
-    title,
-    description,
-    href,
-    tone = 'brand',
-    eyebrow = 'Pet Guide',
-    linkLabel = 'Read guide',
-    class: className = '',
+  title,
+  description,
+  href,
+  tone = 'brand',
+  eyebrow = 'Pet Guide',
+  linkLabel = 'Read guide',
+  class: className = '',
 } = Astro.props;
 
 const toneClasses: Record<PetGuideTone, string> = {
-    brand: [
-        'border-brand-200',
-        'bg-linear-to-br from-brand-50 via-white-warm to-brand-100/70',
-        'hover:border-brand-300',
-        'focus-visible:border-brand-400',
-    ].join(' '),
+  brand: [
+    'border-brand-200',
+    'bg-linear-to-br from-brand-50 via-white-warm to-brand-100/70',
+    'hover:border-brand-300',
+    'focus-visible:border-brand-400',
+  ].join(' '),
 
-    accent: [
-        'border-accent-200',
-        'bg-linear-to-br from-accent-50 via-white-warm to-accent-100/70',
-        'hover:border-accent-300',
-        'focus-visible:border-accent-400',
-    ].join(' '),
+  accent: [
+    'border-accent-200',
+    'bg-linear-to-br from-accent-50 via-white-warm to-accent-100/70',
+    'hover:border-accent-300',
+    'focus-visible:border-accent-400',
+  ].join(' '),
 
-    sand: [
-        'border-sand-dark/70',
-        'bg-linear-to-br from-cream-soft via-white-warm to-sand/65',
-        'hover:border-sand-dark',
-        'focus-visible:border-sand-dark',
-    ].join(' '),
+  sand: [
+    'border-sand-dark/70',
+    'bg-linear-to-br from-cream-soft via-white-warm to-sand/65',
+    'hover:border-sand-dark',
+    'focus-visible:border-sand-dark',
+  ].join(' '),
 };
 
 const iconClasses: Record<PetGuideTone, string> = {
-    brand: 'bg-brand-500 text-white shadow-blue',
+  brand: 'bg-brand-500 text-white shadow-blue',
 
-    accent: 'bg-accent-500 text-ink-950 shadow-orange',
+  accent: 'bg-accent-500 text-ink-950 shadow-orange',
 
-    sand: 'bg-ink-800 text-white shadow-soft',
+  sand: 'bg-ink-800 text-white shadow-soft',
 };
 ---
 
 <article class="h-full">
-    <a
-        href={href}
-        class:list={[
-        'group relative isolate flex h-full flex-col overflow-hidden rounded-card border p-5 shadow-sm',
-        'transition duration-300 hover:-translate-y-1 hover:shadow-card',
-        'focus-visible:-translate-y-1 focus-visible:outline-none',
-        'focus-visible:ring-4 focus-visible:ring-brand-300',
-        'focus-visible:ring-offset-2 focus-visible:ring-offset-cream-soft',
-        toneClasses[tone],
-        className,
-        ]}
-        aria-label={`${linkLabel}: ${title}`}
+  <a
+    href={href}
+    class:list={[
+      'group relative isolate flex h-full flex-col overflow-hidden rounded-card border p-5 shadow-sm',
+      'transition duration-300 hover:-translate-y-1 hover:shadow-card',
+      'focus-visible:-translate-y-1 focus-visible:outline-none',
+      'focus-visible:ring-4 focus-visible:ring-brand-300',
+      'focus-visible:ring-offset-2 focus-visible:ring-offset-cream-soft',
+      toneClasses[tone],
+      className,
+    ]}
+    aria-label={`${linkLabel}: ${title}`}
+  >
+    <div
+      class="pointer-events-none absolute -top-14 -right-14 size-36 rounded-full bg-white/70 blur-2xl transition duration-300 group-hover:scale-125 group-focus-visible:scale-125"
+      aria-hidden="true"
     >
-        <div
-        class="pointer-events-none absolute -top-14 -right-14 size-36 rounded-full bg-white/70 blur-2xl transition duration-300 group-hover:scale-125 group-focus-visible:scale-125"
+    </div>
+
+    <div class="relative z-10 flex h-full flex-col">
+      <span
+        class:list={[
+          'grid size-12 shrink-0 place-items-center rounded-2xl transition duration-300 sm:size-14',
+          'group-hover:rotate-3 group-hover:scale-105',
+          'group-focus-visible:rotate-3 group-focus-visible:scale-105',
+          '[&>svg]:size-6 sm:[&>svg]:size-7',
+          iconClasses[tone],
+        ]}
         aria-hidden="true"
-        >
-        </div>
+      >
+        <slot name="icon" />
+      </span>
 
-        <div class="relative z-10 flex h-full flex-col">
-        <span
-            class:list={[
-            'grid size-12 shrink-0 place-items-center rounded-2xl transition duration-300 sm:size-14',
-            'group-hover:rotate-3 group-hover:scale-105',
-            'group-focus-visible:rotate-3 group-focus-visible:scale-105',
-            '[&>svg]:size-6 sm:[&>svg]:size-7',
-            iconClasses[tone],
-            ]}
-            aria-hidden="true"
-        >
-            <slot name="icon" />
-        </span>
+      <p class="mt-5 text-xs font-extrabold tracking-[0.09em] text-ink-500 uppercase">
+        {eyebrow}
+      </p>
 
-        <p class="mt-5 text-xs font-extrabold tracking-[0.09em] text-ink-500 uppercase">
-            {eyebrow}
-        </p>
+      <h3 class="mt-2 text-xl text-ink-900 sm:text-2xl">
+        {title}
+      </h3>
 
-        <h3 class="mt-2 text-xl text-ink-900 sm:text-2xl">
-            {title}
-        </h3>
+      <p class="mt-3 flex-1 text-sm leading-6 text-ink-600">
+        {description}
+      </p>
 
-        <p class="mt-3 flex-1 text-sm leading-6 text-ink-600">
-            {description}
-        </p>
+      <span
+        class="mt-5 inline-flex w-fit items-center gap-2 font-extrabold text-brand-700 transition duration-200 group-hover:gap-3 group-hover:text-brand-800 group-focus-visible:gap-3 group-focus-visible:text-brand-800"
+      >
+        <span>{linkLabel}</span>
 
-        <span
-            class="mt-5 inline-flex w-fit items-center gap-2 font-extrabold text-brand-700 transition duration-200 group-hover:gap-3 group-hover:text-brand-800 group-focus-visible:gap-3 group-focus-visible:text-brand-800"
-        >
-            <span>{linkLabel}</span>
-
-            <ArrowRightBold class="size-4" aria-hidden="true" />
-        </span>
-        </div>
-    </a>
+        <ArrowRightBold class="size-4" aria-hidden="true" />
+      </span>
+    </div>
+  </a>
 </article>

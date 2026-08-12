@@ -14,134 +14,134 @@ import { aboutHero } from '../../data/about';
 ---
 
 <section class="relative overflow-hidden" aria-labelledby="about-page-title">
-    <div
-        class="pointer-events-none absolute -top-40 -left-40 size-128 rounded-full bg-brand-300/25 blur-3xl"
-        aria-hidden="true"
-    >
-    </div>
+  <div
+    class="pointer-events-none absolute -top-40 -left-40 size-128 rounded-full bg-brand-300/25 blur-3xl"
+    aria-hidden="true"
+  >
+  </div>
 
-    <div
-        class="pointer-events-none absolute top-10 -right-48 size-136 rounded-full bg-accent-300/25 blur-3xl"
-        aria-hidden="true"
-    >
-    </div>
+  <div
+    class="pointer-events-none absolute top-10 -right-48 size-136 rounded-full bg-accent-300/25 blur-3xl"
+    aria-hidden="true"
+  >
+  </div>
 
-    <div
-        class="site-container-wide grid items-center gap-14 py-14 lg:grid-cols-[1.02fr_0.98fr] lg:py-20"
-    >
-        <!-- Hero copy -->
-        <div class="relative z-10">
-        <Badge variant="accent" size="md">
-            <PawPrintBold slot="icon" aria-hidden="true" />
+  <div
+    class="site-container-wide grid items-center gap-14 py-14 lg:grid-cols-[1.02fr_0.98fr] lg:py-20"
+  >
+    <!-- Hero copy -->
+    <div class="relative z-10">
+      <Badge variant="accent" size="md">
+        <PawPrintBold slot="icon" aria-hidden="true" />
 
-            {aboutHero.eyebrow}
-        </Badge>
+        {aboutHero.eyebrow}
+      </Badge>
 
-        <h1
-            id="about-page-title"
-            class="mt-7 max-w-3xl text-5xl text-ink-900 sm:text-6xl lg:text-7xl"
-        >
-            Meet Maxi, the heart behind{' '}
-            <span class="text-brand-gradient"> Maxi Pawz. </span>
-        </h1>
+      <h1
+        id="about-page-title"
+        class="mt-7 max-w-3xl text-5xl text-ink-900 sm:text-6xl lg:text-7xl"
+      >
+        Meet Maxi, the heart behind{' '}
+        <span class="text-brand-gradient"> Maxi Pawz. </span>
+      </h1>
 
-        <p class="mt-7 max-w-2xl text-lg leading-8 text-ink-600 sm:text-xl">
-            {aboutHero.description}
-        </p>
+      <p class="mt-7 max-w-2xl text-lg leading-8 text-ink-600 sm:text-xl">
+        {aboutHero.description}
+      </p>
 
-        <div class="mt-9 flex flex-col gap-3 sm:flex-row">
-            <Button href="#maxis-story" variant="primary" size="lg" iconPosition="right">
-            <ArrowRightBold slot="icon" aria-hidden="true" />
+      <div class="mt-9 flex flex-col gap-3 sm:flex-row">
+        <Button href="#maxis-story" variant="primary" size="lg" iconPosition="right">
+          <ArrowRightBold slot="icon" aria-hidden="true" />
 
-            Discover Maxi’s Story
+          Discover Maxi’s Story
+        </Button>
+
+        {
+          isStoreLive ? (
+            <Button href="/shop" variant="secondary" size="lg" iconPosition="right">
+              <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
+              Explore the Shop
             </Button>
+          ) : (
+            <Button href="/#join-the-pack" variant="secondary" size="lg" iconPosition="right">
+              <HeartBold slot="icon" aria-hidden="true" />
+              Join the Pack
+            </Button>
+          )
+        }
+      </div>
 
-            {
-            isStoreLive ? (
-                <Button href="/shop" variant="secondary" size="lg" iconPosition="right">
-                <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
-                Explore the Shop
-                </Button>
-            ) : (
-                <Button href="/#join-the-pack" variant="secondary" size="lg" iconPosition="right">
-                <HeartBold slot="icon" aria-hidden="true" />
-                Join the Pack
-                </Button>
-            )
-            }
-        </div>
+      <div class="mt-10 flex flex-wrap gap-x-7 gap-y-3 text-sm font-bold text-ink-600">
+        {
+          aboutHero.highlights.map((highlight) => (
+            <span class="inline-flex items-center gap-2">
+              <CheckCircleFill class="size-5 shrink-0 text-brand-500" aria-hidden="true" />
 
-        <div class="mt-10 flex flex-wrap gap-x-7 gap-y-3 text-sm font-bold text-ink-600">
-            {
-            aboutHero.highlights.map((highlight) => (
-                <span class="inline-flex items-center gap-2">
-                <CheckCircleFill class="size-5 shrink-0 text-brand-500" aria-hidden="true" />
-
-                {highlight}
-                </span>
-            ))
-            }
-        </div>
-        </div>
-
-        <!-- Maxi artwork -->
-        <div class="relative mx-auto w-full max-w-xl">
-        <div
-            class="pointer-events-none absolute inset-8 -z-10 rounded-full bg-linear-to-br from-brand-300/55 via-cream to-accent-300/55 blur-3xl"
-            aria-hidden="true"
-        >
-        </div>
-
-        <div
-            class="relative overflow-hidden rounded-[3rem] border-4 border-white-warm bg-linear-to-br from-brand-100 via-cream-soft to-accent-100 p-4 shadow-2xl shadow-ink-950/15"
-        >
-            <div class="relative aspect-4/5 overflow-hidden rounded-[2.35rem] bg-white-warm">
-                <BrandLogo variant="maxi" class="size-full object-cover" eager={true} />
-
-                <div
-                    class="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-linear-to-t from-ink-950/70 to-transparent"
-                    aria-hidden="true"
-                >
-                </div>
-
-                <div
-                    class="absolute right-5 bottom-5 left-5 rounded-3xl border border-white/25 bg-ink-950/85 p-5 text-white shadow-xl backdrop-blur-md"
-                >
-                    <div class="flex items-center gap-4">
-                        <span
-                            class="grid size-12 shrink-0 place-items-center rounded-2xl bg-accent-500 text-ink-950 shadow-orange"
-                            aria-hidden="true"
-                        >
-                            <PawPrintBold class="size-6" />
-                        </span>
-
-                        <div>
-                            <p class="font-display text-xl leading-tight text-white sm:text-2xl">
-                            The original Maxi Paw.
-                            </p>
-
-                            <p class="mt-1 text-sm leading-5 text-white/70">
-                            The real dog who inspired our name, mascot, and mission.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <span
-            class="absolute -top-4 -right-2 grid size-20 rotate-6 place-items-center rounded-4xl border-4 border-cream-soft bg-white-warm shadow-blue sm:size-24"
-            aria-hidden="true"
-        >
-            <BrandLogo variant="mark" class="size-12 object-contain sm:size-14" />
-        </span>
-
-        <span
-            class="absolute -bottom-4 -left-2 grid size-16 -rotate-6 place-items-center rounded-[1.6rem] border-4 border-cream-soft bg-brand-500 text-white shadow-blue sm:size-20"
-            aria-hidden="true"
-        >
-            <HeartBold class="size-8 sm:size-9" />
-        </span>
-        </div>
+              {highlight}
+            </span>
+          ))
+        }
+      </div>
     </div>
+
+    <!-- Maxi artwork -->
+    <div class="relative mx-auto w-full max-w-xl">
+      <div
+        class="pointer-events-none absolute inset-8 -z-10 rounded-full bg-linear-to-br from-brand-300/55 via-cream to-accent-300/55 blur-3xl"
+        aria-hidden="true"
+      >
+      </div>
+
+      <div
+        class="relative overflow-hidden rounded-[3rem] border-4 border-white-warm bg-linear-to-br from-brand-100 via-cream-soft to-accent-100 p-4 shadow-2xl shadow-ink-950/15"
+      >
+        <div class="relative aspect-4/5 overflow-hidden rounded-[2.35rem] bg-white-warm">
+          <BrandLogo variant="maxi" class="size-full object-cover" eager={true} />
+
+          <div
+            class="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-linear-to-t from-ink-950/70 to-transparent"
+            aria-hidden="true"
+          >
+          </div>
+
+          <div
+            class="absolute right-5 bottom-5 left-5 rounded-3xl border border-white/25 bg-ink-950/85 p-5 text-white shadow-xl backdrop-blur-md"
+          >
+            <div class="flex items-center gap-4">
+              <span
+                class="grid size-12 shrink-0 place-items-center rounded-2xl bg-accent-500 text-ink-950 shadow-orange"
+                aria-hidden="true"
+              >
+                <PawPrintBold class="size-6" />
+              </span>
+
+              <div>
+                <p class="font-display text-xl leading-tight text-white sm:text-2xl">
+                  The original Maxi Paw.
+                </p>
+
+                <p class="mt-1 text-sm leading-5 text-white/70">
+                  The real dog who inspired our name, mascot, and mission.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <span
+        class="absolute -top-4 -right-2 grid size-20 rotate-6 place-items-center rounded-4xl border-4 border-cream-soft bg-white-warm shadow-blue sm:size-24"
+        aria-hidden="true"
+      >
+        <BrandLogo variant="mark" class="size-12 object-contain sm:size-14" />
+      </span>
+
+      <span
+        class="absolute -bottom-4 -left-2 grid size-16 -rotate-6 place-items-center rounded-[1.6rem] border-4 border-cream-soft bg-brand-500 text-white shadow-blue sm:size-20"
+        aria-hidden="true"
+      >
+        <HeartBold class="size-8 sm:size-9" />
+      </span>
+    </div>
+  </div>
 </section>

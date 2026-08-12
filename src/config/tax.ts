@@ -1,26 +1,19 @@
-export type StripeTaxBehavior =
-    | 'exclusive';
+export type StripeTaxBehavior = 'exclusive';
 
 export const taxConfig = {
-    salesCountry: 'US',
+  salesCountry: 'US',
 
-    salesCountryLabel:
-        'United States',
+  salesCountryLabel: 'United States',
 
-    stripeCurrency: 'usd',
+  stripeCurrency: 'usd',
 
-    productTaxCode:
-        'txcd_99999999',
+  productTaxCode: 'txcd_99999999',
 
-    productTaxCodeLabel:
-        'General - Tangible Goods',
+  productTaxCodeLabel: 'General - Tangible Goods',
 
-    shippingTaxCode:
-        'txcd_92010001',
+  shippingTaxCode: 'txcd_92010001',
 
-    shippingTaxCodeLabel:
-        'Shipping',
+  shippingTaxCodeLabel: 'Shipping',
 
-    taxBehavior:
-        'exclusive' as StripeTaxBehavior,
+  taxBehavior: 'exclusive' as StripeTaxBehavior,
 } as const;

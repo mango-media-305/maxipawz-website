@@ -1,284 +1,246 @@
 export type TransactionalEmailKind =
-    | 'customer-order-confirmation'
-    | 'internal-new-order'
-    | 'customer-shipping-confirmation';
+  | 'customer-order-confirmation'
+  | 'internal-new-order'
+  | 'customer-shipping-confirmation';
 
-export type MarketingEmailKind =
-    'welcome-to-the-pack';
+export type MarketingEmailKind = 'welcome-to-the-pack';
 
-export type MarketingEmailDataMode =
-    | 'test'
-    | 'live';
+export type MarketingEmailDataMode = 'test' | 'live';
 
-export type EmailDeliveryStatus =
-    | 'sent'
-    | 'failed';
+export type EmailDeliveryStatus = 'sent' | 'failed';
 
 export interface EmailDeliveryRecord {
-    version: 1;
+  version: 1;
 
-    kind:
-        TransactionalEmailKind;
+  kind: TransactionalEmailKind;
 
-    sessionId: string;
+  sessionId: string;
 
-    recipient: string;
+  recipient: string;
 
-    status:
-        EmailDeliveryStatus;
+  status: EmailDeliveryStatus;
 
-    provider:
-        'resend';
+  provider: 'resend';
 
-    providerMessageId?: string;
+  providerMessageId?: string;
 
-    attemptCount: number;
+  attemptCount: number;
 
-    lastError?: string;
+  lastError?: string;
 
-    createdAt: string;
+  createdAt: string;
 
-    updatedAt: string;
+  updatedAt: string;
 }
 
 export interface MarketingEmailDeliveryRecord {
-    version: 1;
+  version: 1;
 
-    kind:
-        MarketingEmailKind;
+  kind: MarketingEmailKind;
 
-    emailHash: string;
+  emailHash: string;
 
-    dataMode:
-        MarketingEmailDataMode;
+  dataMode: MarketingEmailDataMode;
 
-    intendedRecipient: string;
+  intendedRecipient: string;
 
-    recipient: string;
+  recipient: string;
 
-    status:
-        EmailDeliveryStatus;
+  status: EmailDeliveryStatus;
 
-    provider:
-        'resend';
+  provider: 'resend';
 
-    providerMessageId?: string;
+  providerMessageId?: string;
 
-    attemptCount: number;
+  attemptCount: number;
 
-    lastError?: string;
+  lastError?: string;
 
-    createdAt: string;
+  createdAt: string;
 
-    updatedAt: string;
+  updatedAt: string;
 }
 
-export type PaidOrderEmailJobStatus =
-    | 'queued'
-    | 'processing'
-    | 'completed'
-    | 'failed';
+export type PaidOrderEmailJobStatus = 'queued' | 'processing' | 'completed' | 'failed';
 
 export interface PaidOrderEmailJobRecord {
-    version: 1;
+  version: 1;
 
-    sessionId: string;
+  sessionId: string;
 
-    livemode: boolean;
+  livemode: boolean;
 
-    status:
-        PaidOrderEmailJobStatus;
+  status: PaidOrderEmailJobStatus;
 
-    attemptCount: number;
+  attemptCount: number;
 
-    lastError?: string;
+  lastError?: string;
 
-    createdAt: string;
+  createdAt: string;
 
-    updatedAt: string;
+  updatedAt: string;
 
-    completedAt?: string;
+  completedAt?: string;
 }
 
-export type WelcomeEmailJobStatus =
-    | 'queued'
-    | 'processing'
-    | 'completed'
-    | 'failed'
-    | 'skipped';
+export type WelcomeEmailJobStatus = 'queued' | 'processing' | 'completed' | 'failed' | 'skipped';
 
 export interface WelcomeEmailJobRecord {
-    version: 1;
+  version: 1;
 
-    emailHash: string;
+  emailHash: string;
 
-    dataMode:
-        MarketingEmailDataMode;
+  dataMode: MarketingEmailDataMode;
 
-    status:
-        WelcomeEmailJobStatus;
+  status: WelcomeEmailJobStatus;
 
-    attemptCount: number;
+  attemptCount: number;
 
-    lastError?: string;
+  lastError?: string;
 
-    skipReason?: string;
+  skipReason?: string;
 
-    createdAt: string;
+  createdAt: string;
 
-    updatedAt: string;
+  updatedAt: string;
 
-    completedAt?: string;
+  completedAt?: string;
 
-    skippedAt?: string;
+  skippedAt?: string;
 }
 
 export type ResendTrackedEmailEventType =
-    | 'email.sent'
-    | 'email.delivered'
-    | 'email.delivery_delayed'
-    | 'email.bounced'
-    | 'email.complained'
-    | 'email.failed'
-    | 'email.suppressed';
+  | 'email.sent'
+  | 'email.delivered'
+  | 'email.delivery_delayed'
+  | 'email.bounced'
+  | 'email.complained'
+  | 'email.failed'
+  | 'email.suppressed';
 
 export type ResendEmailDeliveryStatus =
-    | 'sent'
-    | 'delivered'
-    | 'delivery-delayed'
-    | 'bounced'
-    | 'complained'
-    | 'failed'
-    | 'suppressed';
+  | 'sent'
+  | 'delivered'
+  | 'delivery-delayed'
+  | 'bounced'
+  | 'complained'
+  | 'failed'
+  | 'suppressed';
 
-export type ResendWebhookEventOutcome =
-    | 'processed'
-    | 'ignored';
+export type ResendWebhookEventOutcome = 'processed' | 'ignored';
 
 export interface ProcessedResendWebhookEventRecord {
-    version: 1;
+  version: 1;
 
-    eventId: string;
+  eventId: string;
 
-    eventType: string;
+  eventType: string;
 
-    providerMessageId?: string;
+  providerMessageId?: string;
 
-    kind?:
-        | TransactionalEmailKind
-        | MarketingEmailKind;
+  kind?: TransactionalEmailKind | MarketingEmailKind;
 
-    sessionId?: string;
+  sessionId?: string;
 
-    livemode?: boolean;
+  livemode?: boolean;
 
-    emailHash?: string;
+  emailHash?: string;
 
-    dataMode?:
-        MarketingEmailDataMode;
+  dataMode?: MarketingEmailDataMode;
 
-    recipients?: string[];
+  recipients?: string[];
 
-    deliveryStatus?:
-        ResendEmailDeliveryStatus;
+  deliveryStatus?: ResendEmailDeliveryStatus;
 
-    outcome:
-        ResendWebhookEventOutcome;
+  outcome: ResendWebhookEventOutcome;
 
-    reason?: string;
+  reason?: string;
 
-    eventCreatedAt: string;
+  eventCreatedAt: string;
 
-    receivedAt: string;
+  receivedAt: string;
 }
 
 export interface ResendEmailStatusRecord {
-    version: 1;
+  version: 1;
 
-    providerMessageId: string;
+  providerMessageId: string;
 
-    kind:
-        TransactionalEmailKind;
+  kind: TransactionalEmailKind;
 
-    sessionId: string;
+  sessionId: string;
 
-    livemode: boolean;
+  livemode: boolean;
 
-    recipients: string[];
+  recipients: string[];
 
-    status:
-        ResendEmailDeliveryStatus;
+  status: ResendEmailDeliveryStatus;
 
-    lastEventId: string;
+  lastEventId: string;
 
-    lastEventType:
-        ResendTrackedEmailEventType;
+  lastEventType: ResendTrackedEmailEventType;
 
-    lastEventCreatedAt: string;
+  lastEventCreatedAt: string;
 
-    lastReason?: string;
+  lastReason?: string;
 
-    sentAt?: string;
+  sentAt?: string;
 
-    deliveredAt?: string;
+  deliveredAt?: string;
 
-    deliveryDelayedAt?: string;
+  deliveryDelayedAt?: string;
 
-    bouncedAt?: string;
+  bouncedAt?: string;
 
-    complainedAt?: string;
+  complainedAt?: string;
 
-    failedAt?: string;
+  failedAt?: string;
 
-    suppressedAt?: string;
+  suppressedAt?: string;
 
-    createdAt: string;
+  createdAt: string;
 
-    updatedAt: string;
+  updatedAt: string;
 }
 
 export interface ResendMarketingEmailStatusRecord {
-    version: 1;
+  version: 1;
 
-    providerMessageId: string;
+  providerMessageId: string;
 
-    kind:
-        MarketingEmailKind;
+  kind: MarketingEmailKind;
 
-    emailHash: string;
+  emailHash: string;
 
-    dataMode:
-        MarketingEmailDataMode;
+  dataMode: MarketingEmailDataMode;
 
-    recipients: string[];
+  recipients: string[];
 
-    status:
-        ResendEmailDeliveryStatus;
+  status: ResendEmailDeliveryStatus;
 
-    lastEventId: string;
+  lastEventId: string;
 
-    lastEventType:
-        ResendTrackedEmailEventType;
+  lastEventType: ResendTrackedEmailEventType;
 
-    lastEventCreatedAt: string;
+  lastEventCreatedAt: string;
 
-    lastReason?: string;
+  lastReason?: string;
 
-    sentAt?: string;
+  sentAt?: string;
 
-    deliveredAt?: string;
+  deliveredAt?: string;
 
-    deliveryDelayedAt?: string;
+  deliveryDelayedAt?: string;
 
-    bouncedAt?: string;
+  bouncedAt?: string;
 
-    complainedAt?: string;
+  complainedAt?: string;
 
-    failedAt?: string;
+  failedAt?: string;
 
-    suppressedAt?: string;
+  suppressedAt?: string;
 
-    createdAt: string;
+  createdAt: string;
 
-    updatedAt: string;
+  updatedAt: string;
 }

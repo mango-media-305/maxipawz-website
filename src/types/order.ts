@@ -1,12 +1,6 @@
-export type OrderPaymentStatus =
-  | 'processing'
-  | 'paid'
-  | 'failed';
+export type OrderPaymentStatus = 'processing' | 'paid' | 'failed';
 
-export type OrderStatus =
-  | 'pending'
-  | 'confirmed'
-  | 'payment-failed';
+export type OrderStatus = 'pending' | 'confirmed' | 'payment-failed';
 
 export type OrderFulfillmentStatus =
   | 'unfulfilled'
@@ -15,34 +9,25 @@ export type OrderFulfillmentStatus =
   | 'delivered'
   | 'cancelled';
 
-export type OrderCheckoutMode =
-  | 'test'
-  | 'live';
+export type OrderCheckoutMode = 'test' | 'live';
 
-export type OrderCartSource =
-  | 'storefront-cart'
-  | 'stripe-fixture-script'
-  | 'unknown';
+export type OrderCartSource = 'storefront-cart' | 'stripe-fixture-script' | 'unknown';
 
 export type SupportedCheckoutEventType =
   | 'checkout.session.completed'
   | 'checkout.session.async_payment_succeeded'
   | 'checkout.session.async_payment_failed';
 
-export type SupportedRefundEventType =
-  | 'refund.created'
-  | 'refund.updated'
-  | 'refund.failed';
+export type SupportedCheckoutExpirationEventType = 'checkout.session.expired';
+
+export type SupportedRefundEventType = 'refund.created' | 'refund.updated' | 'refund.failed';
 
 export type SupportedStripeEventType =
   | SupportedCheckoutEventType
+  | SupportedCheckoutExpirationEventType
   | SupportedRefundEventType;
 
-export type OrderCarrier =
-  | 'USPS'
-  | 'UPS'
-  | 'FedEx'
-  | 'Other';
+export type OrderCarrier = 'USPS' | 'UPS' | 'FedEx' | 'Other';
 
 export type OrderRefundStatus =
   | 'none'
@@ -140,8 +125,7 @@ export interface OrderRefundRecord {
 
   currency: string;
 
-  status:
-  OrderRefundEntryStatus;
+  status: OrderRefundEntryStatus;
 
   reason?: string;
 
@@ -173,33 +157,25 @@ export interface OrderRecord {
 
   cartReference: string;
 
-  cartSource:
-  OrderCartSource;
+  cartSource: OrderCartSource;
 
-  checkoutMode:
-  OrderCheckoutMode;
+  checkoutMode: OrderCheckoutMode;
 
   livemode: boolean;
 
   paymentIntentId?: string;
 
-  paymentStatus:
-  OrderPaymentStatus;
+  paymentStatus: OrderPaymentStatus;
 
-  orderStatus:
-  OrderStatus;
+  orderStatus: OrderStatus;
 
-  fulfillmentStatus:
-  OrderFulfillmentStatus;
+  fulfillmentStatus: OrderFulfillmentStatus;
 
-  fulfillment?:
-  OrderFulfillment;
+  fulfillment?: OrderFulfillment;
 
-  customer?:
-  OrderCustomer;
+  customer?: OrderCustomer;
 
-  shippingAddress?:
-  OrderShippingAddress;
+  shippingAddress?: OrderShippingAddress;
 
   stripeSessionStatus?: string;
 
@@ -220,8 +196,7 @@ export interface OrderRecord {
 
   amountDiscount: number;
 
-  refundStatus:
-  OrderRefundStatus;
+  refundStatus: OrderRefundStatus;
 
   /**
    * Total amount from refunds whose Stripe status
@@ -240,17 +215,13 @@ export interface OrderRecord {
    */
   amountRefundable: number;
 
-  refunds:
-  OrderRefundRecord[];
+  refunds: OrderRefundRecord[];
 
-  items:
-  OrderItem[];
+  items: OrderItem[];
 
-  processedEventIds:
-  string[];
+  processedEventIds: string[];
 
-  lastEventType:
-  SupportedStripeEventType;
+  lastEventType: SupportedStripeEventType;
 
   lastEventCreated: number;
 
@@ -264,8 +235,7 @@ export interface ProcessedStripeEvent {
 
   eventId: string;
 
-  eventType:
-  SupportedStripeEventType;
+  eventType: SupportedStripeEventType;
 
   sessionId: string;
 
@@ -274,27 +244,20 @@ export interface ProcessedStripeEvent {
   processedAt: string;
 }
 
-export type PublicOrderState =
-  | 'processing'
-  | 'confirmed'
-  | 'failed';
+export type PublicOrderState = 'processing' | 'confirmed' | 'failed';
 
 export interface OrderStatusSuccessResponse {
   ok: true;
 
   sessionId: string;
 
-  status:
-  PublicOrderState;
+  status: PublicOrderState;
 
-  paymentStatus:
-  OrderPaymentStatus;
+  paymentStatus: OrderPaymentStatus;
 
-  orderStatus:
-  OrderStatus;
+  orderStatus: OrderStatus;
 
-  fulfillmentStatus:
-  OrderFulfillmentStatus;
+  fulfillmentStatus: OrderFulfillmentStatus;
 
   livemode: boolean;
 
@@ -312,14 +275,9 @@ export interface OrderStatusSuccessResponse {
 export interface OrderStatusErrorResponse {
   ok: false;
 
-  status:
-  | 'invalid-request'
-  | 'not-found'
-  | 'service-unavailable';
+  status: 'invalid-request' | 'not-found' | 'service-unavailable';
 
   message: string;
 }
 
-export type OrderStatusResponse =
-  | OrderStatusSuccessResponse
-  | OrderStatusErrorResponse;
+export type OrderStatusResponse = OrderStatusSuccessResponse | OrderStatusErrorResponse;

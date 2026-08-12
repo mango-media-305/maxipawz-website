@@ -9,16 +9,18 @@ import ProductImage from './ProductImage.astro';
 import type { Product, ProductAvailability } from '../../types/product';
 
 import {
-    formatPetType,
-    formatProductPrice,
-    getAvailabilityLabel,
-    getCategoryLabel,
-    getPrimaryProductImage,
+  formatPetType,
+  formatProductPrice,
+  getAvailabilityLabel,
+  getCategoryLabel,
+  getPrimaryProductImage,
 } from '../../utils/products';
 
+import { productHasTrackedInventory } from '../../utils/product-inventory';
+
 interface Props {
-    product: Product;
-    index?: number;
+  product: Product;
+  index?: number;
 }
 
 const { product, index = 0 } = Astro.props;
@@ -30,156 +32,163 @@ const categoryLabel = getCategoryLabel(product.category);
 const petTypeLabel = product.petTypes.map((petType) => formatPetType(petType)).join(' · ');
 
 const searchableText = [
-    product.name,
-    product.shortDescription,
-    categoryLabel,
-    ...product.tags,
-    ...product.petTypes.map((petType) => formatPetType(petType)),
-    ...(product.searchKeywords ?? []),
-    ]
-    .join(' ')
-    .toLowerCase();
+  product.name,
+  product.shortDescription,
+  categoryLabel,
+  ...product.tags,
+  ...product.petTypes.map((petType) => formatPetType(petType)),
+  ...(product.searchKeywords ?? []),
+]
+  .join(' ')
+  .toLowerCase();
 
 const isOnSale = Boolean(
-    product.price && product.compareAtPrice && product.compareAtPrice.amount > product.price.amount,
+  product.price && product.compareAtPrice && product.compareAtPrice.amount > product.price.amount,
 );
 
 const availabilityClasses: Record<ProductAvailability, string> = {
-    'coming-soon': 'border-brand-200 bg-brand-50 text-brand-700',
+  'coming-soon': 'border-brand-200 bg-brand-50 text-brand-700',
 
-    'in-stock': 'border-success-100 bg-success-50 text-success-700',
+  'in-stock': 'border-success-100 bg-success-50 text-success-700',
 
-    'out-of-stock': 'border-sand-dark bg-sand-light text-ink-700',
+  'out-of-stock': 'border-sand-dark bg-sand-light text-ink-700',
 
-    discontinued: 'border-danger-100 bg-danger-50 text-danger-700',
+  discontinued: 'border-danger-100 bg-danger-50 text-danger-700',
 };
+
+const showStaticAvailabilityBadge =
+  product.availability !== 'in-stock' || !productHasTrackedInventory(product);
 ---
 
 <article
-    data-product-card
-    data-product-name={product.name.toLowerCase()}
-    data-product-search={searchableText}
-    data-product-category={product.category}
-    data-product-pets={product.petTypes.join(',')}
-    data-product-availability={product.availability}
-    data-product-price={product.price?.amount ?? ''}
-    data-product-featured={String(product.featured ?? false)}
-    data-product-order={index}
-    class="group h-full"
+  data-product-card
+  data-product-name={product.name.toLowerCase()}
+  data-product-search={searchableText}
+  data-product-category={product.category}
+  data-product-pets={product.petTypes.join(',')}
+  data-product-availability={product.availability}
+  data-product-price={product.price?.amount ?? ''}
+  data-product-featured={String(product.featured ?? false)}
+  data-product-order={index}
+  class="group h-full"
 >
-    <div
-        class="flex h-full flex-col overflow-hidden rounded-card-lg border border-sand bg-white-warm shadow-card transition duration-300 hover:-translate-y-1 hover:border-brand-300 hover:shadow-card-hover"
+  <div
+    class="flex h-full flex-col overflow-hidden rounded-card-lg border border-sand bg-white-warm shadow-card transition duration-300 hover:-translate-y-1 hover:border-brand-300 hover:shadow-card-hover"
+  >
+    <a
+      href={`/shop/${product.slug}`}
+      class="relative block overflow-hidden focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-brand-200"
+      aria-label={`View ${product.name}`}
     >
-        <a
-        href={`/shop/${product.slug}`}
-        class="relative block overflow-hidden focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-brand-200"
-        aria-label={`View ${product.name}`}
-        >
-        <ProductImage
-            image={primaryImage}
-            variant="card"
-            class="aspect-square"
-            imageClass="transition duration-500 group-hover:scale-[1.04]"
-        />
+      <ProductImage
+        image={primaryImage}
+        variant="card"
+        class="aspect-square"
+        imageClass="transition duration-500 group-hover:scale-[1.04]"
+      />
 
-        <div class="absolute top-4 left-4 flex max-w-[calc(100%-2rem)] flex-wrap gap-2">
-            {
-            product.isDemo && (
-                <span class="inline-flex items-center rounded-full border border-ink-700 bg-ink-950/90 px-3 py-1.5 text-xs font-extrabold text-white shadow-sm backdrop-blur">
-                Demo
-                </span>
-            )
-            }
-
-            {
-            product.featured && (
-                <span class="inline-flex items-center gap-1.5 rounded-full border border-accent-200 bg-accent-50/95 px-3 py-1.5 text-xs font-extrabold text-accent-800 shadow-sm backdrop-blur">
-                <SparkleBold class="size-3.5" aria-hidden="true" />
-                Featured
-                </span>
-            )
-            }
-
-            {
-            isOnSale && (
-                <span class="rounded-full border border-danger-100 bg-danger-50/95 px-3 py-1.5 text-xs font-extrabold text-danger-700 shadow-sm backdrop-blur">
-                Sale
-                </span>
-            )
-            }
-        </div>
-
-        <span
-            class:list={[
-            'absolute right-4 bottom-4 rounded-full border px-3 py-1.5 text-xs font-extrabold shadow-sm backdrop-blur',
-
-            availabilityClasses[product.availability],
-            ]}
-        >
-            {getAvailabilityLabel(product.availability)}
-        </span>
-        </a>
-
-        <div class="flex flex-1 flex-col p-5">
-        <div
-            class="flex items-center gap-2 text-xs font-extrabold tracking-[0.07em] text-brand-700 uppercase"
-        >
-            <PawPrintBold class="size-4" aria-hidden="true" />
-
-            {categoryLabel}
-        </div>
-
-        <a
-            href={`/shop/${product.slug}`}
-            class="mt-3 rounded-xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-200"
-        >
-            <h2 class="text-2xl text-ink-900 transition hover:text-brand-800">
-            {product.name}
-            </h2>
-        </a>
-
+      <div class="absolute top-4 left-4 flex max-w-[calc(100%-2rem)] flex-wrap gap-2">
         {
-            petTypeLabel && (
-            <p class="mt-2 text-xs font-extrabold tracking-wider text-ink-500 uppercase">
-                For {petTypeLabel}
-            </p>
-            )
+          product.isDemo && (
+            <span class="inline-flex items-center rounded-full border border-ink-700 bg-ink-950/90 px-3 py-1.5 text-xs font-extrabold text-white shadow-sm backdrop-blur">
+              Demo
+            </span>
+          )
         }
 
-        <p class="mt-3 line-clamp-3 flex-1 text-sm leading-6 text-ink-600">
-            {product.shortDescription}
-        </p>
+        {
+          product.featured && (
+            <span class="inline-flex items-center gap-1.5 rounded-full border border-accent-200 bg-accent-50/95 px-3 py-1.5 text-xs font-extrabold text-accent-800 shadow-sm backdrop-blur">
+              <SparkleBold class="size-3.5" aria-hidden="true" />
+              Featured
+            </span>
+          )
+        }
 
-        <div class="mt-5 border-t border-sand/80 pt-5">
-            <p class="text-xs font-extrabold tracking-[0.07em] text-ink-500 uppercase">Demo price</p>
+        {
+          isOnSale && (
+            <span class="rounded-full border border-danger-100 bg-danger-50/95 px-3 py-1.5 text-xs font-extrabold text-danger-700 shadow-sm backdrop-blur">
+              Sale
+            </span>
+          )
+        }
+      </div>
 
-            <div class="mt-1 flex flex-wrap items-baseline gap-2">
-            <p class="text-xl font-black text-ink-900">
-                {product.price ? formatProductPrice(product.price) : 'Coming soon'}
-            </p>
+      {
+        showStaticAvailabilityBadge && (
+          <span
+            class:list={[
+              'absolute right-4 bottom-4 rounded-full border px-3 py-1.5 text-xs font-extrabold shadow-sm backdrop-blur',
 
-            {
-                isOnSale && product.compareAtPrice && (
-                <span class="text-sm font-bold text-ink-400 line-through">
-                    {formatProductPrice(product.compareAtPrice)}
-                </span>
-                )
-            }
-            </div>
+              availabilityClasses[product.availability],
+            ]}
+          >
+            {getAvailabilityLabel(product.availability)}
+          </span>
+        )
+      }
+    </a>
 
-            <div class="mt-4">
-            <AddToCartButton productSlug={product.slug} mode="card" client:visible />
-            </div>
+    <div class="flex flex-1 flex-col p-5">
+      <div
+        class="flex items-center gap-2 text-xs font-extrabold tracking-[0.07em] text-brand-700 uppercase"
+      >
+        <PawPrintBold class="size-4" aria-hidden="true" />
 
-            <a
-            href={`/shop/${product.slug}`}
-            class="mt-2 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-full text-sm font-extrabold text-brand-700 transition hover:gap-3 hover:bg-brand-50 hover:text-brand-800"
-            >
-            View Details
+        {categoryLabel}
+      </div>
 
-            <ArrowRightBold class="size-4" aria-hidden="true" />
-            </a>
+      <a
+        href={`/shop/${product.slug}`}
+        class="mt-3 rounded-xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-200"
+      >
+        <h2 class="text-2xl text-ink-900 transition hover:text-brand-800">
+          {product.name}
+        </h2>
+      </a>
+
+      {
+        petTypeLabel && (
+          <p class="mt-2 text-xs font-extrabold tracking-wider text-ink-500 uppercase">
+            For {petTypeLabel}
+          </p>
+        )
+      }
+
+      <p class="mt-3 line-clamp-3 flex-1 text-sm leading-6 text-ink-600">
+        {product.shortDescription}
+      </p>
+
+      <div class="mt-5 border-t border-sand/80 pt-5">
+        <p class="text-xs font-extrabold tracking-[0.07em] text-ink-500 uppercase">Demo price</p>
+
+        <div class="mt-1 flex flex-wrap items-baseline gap-2">
+          <p class="text-xl font-black text-ink-900">
+            {product.price ? formatProductPrice(product.price) : 'Coming soon'}
+          </p>
+
+          {
+            isOnSale && product.compareAtPrice && (
+              <span class="text-sm font-bold text-ink-400 line-through">
+                {formatProductPrice(product.compareAtPrice)}
+              </span>
+            )
+          }
         </div>
+
+        <div class="mt-4">
+          <AddToCartButton productSlug={product.slug} mode="card" client:visible />
         </div>
+
+        <a
+          href={`/shop/${product.slug}`}
+          class="mt-2 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-full text-sm font-extrabold text-brand-700 transition hover:gap-3 hover:bg-brand-50 hover:text-brand-800"
+        >
+          View Details
+
+          <ArrowRightBold class="size-4" aria-hidden="true" />
+        </a>
+      </div>
     </div>
+  </div>
 </article>

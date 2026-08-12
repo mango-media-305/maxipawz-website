@@ -6,89 +6,89 @@ type ButtonType = 'button' | 'submit' | 'reset';
 type LinkTarget = '_blank' | '_self' | '_parent' | '_top';
 
 interface Props {
-    href?: string;
-    type?: ButtonType;
-    variant?: Variant;
-    size?: Size;
-    iconPosition?: IconPosition;
-    fullWidth?: boolean;
-    external?: boolean;
-    disabled?: boolean;
-    class?: string;
-    ariaLabel?: string;
-    target?: LinkTarget;
-    rel?: string;
-    name?: string;
-    value?: string;
+  href?: string;
+  type?: ButtonType;
+  variant?: Variant;
+  size?: Size;
+  iconPosition?: IconPosition;
+  fullWidth?: boolean;
+  external?: boolean;
+  disabled?: boolean;
+  class?: string;
+  ariaLabel?: string;
+  target?: LinkTarget;
+  rel?: string;
+  name?: string;
+  value?: string;
 }
 
 const {
-    href,
-    type = 'button',
-    variant = 'primary',
-    size = 'md',
-    iconPosition = 'left',
-    fullWidth = false,
-    external = false,
-    disabled = false,
-    class: className = '',
-    ariaLabel,
-    target,
-    rel,
-    name,
-    value,
+  href,
+  type = 'button',
+  variant = 'primary',
+  size = 'md',
+  iconPosition = 'left',
+  fullWidth = false,
+  external = false,
+  disabled = false,
+  class: className = '',
+  ariaLabel,
+  target,
+  rel,
+  name,
+  value,
 } = Astro.props;
 
 const hasIcon = Astro.slots.has('icon');
 
 const baseClasses = [
-    'group relative isolate inline-flex items-center justify-center overflow-hidden rounded-full border',
-    'font-extrabold leading-none tracking-[-0.01em]',
-    'transition duration-200 ease-out',
-    'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-200',
-    'focus-visible:ring-offset-2 focus-visible:ring-offset-cream-soft',
-    disabled ? 'pointer-events-none cursor-not-allowed opacity-55' : '',
+  'group relative isolate inline-flex items-center justify-center overflow-hidden rounded-full border',
+  'font-extrabold leading-none tracking-[-0.01em]',
+  'transition duration-200 ease-out',
+  'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-200',
+  'focus-visible:ring-offset-2 focus-visible:ring-offset-cream-soft',
+  disabled ? 'pointer-events-none cursor-not-allowed opacity-55' : '',
 ];
 
 const sizeClasses: Record<Size, string> = {
-    sm: 'min-h-10 gap-2 px-4 text-sm',
-    md: 'min-h-11 gap-2.5 px-5 text-sm',
-    lg: 'min-h-12 gap-3 px-6 text-base',
+  sm: 'min-h-10 gap-2 px-4 text-sm',
+  md: 'min-h-11 gap-2.5 px-5 text-sm',
+  lg: 'min-h-12 gap-3 px-6 text-base',
 };
 
 const variantClasses: Record<Variant, string> = {
-    primary: [
-        'border-accent-600 bg-accent-500 text-ink-950',
-        'shadow-orange',
-        'hover:-translate-y-0.5 hover:border-accent-500 hover:bg-accent-400',
-        'hover:shadow-[0_20px_42px_-20px_rgba(255,102,0,0.72)]',
-        'active:translate-y-0 active:scale-[0.98] active:bg-accent-600',
-    ].join(' '),
+  primary: [
+    'border-accent-600 bg-accent-500 text-ink-950',
+    'shadow-orange',
+    'hover:-translate-y-0.5 hover:border-accent-500 hover:bg-accent-400',
+    'hover:shadow-[0_20px_42px_-20px_rgba(255,102,0,0.72)]',
+    'active:translate-y-0 active:scale-[0.98] active:bg-accent-600',
+  ].join(' '),
 
-    secondary: [
-        'border-brand-700 bg-brand-500 text-white',
-        'shadow-blue',
-        'hover:-translate-y-0.5 hover:border-brand-600 hover:bg-brand-600',
-        'hover:shadow-[0_20px_42px_-20px_rgba(0,138,255,0.72)]',
-        'active:translate-y-0 active:scale-[0.98] active:bg-brand-700',
-    ].join(' '),
+  secondary: [
+    'border-brand-700 bg-brand-500 text-white',
+    'shadow-blue',
+    'hover:-translate-y-0.5 hover:border-brand-600 hover:bg-brand-600',
+    'hover:shadow-[0_20px_42px_-20px_rgba(0,138,255,0.72)]',
+    'active:translate-y-0 active:scale-[0.98] active:bg-brand-700',
+  ].join(' '),
 
-    ghost: [
-        'border-transparent bg-transparent text-brand-700 shadow-none',
-        'hover:bg-brand-50 hover:text-brand-800',
-        'active:scale-[0.98] active:bg-brand-100',
-    ].join(' '),
+  ghost: [
+    'border-transparent bg-transparent text-brand-700 shadow-none',
+    'hover:bg-brand-50 hover:text-brand-800',
+    'active:scale-[0.98] active:bg-brand-100',
+  ].join(' '),
 };
 
 const classes = [
-    ...baseClasses,
-    sizeClasses[size],
-    variantClasses[variant],
-    fullWidth ? 'w-full' : '',
-    className,
-    ]
-    .filter(Boolean)
-    .join(' ');
+  ...baseClasses,
+  sizeClasses[size],
+  variantClasses[variant],
+  fullWidth ? 'w-full' : '',
+  className,
+]
+  .filter(Boolean)
+  .join(' ');
 
 const isExternal = external || href?.startsWith('http://') || href?.startsWith('https://');
 
@@ -97,86 +97,86 @@ const finalRel = rel ?? (isExternal ? 'noopener noreferrer' : undefined);
 ---
 
 {
-    href ? (
-        <a
-        href={disabled ? undefined : href}
-        class={classes}
-        aria-label={ariaLabel}
-        aria-disabled={disabled ? 'true' : undefined}
-        tabindex={disabled ? -1 : undefined}
-        target={finalTarget}
-        rel={finalRel}
-        >
-        {variant !== 'ghost' && (
-            <span
-            class="pointer-events-none absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/30 to-transparent opacity-0 transition duration-700 group-hover:translate-x-full group-hover:opacity-100"
+  href ? (
+    <a
+      href={disabled ? undefined : href}
+      class={classes}
+      aria-label={ariaLabel}
+      aria-disabled={disabled ? 'true' : undefined}
+      tabindex={disabled ? -1 : undefined}
+      target={finalTarget}
+      rel={finalRel}
+    >
+      {variant !== 'ghost' && (
+        <span
+          class="pointer-events-none absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/30 to-transparent opacity-0 transition duration-700 group-hover:translate-x-full group-hover:opacity-100"
+          aria-hidden="true"
+        />
+      )}
+
+      <span class="relative z-10 inline-flex items-center justify-center gap-inherit">
+        {hasIcon && iconPosition === 'left' && (
+          <span
+            class="grid shrink-0 mr-2 place-items-center transition-transform duration-200 group-hover:scale-105 [&>svg]:size-4.5"
             aria-hidden="true"
-            />
+          >
+            <slot name="icon" />
+          </span>
         )}
 
-        <span class="relative z-10 inline-flex items-center justify-center gap-inherit">
-            {hasIcon && iconPosition === 'left' && (
-            <span
-                class="grid shrink-0 mr-2 place-items-center transition-transform duration-200 group-hover:scale-105 [&>svg]:size-4.5"
-                aria-hidden="true"
-            >
-                <slot name="icon" />
-            </span>
-            )}
-
-            <span>
-            <slot />
-            </span>
-
-            {hasIcon && iconPosition === 'right' && (
-            <span
-                class="grid shrink-0 ml-2 place-items-center transition-transform duration-200 group-hover:scale-105 [&>svg]:size-4.5"
-                aria-hidden="true"
-            >
-                <slot name="icon" />
-            </span>
-            )}
+        <span>
+          <slot />
         </span>
-        </a>
-    ) : (
-        <button
-        type={type}
-        class={classes}
-        disabled={disabled}
-        aria-label={ariaLabel}
-        name={name}
-        value={value}
-        >
-        {variant !== 'ghost' && (
-            <span
-            class="pointer-events-none absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/30 to-transparent opacity-0 transition duration-700 group-hover:translate-x-full group-hover:opacity-100"
+
+        {hasIcon && iconPosition === 'right' && (
+          <span
+            class="grid shrink-0 ml-2 place-items-center transition-transform duration-200 group-hover:scale-105 [&>svg]:size-4.5"
             aria-hidden="true"
-            />
+          >
+            <slot name="icon" />
+          </span>
+        )}
+      </span>
+    </a>
+  ) : (
+    <button
+      type={type}
+      class={classes}
+      disabled={disabled}
+      aria-label={ariaLabel}
+      name={name}
+      value={value}
+    >
+      {variant !== 'ghost' && (
+        <span
+          class="pointer-events-none absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/30 to-transparent opacity-0 transition duration-700 group-hover:translate-x-full group-hover:opacity-100"
+          aria-hidden="true"
+        />
+      )}
+
+      <span class="relative z-10 inline-flex items-center justify-center gap-inherit">
+        {hasIcon && iconPosition === 'left' && (
+          <span
+            class="grid shrink-0 place-items-center transition-transform duration-200 group-hover:scale-105 [&>svg]:size-4.5"
+            aria-hidden="true"
+          >
+            <slot name="icon" />
+          </span>
         )}
 
-        <span class="relative z-10 inline-flex items-center justify-center gap-inherit">
-            {hasIcon && iconPosition === 'left' && (
-            <span
-                class="grid shrink-0 place-items-center transition-transform duration-200 group-hover:scale-105 [&>svg]:size-4.5"
-                aria-hidden="true"
-            >
-                <slot name="icon" />
-            </span>
-            )}
-
-            <span>
-            <slot />
-            </span>
-
-            {hasIcon && iconPosition === 'right' && (
-            <span
-                class="grid ml-2 shrink-0 place-items-center transition-transform duration-200 group-hover:scale-105 [&>svg]:size-4.5"
-                aria-hidden="true"
-            >
-                <slot name="icon" />
-            </span>
-            )}
+        <span>
+          <slot />
         </span>
-        </button>
-    )
+
+        {hasIcon && iconPosition === 'right' && (
+          <span
+            class="grid ml-2 shrink-0 place-items-center transition-transform duration-200 group-hover:scale-105 [&>svg]:size-4.5"
+            aria-hidden="true"
+          >
+            <slot name="icon" />
+          </span>
+        )}
+      </span>
+    </button>
+  )
 }

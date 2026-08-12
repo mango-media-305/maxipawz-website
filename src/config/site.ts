@@ -1,8 +1,6 @@
 import { businessConfig } from './business';
 
-const configuredSiteUrl =
-  import.meta.env.PUBLIC_SITE_URL?.trim() ||
-  'https://maxipawz.com';
+const configuredSiteUrl = import.meta.env.PUBLIC_SITE_URL?.trim() || 'https://maxipawz.com';
 
 export const siteConfig = {
   name: businessConfig.publicName,

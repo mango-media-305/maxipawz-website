@@ -6,7 +6,7 @@ import SparkleBold from 'phosphor-astro/SparkleBold.astro';
 import Button from '../ui/Button.astro';
 
 interface Props {
-    variant?: 'catalog' | 'filtered';
+  variant?: 'catalog' | 'filtered';
 }
 
 const { variant = 'catalog' } = Astro.props;
@@ -14,12 +14,12 @@ const { variant = 'catalog' } = Astro.props;
 const isFiltered = variant === 'filtered';
 
 const title = isFiltered
-    ? 'No products match those filters.'
-    : 'No products are currently published.';
+  ? 'No products match those filters.'
+  : 'No products are currently published.';
 
 const description = isFiltered
-    ? 'Try removing a filter, changing the price range, or using a broader search.'
-    : 'The catalog structure is ready. Products will appear here after inventory information and images are added.';
+  ? 'Try removing a filter, changing the price range, or using a broader search.'
+  : 'The catalog structure is ready. Products will appear here after inventory information and images are added.';
 
 const actionLabel = isFiltered ? 'Clear All Filters' : 'Explore Pet Guides';
 
@@ -27,42 +27,42 @@ const actionHref = isFiltered ? '/shop#products' : '/pet-guides';
 ---
 
 <article
-    class="relative overflow-hidden rounded-[2.5rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 text-center shadow-card sm:p-8 lg:p-12"
+  class="relative overflow-hidden rounded-[2.5rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 text-center shadow-card sm:p-8 lg:p-12"
 >
-    <div
-        class="pointer-events-none absolute -top-24 -right-20 size-64 rounded-full bg-brand-300/25 blur-3xl"
-        aria-hidden="true"
+  <div
+    class="pointer-events-none absolute -top-24 -right-20 size-64 rounded-full bg-brand-300/25 blur-3xl"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div
+    class="pointer-events-none absolute -bottom-24 -left-20 size-64 rounded-full bg-accent-300/25 blur-3xl"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div class="relative mx-auto max-w-3xl">
+    <span
+      class="mx-auto grid size-16 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-600 shadow-soft"
+      aria-hidden="true"
     >
+      {isFiltered ? <PawPrintBold class="size-8" /> : <SparkleBold class="size-8" />}
+    </span>
+
+    <h2 class="mx-auto mt-6 max-w-2xl text-3xl text-ink-900 sm:text-4xl">
+      {title}
+    </h2>
+
+    <p class="mx-auto mt-4 max-w-2xl text-base leading-7 text-ink-600">
+      {description}
+    </p>
+
+    <div class="mt-7">
+      <Button href={actionHref} variant="secondary" size="lg" iconPosition="right">
+        <ArrowRightBold slot="icon" aria-hidden="true" />
+
+        {actionLabel}
+      </Button>
     </div>
-
-    <div
-        class="pointer-events-none absolute -bottom-24 -left-20 size-64 rounded-full bg-accent-300/25 blur-3xl"
-        aria-hidden="true"
-    >
-    </div>
-
-    <div class="relative mx-auto max-w-3xl">
-        <span
-        class="mx-auto grid size-16 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-600 shadow-soft"
-        aria-hidden="true"
-        >
-        {isFiltered ? <PawPrintBold class="size-8" /> : <SparkleBold class="size-8" />}
-        </span>
-
-        <h2 class="mx-auto mt-6 max-w-2xl text-3xl text-ink-900 sm:text-4xl">
-        {title}
-        </h2>
-
-        <p class="mx-auto mt-4 max-w-2xl text-base leading-7 text-ink-600">
-        {description}
-        </p>
-
-        <div class="mt-7">
-        <Button href={actionHref} variant="secondary" size="lg" iconPosition="right">
-            <ArrowRightBold slot="icon" aria-hidden="true" />
-
-            {actionLabel}
-        </Button>
-        </div>
-    </div>
+  </div>
 </article>

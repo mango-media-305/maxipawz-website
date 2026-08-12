@@ -10,7 +10,7 @@ import type { Product } from '../../types/product';
 import { getActiveProducts } from '../../utils/products';
 
 interface Props {
-    product: Product;
+  product: Product;
 }
 
 /**
@@ -18,15 +18,15 @@ interface Props {
  * product-detail layouts can be tested before the real store opens.
  */
 export function getStaticPaths() {
-    return getActiveProducts().map((product) => ({
-        params: {
-        slug: product.slug,
-        },
+  return getActiveProducts().map((product) => ({
+    params: {
+      slug: product.slug,
+    },
 
-        props: {
-        product,
-        },
-    }));
+    props: {
+      product,
+    },
+  }));
 }
 
 const { product } = Astro.props as Props;
@@ -39,15 +39,15 @@ const shouldNoIndex = !isStoreLive || Boolean(product.isDemo);
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription} noIndex={shouldNoIndex}>
-    {
-        product.isDemo && (
-        <section class="pt-8 sm:pt-10">
-            <div class="site-container">
-            <DemoCatalogNotice compact={true} />
-            </div>
-        </section>
-        )
-    }
+  {
+    product.isDemo && (
+      <section class="pt-8 sm:pt-10">
+        <div class="site-container">
+          <DemoCatalogNotice compact={true} />
+        </div>
+      </section>
+    )
+  }
 
-    <ProductDetails product={product} />
+  <ProductDetails product={product} />
 </BaseLayout>

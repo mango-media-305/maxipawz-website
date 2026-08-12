@@ -1,60 +1,44 @@
-import {
-    useEffect,
-    useState,
-} from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 
 import {
-    createEmptyCartState,
-    getCartDrawerOpen,
-    getCartState,
-    subscribeCart,
-    subscribeCartDrawer,
+  createEmptyCartState,
+  getCartDrawerOpen,
+  getCartState,
+  subscribeCart,
+  subscribeCartDrawer,
 } from '../../stores/cart';
 
-import type {
-    CartState,
-} from '../../types/cart';
+import type { CartState } from '../../types/cart';
 
 export function useCart(): {
-    state: CartState;
-    hydrated: boolean;
+  state: CartState;
+  hydrated: boolean;
 } {
-    const [state, setState] =
-        useState<CartState>(
-            createEmptyCartState(),
-        );
+  const [state, setState] = useState<CartState>(createEmptyCartState());
 
-    const [hydrated, setHydrated] =
-        useState(false);
+  const [hydrated, setHydrated] = useState(false);
 
-    useEffect(() => {
-        setState(getCartState());
-        setHydrated(true);
+  useEffect(() => {
+    setState(getCartState());
+    setHydrated(true);
 
-        return subscribeCart(
-            setState,
-        );
-    }, []);
+    return subscribeCart(setState);
+  }, []);
 
-    return {
-        state,
-        hydrated,
-    };
+  return {
+    state,
+    hydrated,
+  };
 }
 
 export function useCartDrawer(): boolean {
-    const [open, setOpen] =
-        useState(false);
+  const [open, setOpen] = useState(false);
 
-    useEffect(() => {
-        setOpen(
-            getCartDrawerOpen(),
-        );
+  useEffect(() => {
+    setOpen(getCartDrawerOpen());
 
-        return subscribeCartDrawer(
-            setOpen,
-        );
-    }, []);
+    return subscribeCartDrawer(setOpen);
+  }, []);
 
-    return open;
+  return open;
 }

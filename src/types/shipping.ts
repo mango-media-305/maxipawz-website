@@ -1,64 +1,59 @@
-import type {
-    ShippingDestinationZone,
-} from '../config/shipping';
+import type { ShippingDestinationZone } from '../config/shipping';
 
 export interface ShippingThresholdState {
-    merchandiseSubtotalAmount: number;
+  merchandiseSubtotalAmount: number;
 
-    qualifiesForFreeShipping: boolean;
+  qualifiesForFreeShipping: boolean;
 
-    amountUntilFreeShipping: number;
+  amountUntilFreeShipping: number;
 
-    progress: number;
+  progress: number;
 }
 
 export interface CheckoutShippingAddress {
-    line1: string;
+  line1: string;
 
-    line2?: string;
+  line2?: string;
 
-    city: string;
+  city: string;
 
-    state: string;
+  state: string;
 
-    postal_code: string;
+  postal_code: string;
 
-    country: string;
+  country: string;
 }
 
 export interface CheckoutShippingDetails {
-    name: string;
+  name: string;
 
-    address:
-    CheckoutShippingAddress;
+  address: CheckoutShippingAddress;
 }
 
 export interface ShippingOptionsUpdateRequest {
-    checkout_session_id: string;
+  checkout_session_id: string;
 
-    shipping_details:
-    CheckoutShippingDetails;
+  shipping_details: CheckoutShippingDetails;
 }
 
 export interface ShippingOptionsUpdateSuccessResponse {
-    ok: true;
+  ok: true;
 
-    zone:
-    ShippingDestinationZone;
+  zone: ShippingDestinationZone;
 
-    shippingAmount: number;
+  shippingAmount: number;
 
-    optionCount: number;
+  optionCount: number;
 
-    freeShippingApplied: boolean;
+  freeShippingApplied: boolean;
 }
 
 export interface ShippingOptionsUpdateErrorResponse {
-    ok: false;
+  ok: false;
 
-    message: string;
+  message: string;
 }
 
 export type ShippingOptionsUpdateResponse =
-    | ShippingOptionsUpdateSuccessResponse
-    | ShippingOptionsUpdateErrorResponse;
+  | ShippingOptionsUpdateSuccessResponse
+  | ShippingOptionsUpdateErrorResponse;

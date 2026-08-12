@@ -4,108 +4,108 @@ import CheckCircleFill from 'phosphor-astro/CheckCircleFill.astro';
 import type { SafetySection, SafetyTone } from '../../data/product-safety';
 
 interface Props {
-    section: SafetySection;
+  section: SafetySection;
 }
 
 const { section } = Astro.props;
 
 const surfaceClasses: Record<SafetyTone, string> = {
-    brand: [
-        'border-brand-200',
-        'bg-linear-to-br',
-        'from-brand-50',
-        'via-white-warm',
-        'to-brand-100/[0.55]',
-    ].join(' '),
+  brand: [
+    'border-brand-200',
+    'bg-linear-to-br',
+    'from-brand-50',
+    'via-white-warm',
+    'to-brand-100/[0.55]',
+  ].join(' '),
 
-    accent: [
-        'border-accent-200',
-        'bg-linear-to-br',
-        'from-accent-50',
-        'via-white-warm',
-        'to-accent-100/[0.55]',
-    ].join(' '),
+  accent: [
+    'border-accent-200',
+    'bg-linear-to-br',
+    'from-accent-50',
+    'via-white-warm',
+    'to-accent-100/[0.55]',
+  ].join(' '),
 
-    sand: [
-        'border-sand-dark/70',
-        'bg-linear-to-br',
-        'from-cream-soft',
-        'via-white-warm',
-        'to-sand/[0.55]',
-    ].join(' '),
+  sand: [
+    'border-sand-dark/70',
+    'bg-linear-to-br',
+    'from-cream-soft',
+    'via-white-warm',
+    'to-sand/[0.55]',
+  ].join(' '),
 };
 
 const iconClasses: Record<SafetyTone, string> = {
-    brand: 'bg-brand-500 text-white shadow-blue',
+  brand: 'bg-brand-500 text-white shadow-blue',
 
-    accent: 'bg-accent-500 text-ink-950 shadow-orange',
+  accent: 'bg-accent-500 text-ink-950 shadow-orange',
 
-    sand: 'bg-ink-800 text-white shadow-soft',
+  sand: 'bg-ink-800 text-white shadow-soft',
 };
 ---
 
 <article
-    id={section.id}
-    class:list={[
-        'scroll-mt-28',
-        'relative h-full overflow-hidden rounded-card-lg border p-5 shadow-sm',
-        'sm:p-6',
-        surfaceClasses[section.tone],
-    ]}
-    aria-labelledby={`${section.id}-title`}
+  id={section.id}
+  class:list={[
+    'scroll-mt-28',
+    'relative h-full overflow-hidden rounded-card-lg border p-5 shadow-sm',
+    'sm:p-6',
+    surfaceClasses[section.tone],
+  ]}
+  aria-labelledby={`${section.id}-title`}
 >
-    <div
-        class="pointer-events-none absolute -top-20 -right-20 size-48 rounded-full bg-white/65 blur-3xl"
+  <div
+    class="pointer-events-none absolute -top-20 -right-20 size-48 rounded-full bg-white/65 blur-3xl"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div class="relative flex h-full flex-col">
+    <header class="flex items-start gap-4">
+      <span
+        class:list={[
+          'grid size-12 shrink-0 place-items-center rounded-2xl',
+          '[&>svg]:size-6',
+          iconClasses[section.tone],
+        ]}
         aria-hidden="true"
-    >
-    </div>
+      >
+        <slot name="icon" />
+      </span>
 
-    <div class="relative flex h-full flex-col">
-        <header class="flex items-start gap-4">
-        <span
-            class:list={[
-            'grid size-12 shrink-0 place-items-center rounded-2xl',
-            '[&>svg]:size-6',
-            iconClasses[section.tone],
-            ]}
-            aria-hidden="true"
-        >
-            <slot name="icon" />
-        </span>
-
-        <div class="min-w-0">
-            <p class="text-xs font-extrabold tracking-[0.09em] text-ink-500 uppercase">
-            {section.eyebrow}
-            </p>
-
-            <h2 id={`${section.id}-title`} class="mt-2 text-2xl text-ink-900">
-            {section.title}
-            </h2>
-        </div>
-        </header>
-
-        <p class="mt-5 text-sm leading-7 text-ink-600 sm:text-base">
-        {section.description}
+      <div class="min-w-0">
+        <p class="text-xs font-extrabold tracking-[0.09em] text-ink-500 uppercase">
+          {section.eyebrow}
         </p>
 
-        <ul class="mt-5 grid gap-3">
-        {
-            section.points.map((point) => (
-            <li class="flex items-start gap-3 rounded-2xl border border-sand/80 bg-white-warm/85 p-3.5">
-                <CheckCircleFill class="mt-0.5 size-5 shrink-0 text-brand-500" aria-hidden="true" />
+        <h2 id={`${section.id}-title`} class="mt-2 text-2xl text-ink-900">
+          {section.title}
+        </h2>
+      </div>
+    </header>
 
-                <span class="text-sm font-bold leading-6 text-ink-700">{point}</span>
-            </li>
-            ))
-        }
-        </ul>
+    <p class="mt-5 text-sm leading-7 text-ink-600 sm:text-base">
+      {section.description}
+    </p>
 
-        {
-            section.note && (
-                <p class="mt-5 rounded-2xl border border-accent-200 bg-accent-50 p-4 text-sm font-bold leading-6 text-ink-700">
-                {section.note}
-                </p>
-            )
-        }
-    </div>
+    <ul class="mt-5 grid gap-3">
+      {
+        section.points.map((point) => (
+          <li class="flex items-start gap-3 rounded-2xl border border-sand/80 bg-white-warm/85 p-3.5">
+            <CheckCircleFill class="mt-0.5 size-5 shrink-0 text-brand-500" aria-hidden="true" />
+
+            <span class="text-sm font-bold leading-6 text-ink-700">{point}</span>
+          </li>
+        ))
+      }
+    </ul>
+
+    {
+      section.note && (
+        <p class="mt-5 rounded-2xl border border-accent-200 bg-accent-50 p-4 text-sm font-bold leading-6 text-ink-700">
+          {section.note}
+        </p>
+      )
+    }
+  </div>
 </article>

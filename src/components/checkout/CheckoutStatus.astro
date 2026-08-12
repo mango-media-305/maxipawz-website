@@ -8,7 +8,7 @@ import Badge from '../ui/Badge.astro';
 import Button from '../ui/Button.astro';
 
 interface Props {
-    status: 'success' | 'cancel';
+  status: 'success' | 'cancel';
 }
 
 const { status } = Astro.props;
@@ -17,88 +17,88 @@ const isSuccess = status === 'success';
 ---
 
 <section class="py-10 sm:py-14 lg:py-18">
-    <div class="site-container">
-        <div
-        class="relative overflow-hidden rounded-[2.75rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 text-center shadow-card sm:p-10 lg:p-14"
+  <div class="site-container">
+    <div
+      class="relative overflow-hidden rounded-[2.75rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 text-center shadow-card sm:p-10 lg:p-14"
+    >
+      <div
+        class="pointer-events-none absolute -top-28 -left-24 size-80 rounded-full bg-brand-300/25 blur-3xl"
+        aria-hidden="true"
+      >
+      </div>
+
+      <div
+        class="pointer-events-none absolute -right-24 -bottom-28 size-80 rounded-full bg-accent-300/25 blur-3xl"
+        aria-hidden="true"
+      >
+      </div>
+
+      <div class="relative mx-auto max-w-3xl">
+        <span
+          class:list={[
+            'mx-auto grid size-18 place-items-center rounded-full border shadow-soft',
+            isSuccess
+              ? 'border-success-100 bg-success-50 text-success-700'
+              : 'border-accent-200 bg-accent-50 text-accent-700',
+          ]}
+          aria-hidden="true"
         >
-        <div
-            class="pointer-events-none absolute -top-28 -left-24 size-80 rounded-full bg-brand-300/25 blur-3xl"
-            aria-hidden="true"
-        >
-        </div>
+          {isSuccess ? <CheckCircleFill class="size-9" /> : <ShoppingCartBold class="size-9" />}
+        </span>
 
-        <div
-            class="pointer-events-none absolute -right-24 -bottom-28 size-80 rounded-full bg-accent-300/25 blur-3xl"
-            aria-hidden="true"
-        >
-        </div>
-
-        <div class="relative mx-auto max-w-3xl">
-            <span
-            class:list={[
-                'mx-auto grid size-18 place-items-center rounded-full border shadow-soft',
-                isSuccess
-                ? 'border-success-100 bg-success-50 text-success-700'
-                : 'border-accent-200 bg-accent-50 text-accent-700',
-            ]}
-            aria-hidden="true"
-            >
-            {isSuccess ? <CheckCircleFill class="size-9" /> : <ShoppingCartBold class="size-9" />}
-            </span>
-
-            <Badge variant={isSuccess ? 'brand' : 'accent'} size="md" class="mx-auto mt-6">
-            {
-                isSuccess ? (
-                <CheckCircleFill slot="icon" aria-hidden="true" />
-                ) : (
-                <ShoppingCartBold slot="icon" aria-hidden="true" />
-                )
-            }
-
-            {isSuccess ? 'Checkout Return' : 'Checkout Cancelled'}
-            </Badge>
-
-            <h1 class="mt-6 text-4xl text-ink-900 sm:text-5xl lg:text-6xl">
-            {isSuccess ? 'You returned from Stripe Checkout.' : 'Your checkout was not completed.'}
-            </h1>
-
-            <p class="mx-auto mt-5 max-w-2xl text-lg leading-8 text-ink-600">
-            {
-                isSuccess
-                ? 'This page confirms only that the browser returned from Stripe. Payment and order fulfillment must be verified separately through the Stripe webhook workflow.'
-                : 'No completed order is being confirmed on this page. The products in your local cart remain available so you can review them or continue testing.'
-            }
-            </p>
-
-            {
-            isSuccess && (
-                <div class="mx-auto mt-7 max-w-2xl rounded-card border border-accent-200 bg-accent-50 p-5 text-left">
-                <ShieldCheckBold class="size-7 text-accent-700" aria-hidden="true" />
-
-                <h2 class="mt-3 text-xl text-ink-900">Payment verification comes next</h2>
-
-                <p class="mt-2 text-sm leading-6 text-ink-600">
-                    Do not ship products, reduce inventory, or clear the cart based only on this page. A
-                    verified Stripe event must confirm the payment first.
-                </p>
-                </div>
+        <Badge variant={isSuccess ? 'brand' : 'accent'} size="md" class="mx-auto mt-6">
+          {
+            isSuccess ? (
+              <CheckCircleFill slot="icon" aria-hidden="true" />
+            ) : (
+              <ShoppingCartBold slot="icon" aria-hidden="true" />
             )
-            }
+          }
 
-            <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Button href="/cart" variant="primary" size="lg" iconPosition="right">
-                <ShoppingCartBold slot="icon" aria-hidden="true" />
+          {isSuccess ? 'Checkout Return' : 'Checkout Cancelled'}
+        </Badge>
 
-                Return to Cart
-            </Button>
+        <h1 class="mt-6 text-4xl text-ink-900 sm:text-5xl lg:text-6xl">
+          {isSuccess ? 'You returned from Stripe Checkout.' : 'Your checkout was not completed.'}
+        </h1>
 
-            <Button href="/shop#products" variant="secondary" size="lg" iconPosition="right">
-                <ArrowRightBold slot="icon" aria-hidden="true" />
+        <p class="mx-auto mt-5 max-w-2xl text-lg leading-8 text-ink-600">
+          {
+            isSuccess
+              ? 'This page confirms only that the browser returned from Stripe. Payment and order fulfillment must be verified separately through the Stripe webhook workflow.'
+              : 'No completed order is being confirmed on this page. The products in your local cart remain available so you can review them or continue testing.'
+          }
+        </p>
 
-                Continue Shopping
-            </Button>
+        {
+          isSuccess && (
+            <div class="mx-auto mt-7 max-w-2xl rounded-card border border-accent-200 bg-accent-50 p-5 text-left">
+              <ShieldCheckBold class="size-7 text-accent-700" aria-hidden="true" />
+
+              <h2 class="mt-3 text-xl text-ink-900">Payment verification comes next</h2>
+
+              <p class="mt-2 text-sm leading-6 text-ink-600">
+                Do not ship products, reduce inventory, or clear the cart based only on this page. A
+                verified Stripe event must confirm the payment first.
+              </p>
             </div>
+          )
+        }
+
+        <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <Button href="/cart" variant="primary" size="lg" iconPosition="right">
+            <ShoppingCartBold slot="icon" aria-hidden="true" />
+
+            Return to Cart
+          </Button>
+
+          <Button href="/shop#products" variant="secondary" size="lg" iconPosition="right">
+            <ArrowRightBold slot="icon" aria-hidden="true" />
+
+            Continue Shopping
+          </Button>
         </div>
-        </div>
+      </div>
     </div>
+  </div>
 </section>
