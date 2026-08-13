@@ -1,163 +1,406 @@
 ---
-import type { ImageMetadata } from 'astro';
-import { Image } from 'astro:assets';
+import type {
+  ImageMetadata,
+} from 'astro';
+
+import {
+  Image,
+} from 'astro:assets';
 
 import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
 
-import type { ProductImage as ProductImageData, ProductImagePosition } from '../../types/product';
+import type {
+  ProductImage as ProductImageData,
+  ProductImagePosition,
+} from '../../types/product';
 
-type ProductImageVariant = 'card' | 'detail' | 'thumbnail';
+type ProductImageVariant =
+  | 'card'
+  | 'detail'
+  | 'thumbnail';
+
+type ProductImageFit =
+  | 'cover'
+  | 'contain';
 
 interface Props {
   image?: ProductImageData;
+
   eager?: boolean;
+
   class?: string;
   imageClass?: string;
+
   variant?: ProductImageVariant;
+
+  fit?: ProductImageFit;
+
   sizes?: string;
   widths?: number[];
+
   quality?: number;
 }
 
 interface ImageProfile {
   sizes: string;
+
   widths: number[];
+
   quality: number;
 }
 
-const imageProfiles: Record<ProductImageVariant, ImageProfile> = {
-  card: {
-    sizes: '(min-width: 1280px) 22vw, (min-width: 768px) 44vw, calc(100vw - 2.5rem)',
+const imageProfiles:
+  Record<
+    ProductImageVariant,
+    ImageProfile
+  > = {
+    card: {
+      sizes:
+        '(min-width: 1280px) 22vw, (min-width: 768px) 44vw, calc(100vw - 2.5rem)',
 
-    widths: [320, 480, 640, 800],
+      widths: [
+        320,
+        480,
+        640,
+        800,
+      ],
 
-    quality: 78,
-  },
+      quality: 78,
+    },
 
-  detail: {
-    sizes: '(min-width: 1280px) 34rem, (min-width: 1024px) 43vw, calc(100vw - 2rem)',
+    detail: {
+      sizes:
+        '(min-width: 1280px) 34rem, (min-width: 1024px) 43vw, calc(100vw - 2rem)',
 
-    widths: [480, 640, 800, 960, 1200],
+      widths: [
+        480,
+        640,
+        800,
+        960,
+        1200,
+      ],
 
-    quality: 82,
-  },
+      quality: 82,
+    },
 
-  thumbnail: {
-    sizes: '(min-width: 1024px) 13vw, (min-width: 640px) 30vw, 46vw',
+    thumbnail: {
+      sizes:
+        '(min-width: 1024px) 13vw, (min-width: 640px) 30vw, 46vw',
 
-    widths: [160, 240, 320, 480, 640],
+      widths: [
+        160,
+        240,
+        320,
+        480,
+        640,
+      ],
 
-    quality: 76,
-  },
-};
+      quality: 76,
+    },
+  };
 
 const {
   image,
+
   eager = false,
-  class: className = '',
+
+  class:
+    className = '',
+
   imageClass = '',
+
   variant = 'detail',
+
+  fit = 'cover',
+
   sizes,
+
   widths,
+
   quality,
 } = Astro.props;
 
-const profile = imageProfiles[variant];
+const profile =
+  imageProfiles[variant];
 
-const resolvedSizes = sizes ?? profile.sizes;
+const resolvedSizes =
+  sizes ??
+  profile.sizes;
 
-const requestedWidths = widths ?? profile.widths;
+const requestedWidths =
+  widths ??
+  profile.widths;
 
-const resolvedQuality = quality ?? profile.quality;
+const resolvedQuality =
+  quality ??
+  profile.quality;
 
-const positionClasses: Record<ProductImagePosition, string> = {
-  center: 'object-center',
-  top: 'object-top',
-  bottom: 'object-bottom',
-  left: 'object-left',
-  right: 'object-right',
-};
+const positionClasses:
+  Record<
+    ProductImagePosition,
+    string
+  > = {
+    center:
+      'object-center',
 
-const imagePosition = positionClasses[image?.position ?? 'center'];
+    top:
+      'object-top',
 
-const imageClasses = ['h-full w-full object-cover', imagePosition, imageClass]
+    bottom:
+      'object-bottom',
+
+    left:
+      'object-left',
+
+    right:
+      'object-right',
+  };
+
+const imagePosition =
+  positionClasses[
+    image?.position ??
+      'center'
+  ];
+
+const fitClass =
+  fit === 'contain'
+    ? 'object-contain'
+    : 'object-cover';
+
+const imageClasses = [
+  'h-full w-full',
+
+  fitClass,
+
+  imagePosition,
+
+  imageClass,
+]
   .filter(Boolean)
   .join(' ');
 
-const loading = eager ? 'eager' : 'lazy';
+const loading =
+  eager
+    ? 'eager'
+    : 'lazy';
 
-const fetchPriority = eager ? 'high' : 'auto';
+const fetchPriority =
+  eager
+    ? 'high'
+    : 'auto';
 
-function getSourceWidth(sourceImage: ProductImageData): number {
-  return typeof sourceImage.src === 'string' ? sourceImage.width : sourceImage.src.width;
+function getSourceWidth(
+  sourceImage:
+    ProductImageData,
+): number {
+  return typeof sourceImage.src ===
+    'string'
+    ? sourceImage.width
+    : sourceImage.src.width;
 }
 
-function getResponsiveWidths(sourceImage: ProductImageData): number[] {
-  const sourceWidth = getSourceWidth(sourceImage);
+function getResponsiveWidths(
+  sourceImage:
+    ProductImageData,
+): number[] {
+  const sourceWidth =
+    getSourceWidth(
+      sourceImage,
+    );
 
-  const validWidths = requestedWidths
-    .filter((width) => Number.isFinite(width) && width > 0 && width <= sourceWidth)
-    .map((width) => Math.round(width));
+  const validWidths =
+    requestedWidths
+      .filter(
+        (width) =>
+          Number.isFinite(
+            width,
+          ) &&
+          width > 0 &&
+          width <=
+            sourceWidth,
+      )
+      .map(
+        (width) =>
+          Math.round(
+            width,
+          ),
+      );
 
-  if (validWidths.length === 0) {
-    validWidths.push(sourceWidth);
+  if (
+    validWidths.length === 0
+  ) {
+    validWidths.push(
+      sourceWidth,
+    );
   }
 
-  return Array.from(new Set(validWidths)).sort(
-    (firstWidth, secondWidth) => firstWidth - secondWidth,
+  return Array.from(
+    new Set(
+      validWidths,
+    ),
+  ).sort(
+    (
+      firstWidth,
+      secondWidth,
+    ) =>
+      firstWidth -
+      secondWidth,
   );
 }
 
-function isUnsplashImage(source: string): boolean {
+function isUnsplashImage(
+  source: string,
+): boolean {
   try {
-    return new URL(source).hostname === 'images.unsplash.com';
+    return (
+      new URL(
+        source,
+      ).hostname ===
+      'images.unsplash.com'
+    );
   } catch {
     return false;
   }
 }
 
-function createUnsplashVariant(source: string, width: number, height: number): string {
-  const url = new URL(source);
+function createUnsplashVariant(
+  source: string,
 
-  url.searchParams.set('auto', 'format');
+  width: number,
 
-  url.searchParams.set('fit', 'crop');
+  height: number,
+): string {
+  const url =
+    new URL(
+      source,
+    );
 
-  url.searchParams.set('w', String(width));
+  url.searchParams.set(
+    'auto',
+    'format',
+  );
 
-  url.searchParams.set('h', String(height));
+  url.searchParams.set(
+    'w',
+    String(
+      width,
+    ),
+  );
 
-  url.searchParams.set('q', String(resolvedQuality));
+  url.searchParams.set(
+    'q',
+    String(
+      resolvedQuality,
+    ),
+  );
+
+  if (
+    fit === 'contain'
+  ) {
+    url.searchParams.set(
+      'fit',
+      'max',
+    );
+
+    url.searchParams.delete(
+      'h',
+    );
+  } else {
+    url.searchParams.set(
+      'fit',
+      'crop',
+    );
+
+    url.searchParams.set(
+      'h',
+      String(
+        height,
+      ),
+    );
+  }
 
   return url.toString();
 }
 
-const responsiveWidths = image ? getResponsiveWidths(image) : [];
+const responsiveWidths =
+  image
+    ? getResponsiveWidths(
+        image,
+      )
+    : [];
 
-const remoteImage = image && typeof image.src === 'string' ? image : undefined;
+const remoteImage =
+  image &&
+  typeof image.src ===
+    'string'
+    ? image
+    : undefined;
 
 const remoteSourceSet =
-  remoteImage && isUnsplashImage(remoteImage.src)
+  remoteImage &&
+  isUnsplashImage(
+    remoteImage.src,
+  )
     ? responsiveWidths
-        .map((width) => {
-          const height = Math.max(1, Math.round(width * (remoteImage.height / remoteImage.width)));
+        .map(
+          (width) => {
+            const height =
+              Math.max(
+                1,
 
-          return `${createUnsplashVariant(remoteImage.src, width, height)} ${width}w`;
-        })
-        .join(', ')
+                Math.round(
+                  width *
+                    (
+                      remoteImage.height /
+                      remoteImage.width
+                    ),
+                ),
+              );
+
+            return `${createUnsplashVariant(
+              remoteImage.src,
+              width,
+              height,
+            )} ${width}w`;
+          },
+        )
+        .join(
+          ', ',
+        )
     : undefined;
 
 const remoteFallbackSource =
-  remoteImage && isUnsplashImage(remoteImage.src)
+  remoteImage &&
+  isUnsplashImage(
+    remoteImage.src,
+  )
     ? (() => {
-        const fallbackWidth = responsiveWidths.at(-1) ?? remoteImage.width;
+        const fallbackWidth =
+          responsiveWidths.at(
+            -1,
+          ) ??
+          remoteImage.width;
 
-        const fallbackHeight = Math.max(
-          1,
-          Math.round(fallbackWidth * (remoteImage.height / remoteImage.width)),
+        const fallbackHeight =
+          Math.max(
+            1,
+
+            Math.round(
+              fallbackWidth *
+                (
+                  remoteImage.height /
+                  remoteImage.width
+                ),
+            ),
+          );
+
+        return createUnsplashVariant(
+          remoteImage.src,
+
+          fallbackWidth,
+
+          fallbackHeight,
         );
-
-        return createUnsplashVariant(remoteImage.src, fallbackWidth, fallbackHeight);
       })()
     : remoteImage?.src;
 ---
@@ -165,6 +408,7 @@ const remoteFallbackSource =
 <div
   class:list={[
     'relative overflow-hidden bg-linear-to-br from-brand-50 via-cream-soft to-accent-50',
+
     className,
   ]}
 >
@@ -209,7 +453,9 @@ const remoteFallbackSource =
             <PawPrintBold class="size-8" />
           </span>
 
-          <p class="mt-4 text-sm font-extrabold text-ink-600">Product image coming soon</p>
+          <p class="mt-4 text-sm font-extrabold text-ink-600">
+            Product image coming soon
+          </p>
         </div>
       </div>
     )

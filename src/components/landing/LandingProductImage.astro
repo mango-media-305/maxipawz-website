@@ -1,0 +1,67 @@
+---
+import { Image } from 'astro:assets';
+
+import type { ProductImage, ProductImagePosition } from '../../types/product';
+
+interface Props {
+    image: ProductImage;
+    alt?: string;
+    class?: string;
+    sizes?: string;
+    loading?: 'eager' | 'lazy';
+    decoding?: 'sync' | 'async' | 'auto';
+}
+
+const {
+    image,
+    alt,
+    class: className = '',
+    sizes = '100vw',
+    loading = 'lazy',
+    decoding = 'async',
+} = Astro.props as Props;
+
+const resolvedAlt = alt ?? image.alt;
+
+function mapObjectPosition(position?: ProductImagePosition): string {
+    switch (position) {
+        case 'top':
+        return 'center top';
+        case 'bottom':
+        return 'center bottom';
+        case 'left':
+        return 'left center';
+        case 'right':
+        return 'right center';
+        case 'center':
+        default:
+        return 'center center';
+    }
+}
+
+const objectPosition = mapObjectPosition(image.position);
+---
+
+{
+    typeof image.src === 'string' ? (
+        <img
+        src={image.src}
+        alt={resolvedAlt}
+        width={image.width}
+        height={image.height}
+        loading={loading}
+        decoding={decoding}
+        class={className}
+        style={`object-position: ${objectPosition};`}
+        />
+    ) : (
+        <Image
+        src={image.src}
+        alt={resolvedAlt}
+        loading={loading}
+        class={className}
+        sizes={sizes}
+        style={`object-position: ${objectPosition};`}
+        />
+    )
+}

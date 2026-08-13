@@ -1,0 +1,1159 @@
+---
+import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
+import CheckCircleFill from 'phosphor-astro/CheckCircleFill.astro';
+import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
+
+import AddToCartButton from '../cart/AddToCartButton';
+
+import ProductImage from '../products/ProductImage.astro';
+
+import Button from '../ui/Button.astro';
+
+import type {
+    Product,
+    ProductImage as ProductImageData,
+    ProductPrice,
+} from '../../types/product';
+
+import type {
+    ResolvedProductLandingPage,
+} from '../../utils/product-landing-pages';
+
+import {
+    formatPetType,
+    formatProductDimensions,
+    formatProductPrice,
+    getCategoryLabel,
+} from '../../utils/products';
+
+interface Props {
+    landingPage:
+        ResolvedProductLandingPage;
+}
+
+const {
+    landingPage,
+} = Astro.props;
+
+const product =
+    landingPage.product;
+
+function getImage(
+    index = 0,
+): ProductImageData | undefined {
+    return (
+        product.images[
+        index
+        ] ??
+        product.images[0]
+    );
+}
+
+function getGalleryImages():
+    ProductImageData[] {
+    const indexes =
+        landingPage.gallery
+        ?.imageIndexes ??
+        product.images.map(
+        (_, index) =>
+            index,
+        );
+
+    return indexes
+        .map(
+        (index) =>
+            product.images[
+            index
+            ],
+        )
+        .filter(
+        (
+            image,
+        ): image is ProductImageData =>
+            Boolean(
+            image,
+            ),
+        );
+}
+
+function getStartingPrice(
+     productValue: Product,
+):
+    | ProductPrice
+    | undefined {
+    const prices =
+        [
+        productValue.price,
+
+        ...(productValue.variants ??
+            []).map(
+            (variant) =>
+            variant.price,
+        ),
+        ].filter(
+        (
+            price,
+        ): price is ProductPrice =>
+            Boolean(
+            price,
+            ),
+        );
+
+    if (
+        prices.length === 0
+    ) {
+        return undefined;
+    }
+
+    return prices.reduce(
+        (
+        lowest,
+        current,
+        ) =>
+        current.amount <
+        lowest.amount
+            ? current
+            : lowest,
+    );
+}
+
+const heroImage =
+    getImage(
+        landingPage.hero
+        .imageIndex ??
+        0,
+    );
+
+const purchaseImage =
+    getImage(
+        landingPage.purchase
+        .imageIndex ??
+        0,
+    );
+
+const galleryImages =
+    getGalleryImages();
+
+const startingPrice =
+    getStartingPrice(
+        product,
+    );
+
+const dimensions =
+    formatProductDimensions(
+        product.dimensions,
+    );
+
+const categoryLabel =
+    getCategoryLabel(
+        product.category,
+    );
+
+const specificationRows =
+    [
+        {
+        label:
+            'Category',
+
+        value:
+            categoryLabel,
+        },
+
+        {
+        label:
+            'For',
+
+        value:
+            product.petTypes
+            .map(
+                formatPetType,
+            )
+            .join(
+                ', ',
+            ),
+        },
+
+        product.materials &&
+        product.materials
+        .length > 0
+        ? {
+            label:
+                'Materials',
+
+            value:
+                product.materials.join(
+                ', ',
+                ),
+            }
+        : undefined,
+
+        dimensions
+        ? {
+            label:
+                'Dimensions',
+
+            value:
+                dimensions,
+            }
+        : undefined,
+
+        product.variants &&
+        product.variants
+        .length > 0
+        ? {
+            label:
+                'Options',
+
+            value:
+                product.variants
+                .map(
+                    (variant) =>
+                    variant.label,
+                )
+                .join(
+                    ', ',
+                ),
+            }
+        : undefined,
+    ].filter(
+        (
+        row,
+        ): row is {
+        label: string;
+        value: string;
+        } =>
+        Boolean(
+            row,
+        ),
+    );
+---
+
+<article>
+    {
+        landingPage.hero.style ===
+        'cinematic' ? (
+        <section
+            class="relative isolate min-h-[88svh] overflow-hidden bg-ink-950 text-white"
+        >
+            {
+            heroImage && (
+                <>
+                <!--
+                    Ambient layer:
+                    fill the entire hero even when the source
+                    aspect ratio does not match the viewport.
+                -->
+                <div
+                    class="absolute inset-0 -z-30 overflow-hidden"
+                    aria-hidden="true"
+                >
+                    <ProductImage
+                    image={heroImage}
+                    eager={true}
+                    fit="cover"
+                    class="h-full w-full bg-none"
+                    imageClass="scale-110 opacity-55 blur-2xl"
+                    sizes="100vw"
+                    widths={[
+                        640,
+                        960,
+                        1280,
+                        1600,
+                    ]}
+                    />
+                </div>
+
+                <!--
+                    Main product layer:
+                    object-contain means the entire original
+                    image remains visible.
+                -->
+                <div
+                    class="absolute inset-0 -z-20"
+                >
+                    <ProductImage
+                    image={heroImage}
+                    eager={true}
+                    fit="contain"
+                    class="h-full w-full bg-none"
+                    imageClass="p-0 sm:p-4 lg:p-8"
+                    sizes="100vw"
+                    widths={[
+                        640,
+                        960,
+                        1280,
+                        1600,
+                    ]}
+                    />
+                </div>
+                </>
+            )
+            }
+
+            <div
+            class="absolute inset-0 -z-10 bg-linear-to-r from-ink-950/95 via-ink-950/62 to-ink-950/10"
+            aria-hidden="true"
+            >
+            </div>
+
+            <div
+            class="absolute inset-0 -z-10 bg-linear-to-t from-ink-950/85 via-transparent to-ink-950/20"
+            aria-hidden="true"
+            >
+            </div>
+
+            <div
+            class="site-container-wide flex min-h-[88svh] items-end pt-16 pb-12 sm:pb-16 lg:pb-20"
+            >
+            <div
+                class="max-w-3xl"
+            >
+                {
+                landingPage.hero
+                    .eyebrow && (
+                    <p
+                    class="text-xs font-extrabold tracking-[0.14em] text-accent-300 uppercase"
+                    >
+                    {
+                        landingPage
+                        .hero
+                        .eyebrow
+                    }
+                    </p>
+                )
+                }
+
+                <h1
+                class="mt-4 max-w-3xl text-5xl leading-[0.96] text-white sm:text-6xl lg:text-7xl xl:text-[5.5rem]"
+                >
+                {
+                    landingPage
+                    .hero
+                    .headline
+                }
+                </h1>
+
+                <p
+                class="mt-6 max-w-2xl text-base leading-7 text-white/82 sm:text-lg sm:leading-8"
+                >
+                {
+                    landingPage
+                    .hero
+                    .description
+                }
+                </p>
+
+                {
+                startingPrice && (
+                    <p
+                    class="mt-5 text-lg font-extrabold text-white"
+                    >
+                    From{' '}
+                    <span
+                        class="text-2xl text-accent-300"
+                    >
+                        {
+                        formatProductPrice(
+                            startingPrice,
+                        )
+                        }
+                    </span>
+                    </p>
+                )
+                }
+
+                <div
+                class="mt-8 flex flex-col gap-3 sm:flex-row"
+                >
+                <Button
+                    href="#buy"
+                    variant="primary"
+                    size="lg"
+                    iconPosition="right"
+                >
+                    <ArrowRightBold
+                    slot="icon"
+                    aria-hidden="true"
+                    />
+
+                    {
+                    landingPage
+                        .hero
+                        .primaryCtaLabel
+                    }
+                </Button>
+
+                {
+                    landingPage.hero
+                    .secondaryCtaLabel && (
+                    <a
+                        href="#story"
+                        class="inline-flex min-h-12 items-center justify-center rounded-full border border-white/35 bg-white/10 px-6 text-base font-extrabold text-white backdrop-blur-sm transition hover:bg-white/18"
+                    >
+                        {
+                        landingPage
+                            .hero
+                            .secondaryCtaLabel
+                        }
+                    </a>
+                    )
+                }
+                </div>
+            </div>
+            </div>
+        </section>
+        ) : (
+        <section
+            class="relative overflow-hidden bg-cream-soft pt-12 sm:pt-16"
+        >
+            <div
+            class="pointer-events-none absolute -top-32 -right-32 size-136 rounded-full bg-brand-300/25 blur-3xl"
+            aria-hidden="true"
+            >
+            </div>
+
+            <div
+            class="pointer-events-none absolute -bottom-40 -left-36 size-136 rounded-full bg-accent-300/25 blur-3xl"
+            aria-hidden="true"
+            >
+            </div>
+
+            <div
+            class="site-container-wide relative grid min-h-[75svh] items-center gap-10 pb-16 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16 lg:pb-20"
+            >
+            <div>
+                {
+                landingPage.hero
+                    .eyebrow && (
+                    <p
+                    class="text-xs font-extrabold tracking-[0.14em] text-brand-700 uppercase"
+                    >
+                    {
+                        landingPage
+                        .hero
+                        .eyebrow
+                    }
+                    </p>
+                )
+                }
+
+                <h1
+                class="mt-4 text-5xl leading-[0.96] text-ink-950 sm:text-6xl lg:text-7xl"
+                >
+                {
+                    landingPage
+                    .hero
+                    .headline
+                }
+                </h1>
+
+                <p
+                class="mt-6 max-w-xl text-base leading-7 text-ink-600 sm:text-lg sm:leading-8"
+                >
+                {
+                    landingPage
+                    .hero
+                    .description
+                }
+                </p>
+
+                {
+                startingPrice && (
+                    <p
+                    class="mt-5 text-xl font-black text-ink-950"
+                    >
+                    From{' '}
+                    {
+                        formatProductPrice(
+                        startingPrice,
+                        )
+                    }
+                    </p>
+                )
+                }
+
+                <div
+                class="mt-8 flex flex-col gap-3 sm:flex-row"
+                >
+                <Button
+                    href="#buy"
+                    variant="primary"
+                    size="lg"
+                    iconPosition="right"
+                >
+                    <ArrowRightBold
+                    slot="icon"
+                    aria-hidden="true"
+                    />
+
+                    {
+                    landingPage
+                        .hero
+                        .primaryCtaLabel
+                    }
+                </Button>
+
+                {
+                    landingPage.hero
+                    .secondaryCtaLabel && (
+                    <Button
+                        href="#story"
+                        variant="ghost"
+                        size="lg"
+                    >
+                        {
+                        landingPage
+                            .hero
+                            .secondaryCtaLabel
+                        }
+                    </Button>
+                    )
+                }
+                </div>
+            </div>
+
+            <div
+                class="relative min-h-112 sm:min-h-144 lg:min-h-176"
+            >
+                {
+                heroImage && (
+                    <ProductImage
+                    image={heroImage}
+                    eager={true}
+                    fit="contain"
+                    class="absolute inset-0 h-full w-full bg-none"
+                    imageClass="p-3 sm:p-6"
+                    sizes="(min-width: 1024px) 55vw, 100vw"
+                    widths={[
+                        480,
+                        720,
+                        960,
+                        1200,
+                    ]}
+                    />
+                )
+                }
+            </div>
+            </div>
+        </section>
+        )
+    }
+
+    {
+        landingPage.highlights &&
+        landingPage.highlights
+            .length > 0 && (
+            <section
+            class="border-y border-sand bg-white-warm"
+            aria-label="Product highlights"
+            >
+            <div
+                class="site-container-wide grid md:grid-cols-3"
+            >
+                {
+                landingPage
+                    .highlights
+                    .map(
+                    (
+                        highlight,
+                        index,
+                    ) => (
+                        <div
+                        class:list={[
+                            'py-8 md:px-8 md:py-10',
+
+                            index >
+                            0
+                            ? 'border-t border-sand md:border-t-0 md:border-l'
+                            : '',
+                        ]}
+                        >
+                        {
+                            highlight.eyebrow && (
+                            <p
+                                class="text-xs font-extrabold tracking-[0.14em] text-accent-600 uppercase"
+                            >
+                                {
+                                highlight.eyebrow
+                                }
+                            </p>
+                            )
+                        }
+
+                        <h2
+                            class="mt-2 text-2xl text-ink-950 sm:text-3xl"
+                        >
+                            {
+                            highlight.title
+                            }
+                        </h2>
+
+                        {
+                            highlight.description && (
+                            <p
+                                class="mt-3 text-sm leading-6 text-ink-600"
+                            >
+                                {
+                                highlight.description
+                                }
+                            </p>
+                            )
+                        }
+                        </div>
+                    ),
+                    )
+                }
+            </div>
+            </section>
+        )
+    }
+
+    {
+        landingPage.story &&
+        landingPage.story
+            .length > 0 && (
+            <section
+            id="story"
+            class="bg-paper"
+            >
+            {
+                landingPage.story.map(
+                (
+                    storyBlock,
+                    index,
+                ) => {
+                    const storyImage =
+                    getImage(
+                        storyBlock.imageIndex ??
+                        0,
+                    );
+
+                    const imageOnRight =
+                    storyBlock.imageSide ===
+                        'right';
+
+                    return (
+                    <div
+                        class:list={[
+                        'site-container-wide grid items-center gap-10 py-16 sm:py-20 lg:grid-cols-2 lg:gap-16 lg:py-24',
+
+                        index > 0
+                            ? 'border-t border-sand/70'
+                            : '',
+                        ]}
+                    >
+                        <figure
+                        class:list={[
+                            'relative overflow-hidden rounded-4xl bg-cream-soft',
+
+                            imageOnRight
+                            ? 'lg:order-2'
+                            : '',
+                        ]}
+                        >
+                        <ProductImage
+                            image={storyImage}
+                            fit={
+                            storyBlock.imageFit ??
+                            'cover'
+                            }
+                            class="aspect-4/5 h-full w-full bg-none sm:aspect-5/4 lg:aspect-4/5"
+                            imageClass={
+                            storyBlock.imageFit ===
+                            'contain'
+                                ? 'p-6 sm:p-10'
+                                : ''
+                            }
+                            sizes="(min-width: 1024px) 48vw, 100vw"
+                            widths={[
+                            480,
+                            720,
+                            960,
+                            1200,
+                            ]}
+                        />
+                        </figure>
+
+                        <div
+                        class:list={[
+                            'max-w-xl',
+
+                            imageOnRight
+                            ? 'lg:order-1'
+                            : '',
+                        ]}
+                        >
+                        {
+                            storyBlock.eyebrow && (
+                            <p
+                                class="text-xs font-extrabold tracking-[0.14em] text-brand-700 uppercase"
+                            >
+                                {
+                                storyBlock.eyebrow
+                                }
+                            </p>
+                            )
+                        }
+
+                        <h2
+                            class="mt-4 text-4xl leading-none text-ink-950 sm:text-5xl"
+                        >
+                            {
+                            storyBlock.title
+                            }
+                        </h2>
+
+                        <div
+                            class="mt-6 space-y-4 text-base leading-7 text-ink-600 sm:text-lg sm:leading-8"
+                        >
+                            {
+                            storyBlock.body.map(
+                                (
+                                paragraph,
+                                ) => (
+                                <p>
+                                    {
+                                    paragraph
+                                    }
+                                </p>
+                                ),
+                            )
+                            }
+                        </div>
+
+                        {
+                            storyBlock.bullets &&
+                            storyBlock.bullets
+                                .length > 0 && (
+                                <ul
+                                class="mt-7 space-y-3"
+                                >
+                                {
+                                    storyBlock.bullets.map(
+                                    (
+                                        bullet,
+                                    ) => (
+                                        <li
+                                        class="flex items-start gap-3 font-extrabold text-ink-800"
+                                        >
+                                        <CheckCircleFill
+                                            class="mt-0.5 size-5 shrink-0 text-brand-500"
+                                            aria-hidden="true"
+                                        />
+
+                                        <span>
+                                            {
+                                            bullet
+                                            }
+                                        </span>
+                                        </li>
+                                    ),
+                                    )
+                                }
+                                </ul>
+                            )
+                        }
+                        </div>
+                    </div>
+                    );
+                },
+                )
+            }
+            </section>
+        )
+    }
+
+    {
+        landingPage.gallery &&
+        galleryImages.length >
+            0 && (
+            <section
+            class="bg-cream-soft py-16 sm:py-20 lg:py-24"
+            >
+            <div
+                class="site-container-wide"
+            >
+                <div
+                class="max-w-3xl"
+                >
+                {
+                    landingPage.gallery
+                    .eyebrow && (
+                    <p
+                        class="text-xs font-extrabold tracking-[0.14em] text-accent-600 uppercase"
+                    >
+                        {
+                        landingPage
+                            .gallery
+                            .eyebrow
+                        }
+                    </p>
+                    )
+                }
+
+                <h2
+                    class="mt-4 text-4xl text-ink-950 sm:text-5xl lg:text-6xl"
+                >
+                    {
+                    landingPage
+                        .gallery
+                        .title
+                    }
+                </h2>
+
+                {
+                    landingPage.gallery
+                    .description && (
+                    <p
+                        class="mt-5 max-w-2xl text-base leading-7 text-ink-600 sm:text-lg"
+                    >
+                        {
+                        landingPage
+                            .gallery
+                            .description
+                        }
+                    </p>
+                    )
+                }
+                </div>
+
+                <div
+                class="mt-10 grid gap-3 md:grid-cols-12 md:auto-rows-64 lg:auto-rows-80"
+                >
+                {
+                    galleryImages.map(
+                    (
+                        image,
+                        index,
+                    ) => {
+                        const isOnlyImage =
+                        galleryImages.length ===
+                        1;
+
+                        const classes =
+                        isOnlyImage
+                            ? 'md:col-span-12 md:row-span-2'
+                            : index ===
+                                0
+                            ? 'md:col-span-7 md:row-span-2'
+                            : index ===
+                                1
+                                ? 'md:col-span-5'
+                                : index ===
+                                    2
+                                ? 'md:col-span-5'
+                                : 'md:col-span-6';
+
+                        return (
+                        <figure
+                            class={`relative min-h-72 overflow-hidden rounded-card bg-white-warm ${classes}`}
+                        >
+                            <ProductImage
+                            image={
+                                image
+                            }
+                            fit={
+                                landingPage
+                                .gallery
+                                ?.imageFit ??
+                                'cover'
+                            }
+                            class="absolute inset-0 h-full w-full bg-none"
+                            imageClass={
+                                landingPage
+                                .gallery
+                                ?.imageFit ===
+                                'contain'
+                                ? 'p-5 sm:p-8'
+                                : ''
+                            }
+                            sizes="(min-width: 768px) 60vw, 100vw"
+                            widths={[
+                                480,
+                                720,
+                                960,
+                                1200,
+                            ]}
+                            />
+                        </figure>
+                        );
+                    },
+                    )
+                }
+                </div>
+            </div>
+            </section>
+        )
+    }
+
+    <section
+        class="bg-ink-950 py-16 text-white sm:py-20 lg:py-24"
+        aria-labelledby="landing-specifications-title"
+    >
+        <div
+        class="site-container-wide grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20"
+        >
+        <div>
+            <p
+            class="text-xs font-extrabold tracking-[0.14em] text-accent-300 uppercase"
+            >
+            Product details
+            </p>
+
+            <h2
+            id="landing-specifications-title"
+            class="mt-4 text-4xl text-white sm:text-5xl"
+            >
+            The details that matter.
+            </h2>
+
+            <p
+            class="mt-5 max-w-md text-base leading-7 text-white/65"
+            >
+            Practical specifications stay easy to scan without competing with the product story above.
+            </p>
+        </div>
+
+        <dl>
+            {
+            specificationRows.map(
+                (
+                row,
+                ) => (
+                <div
+                    class="grid gap-2 border-t border-white/15 py-5 sm:grid-cols-[11rem_1fr] sm:gap-8"
+                >
+                    <dt
+                    class="text-xs font-extrabold tracking-[0.12em] text-white/50 uppercase"
+                    >
+                    {
+                        row.label
+                    }
+                    </dt>
+
+                    <dd
+                    class="text-base font-bold leading-7 text-white/90"
+                    >
+                    {
+                        row.value
+                    }
+                    </dd>
+                </div>
+                ),
+            )
+            }
+        </dl>
+        </div>
+    </section>
+
+    <section
+        id="buy"
+        class="bg-accent-50 py-16 sm:py-20 lg:py-24"
+    >
+        <div
+        class="site-container-wide grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16"
+        >
+        <div
+            class="relative min-h-104 sm:min-h-136 lg:min-h-168"
+        >
+            <div
+            class="pointer-events-none absolute inset-12 rounded-full bg-accent-300/30 blur-3xl"
+            aria-hidden="true"
+            >
+            </div>
+
+            <ProductImage
+            image={purchaseImage}
+            fit="contain"
+            class="absolute inset-0 h-full w-full bg-none"
+            imageClass="relative z-10 p-4 sm:p-8"
+            sizes="(min-width: 1024px) 50vw, 100vw"
+            widths={[
+                480,
+                720,
+                960,
+                1200,
+            ]}
+            />
+        </div>
+
+        <div
+            class="max-w-xl"
+        >
+            {
+            landingPage.purchase
+                .eyebrow && (
+                <p
+                class="text-xs font-extrabold tracking-[0.14em] text-accent-700 uppercase"
+                >
+                {
+                    landingPage
+                    .purchase
+                    .eyebrow
+                }
+                </p>
+            )
+            }
+
+            <h2
+            class="mt-4 text-4xl text-ink-950 sm:text-5xl lg:text-6xl"
+            >
+            {
+                landingPage.purchase
+                .title
+            }
+            </h2>
+
+            <p
+            class="mt-5 text-base leading-7 text-ink-600 sm:text-lg"
+            >
+            {
+                landingPage.purchase
+                .description
+            }
+            </p>
+
+            <div
+            class="mt-6"
+            >
+            <p
+                class="text-sm font-extrabold text-ink-500"
+            >
+                {
+                product.name
+                }
+            </p>
+
+            {
+                startingPrice && (
+                <p
+                    class="mt-1 text-3xl font-black text-ink-950"
+                >
+                    From{' '}
+                    {
+                    formatProductPrice(
+                        startingPrice,
+                    )
+                    }
+                </p>
+                )
+            }
+            </div>
+
+            <!--
+            This is intentionally the existing cart component.
+
+            It already owns:
+            - variant selection
+            - runtime inventory
+            - quantity limits
+            - low-stock states
+            - sold-out handling
+            - Back-in-Stock signup
+            -->
+            <AddToCartButton
+            productSlug={product.slug}
+            mode="detail"
+            client:load
+            />
+
+            {
+            landingPage.purchase
+                .note && (
+                <p
+                class="mt-4 text-xs font-bold leading-5 text-ink-500"
+                >
+                {
+                    landingPage
+                    .purchase
+                    .note
+                }
+                </p>
+            )
+            }
+
+            <a
+            href={`/shop/${product.slug}`}
+            class="mt-6 inline-flex items-center gap-2 text-sm font-extrabold text-brand-700 transition hover:gap-3 hover:text-brand-800"
+            >
+            View complete product details
+
+            <ArrowRightBold
+                class="size-4"
+                aria-hidden="true"
+            />
+            </a>
+        </div>
+        </div>
+    </section>
+
+    {
+        landingPage.faq &&
+        landingPage.faq.length >
+            0 && (
+            <section
+            class="bg-white-warm py-16 sm:py-20 lg:py-24"
+            >
+            <div
+                class="site-container max-w-4xl"
+            >
+                <div
+                class="text-center"
+                >
+                <PawPrintBold
+                    class="mx-auto size-8 text-brand-500"
+                    aria-hidden="true"
+                />
+
+                <h2
+                    class="mt-4 text-4xl text-ink-950 sm:text-5xl"
+                >
+                    Good to know.
+                </h2>
+                </div>
+
+                <div
+                class="mt-10"
+                >
+                {
+                    landingPage.faq.map(
+                    (
+                        item,
+                    ) => (
+                        <details
+                        class="group border-t border-sand py-5 last:border-b"
+                        >
+                        <summary
+                            class="flex cursor-pointer list-none items-center justify-between gap-6 text-lg font-extrabold text-ink-900"
+                        >
+                            <span>
+                            {
+                                item.question
+                            }
+                            </span>
+
+                            <span
+                            class="grid size-8 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-700 transition group-open:rotate-45"
+                            aria-hidden="true"
+                            >
+                            +
+                            </span>
+                        </summary>
+
+                        <p
+                            class="max-w-3xl pt-4 text-base leading-7 text-ink-600"
+                        >
+                            {
+                            item.answer
+                            }
+                        </p>
+                        </details>
+                    ),
+                    )
+                }
+                </div>
+            </div>
+            </section>
+        )
+    }
+</article>

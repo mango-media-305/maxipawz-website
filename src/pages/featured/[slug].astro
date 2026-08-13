@@ -1,0 +1,78 @@
+---
+import ProductLandingPage from '@components/landing/ProductLandingPage.astro';
+
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+import { isStoreLive } from '../../config/storefront';
+
+import type { ProductImage } from '../../types/product';
+
+import type { ResolvedProductLandingPage } from '../../utils/product-landing-pages';
+
+import { getActiveProductLandingPages } from '../../utils/product-landing-pages';
+
+interface Props {
+    landingPage: ResolvedProductLandingPage;
+}
+
+export function getStaticPaths() {
+    return getActiveProductLandingPages().map((landingPage) => ({
+        params: {
+        slug: landingPage.slug,
+        },
+
+        props: {
+        landingPage,
+        },
+    }));
+}
+
+const { landingPage } = Astro.props as Props;
+
+const product = landingPage.product;
+
+function getImage(index = 0): ProductImage | undefined {
+    return product.images[index] ?? product.images[0];
+}
+
+const socialImage = getImage(landingPage.seo.imageIndex ?? landingPage.hero.imageIndex ?? 0);
+
+const socialImageSource = socialImage
+    ? typeof socialImage.src === 'string'
+        ? socialImage.src
+        : socialImage.src.src
+    : undefined;
+
+const shouldNoIndex = !isStoreLive || Boolean(product.isDemo) || landingPage.seo.noIndex !== false;
+
+const structuredData = {
+    '@context': 'https://schema.org',
+
+    '@type': 'WebPage',
+
+    name: landingPage.seo.title,
+
+    description: landingPage.seo.description,
+
+    mainEntity: {
+        '@type': 'Product',
+
+        name: product.name,
+
+        description: product.shortDescription,
+
+        url: `https://maxipawz.com/shop/${product.slug}`,
+    },
+};
+---
+
+<BaseLayout
+    title={landingPage.seo.title}
+    description={landingPage.seo.description}
+    noIndex={shouldNoIndex}
+    hideSiteChrome={false}
+    image={socialImageSource}
+    structuredData={structuredData}
+>
+    <ProductLandingPage landingPage={landingPage} />
+</BaseLayout>
