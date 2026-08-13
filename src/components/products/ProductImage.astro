@@ -29,6 +29,7 @@ interface Props {
   eager?: boolean;
 
   class?: string;
+
   imageClass?: string;
 
   variant?: ProductImageVariant;
@@ -36,6 +37,7 @@ interface Props {
   fit?: ProductImageFit;
 
   sizes?: string;
+
   widths?: number[];
 
   quality?: number;
@@ -121,7 +123,9 @@ const {
 } = Astro.props;
 
 const profile =
-  imageProfiles[variant];
+  imageProfiles[
+    variant
+  ];
 
 const resolvedSizes =
   sizes ??
@@ -135,49 +139,76 @@ const resolvedQuality =
   quality ??
   profile.quality;
 
-const positionClasses:
-  Record<
-    ProductImagePosition,
-    string
-  > = {
-    center:
-      'object-center',
+function getObjectPosition(
+  position:
+    ProductImagePosition =
+      'center',
+): string {
+  switch (
+    position
+  ) {
+    case 'top':
+      return 'center top';
 
-    top:
-      'object-top',
+    case 'bottom':
+      return 'center bottom';
 
-    bottom:
-      'object-bottom',
+    case 'left':
+      return 'left center';
 
-    left:
-      'object-left',
+    case 'right':
+      return 'right center';
 
-    right:
-      'object-right',
-  };
+    case 'center':
+    default:
+      return 'center center';
+  }
+}
 
-const imagePosition =
-  positionClasses[
+const resolvedObjectPosition =
+  getObjectPosition(
     image?.position ??
-      'center'
-  ];
+      'center',
+  );
 
-const fitClass =
-  fit === 'contain'
-    ? 'object-contain'
-    : 'object-cover';
+/**
+ * Important:
+ *
+ * The site-wide base stylesheet contains:
+ *
+ * img {
+ *   height: auto;
+ * }
+ *
+ * That is a good default for normal content images, but ProductImage is
+ * specifically designed to fill a visual container.
+ *
+ * We therefore set width, height, object-fit, and object-position inline.
+ * This guarantees that `cover` really covers the complete wrapper on every
+ * breakpoint while avoiding a global CSS change that could affect unrelated
+ * images around the site.
+ */
+const imageStyle = [
+  'display: block',
+  'width: 100%',
+  'height: 100%',
+  `object-fit: ${fit}`,
+  `object-position: ${resolvedObjectPosition}`,
+].join('; ');
 
 const imageClasses = [
-  'h-full w-full',
+  'block',
 
-  fitClass,
-
-  imagePosition,
+  'max-w-none',
 
   imageClass,
 ]
-  .filter(Boolean)
-  .join(' ');
+  .filter(
+    Boolean,
+  )
+  .join(
+    ' ',
+  );
 
 const loading =
   eager
@@ -211,23 +242,29 @@ function getResponsiveWidths(
   const validWidths =
     requestedWidths
       .filter(
-        (width) =>
+        (
+          width,
+        ) =>
           Number.isFinite(
             width,
           ) &&
-          width > 0 &&
+          width >
+            0 &&
           width <=
             sourceWidth,
       )
       .map(
-        (width) =>
+        (
+          width,
+        ) =>
           Math.round(
             width,
           ),
       );
 
   if (
-    validWidths.length === 0
+    validWidths.length ===
+    0
   ) {
     validWidths.push(
       sourceWidth,
@@ -295,7 +332,8 @@ function createUnsplashVariant(
   );
 
   if (
-    fit === 'contain'
+    fit ===
+    'contain'
   ) {
     url.searchParams.set(
       'fit',
@@ -343,7 +381,9 @@ const remoteSourceSet =
   )
     ? responsiveWidths
         .map(
-          (width) => {
+          (
+            width,
+          ) => {
             const height =
               Math.max(
                 1,
@@ -359,7 +399,9 @@ const remoteSourceSet =
 
             return `${createUnsplashVariant(
               remoteImage.src,
+
               width,
+
               height,
             )} ${width}w`;
           },
@@ -426,6 +468,7 @@ const remoteFallbackSource =
           decoding="async"
           fetchpriority={fetchPriority}
           class={imageClasses}
+          style={imageStyle}
         />
       ) : (
         <Image
@@ -438,6 +481,7 @@ const remoteFallbackSource =
           sizes={resolvedSizes}
           quality={resolvedQuality}
           class={imageClasses}
+          style={imageStyle}
         />
       )
     ) : (
@@ -450,10 +494,14 @@ const remoteFallbackSource =
             class="mx-auto grid size-16 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-600 shadow-soft"
             aria-hidden="true"
           >
-            <PawPrintBold class="size-8" />
+            <PawPrintBold
+              class="size-8"
+            />
           </span>
 
-          <p class="mt-4 text-sm font-extrabold text-ink-600">
+          <p
+            class="mt-4 text-sm font-extrabold text-ink-600"
+          >
             Product image coming soon
           </p>
         </div>

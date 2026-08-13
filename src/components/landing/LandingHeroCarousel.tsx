@@ -1,4 +1,7 @@
-import { useEffect, useState } from 'preact/hooks';
+import {
+    useEffect,
+    useState,
+} from 'preact/hooks';
 
 export type LandingHeroImagePosition =
     | 'center'
@@ -15,11 +18,13 @@ export interface LandingHeroImage {
     width: number;
     height: number;
 
-    position?: LandingHeroImagePosition;
+    position?:
+    LandingHeroImagePosition;
 }
 
 interface Props {
-    images: LandingHeroImage[];
+    images:
+    LandingHeroImage[];
 
     productName: string;
 
@@ -27,9 +32,13 @@ interface Props {
 }
 
 function getObjectPosition(
-    position: LandingHeroImagePosition = 'center',
+    position:
+        LandingHeroImagePosition =
+        'center',
 ): string {
-    switch (position) {
+    switch (
+    position
+    ) {
         case 'top':
             return 'center top';
 
@@ -58,7 +67,9 @@ function PreviousIcon() {
             strokeWidth="2.5"
             aria-hidden="true"
         >
-            <path d="m15 18-6-6 6-6" />
+            <path
+                d="m15 18-6-6 6-6"
+            />
         </svg>
     );
 }
@@ -73,115 +84,185 @@ function NextIcon() {
             strokeWidth="2.5"
             aria-hidden="true"
         >
-            <path d="m9 18 6-6-6-6" />
+            <path
+                d="m9 18 6-6-6-6"
+            />
         </svg>
     );
 }
 
 export default function LandingHeroCarousel({
     images,
+
     productName,
+
     intervalMs = 5200,
 }: Props) {
-    const [activeIndex, setActiveIndex] = useState(0);
-
-    const [paused, setPaused] = useState(false);
-
-    const [reducedMotion, setReducedMotion] = useState(false);
-
-    const imageCount = images.length;
-
-    useEffect(() => {
-        const mediaQuery = window.matchMedia(
-            '(prefers-reduced-motion: reduce)',
+    const [
+        activeIndex,
+        setActiveIndex,
+    ] =
+        useState(
+            0,
         );
 
-        const updateReducedMotion = (): void => {
-            setReducedMotion(mediaQuery.matches);
-        };
-
-        updateReducedMotion();
-
-        mediaQuery.addEventListener(
-            'change',
-            updateReducedMotion,
+    const [
+        paused,
+        setPaused,
+    ] =
+        useState(
+            false,
         );
 
-        return () => {
-            mediaQuery.removeEventListener(
+    const [
+        reducedMotion,
+        setReducedMotion,
+    ] =
+        useState(
+            false,
+        );
+
+    const imageCount =
+        images.length;
+
+    useEffect(
+        () => {
+            const mediaQuery =
+                window.matchMedia(
+                    '(prefers-reduced-motion: reduce)',
+                );
+
+            const updateReducedMotion =
+                (): void => {
+                    setReducedMotion(
+                        mediaQuery.matches,
+                    );
+                };
+
+            updateReducedMotion();
+
+            mediaQuery.addEventListener(
                 'change',
                 updateReducedMotion,
             );
-        };
-    }, []);
 
-    useEffect(() => {
-        if (
-            imageCount <= 1 ||
-            paused ||
-            reducedMotion
-        ) {
-            return;
-        }
+            return () => {
+                mediaQuery.removeEventListener(
+                    'change',
+                    updateReducedMotion,
+                );
+            };
+        },
+        [],
+    );
 
-        const timer = window.setInterval(() => {
-            setActiveIndex((currentIndex) =>
-                (currentIndex + 1) % imageCount
-            );
-        }, intervalMs);
+    useEffect(
+        () => {
+            if (
+                imageCount <=
+                1 ||
+                paused ||
+                reducedMotion
+            ) {
+                return;
+            }
 
-        return () => {
-            window.clearInterval(timer);
-        };
-    }, [
-        imageCount,
-        intervalMs,
-        paused,
-        reducedMotion,
-    ]);
+            const timer =
+                window.setInterval(
+                    () => {
+                        setActiveIndex(
+                            (
+                                currentIndex,
+                            ) =>
+                                (
+                                    currentIndex +
+                                    1
+                                ) %
+                                imageCount,
+                        );
+                    },
+                    intervalMs,
+                );
 
-    useEffect(() => {
-        if (
-            activeIndex >= imageCount &&
-            imageCount > 0
-        ) {
-            setActiveIndex(0);
-        }
-    }, [
-        activeIndex,
-        imageCount,
-    ]);
+            return () => {
+                window.clearInterval(
+                    timer,
+                );
+            };
+        },
+        [
+            imageCount,
+            intervalMs,
+            paused,
+            reducedMotion,
+        ],
+    );
 
-    if (imageCount === 0) {
+    useEffect(
+        () => {
+            if (
+                activeIndex >=
+                imageCount &&
+                imageCount >
+                0
+            ) {
+                setActiveIndex(
+                    0,
+                );
+            }
+        },
+        [
+            activeIndex,
+            imageCount,
+        ],
+    );
+
+    if (
+        imageCount ===
+        0
+    ) {
         return (
-            <div className="absolute inset-0 grid place-items-center rounded-4xl bg-linear-to-br from-brand-100 via-cream-soft to-accent-100">
-                <p className="font-extrabold text-ink-600">
-                    Product image coming soon
+            <div
+                className="absolute inset-0 grid place-items-center rounded-4xl bg-linear-to-br from-brand-100 via-cream-soft to-accent-100"
+            >
+                <p
+                    className="font-extrabold text-ink-600"
+                >
+                    Product image coming
+                    soon
                 </p>
             </div>
         );
     }
 
-    const goPrevious = (): void => {
-        setActiveIndex((currentIndex) =>
-            (
-                currentIndex -
-                1 +
-                imageCount
-            ) %
-            imageCount
-        );
-    };
+    const goPrevious =
+        (): void => {
+            setActiveIndex(
+                (
+                    currentIndex,
+                ) =>
+                    (
+                        currentIndex -
+                        1 +
+                        imageCount
+                    ) %
+                    imageCount,
+            );
+        };
 
-    const goNext = (): void => {
-        setActiveIndex((currentIndex) =>
-            (
-                currentIndex +
-                1
-            ) %
-            imageCount
-        );
-    };
+    const goNext =
+        (): void => {
+            setActiveIndex(
+                (
+                    currentIndex,
+                ) =>
+                    (
+                        currentIndex +
+                        1
+                    ) %
+                    imageCount,
+            );
+        };
 
     return (
         <div
@@ -189,16 +270,24 @@ export default function LandingHeroCarousel({
             role="region"
             aria-label={`${productName} image gallery`}
             onMouseEnter={() => {
-                setPaused(true);
+                setPaused(
+                    true,
+                );
             }}
             onMouseLeave={() => {
-                setPaused(false);
+                setPaused(
+                    false,
+                );
             }}
             onFocusCapture={() => {
-                setPaused(true);
+                setPaused(
+                    true,
+                );
             }}
             onBlurCapture={() => {
-                setPaused(false);
+                setPaused(
+                    false,
+                );
             }}
         >
             {images.map(
@@ -213,31 +302,66 @@ export default function LandingHeroCarousel({
                     return (
                         <img
                             key={`${image.src}-${index}`}
-                            src={image.src}
-                            alt={image.alt}
-                            width={image.width}
-                            height={image.height}
+                            src={
+                                image.src
+                            }
+                            alt={
+                                image.alt
+                            }
+                            width={
+                                image.width
+                            }
+                            height={
+                                image.height
+                            }
                             loading={
-                                index <= 1
+                                index <=
+                                    1
                                     ? 'eager'
                                     : 'lazy'
                             }
                             decoding="async"
                             fetchPriority={
-                                index === 0
+                                index ===
+                                    0
                                     ? 'high'
                                     : 'auto'
                             }
                             className={[
                                 'landing-hero-slide-image',
-                                'absolute inset-0 h-full w-full object-cover',
+
+                                'absolute inset-0 block max-w-none',
+
                                 'transition-opacity duration-1000 ease-out',
 
                                 active
                                     ? 'is-active opacity-100'
                                     : 'pointer-events-none opacity-0',
-                            ].join(' ')}
+                            ].join(
+                                ' ',
+                            )}
                             style={{
+                                position:
+                                    'absolute',
+
+                                inset:
+                                    '0',
+
+                                display:
+                                    'block',
+
+                                width:
+                                    '100%',
+
+                                height:
+                                    '100%',
+
+                                maxWidth:
+                                    'none',
+
+                                objectFit:
+                                    'cover',
+
                                 objectPosition:
                                     getObjectPosition(
                                         image.position,
@@ -253,93 +377,105 @@ export default function LandingHeroCarousel({
                 },
             )}
 
-            {imageCount > 1 && (
-                <>
-                    <div className="absolute top-4 right-4 z-30 flex items-center gap-2 rounded-full border border-white/25 bg-ink-950/55 p-1.5 text-white shadow-soft backdrop-blur-md sm:top-5 sm:right-5">
-                        <button
-                            type="button"
-                            className="grid size-9 place-items-center rounded-full border border-white/20 bg-white/10 transition hover:bg-white/20"
-                            aria-label="Previous product image"
-                            onClick={goPrevious}
+            {imageCount >
+                1 && (
+                    <>
+                        <div
+                            className="absolute top-4 right-4 z-30 flex items-center gap-2 rounded-full p-1.5 text-white sm:top-5 sm:right-5"
                         >
-                            <PreviousIcon />
-                        </button>
+                            <button
+                                type="button"
+                                className="grid size-9 place-items-center rounded-full border border-white/20 bg-white/10 transition hover:bg-white/20"
+                                aria-label="Previous product image"
+                                onClick={
+                                    goPrevious
+                                }
+                            >
+                                <PreviousIcon />
+                            </button>
 
-                        {/* <p
-                            className="min-w-12 text-center text-xs font-extrabold tracking-[0.08em]"
-                            aria-live="polite"
+                            {/* <p
+                                className="min-w-12 text-center text-xs font-extrabold tracking-[0.08em]"
+                                aria-live="polite"
+                            >
+                                {String(
+                                    activeIndex +
+                                    1,
+                                ).padStart(
+                                    2,
+                                    '0',
+                                )}
+
+                                <span
+                                    className="mx-1 text-white/45"
+                                >
+                                    /
+                                </span>
+
+                                {String(
+                                    imageCount,
+                                ).padStart(
+                                    2,
+                                    '0',
+                                )}
+                            </p> */}
+
+                            <button
+                                type="button"
+                                className="grid size-9 place-items-center rounded-full border border-white/20 bg-white/10 transition hover:bg-white/20"
+                                aria-label="Next product image"
+                                onClick={
+                                    goNext
+                                }
+                            >
+                                <NextIcon />
+                            </button>
+                        </div>
+
+                        <div
+                            className="absolute right-5 bottom-5 z-30 hidden items-center gap-1.5 sm:flex"
+                            aria-label="Choose product image"
                         >
-                            {String(
-                                activeIndex + 1,
-                            ).padStart(
-                                2,
-                                '0',
+                            {images.map(
+                                (
+                                    image,
+                                    index,
+                                ) => {
+                                    const active =
+                                        index ===
+                                        activeIndex;
+
+                                    return (
+                                        <button
+                                            key={`dot-${image.src}-${index}`}
+                                            type="button"
+                                            className={[
+                                                'h-2 rounded-full border border-white/35 transition-all duration-300',
+
+                                                active
+                                                    ? 'w-8 bg-white'
+                                                    : 'w-2 bg-white/45 hover:bg-white/75',
+                                            ].join(
+                                                ' ',
+                                            )}
+                                            aria-label={`Show image ${index + 1} of ${imageCount}`}
+                                            aria-current={
+                                                active
+                                                    ? 'true'
+                                                    : undefined
+                                            }
+                                            onClick={() => {
+                                                setActiveIndex(
+                                                    index,
+                                                );
+                                            }}
+                                        />
+                                    );
+                                },
                             )}
-
-                            <span className="mx-1 text-white/45">
-                                /
-                            </span>
-
-                            {String(
-                                imageCount,
-                            ).padStart(
-                                2,
-                                '0',
-                            )}
-                        </p> */}
-
-                        <button
-                            type="button"
-                            className="grid size-9 place-items-center rounded-full border border-white/20 bg-white/10 transition hover:bg-white/20"
-                            aria-label="Next product image"
-                            onClick={goNext}
-                        >
-                            <NextIcon />
-                        </button>
-                    </div>
-
-                    <div
-                        className="absolute right-5 bottom-5 z-30 hidden items-center gap-1.5 sm:flex"
-                        aria-label="Choose product image"
-                    >
-                        {images.map(
-                            (
-                                image,
-                                index,
-                            ) => {
-                                const active =
-                                    index ===
-                                    activeIndex;
-
-                                return (
-                                    <button
-                                        key={`dot-${image.src}-${index}`}
-                                        type="button"
-                                        className={[
-                                            'h-2 rounded-full border border-white/35 transition-all duration-300',
-
-                                            active
-                                                ? 'w-8 bg-white'
-                                                : 'w-2 bg-white/45 hover:bg-white/75',
-                                        ].join(' ')}
-                                        aria-label={`Show image ${index + 1} of ${imageCount}`}
-                                        aria-current={
-                                            active
-                                                ? 'true'
-                                                : undefined
-                                        }
-                                        onClick={() => {
-                                            setActiveIndex(
-                                                index,
-                                            );
-                                        }}
-                                    />
-                                );
-                            },
-                        )}
-                    </div>
-                </>
-            )}
+                        </div>
+                    </>
+                )}
         </div>
     );
 }
