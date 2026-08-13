@@ -1,3 +1,8 @@
+import adventureFitHarnessLifestyle from '../assets/products/adventure-fit-harness/adventure-fit-harness-lifestyle.webp';
+import adventureFitHarnessDetail from '../assets/products/adventure-fit-harness/adventure-fit-harness-detail.webp';
+import adventureFitHarnessSide from '../assets/products/adventure-fit-harness/adventure-fit-harness-side.webp';
+import adventureFitHarnessFit from '../assets/products/adventure-fit-harness/adventure-fit-harness-fit.webp';
+
 import { stripeDemoCatalog } from './stripe-demo-catalog.generated';
 
 import type { Product, ProductImage, ProductImagePosition } from '../types/product';
@@ -67,12 +72,36 @@ const demoProducts: Product[] = [
 
     images: [
       unsplashImage(
-        '1591946614720-90a587da4a36',
-        'Dog playing with a blue and white ball, used as a demo product image',
-        'FLOUFFY',
-        'dog-toy',
+        '1600352712371-15fd49ca42b5',
+        'Dog outdoors, used as the primary lifestyle image for the fictional Adventure Fit Harness',
+        'Jamie Street',
+        'dog-harness',
         'center',
       ),
+
+      {
+        src: adventureFitHarnessLifestyle,
+        alt: 'Dog wearing the Adventure Fit Harness outdoors during a walk',
+        position: 'center',
+      },
+
+      {
+        src: adventureFitHarnessDetail,
+        alt: 'Close-up view of the Adventure Fit Harness construction and hardware',
+        position: 'center',
+      },
+
+      {
+        src: adventureFitHarnessSide,
+        alt: 'Side view showing the Adventure Fit Harness shape and coverage',
+        position: 'center',
+      },
+
+      {
+        src: adventureFitHarnessFit,
+        alt: 'Adventure Fit Harness shown on a dog to demonstrate overall fit',
+        position: 'center',
+      },
     ],
 
     featured: true,

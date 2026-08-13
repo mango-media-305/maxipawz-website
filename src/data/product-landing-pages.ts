@@ -80,51 +80,51 @@ export const productLandingPages:
 
             story: [
                 {
-                    imageIndex: 0,
+                    imageIndex: 1,
 
                     imageFit: 'cover',
 
                     imageSide: 'left',
 
                     eyebrow:
-                        'Designed around the experience',
+                    'Designed around the experience',
 
                     title:
-                        'Show the product in the life your customer wants.',
+                    'Show the product in the life your customer wants.',
 
                     body: [
-                        'Rather than placing every piece of information inside a card, this layout uses large photography and editorial spacing to tell the product story.',
-                        'When real product photography becomes available, each section can use a different lifestyle shot, close-up, packaging image, or product angle.',
+                    'Rather than placing every piece of information inside a card, this layout uses large photography and editorial spacing to tell the product story.',
+                    'When real product photography becomes available, each section can use a different lifestyle shot, close-up, packaging image, or product angle.',
                     ],
 
                     bullets: [
-                        'Lifestyle photography',
-                        'Close-up product details',
-                        'Real-world use cases',
+                    'Lifestyle photography',
+                    'Close-up product details',
+                    'Real-world use cases',
                     ],
                 },
 
                 {
-                    imageIndex: 1,
+                    imageIndex: 2,
 
                     imageFit: 'contain',
 
                     imageSide: 'right',
 
                     eyebrow:
-                        'Product details',
+                    'Product details',
 
                     title:
-                        'Then move from emotion into practical details.',
+                    'Then move from emotion into practical details.',
 
                     body: [
-                        'The second story block can transition from the lifestyle promise into product construction, materials, fit, dimensions, or another major selling point.',
+                    'The second story block can transition from the lifestyle promise into product construction, materials, fit, dimensions, or another major selling point.',
                     ],
 
                     bullets: [
-                        'Materials',
-                        'Fit and sizing',
-                        'Construction details',
+                    'Materials',
+                    'Fit and sizing',
+                    'Construction details',
                     ],
                 },
             ],
@@ -137,13 +137,14 @@ export const productLandingPages:
                     'Let the product photography do more of the selling.',
 
                 description:
-                    'Real products can use this section for front, back, detail, packaging, lifestyle, and scale-reference photography.',
+                    'Explore the Adventure Fit Harness through lifestyle, detail, fit, and alternate-angle photography.',
 
                 imageIndexes: [
                     0,
                     1,
                     2,
                     3,
+                    4,
                 ],
 
                 imageFit: 'cover',
@@ -159,7 +160,7 @@ export const productLandingPages:
                 description:
                     'The final conversion section connects directly to the same product, variant, inventory, cart, and Back-in-Stock logic as the normal store.',
 
-                imageIndex: 0,
+                imageIndex: 4,
 
                 note:
                     'This demo campaign remains part of the sandbox catalog only.',
