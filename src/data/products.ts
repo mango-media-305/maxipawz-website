@@ -1,8 +1,3 @@
-import adventureFitHarnessLifestyle from '../assets/products/adventure-fit-harness/adventure-fit-harness-lifestyle.webp';
-import adventureFitHarnessDetail from '../assets/products/adventure-fit-harness/adventure-fit-harness-detail.webp';
-import adventureFitHarnessSide from '../assets/products/adventure-fit-harness/adventure-fit-harness-side.webp';
-import adventureFitHarnessFit from '../assets/products/adventure-fit-harness/adventure-fit-harness-fit.webp';
-
 import { stripeDemoCatalog } from './stripe-demo-catalog.generated';
 
 import type { Product, ProductImage, ProductImagePosition } from '../types/product';
@@ -80,27 +75,35 @@ const demoProducts: Product[] = [
       ),
 
       {
-        src: adventureFitHarnessLifestyle,
+        src: '/images/products/adventure-fit-harness/adventure-fit-harness-lifestyle.webp',
         alt: 'Dog wearing the Adventure Fit Harness outdoors during a walk',
         position: 'center',
+        width: 1200,
+        height: 1200,
       },
 
       {
-        src: adventureFitHarnessDetail,
+        src: '/images/products/adventure-fit-harness/adventure-fit-harness-detail.webp',
         alt: 'Close-up view of the Adventure Fit Harness construction and hardware',
         position: 'center',
+        width: 1200,
+        height: 1200,
       },
 
       {
-        src: adventureFitHarnessSide,
+        src: '/images/products/adventure-fit-harness/adventure-fit-harness-side.webp',
         alt: 'Side view showing the Adventure Fit Harness shape and coverage',
         position: 'center',
+        width: 1200,
+        height: 1200,
       },
 
       {
-        src: adventureFitHarnessFit,
+        src: '/images/products/adventure-fit-harness/adventure-fit-harness-fit.webp',
         alt: 'Adventure Fit Harness shown on a dog to demonstrate overall fit',
         position: 'center',
+        width: 1200,
+        height: 1200,
       },
     ],
 
@@ -997,14 +1000,14 @@ export const products: Product[] = demoProducts.map((product) => {
 
     ...(stripeReference.stripeDefaultPriceId
       ? {
-          stripeDefaultPriceId: stripeReference.stripeDefaultPriceId,
-        }
+        stripeDefaultPriceId: stripeReference.stripeDefaultPriceId,
+      }
       : {}),
 
     ...(variants
       ? {
-          variants,
-        }
+        variants,
+      }
       : {}),
   };
 });
