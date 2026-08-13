@@ -67,44 +67,12 @@ const demoProducts: Product[] = [
 
     images: [
       unsplashImage(
-        '1600352712371-15fd49ca42b5',
-        'Dog outdoors, used as the primary lifestyle image for the fictional Adventure Fit Harness',
-        'Jamie Street',
-        'dog-harness',
+        '1591946614720-90a587da4a36',
+        'Dog playing with a blue and white ball, used as a demo product image',
+        'FLOUFFY',
+        'dog-toy',
         'center',
       ),
-
-      {
-        src: '/images/products/adventure-fit-harness/adventure-fit-harness-lifestyle.webp',
-        alt: 'Dog wearing the Adventure Fit Harness outdoors during a walk',
-        position: 'center',
-        width: 1200,
-        height: 1200,
-      },
-
-      {
-        src: '/images/products/adventure-fit-harness/adventure-fit-harness-detail.webp',
-        alt: 'Close-up view of the Adventure Fit Harness construction and hardware',
-        position: 'center',
-        width: 1200,
-        height: 1200,
-      },
-
-      {
-        src: '/images/products/adventure-fit-harness/adventure-fit-harness-side.webp',
-        alt: 'Side view showing the Adventure Fit Harness shape and coverage',
-        position: 'center',
-        width: 1200,
-        height: 1200,
-      },
-
-      {
-        src: '/images/products/adventure-fit-harness/adventure-fit-harness-fit.webp',
-        alt: 'Adventure Fit Harness shown on a dog to demonstrate overall fit',
-        position: 'center',
-        width: 1200,
-        height: 1200,
-      },
     ],
 
     featured: true,
@@ -242,11 +210,43 @@ const demoProducts: Product[] = [
     images: [
       unsplashImage(
         '1600352712371-15fd49ca42b5',
-        'Dog outdoors, used as a lifestyle image for a fictional harness',
+        'Dog outdoors, used as the primary lifestyle image for the fictional Adventure Fit Harness',
         'Jamie Street',
         'dog-harness',
         'center',
       ),
+
+      {
+        src: '/images/products/adventure-fit-harness/adventure-fit-harness-lifestyle.webp',
+        alt: 'Dog wearing the Adventure Fit Harness outdoors during a walk',
+        position: 'center',
+        width: 1200,
+        height: 1200,
+      },
+
+      {
+        src: '/images/products/adventure-fit-harness/adventure-fit-harness-detail.webp',
+        alt: 'Close-up view of the Adventure Fit Harness construction and hardware',
+        position: 'center',
+        width: 1200,
+        height: 1200,
+      },
+
+      {
+        src: '/images/products/adventure-fit-harness/adventure-fit-harness-side.webp',
+        alt: 'Side view showing the Adventure Fit Harness shape and coverage',
+        position: 'center',
+        width: 1200,
+        height: 1200,
+      },
+
+      {
+        src: '/images/products/adventure-fit-harness/adventure-fit-harness-fit.webp',
+        alt: 'Adventure Fit Harness shown on a dog to demonstrate overall fit',
+        position: 'center',
+        width: 1200,
+        height: 1200,
+      },
     ],
 
     featured: true,
@@ -964,7 +964,10 @@ const demoProducts: Product[] = [
       },
     },
 
-    careInstructions: ['Wipe clean using a lightly damp cloth.', 'Dry completely before reuse.'],
+    careInstructions: [
+      'Wipe clean using a lightly damp cloth.',
+      'Dry completely before reuse.',
+    ],
 
     safetyNotes: [
       'Fictional testing product—not currently available for purchase.',
@@ -1000,14 +1003,14 @@ export const products: Product[] = demoProducts.map((product) => {
 
     ...(stripeReference.stripeDefaultPriceId
       ? {
-        stripeDefaultPriceId: stripeReference.stripeDefaultPriceId,
-      }
+          stripeDefaultPriceId: stripeReference.stripeDefaultPriceId,
+        }
       : {}),
 
     ...(variants
       ? {
-        variants,
-      }
+          variants,
+        }
       : {}),
   };
 });
