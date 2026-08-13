@@ -3,6 +3,12 @@ import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
 import CheckCircleFill from 'phosphor-astro/CheckCircleFill.astro';
 import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
 
+import LandingHeroCarousel from './LandingHeroCarousel';
+
+import type {
+    LandingHeroImage,
+} from './LandingHeroCarousel';
+
 import AddToCartButton from '../cart/AddToCartButton';
 
 import ProductImage from '../products/ProductImage.astro';
@@ -33,18 +39,21 @@ interface Props {
 
 const {
     landingPage,
-} = Astro.props;
+} = Astro.props as Props;
 
 const product =
     landingPage.product;
 
+const productPageHref =
+    `/shop/${product.slug}`;
+
 function getImage(
     index = 0,
-): ProductImageData | undefined {
+):
+    | ProductImageData
+    | undefined {
     return (
-        product.images[
-        index
-        ] ??
+        product.images[index] ??
         product.images[0]
     );
 }
@@ -71,33 +80,32 @@ function getGalleryImages():
             image,
         ): image is ProductImageData =>
             Boolean(
-            image,
+                image,
             ),
         );
 }
 
 function getStartingPrice(
-     productValue: Product,
+    productValue: Product,
 ):
     | ProductPrice
     | undefined {
-    const prices =
-        [
+    const prices = [
         productValue.price,
 
         ...(productValue.variants ??
-            []).map(
-            (variant) =>
+        []).map(
+        (variant) =>
             variant.price,
         ),
-        ].filter(
+    ].filter(
         (
-            price,
+        price,
         ): price is ProductPrice =>
-            Boolean(
+        Boolean(
             price,
-            ),
-        );
+        ),
+    );
 
     if (
         prices.length === 0
@@ -117,11 +125,53 @@ function getStartingPrice(
     );
 }
 
-const heroImage =
-    getImage(
-        landingPage.hero
-        .imageIndex ??
-        0,
+function toHeroImage(
+    image:
+        ProductImageData,
+): LandingHeroImage {
+    if (
+        typeof image.src ===
+        'string'
+    ) {
+        return {
+        src:
+            image.src,
+
+        alt:
+            image.alt,
+
+        width:
+            image.width,
+
+        height:
+            image.height,
+
+        position:
+            image.position,
+        };
+    }
+
+    return {
+        src:
+        image.src.src,
+
+        alt:
+        image.alt,
+
+        width:
+        image.src.width,
+
+        height:
+        image.src.height,
+
+        position:
+        image.position,
+    };
+}
+
+const heroImages =
+    product.images.map(
+        toHeroImage,
     );
 
 const purchaseImage =
@@ -149,83 +199,82 @@ const categoryLabel =
         product.category,
     );
 
-const specificationRows =
-    [
-        {
+const specificationRows = [
+    {
         label:
-            'Category',
+        'Category',
 
         value:
-            categoryLabel,
-        },
+        categoryLabel,
+    },
 
-        {
+    {
         label:
-            'For',
+        'For',
 
         value:
-            product.petTypes
+        product.petTypes
             .map(
-                formatPetType,
+            formatPetType,
             )
             .join(
+            ', ',
+            ),
+    },
+
+    product.materials &&
+    product.materials.length >
+        0
+        ? {
+            label:
+            'Materials',
+
+            value:
+            product.materials.join(
                 ', ',
             ),
-        },
-
-        product.materials &&
-        product.materials
-        .length > 0
-        ? {
-            label:
-                'Materials',
-
-            value:
-                product.materials.join(
-                ', ',
-                ),
-            }
+        }
         : undefined,
 
-        dimensions
+    dimensions
         ? {
             label:
-                'Dimensions',
+            'Dimensions',
 
             value:
-                dimensions,
-            }
+            dimensions,
+        }
         : undefined,
 
-        product.variants &&
-        product.variants
-        .length > 0
+    product.variants &&
+    product.variants.length >
+        0
         ? {
             label:
-                'Options',
+            'Options',
 
             value:
-                product.variants
+            product.variants
                 .map(
-                    (variant) =>
+                (variant) =>
                     variant.label,
                 )
                 .join(
-                    ', ',
+                ', ',
                 ),
-            }
+        }
         : undefined,
-    ].filter(
-        (
+].filter(
+    (
         row,
-        ): row is {
+    ): row is {
         label: string;
         value: string;
-        } =>
+    } =>
         Boolean(
-            row,
+        row,
         ),
-    );
+);
 ---
 
 <article>
@@ -233,193 +282,150 @@ const specificationRows =
         landingPage.hero.style ===
         'cinematic' ? (
         <section
-            class="relative isolate min-h-[88svh] overflow-hidden bg-ink-950 text-white"
+            class="bg-cream-soft py-5 sm:py-7 lg:py-9"
         >
-            {
-            heroImage && (
-                <>
-                <!--
-                    Ambient layer:
-                    fill the entire hero even when the source
-                    aspect ratio does not match the viewport.
-                -->
+            <div
+            class="site-container-wide"
+            >
+            <div
+                class="relative isolate min-h-168 overflow-hidden rounded-4xl bg-ink-950 shadow-card sm:min-h-184 lg:min-h-192"
+            >
+                <LandingHeroCarousel
+                images={heroImages}
+                productName={product.name}
+                client:load
+                />
+
                 <div
-                    class="absolute inset-0 -z-30 overflow-hidden"
-                    aria-hidden="true"
+                class="pointer-events-none absolute inset-0 z-10 bg-linear-to-r from-ink-950/90 via-ink-950/55 to-transparent"
+                aria-hidden="true"
                 >
-                    <ProductImage
-                    image={heroImage}
-                    eager={true}
-                    fit="cover"
-                    class="h-full w-full bg-none"
-                    imageClass="scale-110 opacity-55 blur-2xl"
-                    sizes="100vw"
-                    widths={[
-                        640,
-                        960,
-                        1280,
-                        1600,
-                    ]}
-                    />
                 </div>
 
-                <!--
-                    Main product layer:
-                    object-contain means the entire original
-                    image remains visible.
-                -->
                 <div
-                    class="absolute inset-0 -z-20"
+                class="pointer-events-none absolute inset-0 z-10 bg-linear-to-t from-ink-950/90 via-ink-950/20 to-ink-950/15"
+                aria-hidden="true"
                 >
-                    <ProductImage
-                    image={heroImage}
-                    eager={true}
-                    fit="contain"
-                    class="h-full w-full bg-none"
-                    imageClass="p-0 sm:p-4 lg:p-8"
-                    sizes="100vw"
-                    widths={[
-                        640,
-                        960,
-                        1280,
-                        1600,
-                    ]}
-                    />
                 </div>
-                </>
-            )
-            }
-
-            <div
-            class="absolute inset-0 -z-10 bg-linear-to-r from-ink-950/95 via-ink-950/62 to-ink-950/10"
-            aria-hidden="true"
-            >
-            </div>
-
-            <div
-            class="absolute inset-0 -z-10 bg-linear-to-t from-ink-950/85 via-transparent to-ink-950/20"
-            aria-hidden="true"
-            >
-            </div>
-
-            <div
-            class="site-container-wide flex min-h-[88svh] items-end pt-16 pb-12 sm:pb-16 lg:pb-20"
-            >
-            <div
-                class="max-w-3xl"
-            >
-                {
-                landingPage.hero
-                    .eyebrow && (
-                    <p
-                    class="text-xs font-extrabold tracking-[0.14em] text-accent-300 uppercase"
-                    >
-                    {
-                        landingPage
-                        .hero
-                        .eyebrow
-                    }
-                    </p>
-                )
-                }
-
-                <h1
-                class="mt-4 max-w-3xl text-5xl leading-[0.96] text-white sm:text-6xl lg:text-7xl xl:text-[5.5rem]"
-                >
-                {
-                    landingPage
-                    .hero
-                    .headline
-                }
-                </h1>
-
-                <p
-                class="mt-6 max-w-2xl text-base leading-7 text-white/82 sm:text-lg sm:leading-8"
-                >
-                {
-                    landingPage
-                    .hero
-                    .description
-                }
-                </p>
-
-                {
-                startingPrice && (
-                    <p
-                    class="mt-5 text-lg font-extrabold text-white"
-                    >
-                    From{' '}
-                    <span
-                        class="text-2xl text-accent-300"
-                    >
-                        {
-                        formatProductPrice(
-                            startingPrice,
-                        )
-                        }
-                    </span>
-                    </p>
-                )
-                }
 
                 <div
-                class="mt-8 flex flex-col gap-3 sm:flex-row"
+                class="relative z-20 flex min-h-168 items-end px-5 pt-24 pb-12 sm:min-h-184 sm:px-8 sm:pb-14 lg:min-h-192 lg:px-12 lg:pb-16"
                 >
-                <Button
-                    href="#buy"
-                    variant="primary"
-                    size="lg"
-                    iconPosition="right"
+                <div
+                    class="max-w-3xl"
                 >
-                    <ArrowRightBold
-                    slot="icon"
-                    aria-hidden="true"
-                    />
-
                     {
-                    landingPage
-                        .hero
-                        .primaryCtaLabel
-                    }
-                </Button>
-
-                {
                     landingPage.hero
-                    .secondaryCtaLabel && (
-                    <a
-                        href="#story"
-                        class="inline-flex min-h-12 items-center justify-center rounded-full border border-white/35 bg-white/10 px-6 text-base font-extrabold text-white backdrop-blur-sm transition hover:bg-white/18"
-                    >
+                        .eyebrow && (
+                        <p
+                        class="text-xs font-extrabold tracking-[0.14em] text-accent-300 uppercase"
+                        >
                         {
-                        landingPage
+                            landingPage
                             .hero
-                            .secondaryCtaLabel
+                            .eyebrow
                         }
-                    </a>
+                        </p>
                     )
-                }
+                    }
+
+                    <h1
+                    class="mt-4 max-w-3xl text-5xl leading-[0.96] text-white sm:text-6xl lg:text-7xl xl:text-[5.5rem]"
+                    >
+                    {
+                        landingPage.hero
+                        .headline
+                    }
+                    </h1>
+
+                    <p
+                    class="mt-6 max-w-2xl text-base leading-7 text-white/85 sm:text-lg sm:leading-8"
+                    >
+                    {
+                        landingPage.hero
+                        .description
+                    }
+                    </p>
+
+                    {
+                    startingPrice && (
+                        <p
+                        class="mt-5 text-lg font-extrabold text-white"
+                        >
+                        From{' '}
+
+                        <span
+                            class="text-2xl text-accent-300"
+                        >
+                            {
+                            formatProductPrice(
+                                startingPrice,
+                            )
+                            }
+                        </span>
+                        </p>
+                    )
+                    }
+
+                    <div
+                    class="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap"
+                    >
+                    <Button
+                        href={productPageHref}
+                        variant="primary"
+                        size="lg"
+                        iconPosition="right"
+                    >
+                        <ArrowRightBold
+                        slot="icon"
+                        aria-hidden="true"
+                        />
+
+                        {
+                        landingPage.hero
+                            .primaryCtaLabel
+                        }
+                    </Button>
+
+                    {
+                        landingPage.hero
+                        .secondaryCtaLabel && (
+                        <a
+                            href="#story"
+                            class="inline-flex min-h-12 items-center justify-center rounded-full border border-white/35 bg-white/10 px-6 text-base font-extrabold text-white backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-white/18"
+                        >
+                            {
+                            landingPage
+                                .hero
+                                .secondaryCtaLabel
+                            }
+                        </a>
+                        )
+                    }
+
+                    <a
+                        href={productPageHref}
+                        class="inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-4 text-sm font-extrabold text-white transition hover:gap-3 hover:text-accent-200"
+                    >
+                        View complete product page
+
+                        <ArrowRightBold
+                        class="size-4"
+                        aria-hidden="true"
+                        />
+                    </a>
+                    </div>
+                </div>
                 </div>
             </div>
             </div>
         </section>
         ) : (
         <section
-            class="relative overflow-hidden bg-cream-soft pt-12 sm:pt-16"
+            class="bg-cream-soft py-8 sm:py-10 lg:py-12"
         >
             <div
-            class="pointer-events-none absolute -top-32 -right-32 size-136 rounded-full bg-brand-300/25 blur-3xl"
-            aria-hidden="true"
-            >
-            </div>
-
-            <div
-            class="pointer-events-none absolute -bottom-40 -left-36 size-136 rounded-full bg-accent-300/25 blur-3xl"
-            aria-hidden="true"
-            >
-            </div>
-
-            <div
-            class="site-container-wide relative grid min-h-[75svh] items-center gap-10 pb-16 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16 lg:pb-20"
+            class="site-container-wide grid min-h-[70svh] items-center gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16"
             >
             <div>
                 {
@@ -429,8 +435,7 @@ const specificationRows =
                     class="text-xs font-extrabold tracking-[0.14em] text-brand-700 uppercase"
                     >
                     {
-                        landingPage
-                        .hero
+                        landingPage.hero
                         .eyebrow
                     }
                     </p>
@@ -441,8 +446,7 @@ const specificationRows =
                 class="mt-4 text-5xl leading-[0.96] text-ink-950 sm:text-6xl lg:text-7xl"
                 >
                 {
-                    landingPage
-                    .hero
+                    landingPage.hero
                     .headline
                 }
                 </h1>
@@ -451,8 +455,7 @@ const specificationRows =
                 class="mt-6 max-w-xl text-base leading-7 text-ink-600 sm:text-lg sm:leading-8"
                 >
                 {
-                    landingPage
-                    .hero
+                    landingPage.hero
                     .description
                 }
                 </p>
@@ -463,6 +466,7 @@ const specificationRows =
                     class="mt-5 text-xl font-black text-ink-950"
                     >
                     From{' '}
+
                     {
                         formatProductPrice(
                         startingPrice,
@@ -476,7 +480,7 @@ const specificationRows =
                 class="mt-8 flex flex-col gap-3 sm:flex-row"
                 >
                 <Button
-                    href="#buy"
+                    href={productPageHref}
                     variant="primary"
                     size="lg"
                     iconPosition="right"
@@ -487,8 +491,7 @@ const specificationRows =
                     />
 
                     {
-                    landingPage
-                        .hero
+                    landingPage.hero
                         .primaryCtaLabel
                     }
                 </Button>
@@ -513,26 +516,13 @@ const specificationRows =
             </div>
 
             <div
-                class="relative min-h-112 sm:min-h-144 lg:min-h-176"
+                class="relative min-h-120 overflow-hidden rounded-4xl bg-ink-950 shadow-card sm:min-h-152 lg:min-h-176"
             >
-                {
-                heroImage && (
-                    <ProductImage
-                    image={heroImage}
-                    eager={true}
-                    fit="contain"
-                    class="absolute inset-0 h-full w-full bg-none"
-                    imageClass="p-3 sm:p-6"
-                    sizes="(min-width: 1024px) 55vw, 100vw"
-                    widths={[
-                        480,
-                        720,
-                        960,
-                        1200,
-                    ]}
-                    />
-                )
-                }
+                <LandingHeroCarousel
+                images={heroImages}
+                productName={product.name}
+                client:load
+                />
             </div>
             </div>
         </section>
@@ -562,8 +552,7 @@ const specificationRows =
                         class:list={[
                             'py-8 md:px-8 md:py-10',
 
-                            index >
-                            0
+                            index > 0
                             ? 'border-t border-sand md:border-t-0 md:border-l'
                             : '',
                         ]}
@@ -604,6 +593,42 @@ const specificationRows =
                     )
                 }
             </div>
+
+            <div
+                class="border-t border-sand"
+            >
+                <div
+                class="site-container-wide flex flex-col items-start justify-between gap-5 py-6 sm:flex-row sm:items-center"
+                >
+                <div>
+                    <p
+                    class="font-extrabold text-ink-900"
+                    >
+                    Want sizing, variants, pricing, and complete product information?
+                    </p>
+
+                    <p
+                    class="mt-1 text-sm text-ink-600"
+                    >
+                    Everything is available on the full product page.
+                    </p>
+                </div>
+
+                <Button
+                    href={productPageHref}
+                    variant="secondary"
+                    size="md"
+                    iconPosition="right"
+                >
+                    <ArrowRightBold
+                    slot="icon"
+                    aria-hidden="true"
+                    />
+
+                    View Product
+                </Button>
+                </div>
+            </div>
             </section>
         )
     }
@@ -630,21 +655,147 @@ const specificationRows =
 
                     const imageOnRight =
                     storyBlock.imageSide ===
-                        'right';
+                    'right';
 
                     return (
                     <div
                         class:list={[
-                        'site-container-wide grid items-center gap-10 py-16 sm:py-20 lg:grid-cols-2 lg:gap-16 lg:py-24',
+                        'site-container-wide py-8 sm:py-10 lg:grid lg:grid-cols-2 lg:items-center lg:gap-16 lg:py-24',
 
                         index > 0
                             ? 'border-t border-sand/70'
                             : '',
                         ]}
                     >
+                        <!--
+                        MOBILE:
+                        Full image fills the entire card.
+                        Text sits over the photo with a gradient.
+                        -->
+                        <article
+                        class="relative min-h-152 overflow-hidden rounded-4xl bg-ink-950 shadow-card lg:hidden"
+                        >
+                        <ProductImage
+                            image={storyImage}
+                            fit="cover"
+                            class="absolute inset-0 h-full w-full rounded-4xl"
+                            imageClass="h-full w-full object-cover"
+                            sizes="100vw"
+                            widths={[
+                            480,
+                            640,
+                            800,
+                            960,
+                            ]}
+                        />
+
+                        <div
+                            class="pointer-events-none absolute inset-0 bg-linear-to-t from-ink-950/95 via-ink-950/50 to-ink-950/5"
+                            aria-hidden="true"
+                        >
+                        </div>
+
+                        <div
+                            class="relative z-10 flex min-h-152 items-end p-6 sm:p-8"
+                        >
+                            <div>
+                            {
+                                storyBlock.eyebrow && (
+                                <p
+                                    class="text-xs font-extrabold tracking-[0.14em] text-brand-200 uppercase"
+                                >
+                                    {
+                                    storyBlock
+                                        .eyebrow
+                                    }
+                                </p>
+                                )
+                            }
+
+                            <h2
+                                class="mt-4 text-4xl leading-none text-white sm:text-5xl"
+                            >
+                                {
+                                storyBlock.title
+                                }
+                            </h2>
+
+                            <div
+                                class="mt-5 space-y-3 text-sm leading-6 text-white/85 sm:text-base sm:leading-7"
+                            >
+                                {
+                                storyBlock.body.map(
+                                    (
+                                    paragraph,
+                                    ) => (
+                                    <p>
+                                        {
+                                        paragraph
+                                        }
+                                    </p>
+                                    ),
+                                )
+                                }
+                            </div>
+
+                            {
+                                storyBlock.bullets &&
+                                storyBlock.bullets
+                                    .length > 0 && (
+                                    <ul
+                                    class="mt-5 space-y-2.5"
+                                    >
+                                    {
+                                        storyBlock
+                                        .bullets
+                                        .map(
+                                            (
+                                            bullet,
+                                            ) => (
+                                            <li
+                                                class="flex items-start gap-3 font-extrabold text-white"
+                                            >
+                                                <CheckCircleFill
+                                                class="mt-0.5 size-5 shrink-0 text-brand-300"
+                                                aria-hidden="true"
+                                                />
+
+                                                <span>
+                                                {
+                                                    bullet
+                                                }
+                                                </span>
+                                            </li>
+                                            ),
+                                        )
+                                    }
+                                    </ul>
+                                )
+                            }
+
+                            <a
+                                href={productPageHref}
+                                class="mt-7 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/30 bg-white/15 px-5 text-sm font-extrabold text-white backdrop-blur-sm transition hover:gap-3 hover:bg-white/25"
+                            >
+                                View {product.name}
+
+                                <ArrowRightBold
+                                class="size-4"
+                                aria-hidden="true"
+                                />
+                            </a>
+                            </div>
+                        </div>
+                        </article>
+
+                        <!--
+                        DESKTOP:
+                        Preserve the editorial image + text layout
+                        from the current design.
+                        -->
                         <figure
                         class:list={[
-                            'relative overflow-hidden rounded-4xl bg-cream-soft',
+                            'hidden overflow-hidden rounded-4xl bg-cream-soft shadow-card lg:block',
 
                             imageOnRight
                             ? 'lg:order-2'
@@ -653,21 +804,13 @@ const specificationRows =
                         >
                         <ProductImage
                             image={storyImage}
-                            fit={
-                            storyBlock.imageFit ??
-                            'cover'
-                            }
-                            class="aspect-4/5 h-full w-full bg-none sm:aspect-5/4 lg:aspect-4/5"
-                            imageClass={
-                            storyBlock.imageFit ===
-                            'contain'
-                                ? 'p-6 sm:p-10'
-                                : ''
-                            }
-                            sizes="(min-width: 1024px) 48vw, 100vw"
+                            fit="cover"
+                            class="aspect-4/5 h-full w-full rounded-4xl"
+                            imageClass="h-full w-full object-cover"
+                            sizes="48vw"
                             widths={[
-                            480,
-                            720,
+                            640,
+                            800,
                             960,
                             1200,
                             ]}
@@ -676,7 +819,7 @@ const specificationRows =
 
                         <div
                         class:list={[
-                            'max-w-xl',
+                            'hidden max-w-xl lg:block',
 
                             imageOnRight
                             ? 'lg:order-1'
@@ -689,7 +832,8 @@ const specificationRows =
                                 class="text-xs font-extrabold tracking-[0.14em] text-brand-700 uppercase"
                             >
                                 {
-                                storyBlock.eyebrow
+                                storyBlock
+                                    .eyebrow
                                 }
                             </p>
                             )
@@ -729,30 +873,47 @@ const specificationRows =
                                 class="mt-7 space-y-3"
                                 >
                                 {
-                                    storyBlock.bullets.map(
-                                    (
+                                    storyBlock
+                                    .bullets
+                                    .map(
+                                        (
                                         bullet,
-                                    ) => (
+                                        ) => (
                                         <li
-                                        class="flex items-start gap-3 font-extrabold text-ink-800"
+                                            class="flex items-start gap-3 font-extrabold text-ink-800"
                                         >
-                                        <CheckCircleFill
+                                            <CheckCircleFill
                                             class="mt-0.5 size-5 shrink-0 text-brand-500"
                                             aria-hidden="true"
-                                        />
+                                            />
 
-                                        <span>
+                                            <span>
                                             {
-                                            bullet
+                                                bullet
                                             }
-                                        </span>
+                                            </span>
                                         </li>
-                                    ),
+                                        ),
                                     )
                                 }
                                 </ul>
                             )
                         }
+
+                        <Button
+                            href={productPageHref}
+                            variant="secondary"
+                            size="md"
+                            iconPosition="right"
+                            class="mt-8"
+                        >
+                            <ArrowRightBold
+                            slot="icon"
+                            aria-hidden="true"
+                            />
+
+                            View {product.name}
+                        </Button>
                         </div>
                     </div>
                     );
@@ -768,57 +929,75 @@ const specificationRows =
         galleryImages.length >
             0 && (
             <section
+            id="gallery"
             class="bg-cream-soft py-16 sm:py-20 lg:py-24"
             >
             <div
                 class="site-container-wide"
             >
                 <div
-                class="max-w-3xl"
+                class="flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-end"
                 >
-                {
+                <div
+                    class="max-w-3xl"
+                >
+                    {
                     landingPage.gallery
-                    .eyebrow && (
-                    <p
+                        .eyebrow && (
+                        <p
                         class="text-xs font-extrabold tracking-[0.14em] text-accent-600 uppercase"
-                    >
+                        >
                         {
-                        landingPage
+                            landingPage
                             .gallery
                             .eyebrow
                         }
-                    </p>
+                        </p>
                     )
-                }
+                    }
 
-                <h2
+                    <h2
                     class="mt-4 text-4xl text-ink-950 sm:text-5xl lg:text-6xl"
-                >
+                    >
                     {
-                    landingPage
-                        .gallery
+                        landingPage.gallery
                         .title
                     }
-                </h2>
+                    </h2>
 
-                {
+                    {
                     landingPage.gallery
-                    .description && (
-                    <p
+                        .description && (
+                        <p
                         class="mt-5 max-w-2xl text-base leading-7 text-ink-600 sm:text-lg"
-                    >
+                        >
                         {
-                        landingPage
+                            landingPage
                             .gallery
                             .description
                         }
-                    </p>
+                        </p>
                     )
-                }
+                    }
+                </div>
+
+                <Button
+                    href={productPageHref}
+                    variant="primary"
+                    size="md"
+                    iconPosition="right"
+                >
+                    <ArrowRightBold
+                    slot="icon"
+                    aria-hidden="true"
+                    />
+
+                    Shop {product.name}
+                </Button>
                 </div>
 
                 <div
-                class="mt-10 grid gap-3 md:grid-cols-12 md:auto-rows-64 lg:auto-rows-80"
+                class="mt-10 grid gap-4 md:grid-cols-12 md:auto-rows-64 lg:auto-rows-80"
                 >
                 {
                     galleryImages.map(
@@ -830,43 +1009,36 @@ const specificationRows =
                         galleryImages.length ===
                         1;
 
-                        const classes =
+                        let gridClasses =
+                        'md:col-span-6';
+
+                        if (
                         isOnlyImage
-                            ? 'md:col-span-12 md:row-span-2'
-                            : index ===
-                                0
-                            ? 'md:col-span-7 md:row-span-2'
-                            : index ===
-                                1
-                                ? 'md:col-span-5'
-                                : index ===
-                                    2
-                                ? 'md:col-span-5'
-                                : 'md:col-span-6';
+                        ) {
+                        gridClasses =
+                            'md:col-span-12 md:row-span-2';
+                        } else if (
+                        index === 0
+                        ) {
+                        gridClasses =
+                            'md:col-span-7 md:row-span-2';
+                        } else if (
+                        index === 1 ||
+                        index === 2
+                        ) {
+                        gridClasses =
+                            'md:col-span-5';
+                        }
 
                         return (
                         <figure
-                            class={`relative min-h-72 overflow-hidden rounded-card bg-white-warm ${classes}`}
+                            class={`relative min-h-72 overflow-hidden rounded-4xl bg-white-warm shadow-card ${gridClasses}`}
                         >
                             <ProductImage
-                            image={
-                                image
-                            }
-                            fit={
-                                landingPage
-                                .gallery
-                                ?.imageFit ??
-                                'cover'
-                            }
-                            class="absolute inset-0 h-full w-full bg-none"
-                            imageClass={
-                                landingPage
-                                .gallery
-                                ?.imageFit ===
-                                'contain'
-                                ? 'p-5 sm:p-8'
-                                : ''
-                            }
+                            image={image}
+                            fit="cover"
+                            class="absolute inset-0 h-full w-full rounded-4xl"
+                            imageClass="h-full w-full object-cover"
                             sizes="(min-width: 768px) 60vw, 100vw"
                             widths={[
                                 480,
@@ -912,6 +1084,18 @@ const specificationRows =
             >
             Practical specifications stay easy to scan without competing with the product story above.
             </p>
+
+            <a
+            href={productPageHref}
+            class="mt-7 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/25 bg-white/10 px-5 text-sm font-extrabold text-white transition hover:gap-3 hover:bg-white/18"
+            >
+            See full product details
+
+            <ArrowRightBold
+                class="size-4"
+                aria-hidden="true"
+            />
+            </a>
         </div>
 
         <dl>
@@ -954,19 +1138,13 @@ const specificationRows =
         class="site-container-wide grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16"
         >
         <div
-            class="relative min-h-104 sm:min-h-136 lg:min-h-168"
+            class="relative min-h-112 overflow-hidden rounded-4xl bg-white-warm shadow-card sm:min-h-144 lg:min-h-168"
         >
-            <div
-            class="pointer-events-none absolute inset-12 rounded-full bg-accent-300/30 blur-3xl"
-            aria-hidden="true"
-            >
-            </div>
-
             <ProductImage
             image={purchaseImage}
-            fit="contain"
-            class="absolute inset-0 h-full w-full bg-none"
-            imageClass="relative z-10 p-4 sm:p-8"
+            fit="cover"
+            class="absolute inset-0 h-full w-full rounded-4xl"
+            imageClass="h-full w-full object-cover"
             sizes="(min-width: 1024px) 50vw, 100vw"
             widths={[
                 480,
@@ -1030,6 +1208,7 @@ const specificationRows =
                     class="mt-1 text-3xl font-black text-ink-950"
                 >
                     From{' '}
+
                     {
                     formatProductPrice(
                         startingPrice,
@@ -1040,17 +1219,6 @@ const specificationRows =
             }
             </div>
 
-            <!--
-            This is intentionally the existing cart component.
-
-            It already owns:
-            - variant selection
-            - runtime inventory
-            - quantity limits
-            - low-stock states
-            - sold-out handling
-            - Back-in-Stock signup
-            -->
             <AddToCartButton
             productSlug={product.slug}
             mode="detail"
@@ -1064,8 +1232,7 @@ const specificationRows =
                 class="mt-4 text-xs font-bold leading-5 text-ink-500"
                 >
                 {
-                    landingPage
-                    .purchase
+                    landingPage.purchase
                     .note
                 }
                 </p>
@@ -1073,10 +1240,10 @@ const specificationRows =
             }
 
             <a
-            href={`/shop/${product.slug}`}
+            href={productPageHref}
             class="mt-6 inline-flex items-center gap-2 text-sm font-extrabold text-brand-700 transition hover:gap-3 hover:text-brand-800"
             >
-            View complete product details
+            View complete product page
 
             <ArrowRightBold
                 class="size-4"
@@ -1156,4 +1323,78 @@ const specificationRows =
             </section>
         )
     }
+
+    <section
+        class="border-t border-brand-400 bg-brand-500 py-10 text-white sm:py-12"
+    >
+        <div
+        class="site-container-wide flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center"
+        >
+        <div
+            class="max-w-2xl"
+        >
+            <p
+            class="text-xs font-extrabold tracking-[0.14em] text-brand-100 uppercase"
+            >
+            Explore the full product
+            </p>
+
+            <h2
+            class="mt-3 text-3xl text-white sm:text-4xl"
+            >
+            Ready to take a closer look at {product.name}?
+            </h2>
+
+            <p
+            class="mt-3 text-sm leading-6 text-white/80 sm:text-base"
+            >
+            See pricing, available options, inventory status, complete specifications, and product information.
+            </p>
+        </div>
+
+        <Button
+            href={productPageHref}
+            variant="primary"
+            size="lg"
+            iconPosition="right"
+        >
+            <ArrowRightBold
+            slot="icon"
+            aria-hidden="true"
+            />
+
+            View {product.name}
+        </Button>
+        </div>
+    </section>
 </article>
+
+<style is:global>
+    @keyframes landing-hero-ken-burns {
+        0% {
+        transform: scale(1.02) translate3d(0, 0, 0);
+        }
+
+        50% {
+        transform: scale(1.075) translate3d(-0.6%, -0.35%, 0);
+        }
+
+        100% {
+        transform: scale(1.11) translate3d(0.6%, 0.35%, 0);
+        }
+    }
+
+    .landing-hero-slide-image.is-active {
+        animation:
+        landing-hero-ken-burns
+        6.5s
+        ease-in-out
+        both;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .landing-hero-slide-image.is-active {
+        animation: none;
+        }
+    }
+</style>
