@@ -1,250 +1,574 @@
-import { loadStripe } from '@stripe/stripe-js';
+import {
+  loadStripe,
+} from '@stripe/stripe-js';
 
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'preact/hooks';
 
-import { commerceConfig } from '../../config/commerce';
+import {
+  commerceConfig,
+} from '../../config/commerce';
 
-import { resolveCartLines } from '../../utils/cart';
+import type {
+  CheckoutCampaignAttribution,
+  CheckoutSessionResponse,
+  CheckoutSessionSuccessResponse,
+} from '../../types/checkout';
 
-import { buildCheckoutRequest, getCheckoutReadiness } from '../../utils/checkout';
+import type {
+  ShippingOptionsUpdateResponse,
+} from '../../types/shipping';
 
-import type { CheckoutSessionResponse, CheckoutSessionSuccessResponse } from '../../types/checkout';
+import {
+  resolveCartLines,
+} from '../../utils/cart';
 
-import type { ShippingOptionsUpdateResponse } from '../../types/shipping';
+import {
+  buildCheckoutRequest,
+  getCheckoutReadiness,
+} from '../../utils/checkout';
 
-import { useCart } from '../cart/useCart';
+import {
+  getFeaturedCampaignAttribution,
+} from '../../utils/featured-campaign';
 
-import { useCheckoutInventoryReadiness } from './useCheckoutInventoryReadiness';
+import {
+  useCart,
+} from '../cart/useCart';
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
+import {
+  useCheckoutInventoryReadiness,
+} from './useCheckoutInventoryReadiness';
 
-function isCheckoutSuccess(value: unknown): value is CheckoutSessionSuccessResponse {
+function isRecord(
+  value: unknown,
+): value is Record<
+  string,
+  unknown
+> {
   return (
-    isRecord(value) &&
-    value.ok === true &&
-    typeof value.sessionId === 'string' &&
-    typeof value.clientSecret === 'string'
+    typeof value ===
+    'object' &&
+    value !== null &&
+    !Array.isArray(
+      value,
+    )
   );
 }
 
-function getErrorMessage(value: unknown, fallback: string): string {
-  if (isRecord(value) && typeof value.message === 'string') {
+function isCheckoutSuccess(
+  value: unknown,
+): value is CheckoutSessionSuccessResponse {
+  return (
+    isRecord(
+      value,
+    ) &&
+    value.ok ===
+    true &&
+    typeof value.sessionId ===
+    'string' &&
+    typeof value.clientSecret ===
+    'string'
+  );
+}
+
+function getErrorMessage(
+  value: unknown,
+
+  fallback: string,
+): string {
+  if (
+    isRecord(
+      value,
+    ) &&
+    typeof value.message ===
+    'string'
+  ) {
     return value.message;
   }
 
   return fallback;
 }
 
-function parseShippingChangeEvent(value: unknown): {
+function parseShippingChangeEvent(
+  value: unknown,
+): {
   checkoutSessionId: string;
 
   shippingDetails: unknown;
 } | null {
-  if (!isRecord(value) || typeof value.checkoutSessionId !== 'string') {
+  if (
+    !isRecord(
+      value,
+    ) ||
+    typeof value.checkoutSessionId !==
+    'string'
+  ) {
     return null;
   }
 
   return {
-    checkoutSessionId: value.checkoutSessionId,
+    checkoutSessionId:
+      value.checkoutSessionId,
 
-    shippingDetails: value.shippingDetails,
+    shippingDetails:
+      value.shippingDetails,
   };
 }
 
 export default function EmbeddedCheckout() {
-  const { state, hydrated } = useCart();
+  const {
+    state,
 
-  const containerRef = useRef<HTMLDivElement | null>(null);
+    hydrated,
+  } =
+    useCart();
 
-  const [error, setError] = useState('');
+  const containerRef =
+    useRef<HTMLDivElement | null>(
+      null,
+    );
 
-  const resolvedLines = useMemo(() => resolveCartLines(state), [state]);
+  const [
+    error,
+    setError,
+  ] =
+    useState(
+      '',
+    );
 
-  const catalogReadiness = useMemo(() => getCheckoutReadiness(resolvedLines), [resolvedLines]);
+  const [
+    campaignAttribution,
+    setCampaignAttribution,
+  ] =
+    useState<CheckoutCampaignAttribution | null>(
+      null,
+    );
 
-  const inventoryReadiness = useCheckoutInventoryReadiness({
-    lines: resolvedLines,
+  const [
+    attributionHydrated,
+    setAttributionHydrated,
+  ] =
+    useState(
+      false,
+    );
 
-    enabled: hydrated && catalogReadiness.ready,
-  });
+  /*
+   * Attribution lives separately from the cart.
+   *
+   * Read it once when checkout hydrates in the browser.
+   * A visitor without campaign attribution simply receives
+   * a normal checkout request without an attribution field.
+   */
+  useEffect(
+    () => {
+      const storedAttribution =
+        getFeaturedCampaignAttribution();
 
-  const checkoutReady = hydrated && catalogReadiness.ready && inventoryReadiness.ready;
+      setCampaignAttribution(
+        storedAttribution,
+      );
 
-  const checkoutRequest = useMemo(() => buildCheckoutRequest(resolvedLines), [resolvedLines]);
+      setAttributionHydrated(
+        true,
+      );
+    },
+    [],
+  );
 
-  const requestFingerprint = useMemo(() => JSON.stringify(checkoutRequest), [checkoutRequest]);
+  const resolvedLines =
+    useMemo(
+      () =>
+        resolveCartLines(
+          state,
+        ),
+      [
+        state,
+      ],
+    );
 
-  useEffect(() => {
-    if (!checkoutReady || !containerRef.current) {
-      return;
-    }
+  const catalogReadiness =
+    useMemo(
+      () =>
+        getCheckoutReadiness(
+          resolvedLines,
+        ),
+      [
+        resolvedLines,
+      ],
+    );
 
-    let cancelled = false;
+  const inventoryReadiness =
+    useCheckoutInventoryReadiness(
+      {
+        lines:
+          resolvedLines,
 
-    let checkout: {
-      mount: (selector: string) => void;
+        enabled:
+          hydrated &&
+          catalogReadiness
+            .ready,
+      },
+    );
 
-      destroy: () => void;
-    } | null = null;
+  const checkoutReady =
+    hydrated &&
+    attributionHydrated &&
+    catalogReadiness.ready &&
+    inventoryReadiness.ready;
 
-    let clientSecretPromise: Promise<string> | null = null;
+  const checkoutRequest =
+    useMemo(
+      () =>
+        buildCheckoutRequest(
+          resolvedLines,
 
-    async function fetchClientSecret(): Promise<string> {
-      if (clientSecretPromise) {
+          campaignAttribution,
+        ),
+      [
+        campaignAttribution,
+        resolvedLines,
+      ],
+    );
+
+  const requestFingerprint =
+    useMemo(
+      () =>
+        JSON.stringify(
+          checkoutRequest,
+        ),
+      [
+        checkoutRequest,
+      ],
+    );
+
+  useEffect(
+    () => {
+      if (
+        !checkoutReady ||
+        !containerRef.current
+      ) {
+        return;
+      }
+
+      let cancelled =
+        false;
+
+      let checkout: {
+        mount:
+        (
+          selector: string,
+        ) => void;
+
+        destroy:
+        () => void;
+      } | null =
+        null;
+
+      let clientSecretPromise:
+        | Promise<string>
+        | null =
+        null;
+
+      async function fetchClientSecret():
+        Promise<string> {
+        if (
+          clientSecretPromise
+        ) {
+          return clientSecretPromise;
+        }
+
+        clientSecretPromise =
+          (async () => {
+            const response =
+              await fetch(
+                commerceConfig
+                  .checkoutEndpoint,
+
+                {
+                  method:
+                    'POST',
+
+                  headers: {
+                    Accept:
+                      'application/json',
+
+                    'Content-Type':
+                      'application/json',
+                  },
+
+                  body:
+                    requestFingerprint,
+                },
+              );
+
+            const payload =
+              (await response
+                .json()
+                .catch(
+                  () =>
+                    null,
+                )) as
+              | CheckoutSessionResponse
+              | null;
+
+            if (
+              !response.ok ||
+              !isCheckoutSuccess(
+                payload,
+              )
+            ) {
+              throw new Error(
+                getErrorMessage(
+                  payload,
+
+                  'Checkout could not be started.',
+                ),
+              );
+            }
+
+            return payload.clientSecret;
+          })();
+
         return clientSecretPromise;
       }
 
-      clientSecretPromise = (async () => {
-        const response = await fetch(commerceConfig.checkoutEndpoint, {
-          method: 'POST',
+      async function onShippingDetailsChange(
+        event: unknown,
+      ): Promise<
+        | {
+          type:
+          'accept';
+        }
+        | {
+          type:
+          'reject';
 
-          headers: {
-            Accept: 'application/json',
+          errorMessage:
+          string;
+        }
+      > {
+        const parsedEvent =
+          parseShippingChangeEvent(
+            event,
+          );
 
-            'Content-Type': 'application/json',
-          },
+        if (
+          !parsedEvent
+        ) {
+          return {
+            type:
+              'reject',
 
-          body: requestFingerprint,
-        });
-
-        const payload = (await response.json().catch(() => null)) as CheckoutSessionResponse | null;
-
-        if (!response.ok || !isCheckoutSuccess(payload)) {
-          throw new Error(getErrorMessage(payload, 'Checkout could not be started.'));
+            errorMessage:
+              'The shipping address could not be read.',
+          };
         }
 
-        return payload.clientSecret;
-      })();
+        const response =
+          await fetch(
+            commerceConfig
+              .shippingOptionsEndpoint,
 
-      return clientSecretPromise;
-    }
+            {
+              method:
+                'POST',
 
-    async function onShippingDetailsChange(event: unknown): Promise<
-      | {
-          type: 'accept';
+              headers: {
+                Accept:
+                  'application/json',
+
+                'Content-Type':
+                  'application/json',
+              },
+
+              body:
+                JSON.stringify(
+                  {
+                    checkout_session_id:
+                      parsedEvent
+                        .checkoutSessionId,
+
+                    shipping_details:
+                      parsedEvent
+                        .shippingDetails,
+                  },
+                ),
+            },
+          );
+
+        const payload =
+          (await response
+            .json()
+            .catch(
+              () =>
+                null,
+            )) as
+          | ShippingOptionsUpdateResponse
+          | null;
+
+        if (
+          !response.ok ||
+          !payload ||
+          payload.ok !==
+          true
+        ) {
+          return {
+            type:
+              'reject',
+
+            errorMessage:
+              getErrorMessage(
+                payload,
+
+                'Shipping rates could not be calculated for this address.',
+              ),
+          };
         }
-      | {
-          type: 'reject';
 
-          errorMessage: string;
-        }
-    > {
-      const parsedEvent = parseShippingChangeEvent(event);
-
-      if (!parsedEvent) {
         return {
-          type: 'reject',
-
-          errorMessage: 'The shipping address could not be read.',
+          type:
+            'accept',
         };
       }
 
-      const response = await fetch(commerceConfig.shippingOptionsEndpoint, {
-        method: 'POST',
+      async function mountCheckout():
+        Promise<void> {
+        try {
+          setError(
+            '',
+          );
 
-        headers: {
-          Accept: 'application/json',
+          const stripe =
+            await loadStripe(
+              commerceConfig
+                .stripePublishableKey,
+            );
 
-          'Content-Type': 'application/json',
-        },
+          if (
+            !stripe
+          ) {
+            throw new Error(
+              'Stripe.js could not be loaded.',
+            );
+          }
 
-        body: JSON.stringify({
-          checkout_session_id: parsedEvent.checkoutSessionId,
+          const instance =
+            await stripe.createEmbeddedCheckoutPage(
+              {
+                fetchClientSecret,
 
-          shipping_details: parsedEvent.shippingDetails,
-        }),
-      });
+                onShippingDetailsChange,
+              },
+            );
 
-      const payload = (await response
-        .json()
-        .catch(() => null)) as ShippingOptionsUpdateResponse | null;
+          if (
+            cancelled
+          ) {
+            instance.destroy();
 
-      if (!response.ok || !payload || payload.ok !== true) {
-        return {
-          type: 'reject',
+            return;
+          }
 
-          errorMessage: getErrorMessage(
-            payload,
-            'Shipping rates could not be calculated for this address.',
-          ),
-        };
+          checkout =
+            instance;
+
+          instance.mount(
+            '#maxipawz-embedded-checkout',
+          );
+        } catch (
+        checkoutError
+        ) {
+          if (
+            cancelled
+          ) {
+            return;
+          }
+
+          console.error(
+            'Embedded Checkout failed to initialize.',
+
+            checkoutError,
+          );
+
+          setError(
+            checkoutError instanceof
+              Error
+              ? checkoutError.message
+              : 'Checkout could not be initialized.',
+          );
+        }
       }
 
-      return {
-        type: 'accept',
+      void mountCheckout();
+
+      return () => {
+        cancelled =
+          true;
+
+        checkout?.destroy();
       };
-    }
+    },
+    [
+      checkoutReady,
+      requestFingerprint,
+    ],
+  );
 
-    async function mountCheckout(): Promise<void> {
-      try {
-        setError('');
-
-        const stripe = await loadStripe(commerceConfig.stripePublishableKey);
-
-        if (!stripe) {
-          throw new Error('Stripe.js could not be loaded.');
-        }
-
-        const instance = await stripe.createEmbeddedCheckoutPage({
-          fetchClientSecret,
-
-          onShippingDetailsChange,
-        });
-
-        if (cancelled) {
-          instance.destroy();
-
-          return;
-        }
-
-        checkout = instance;
-
-        instance.mount('#maxipawz-embedded-checkout');
-      } catch (checkoutError) {
-        if (cancelled) {
-          return;
-        }
-
-        console.error('Embedded Checkout failed to initialize.', checkoutError);
-
-        setError(
-          checkoutError instanceof Error
-            ? checkoutError.message
-            : 'Checkout could not be initialized.',
-        );
-      }
-    }
-
-    void mountCheckout();
-
-    return () => {
-      cancelled = true;
-
-      checkout?.destroy();
-    };
-  }, [checkoutReady, requestFingerprint]);
-
-  if (!hydrated) {
+  if (
+    !hydrated ||
+    !attributionHydrated
+  ) {
     return (
-      <div className="rounded-[2.5rem] border border-sand bg-white-warm p-8 text-center shadow-card">
-        <p className="font-bold text-ink-600">Preparing secure checkout…</p>
+      <div
+        className="rounded-[2.5rem] border border-sand bg-white-warm p-8 text-center shadow-card"
+      >
+        <p
+          className="font-bold text-ink-600"
+        >
+          Preparing secure checkout…
+        </p>
       </div>
     );
   }
 
-  if (!catalogReadiness.ready) {
+  if (
+    !catalogReadiness.ready
+  ) {
     return (
-      <div className="rounded-[2.5rem] border border-accent-200 bg-accent-50 p-6 shadow-card">
-        <h2 className="text-2xl text-ink-900">Checkout isn't ready yet.</h2>
+      <div
+        className="rounded-[2.5rem] border border-accent-200 bg-accent-50 p-6 shadow-card"
+      >
+        <h2
+          className="text-2xl text-ink-900"
+        >
+          Checkout isn't ready yet.
+        </h2>
 
-        <ul className="mt-4 grid gap-2">
-          {catalogReadiness.reasons.map((reason) => (
-            <li key={reason} className="text-sm font-bold leading-6 text-ink-700">
-              • {reason}
-            </li>
-          ))}
+        <ul
+          className="mt-4 grid gap-2"
+        >
+          {catalogReadiness.reasons.map(
+            (
+              reason,
+            ) => (
+              <li
+                key={
+                  reason
+                }
+                className="text-sm font-bold leading-6 text-ink-700"
+              >
+                •{' '}
+                {
+                  reason
+                }
+              </li>
+            ),
+          )}
         </ul>
 
         <a
@@ -257,33 +581,70 @@ export default function EmbeddedCheckout() {
     );
   }
 
-  if (inventoryReadiness.status === 'idle' || inventoryReadiness.status === 'checking') {
+  if (
+    inventoryReadiness.status ===
+    'idle' ||
+    inventoryReadiness.status ===
+    'checking'
+  ) {
     return (
-      <div className="rounded-[2.5rem] border border-brand-200 bg-brand-50 p-8 text-center shadow-card">
-        <p className="font-extrabold text-ink-900">Checking live stock…</p>
+      <div
+        className="rounded-[2.5rem] border border-brand-200 bg-brand-50 p-8 text-center shadow-card"
+      >
+        <p
+          className="font-extrabold text-ink-900"
+        >
+          Checking live stock…
+        </p>
 
-        <p className="mt-2 text-sm leading-6 text-ink-600">
-          We're confirming that everything in your cart is still available before starting secure
-          checkout.
+        <p
+          className="mt-2 text-sm leading-6 text-ink-600"
+        >
+          We're confirming that everything in your cart is still available before starting secure checkout.
         </p>
       </div>
     );
   }
 
-  if (inventoryReadiness.status === 'blocked') {
+  if (
+    inventoryReadiness.status ===
+    'blocked'
+  ) {
     return (
-      <div className="rounded-[2.5rem] border border-accent-200 bg-accent-50 p-6 shadow-card">
-        <h2 className="text-2xl text-ink-900">Checkout isn't ready yet.</h2>
+      <div
+        className="rounded-[2.5rem] border border-accent-200 bg-accent-50 p-6 shadow-card"
+      >
+        <h2
+          className="text-2xl text-ink-900"
+        >
+          Checkout isn't ready yet.
+        </h2>
 
-        <ul className="mt-4 grid gap-2">
-          {inventoryReadiness.reasons.map((reason) => (
-            <li key={reason} className="text-sm font-bold leading-6 text-ink-700">
-              • {reason}
-            </li>
-          ))}
+        <ul
+          className="mt-4 grid gap-2"
+        >
+          {inventoryReadiness.reasons.map(
+            (
+              reason,
+            ) => (
+              <li
+                key={
+                  reason
+                }
+                className="text-sm font-bold leading-6 text-ink-700"
+              >
+                •{' '}
+                {
+                  reason
+                }
+              </li>
+            ),
+          )}
         </ul>
 
-        <div className="mt-6 flex flex-wrap gap-3">
+        <div
+          className="mt-6 flex flex-wrap gap-3"
+        >
           <button
             type="button"
             className="inline-flex min-h-12 items-center justify-center rounded-full bg-brand-500 px-6 font-extrabold text-white shadow-blue"
@@ -307,10 +668,18 @@ export default function EmbeddedCheckout() {
 
   return (
     <div>
-      <div id="maxipawz-embedded-checkout" ref={containerRef} className="min-h-128" />
+      <div
+        id="maxipawz-embedded-checkout"
+        ref={
+          containerRef
+        }
+        className="min-h-128"
+      />
 
       {error && (
-        <div className="mt-5 rounded-2xl border border-danger-100 bg-danger-50 p-4 text-sm font-bold leading-6 text-danger-700">
+        <div
+          className="mt-5 rounded-2xl border border-danger-100 bg-danger-50 p-4 text-sm font-bold leading-6 text-danger-700"
+        >
           {error}
         </div>
       )}

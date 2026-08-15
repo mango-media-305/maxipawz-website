@@ -381,10 +381,14 @@ export default function LandingHeroCarousel({
                 1 && (
                     <>
                         <div
-                            className="absolute top-4 right-4 z-30 flex items-center gap-2 rounded-full p-1.5 text-white sm:top-5 sm:right-5"
+                            className="absolute top-4 right-4 z-30 flex items-center gap-2 rounded-full border border-white/25 bg-ink-950/55 p-1.5 text-white shadow-soft backdrop-blur-md sm:top-5 sm:right-5"
                         >
                             <button
                                 type="button"
+                                data-featured-gallery-control="previous"
+                                data-featured-gallery-index={String(
+                                    activeIndex,
+                                )}
                                 className="grid size-9 place-items-center rounded-full border border-white/20 bg-white/10 transition hover:bg-white/20"
                                 aria-label="Previous product image"
                                 onClick={
@@ -422,6 +426,10 @@ export default function LandingHeroCarousel({
 
                             <button
                                 type="button"
+                                data-featured-gallery-control="next"
+                                data-featured-gallery-index={String(
+                                    activeIndex,
+                                )}
                                 className="grid size-9 place-items-center rounded-full border border-white/20 bg-white/10 transition hover:bg-white/20"
                                 aria-label="Next product image"
                                 onClick={
@@ -449,6 +457,10 @@ export default function LandingHeroCarousel({
                                         <button
                                             key={`dot-${image.src}-${index}`}
                                             type="button"
+                                            data-featured-gallery-control="select"
+                                            data-featured-gallery-index={String(
+                                                index,
+                                            )}
                                             className={[
                                                 'h-2 rounded-full border border-white/35 transition-all duration-300',
 
