@@ -100,6 +100,7 @@ export default function LandingStickyProductCta({
                                 entry.isIntersecting,
                             );
                         },
+
                         {
                             threshold:
                                 0.08,
@@ -133,6 +134,7 @@ export default function LandingStickyProductCta({
                                 true,
                             );
                         },
+
                         {
                             threshold:
                                 0.05,
@@ -164,6 +166,7 @@ export default function LandingStickyProductCta({
                 purchaseObserver?.disconnect();
             };
         },
+
         [
             heroId,
             purchaseId,
@@ -175,9 +178,9 @@ export default function LandingStickyProductCta({
         !hasReachedPurchase;
 
     return (
-        <div
+        <aside
             className={[
-                'fixed inset-x-3 z-60 transition duration-300 lg:hidden',
+                'fixed inset-x-3 z-60 transition duration-300 lg:hidden motion-reduce:transition-none',
 
                 visible
                     ? 'translate-y-0 opacity-100'
@@ -189,6 +192,7 @@ export default function LandingStickyProductCta({
                 bottom:
                     'calc(0.75rem + env(safe-area-inset-bottom, 0px))',
             }}
+            aria-label="Product shortcut"
             aria-hidden={
                 !visible
             }
@@ -218,14 +222,19 @@ export default function LandingStickyProductCta({
                     href={
                         productHref
                     }
+                    tabIndex={
+                        visible
+                            ? 0
+                            : -1
+                    }
                     data-featured-cta-origin="sticky_mobile"
-                    className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-accent-600 bg-accent-500 px-4 text-sm font-extrabold text-ink-950 shadow-orange transition active:scale-[0.98]"
+                    className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-accent-600 bg-accent-500 px-4 text-sm font-extrabold text-ink-950 shadow-orange transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent-200 active:translate-y-0 active:scale-[0.98] motion-reduce:transition-none"
                 >
                     View Product
 
                     <ArrowIcon />
                 </a>
             </div>
-        </div>
+        </aside>
     );
 }

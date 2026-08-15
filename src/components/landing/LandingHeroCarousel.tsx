@@ -16,6 +16,7 @@ export interface LandingHeroImage {
     alt: string;
 
     width: number;
+
     height: number;
 
     position?:
@@ -52,6 +53,7 @@ function getObjectPosition(
             return 'right center';
 
         case 'center':
+
         default:
             return 'center center';
     }
@@ -91,12 +93,55 @@ function NextIcon() {
     );
 }
 
+function PauseIcon() {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            className="size-4"
+            fill="currentColor"
+            aria-hidden="true"
+        >
+            <rect
+                x="6"
+                y="5"
+                width="4"
+                height="14"
+                rx="1"
+            />
+
+            <rect
+                x="14"
+                y="5"
+                width="4"
+                height="14"
+                rx="1"
+            />
+        </svg>
+    );
+}
+
+function PlayIcon() {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            className="size-4"
+            fill="currentColor"
+            aria-hidden="true"
+        >
+            <path
+                d="M8 5.75v12.5a1 1 0 0 0 1.52.85l9.4-6.25a1 1 0 0 0 0-1.7L9.52 4.9A1 1 0 0 0 8 5.75Z"
+            />
+        </svg>
+    );
+}
+
 export default function LandingHeroCarousel({
     images,
 
     productName,
 
-    intervalMs = 5200,
+    intervalMs =
+    5200,
 }: Props) {
     const [
         activeIndex,
@@ -107,8 +152,24 @@ export default function LandingHeroCarousel({
         );
 
     const [
-        paused,
-        setPaused,
+        userPaused,
+        setUserPaused,
+    ] =
+        useState(
+            false,
+        );
+
+    const [
+        hoverPaused,
+        setHoverPaused,
+    ] =
+        useState(
+            false,
+        );
+
+    const [
+        focusPaused,
+        setFocusPaused,
     ] =
         useState(
             false,
@@ -122,8 +183,22 @@ export default function LandingHeroCarousel({
             false,
         );
 
+    const [
+        announcement,
+        setAnnouncement,
+    ] =
+        useState(
+            '',
+        );
+
     const imageCount =
         images.length;
+
+    const motionPaused =
+        userPaused ||
+        hoverPaused ||
+        focusPaused ||
+        reducedMotion;
 
     useEffect(
         () => {
@@ -143,16 +218,19 @@ export default function LandingHeroCarousel({
 
             mediaQuery.addEventListener(
                 'change',
+
                 updateReducedMotion,
             );
 
             return () => {
                 mediaQuery.removeEventListener(
                     'change',
+
                     updateReducedMotion,
                 );
             };
         },
+
         [],
     );
 
@@ -161,8 +239,7 @@ export default function LandingHeroCarousel({
             if (
                 imageCount <=
                 1 ||
-                paused ||
-                reducedMotion
+                motionPaused
             ) {
                 return;
             }
@@ -181,6 +258,7 @@ export default function LandingHeroCarousel({
                                 imageCount,
                         );
                     },
+
                     intervalMs,
                 );
 
@@ -190,11 +268,12 @@ export default function LandingHeroCarousel({
                 );
             };
         },
+
         [
+            activeIndex,
             imageCount,
             intervalMs,
-            paused,
-            reducedMotion,
+            motionPaused,
         ],
     );
 
@@ -211,6 +290,7 @@ export default function LandingHeroCarousel({
                 );
             }
         },
+
         [
             activeIndex,
             imageCount,
@@ -228,68 +308,155 @@ export default function LandingHeroCarousel({
                 <p
                     className="font-extrabold text-ink-600"
                 >
-                    Product image coming
-                    soon
+                    Product image coming soon
                 </p>
             </div>
         );
     }
 
-    const goPrevious =
-        (): void => {
-            setActiveIndex(
-                (
-                    currentIndex,
-                ) =>
-                    (
-                        currentIndex -
-                        1 +
-                        imageCount
-                    ) %
-                    imageCount,
-            );
-        };
+    function announceImage(
+        index: number,
+    ): void {
+        setAnnouncement(
+            `Showing image ${index + 1} of ${imageCount}: ${images[index]?.alt ?? productName}`,
+        );
+    }
 
-    const goNext =
-        (): void => {
-            setActiveIndex(
-                (
-                    currentIndex,
-                ) =>
-                    (
-                        currentIndex +
-                        1
-                    ) %
-                    imageCount,
-            );
-        };
+    function showImage(
+        index: number,
+    ): void {
+        setActiveIndex(
+            index,
+        );
+
+        announceImage(
+            index,
+        );
+    }
+
+    function goPrevious():
+        void {
+        const nextIndex =
+            (
+                activeIndex -
+                1 +
+                imageCount
+            ) %
+            imageCount;
+
+        showImage(
+            nextIndex,
+        );
+    }
+
+    function goNext():
+        void {
+        const nextIndex =
+            (
+                activeIndex +
+                1
+            ) %
+            imageCount;
+
+        showImage(
+            nextIndex,
+        );
+    }
+
+    const previousIndex =
+        (
+            activeIndex -
+            1 +
+            imageCount
+        ) %
+        imageCount;
+
+    const nextIndex =
+        (
+            activeIndex +
+            1
+        ) %
+        imageCount;
 
     return (
         <div
             className="absolute inset-0 overflow-hidden rounded-4xl bg-ink-950"
             role="region"
+            aria-roledescription="carousel"
             aria-label={`${productName} image gallery`}
             onMouseEnter={() => {
-                setPaused(
+                setHoverPaused(
                     true,
                 );
             }}
             onMouseLeave={() => {
-                setPaused(
+                setHoverPaused(
                     false,
                 );
             }}
             onFocusCapture={() => {
-                setPaused(
+                setFocusPaused(
                     true,
                 );
             }}
-            onBlurCapture={() => {
-                setPaused(
-                    false,
-                );
+            onBlurCapture={(
+                event,
+            ) => {
+                const nextFocus =
+                    event.relatedTarget;
+
+                if (
+                    !(
+                        nextFocus instanceof
+                        Node
+                    ) ||
+                    !event.currentTarget.contains(
+                        nextFocus,
+                    )
+                ) {
+                    setFocusPaused(
+                        false,
+                    );
+                }
+            }}
+            onKeyDown={(
+                event,
+            ) => {
+                if (
+                    event.altKey ||
+                    event.ctrlKey ||
+                    event.metaKey
+                ) {
+                    return;
+                }
+
+                if (
+                    event.key ===
+                    'ArrowLeft'
+                ) {
+                    event.preventDefault();
+
+                    goPrevious();
+                }
+
+                if (
+                    event.key ===
+                    'ArrowRight'
+                ) {
+                    event.preventDefault();
+
+                    goNext();
+                }
             }}
         >
+            <span
+                className="sr-only"
+                aria-live="polite"
+                aria-atomic="true"
+            >
+                {announcement}
+            </span>
+
             {images.map(
                 (
                     image,
@@ -315,8 +482,8 @@ export default function LandingHeroCarousel({
                                 image.height
                             }
                             loading={
-                                index <=
-                                    1
+                                index ===
+                                    0
                                     ? 'eager'
                                     : 'lazy'
                             }
@@ -327,12 +494,15 @@ export default function LandingHeroCarousel({
                                     ? 'high'
                                     : 'auto'
                             }
+                            draggable={
+                                false
+                            }
                             className={[
                                 'landing-hero-slide-image',
 
                                 'absolute inset-0 block max-w-none',
 
-                                'transition-opacity duration-1000 ease-out',
+                                'transition-opacity duration-1000 ease-out motion-reduce:transition-none',
 
                                 active
                                     ? 'is-active opacity-100'
@@ -366,6 +536,11 @@ export default function LandingHeroCarousel({
                                     getObjectPosition(
                                         image.position,
                                     ),
+
+                                animationPlayState:
+                                    motionPaused
+                                        ? 'paused'
+                                        : 'running',
                             }}
                             aria-hidden={
                                 active
@@ -381,15 +556,17 @@ export default function LandingHeroCarousel({
                 1 && (
                     <>
                         <div
-                            className="absolute top-4 right-4 z-30 flex items-center gap-2 rounded-full border border-white/25 bg-ink-950/55 p-1.5 text-white shadow-soft backdrop-blur-md sm:top-5 sm:right-5"
+                            className="absolute top-4 right-4 z-30 flex items-center gap-1.5 rounded-full border border-white/25 bg-ink-950/55 p-1.5 text-white shadow-soft backdrop-blur-md sm:top-5 sm:right-5"
+                            role="group"
+                            aria-label="Image carousel controls"
                         >
                             <button
                                 type="button"
                                 data-featured-gallery-control="previous"
                                 data-featured-gallery-index={String(
-                                    activeIndex,
+                                    previousIndex,
                                 )}
-                                className="grid size-9 place-items-center rounded-full border border-white/20 bg-white/10 transition hover:bg-white/20"
+                                className="grid size-11 place-items-center rounded-full border border-white/20 bg-white/10 transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-white/70 motion-reduce:transition-none"
                                 aria-label="Previous product image"
                                 onClick={
                                     goPrevious
@@ -398,39 +575,55 @@ export default function LandingHeroCarousel({
                                 <PreviousIcon />
                             </button>
 
-                            {/* <p
-                                className="min-w-12 text-center text-xs font-extrabold tracking-[0.08em]"
-                                aria-live="polite"
+                            <button
+                                type="button"
+                                data-featured-gallery-control={
+                                    userPaused
+                                        ? 'play'
+                                        : 'pause'
+                                }
+                                className="grid size-11 place-items-center rounded-full border border-white/20 bg-white/10 transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-white/70 disabled:cursor-not-allowed disabled:opacity-55 motion-reduce:transition-none"
+                                aria-label={
+                                    reducedMotion
+                                        ? 'Automatic image rotation is disabled by your reduced-motion preference'
+                                        : userPaused
+                                            ? 'Resume automatic image rotation'
+                                            : 'Pause automatic image rotation'
+                                }
+                                aria-pressed={
+                                    userPaused
+                                }
+                                disabled={
+                                    reducedMotion
+                                }
+                                onClick={() => {
+                                    setUserPaused(
+                                        (
+                                            paused,
+                                        ) =>
+                                            !paused,
+                                    );
+                                }}
                             >
-                                {String(
-                                    activeIndex +
-                                    1,
-                                ).padStart(
-                                    2,
-                                    '0',
-                                )}
-
-                                <span
-                                    className="mx-1 text-white/45"
-                                >
-                                    /
-                                </span>
-
-                                {String(
-                                    imageCount,
-                                ).padStart(
-                                    2,
-                                    '0',
-                                )}
-                            </p> */}
+                                {
+                                    userPaused ||
+                                        reducedMotion
+                                        ? (
+                                            <PlayIcon />
+                                        )
+                                        : (
+                                            <PauseIcon />
+                                        )
+                                }
+                            </button>
 
                             <button
                                 type="button"
                                 data-featured-gallery-control="next"
                                 data-featured-gallery-index={String(
-                                    activeIndex,
+                                    nextIndex,
                                 )}
-                                className="grid size-9 place-items-center rounded-full border border-white/20 bg-white/10 transition hover:bg-white/20"
+                                className="grid size-11 place-items-center rounded-full border border-white/20 bg-white/10 transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-white/70 motion-reduce:transition-none"
                                 aria-label="Next product image"
                                 onClick={
                                     goNext
@@ -442,6 +635,7 @@ export default function LandingHeroCarousel({
 
                         <div
                             className="absolute right-5 bottom-5 z-30 hidden items-center gap-1.5 sm:flex"
+                            role="group"
                             aria-label="Choose product image"
                         >
                             {images.map(
@@ -462,11 +656,11 @@ export default function LandingHeroCarousel({
                                                 index,
                                             )}
                                             className={[
-                                                'h-2 rounded-full border border-white/35 transition-all duration-300',
+                                                'h-3 rounded-full border border-white/35 transition-all duration-300 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-white/70 motion-reduce:transition-none',
 
                                                 active
-                                                    ? 'w-8 bg-white'
-                                                    : 'w-2 bg-white/45 hover:bg-white/75',
+                                                    ? 'w-9 bg-white'
+                                                    : 'w-3 bg-white/45 hover:bg-white/75',
                                             ].join(
                                                 ' ',
                                             )}
@@ -477,7 +671,7 @@ export default function LandingHeroCarousel({
                                                     : undefined
                                             }
                                             onClick={() => {
-                                                setActiveIndex(
+                                                showImage(
                                                     index,
                                                 );
                                             }}

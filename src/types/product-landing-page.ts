@@ -22,14 +22,22 @@ export const productLandingHeroStyles = [
 export type ProductLandingHeroStyle =
     (typeof productLandingHeroStyles)[number];
 
+/**
+ * Featured product landing pages now use full-cover
+ * photography consistently across responsive layouts.
+ *
+ * Keep this type explicit so configuration cannot drift
+ * back to "contain" while the renderer is designed around
+ * edge-to-edge imagery.
+ */
 export type ProductLandingImageFit =
-    | 'cover'
-    | 'contain';
+    'cover';
 
 export interface ProductLandingCampaign {
     id: string;
 
     channel?: string;
+
     audience?: string;
 }
 
@@ -41,6 +49,7 @@ export interface ProductLandingHero {
     eyebrow?: string;
 
     headline: string;
+
     description: string;
 
     primaryCtaLabel: string;
@@ -52,6 +61,7 @@ export interface ProductLandingHighlight {
     eyebrow?: string;
 
     title: string;
+
     description?: string;
 }
 
@@ -59,7 +69,10 @@ export interface ProductLandingStoryBlock {
     imageIndex?: number;
 
     imageFit?: ProductLandingImageFit;
-    imageSide?: 'left' | 'right';
+
+    imageSide?:
+    | 'left'
+    | 'right';
 
     eyebrow?: string;
 
@@ -74,6 +87,7 @@ export interface ProductLandingGallery {
     eyebrow?: string;
 
     title: string;
+
     description?: string;
 
     imageIndexes?: number[];
@@ -85,6 +99,7 @@ export interface ProductLandingPurchase {
     eyebrow?: string;
 
     title: string;
+
     description: string;
 
     imageIndex?: number;
@@ -94,11 +109,13 @@ export interface ProductLandingPurchase {
 
 export interface ProductLandingFaqItem {
     question: string;
+
     answer: string;
 }
 
 export interface ProductLandingSeo {
     title: string;
+
     description: string;
 
     imageIndex?: number;

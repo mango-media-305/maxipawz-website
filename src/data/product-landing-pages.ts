@@ -3,7 +3,8 @@ import type {
 } from '../types/product-landing-page';
 
 export const productLandingPages:
-    ProductLandingPageDefinition[] = [
+    ProductLandingPageDefinition[] =
+    [
         {
             slug:
                 'adventure-fit-harness-outdoor-ready',
@@ -11,24 +12,29 @@ export const productLandingPages:
             productSlug:
                 'adventure-fit-harness',
 
-            status: 'active',
+            status:
+                'active',
 
-            chrome: 'site',
+            chrome:
+                'site',
 
             campaign: {
                 id:
                     'adventure-fit-harness-outdoor-ready',
 
-                channel: 'meta',
+                channel:
+                    'meta',
 
                 audience:
                     'dog-owners-outdoor-lifestyle',
             },
 
             hero: {
-                style: 'cinematic',
+                style:
+                    'cinematic',
 
-                imageIndex: 0,
+                imageIndex:
+                    0,
 
                 eyebrow:
                     'Demo featured product',
@@ -48,7 +54,8 @@ export const productLandingPages:
 
             highlights: [
                 {
-                    eyebrow: '01',
+                    eyebrow:
+                        '01',
 
                     title:
                         'Adjustable fit',
@@ -58,7 +65,8 @@ export const productLandingPages:
                 },
 
                 {
-                    eyebrow: '02',
+                    eyebrow:
+                        '02',
 
                     title:
                         'Everyday comfort',
@@ -68,7 +76,8 @@ export const productLandingPages:
                 },
 
                 {
-                    eyebrow: '03',
+                    eyebrow:
+                        '03',
 
                     title:
                         'Ready for the outdoors',
@@ -80,51 +89,62 @@ export const productLandingPages:
 
             story: [
                 {
-                    imageIndex: 1,
+                    imageIndex:
+                        1,
 
-                    imageFit: 'cover',
+                    imageFit:
+                        'cover',
 
-                    imageSide: 'left',
+                    imageSide:
+                        'left',
 
                     eyebrow:
-                    'Designed around the experience',
+                        'Designed around the experience',
 
                     title:
-                    'Show the product in the life your customer wants.',
+                        'Show the product in the life your customer wants.',
 
                     body: [
-                    'Rather than placing every piece of information inside a card, this layout uses large photography and editorial spacing to tell the product story.',
-                    'When real product photography becomes available, each section can use a different lifestyle shot, close-up, packaging image, or product angle.',
+                        'Rather than placing every piece of information inside a card, this layout uses large photography and editorial spacing to tell the product story.',
+
+                        'When real product photography becomes available, each section can use a different lifestyle shot, close-up, packaging image, or product angle.',
                     ],
 
                     bullets: [
-                    'Lifestyle photography',
-                    'Close-up product details',
-                    'Real-world use cases',
+                        'Lifestyle photography',
+
+                        'Close-up product details',
+
+                        'Real-world use cases',
                     ],
                 },
 
                 {
-                    imageIndex: 2,
+                    imageIndex:
+                        2,
 
-                    imageFit: 'contain',
+                    imageFit:
+                        'cover',
 
-                    imageSide: 'right',
+                    imageSide:
+                        'right',
 
                     eyebrow:
-                    'Product details',
+                        'Product details',
 
                     title:
-                    'Then move from emotion into practical details.',
+                        'Then move from emotion into practical details.',
 
                     body: [
-                    'The second story block can transition from the lifestyle promise into product construction, materials, fit, dimensions, or another major selling point.',
+                        'The second story block can transition from the lifestyle promise into product construction, materials, fit, dimensions, or another major selling point.',
                     ],
 
                     bullets: [
-                    'Materials',
-                    'Fit and sizing',
-                    'Construction details',
+                        'Materials',
+
+                        'Fit and sizing',
+
+                        'Construction details',
                     ],
                 },
             ],
@@ -147,7 +167,8 @@ export const productLandingPages:
                     4,
                 ],
 
-                imageFit: 'cover',
+                imageFit:
+                    'cover',
             },
 
             purchase: {
@@ -160,7 +181,8 @@ export const productLandingPages:
                 description:
                     'The final conversion section connects directly to the same product, variant, inventory, cart, and Back-in-Stock logic as the normal store.',
 
-                imageIndex: 4,
+                imageIndex:
+                    4,
 
                 note:
                     'This demo campaign remains part of the sandbox catalog only.',
@@ -199,9 +221,11 @@ export const productLandingPages:
                 description:
                     'Demo campaign landing page for the Adventure Fit Harness.',
 
-                imageIndex: 0,
+                imageIndex:
+                    0,
 
-                noIndex: true,
+                noIndex:
+                    true,
             },
         },
 
@@ -212,24 +236,29 @@ export const productLandingPages:
             productSlug:
                 'cloud-nest-pet-bed',
 
-            status: 'active',
+            status:
+                'active',
 
-            chrome: 'site',
+            chrome:
+                'site',
 
             campaign: {
                 id:
                     'cloud-nest-pet-bed-home-comfort',
 
-                channel: 'email',
+                channel:
+                    'email',
 
                 audience:
                     'home-and-comfort',
             },
 
             hero: {
-                style: 'studio',
+                style:
+                    'studio',
 
-                imageIndex: 0,
+                imageIndex:
+                    0,
 
                 eyebrow:
                     'Demo featured product',
@@ -249,21 +278,24 @@ export const productLandingPages:
 
             highlights: [
                 {
-                    eyebrow: '01',
+                    eyebrow:
+                        '01',
 
                     title:
                         'Soft visual direction',
                 },
 
                 {
-                    eyebrow: '02',
+                    eyebrow:
+                        '02',
 
                     title:
                         'Product-first composition',
                 },
 
                 {
-                    eyebrow: '03',
+                    eyebrow:
+                        '03',
 
                     title:
                         'Minimal distractions',
@@ -272,11 +304,14 @@ export const productLandingPages:
 
             story: [
                 {
-                    imageIndex: 0,
+                    imageIndex:
+                        0,
 
-                    imageFit: 'cover',
+                    imageFit:
+                        'cover',
 
-                    imageSide: 'right',
+                    imageSide:
+                        'right',
 
                     eyebrow:
                         'Made for slow moments',
@@ -290,7 +325,9 @@ export const productLandingPages:
 
                     bullets: [
                         'Large product imagery',
+
                         'Editorial copy',
+
                         'Campaign-specific messaging',
                     ],
                 },
@@ -303,12 +340,15 @@ export const productLandingPages:
                 title:
                     'Details worth looking closer at.',
 
+                description:
+                    'The demo bed currently has one catalog image. Additional real product photography can be added later without changing the landing-page architecture.',
+
                 imageIndexes: [
                     0,
-                    1,
-                    2,
-                    3,
                 ],
+
+                imageFit:
+                    'cover',
             },
 
             purchase: {
@@ -321,7 +361,8 @@ export const productLandingPages:
                 description:
                     'The campaign ends with the real product controls rather than sending the shopper through another unnecessary page.',
 
-                imageIndex: 0,
+                imageIndex:
+                    0,
             },
 
             faq: [
@@ -349,9 +390,11 @@ export const productLandingPages:
                 description:
                     'Demo featured-product landing page using the studio visual treatment.',
 
-                imageIndex: 0,
+                imageIndex:
+                    0,
 
-                noIndex: true,
+                noIndex:
+                    true,
             },
         },
     ];
