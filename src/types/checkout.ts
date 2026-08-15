@@ -6,8 +6,51 @@ export interface CheckoutRequestLine {
   quantity: number;
 }
 
+/**
+ * Campaign attribution that is allowed to cross the
+ * browser/server checkout boundary.
+ *
+ * This data is informational only.
+ *
+ * It must never participate in:
+ * - cart identity
+ * - pricing
+ * - inventory validation
+ * - reservations
+ * - shipping
+ * - tax
+ * - payment authorization
+ */
+export interface CheckoutCampaignAttribution {
+  landingPageSlug: string;
+
+  campaignId: string;
+
+  productSlug: string;
+
+  channel?: string;
+
+  audience?: string;
+
+  utmSource?: string;
+
+  utmMedium?: string;
+
+  utmCampaign?: string;
+
+  utmContent?: string;
+
+  utmTerm?: string;
+
+  referrerHost?: string;
+
+  capturedAt?: number;
+}
+
 export interface CheckoutSessionRequest {
   lines: CheckoutRequestLine[];
+
+  attribution?: CheckoutCampaignAttribution;
 }
 
 export interface CheckoutSessionSuccessResponse {
@@ -43,7 +86,9 @@ export interface CheckoutSessionErrorResponse {
   message: string;
 }
 
-export type CheckoutSessionResponse = CheckoutSessionSuccessResponse | CheckoutSessionErrorResponse;
+export type CheckoutSessionResponse =
+  | CheckoutSessionSuccessResponse
+  | CheckoutSessionErrorResponse;
 
 export interface CheckoutReadiness {
   ready: boolean;

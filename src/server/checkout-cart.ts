@@ -1,25 +1,45 @@
-import { shippingConfig } from '../config/shipping';
+import {
+    shippingConfig,
+} from '../config/shipping';
 
-import { products } from '../data/products';
+import {
+    products,
+} from '../data/products';
 
 import type {
+    CheckoutCampaignAttribution,
     CheckoutErrorCode,
     CheckoutRequestLine,
     CheckoutSessionRequest,
 } from '../types/checkout';
 
-import type { InventoryReservationRequestLine } from '../types/inventory-reservation';
+import type {
+    InventoryReservationRequestLine,
+} from '../types/inventory-reservation';
 
-import type { Product, ProductPrice, ProductVariant, ProductWeight } from '../types/product';
+import type {
+    Product,
+    ProductPrice,
+    ProductVariant,
+    ProductWeight,
+} from '../types/product';
 
 import {
     getInventorySku,
     isInventoryTrackingEnabledForSelection,
 } from '../utils/product-inventory';
 
-const MAXIMUM_CART_LINES = 50;
+const MAXIMUM_CART_LINES =
+    50;
 
-const MAXIMUM_QUANTITY = 99;
+const MAXIMUM_QUANTITY =
+    99;
+
+const MAXIMUM_ATTRIBUTION_IDENTIFIER_LENGTH =
+    120;
+
+const MAXIMUM_ATTRIBUTION_VALUE_LENGTH =
+    160;
 
 export interface ValidatedCheckoutCart {
     lineItems: Array<{
@@ -28,63 +48,303 @@ export interface ValidatedCheckoutCart {
         quantity: number;
     }>;
 
-    inventoryLines: InventoryReservationRequestLine[];
+    inventoryLines:
+    InventoryReservationRequestLine[];
 
-    merchandiseSubtotalAmount: number;
+    merchandiseSubtotalAmount:
+    number;
 
-    shippingWeightOz: number;
+    shippingWeightOz:
+    number;
 }
 
-export class CheckoutValidationError extends Error {
-    readonly status: number;
+export class CheckoutValidationError
+    extends Error {
+    readonly status:
+        number;
 
-    readonly code: CheckoutErrorCode;
+    readonly code:
+        CheckoutErrorCode;
 
-    constructor(status: number, code: CheckoutErrorCode, message: string) {
-        super(message);
+    constructor(
+        status: number,
 
-        this.name = 'CheckoutValidationError';
+        code:
+            CheckoutErrorCode,
 
-        this.status = status;
+        message: string,
+    ) {
+        super(
+            message,
+        );
 
-        this.code = code;
+        this.name =
+            'CheckoutValidationError';
+
+        this.status =
+            status;
+
+        this.code =
+            code;
     }
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null && !Array.isArray(value);
+function isRecord(
+    value: unknown,
+): value is Record<
+    string,
+    unknown
+> {
+    return (
+        typeof value ===
+        'object' &&
+        value !== null &&
+        !Array.isArray(
+            value,
+        )
+    );
 }
 
-function parseCheckoutLine(value: unknown): CheckoutRequestLine {
-    if (!isRecord(value)) {
-        throw new CheckoutValidationError(400, 'invalid-cart', 'A cart item has an invalid format.');
+function sanitizeAttributionText(
+    value: unknown,
+
+    maximumLength:
+        number,
+):
+    | string
+    | undefined {
+    if (
+        typeof value !==
+        'string'
+    ) {
+        return undefined;
     }
 
-    if (typeof value.productSlug !== 'string' || !value.productSlug.trim()) {
+    /*
+     * Attribution is untrusted browser input.
+     *
+     * Remove control characters and collapse whitespace
+     * before the value can reach Stripe metadata.
+     */
+    const normalized =
+        value
+            .replace(
+                /[\u0000-\u001f\u007f]/g,
+
+                ' ',
+            )
+            .replace(
+                /\s+/g,
+
+                ' ',
+            )
+            .trim()
+            .slice(
+                0,
+                maximumLength,
+            );
+
+    return normalized ||
+        undefined;
+}
+
+function parseCheckoutAttribution(
+    value: unknown,
+):
+    | CheckoutCampaignAttribution
+    | undefined {
+    /*
+     * Attribution is intentionally optional.
+     *
+     * Invalid marketing metadata must NEVER stop a
+     * legitimate checkout from proceeding.
+     */
+    if (
+        !isRecord(
+            value,
+        )
+    ) {
+        return undefined;
+    }
+
+    const landingPageSlug =
+        sanitizeAttributionText(
+            value.landingPageSlug,
+
+            MAXIMUM_ATTRIBUTION_IDENTIFIER_LENGTH,
+        );
+
+    const campaignId =
+        sanitizeAttributionText(
+            value.campaignId,
+
+            MAXIMUM_ATTRIBUTION_IDENTIFIER_LENGTH,
+        );
+
+    const productSlug =
+        sanitizeAttributionText(
+            value.productSlug,
+
+            MAXIMUM_ATTRIBUTION_IDENTIFIER_LENGTH,
+        );
+
+    if (
+        !landingPageSlug ||
+        !campaignId ||
+        !productSlug
+    ) {
+        return undefined;
+    }
+
+    const capturedAt =
+        typeof value.capturedAt ===
+            'number' &&
+            Number.isFinite(
+                value.capturedAt,
+            ) &&
+            value.capturedAt >
+            0
+            ? Math.floor(
+                value.capturedAt,
+            )
+            : undefined;
+
+    return {
+        landingPageSlug,
+
+        campaignId,
+
+        productSlug,
+
+        channel:
+            sanitizeAttributionText(
+                value.channel,
+
+                MAXIMUM_ATTRIBUTION_VALUE_LENGTH,
+            ),
+
+        audience:
+            sanitizeAttributionText(
+                value.audience,
+
+                MAXIMUM_ATTRIBUTION_VALUE_LENGTH,
+            ),
+
+        utmSource:
+            sanitizeAttributionText(
+                value.utmSource,
+
+                MAXIMUM_ATTRIBUTION_VALUE_LENGTH,
+            ),
+
+        utmMedium:
+            sanitizeAttributionText(
+                value.utmMedium,
+
+                MAXIMUM_ATTRIBUTION_VALUE_LENGTH,
+            ),
+
+        utmCampaign:
+            sanitizeAttributionText(
+                value.utmCampaign,
+
+                MAXIMUM_ATTRIBUTION_VALUE_LENGTH,
+            ),
+
+        utmContent:
+            sanitizeAttributionText(
+                value.utmContent,
+
+                MAXIMUM_ATTRIBUTION_VALUE_LENGTH,
+            ),
+
+        utmTerm:
+            sanitizeAttributionText(
+                value.utmTerm,
+
+                MAXIMUM_ATTRIBUTION_VALUE_LENGTH,
+            ),
+
+        referrerHost:
+            sanitizeAttributionText(
+                value.referrerHost,
+
+                MAXIMUM_ATTRIBUTION_VALUE_LENGTH,
+            ),
+
+        ...(capturedAt
+            ? {
+                capturedAt,
+            }
+            : {}),
+    };
+}
+
+function parseCheckoutLine(
+    value: unknown,
+): CheckoutRequestLine {
+    if (
+        !isRecord(
+            value,
+        )
+    ) {
         throw new CheckoutValidationError(
             400,
+
             'invalid-cart',
+
+            'A cart item has an invalid format.',
+        );
+    }
+
+    if (
+        typeof value.productSlug !==
+        'string' ||
+        !value.productSlug.trim()
+    ) {
+        throw new CheckoutValidationError(
+            400,
+
+            'invalid-cart',
+
             'A cart item is missing its product identifier.',
         );
     }
 
-    const quantity = typeof value.quantity === 'number' ? value.quantity : Number.NaN;
+    const quantity =
+        typeof value.quantity ===
+            'number'
+            ? value.quantity
+            : Number.NaN;
 
-    if (!Number.isInteger(quantity) || quantity < 1 || quantity > MAXIMUM_QUANTITY) {
+    if (
+        !Number.isInteger(
+            quantity,
+        ) ||
+        quantity <
+        1 ||
+        quantity >
+        MAXIMUM_QUANTITY
+    ) {
         throw new CheckoutValidationError(
             400,
+
             'invalid-cart',
+
             `Cart quantities must be whole numbers between 1 and ${MAXIMUM_QUANTITY}.`,
         );
     }
 
     const variantId =
-        typeof value.variantId === 'string' && value.variantId.trim()
+        typeof value.variantId ===
+            'string' &&
+            value.variantId.trim()
             ? value.variantId.trim()
             : undefined;
 
     return {
-        productSlug: value.productSlug.trim(),
+        productSlug:
+            value.productSlug.trim(),
 
         variantId,
 
@@ -92,43 +352,98 @@ function parseCheckoutLine(value: unknown): CheckoutRequestLine {
     };
 }
 
-export function parseCheckoutRequest(value: unknown): CheckoutSessionRequest {
-    if (!isRecord(value) || !Array.isArray(value.lines)) {
+export function parseCheckoutRequest(
+    value: unknown,
+): CheckoutSessionRequest {
+    if (
+        !isRecord(
+            value,
+        ) ||
+        !Array.isArray(
+            value.lines,
+        )
+    ) {
         throw new CheckoutValidationError(
             400,
+
             'invalid-request',
+
             'The checkout request is missing its cart lines.',
         );
     }
 
-    if (value.lines.length === 0 || value.lines.length > MAXIMUM_CART_LINES) {
+    if (
+        value.lines.length ===
+        0 ||
+        value.lines.length >
+        MAXIMUM_CART_LINES
+    ) {
         throw new CheckoutValidationError(
             400,
+
             'invalid-cart',
+
             `The cart must contain between 1 and ${MAXIMUM_CART_LINES} lines.`,
         );
     }
 
+    const attribution =
+        parseCheckoutAttribution(
+            value.attribution,
+        );
+
     return {
-        lines: value.lines.map(parseCheckoutLine),
+        lines:
+            value.lines.map(
+                parseCheckoutLine,
+            ),
+
+        ...(attribution
+            ? {
+                attribution,
+            }
+            : {}),
     };
 }
 
-function getProduct(slug: string, allowDemoProducts: boolean): Product {
-    const product = products.find((catalogProduct) => catalogProduct.slug === slug);
+function getProduct(
+    slug: string,
 
-    if (!product || product.status !== 'active') {
+    allowDemoProducts:
+        boolean,
+): Product {
+    const product =
+        products.find(
+            (
+                catalogProduct,
+            ) =>
+                catalogProduct.slug ===
+                slug,
+        );
+
+    if (
+        !product ||
+        product.status !==
+        'active'
+    ) {
         throw new CheckoutValidationError(
             400,
+
             'product-not-found',
+
             'One of the selected products is no longer available.',
         );
     }
 
-    if (product.isDemo && !allowDemoProducts) {
+    if (
+        product.isDemo &&
+        !allowDemoProducts
+    ) {
         throw new CheckoutValidationError(
             400,
+
             'demo-product',
+
             'Demo products are disabled for Stripe Checkout.',
         );
     }
@@ -136,35 +451,68 @@ function getProduct(slug: string, allowDemoProducts: boolean): Product {
     return product;
 }
 
-function getVariant(product: Product, variantId?: string): ProductVariant | undefined {
-    const hasVariants = Boolean(product.variants?.length);
+function getVariant(
+    product: Product,
 
-    if (hasVariants && !variantId) {
+    variantId?: string,
+):
+    | ProductVariant
+    | undefined {
+    const hasVariants =
+        Boolean(
+            product.variants
+                ?.length,
+        );
+
+    if (
+        hasVariants &&
+        !variantId
+    ) {
         throw new CheckoutValidationError(
             400,
+
             'variant-required',
+
             `Select an option for ${product.name}.`,
         );
     }
 
-    if (!hasVariants && variantId) {
+    if (
+        !hasVariants &&
+        variantId
+    ) {
         throw new CheckoutValidationError(
             400,
+
             'variant-not-found',
+
             `The selected option for ${product.name} is invalid.`,
         );
     }
 
-    if (!variantId) {
+    if (
+        !variantId
+    ) {
         return undefined;
     }
 
-    const variant = product.variants?.find((productVariant) => productVariant.id === variantId);
+    const variant =
+        product.variants?.find(
+            (
+                productVariant,
+            ) =>
+                productVariant.id ===
+                variantId,
+        );
 
-    if (!variant) {
+    if (
+        !variant
+    ) {
         throw new CheckoutValidationError(
             400,
+
             'variant-not-found',
+
             `The selected option for ${product.name} is no longer available.`,
         );
     }
@@ -172,13 +520,28 @@ function getVariant(product: Product, variantId?: string): ProductVariant | unde
     return variant;
 }
 
-function getPrice(product: Product, variant?: ProductVariant): ProductPrice {
-    const price = variant?.price ?? product.price;
+function getPrice(
+    product: Product,
 
-    if (!price || price.amount < 0 || price.currency !== 'USD') {
+    variant?:
+        ProductVariant,
+): ProductPrice {
+    const price =
+        variant?.price ??
+        product.price;
+
+    if (
+        !price ||
+        price.amount <
+        0 ||
+        price.currency !==
+        'USD'
+    ) {
         throw new CheckoutValidationError(
             400,
+
             'price-not-configured',
+
             `${product.name} does not have a valid USD catalog price.`,
         );
     }
@@ -186,133 +549,265 @@ function getPrice(product: Product, variant?: ProductVariant): ProductPrice {
     return price;
 }
 
-function weightToOunces(weight: ProductWeight): number {
-    switch (weight.unit) {
+function weightToOunces(
+    weight:
+        ProductWeight,
+): number {
+    switch (
+    weight.unit
+    ) {
         case 'oz':
             return weight.value;
 
         case 'lb':
-            return weight.value * 16;
+            return (
+                weight.value *
+                16
+            );
 
         case 'g':
-            return weight.value / 28.349523125;
+            return (
+                weight.value /
+                28.349523125
+            );
 
         case 'kg':
-            return weight.value * 35.27396195;
+            return (
+                weight.value *
+                35.27396195
+            );
     }
 }
 
-function getProductShippingWeightOz(product: Product): number {
-    const weight = product.dimensions?.weight;
+function getProductShippingWeightOz(
+    product:
+        Product,
+): number {
+    const weight =
+        product.dimensions
+            ?.weight;
 
-    if (weight && Number.isFinite(weight.value) && weight.value > 0) {
-        return weightToOunces(weight);
+    if (
+        weight &&
+        Number.isFinite(
+            weight.value,
+        ) &&
+        weight.value >
+        0
+    ) {
+        return weightToOunces(
+            weight,
+        );
     }
 
-    if (product.isDemo) {
-        return shippingConfig.demoFallbackItemWeightOz;
+    if (
+        product.isDemo
+    ) {
+        return shippingConfig
+            .demoFallbackItemWeightOz;
     }
 
     throw new CheckoutValidationError(
         400,
+
         'invalid-cart',
+
         `${product.name} does not have a shipping weight configured.`,
     );
 }
 
 export function validateCheckoutCart(
-    request: CheckoutSessionRequest,
+    request:
+        CheckoutSessionRequest,
 
-    allowDemoProducts: boolean,
+    allowDemoProducts:
+        boolean,
 ): ValidatedCheckoutCart {
-    const groupedLines = new Map<string, number>();
+    const groupedLines =
+        new Map<
+            string,
+            number
+        >();
 
-    const inventoryLines: InventoryReservationRequestLine[] = [];
+    const inventoryLines:
+        InventoryReservationRequestLine[] =
+        [];
 
-    let merchandiseSubtotalAmount = 0;
+    let merchandiseSubtotalAmount =
+        0;
 
-    let productWeightOz = 0;
+    let productWeightOz =
+        0;
 
-    request.lines.forEach((line) => {
-        const product = getProduct(line.productSlug, allowDemoProducts);
+    request.lines.forEach(
+        (
+            line,
+        ) => {
+            const product =
+                getProduct(
+                    line.productSlug,
 
-        const variant = getVariant(product, line.variantId);
+                    allowDemoProducts,
+                );
 
-        const availability = variant?.availability ?? product.availability;
+            const variant =
+                getVariant(
+                    product,
 
-        if (availability !== 'in-stock') {
-            throw new CheckoutValidationError(
-                400,
-                'product-unavailable',
-                `${product.name} is not currently available for checkout.`,
-            );
-        }
+                    line.variantId,
+                );
 
-        const inventoryTracked = isInventoryTrackingEnabledForSelection(product, variant);
+            const availability =
+                variant?.availability ??
+                product.availability;
 
-        if (inventoryTracked) {
-            const inventorySku = getInventorySku(product, variant);
-
-            if (!inventorySku) {
+            if (
+                availability !==
+                'in-stock'
+            ) {
                 throw new CheckoutValidationError(
-                    503,
-                    'inventory-not-configured',
-                    `${product.name} inventory is temporarily unavailable.`,
+                    400,
+
+                    'product-unavailable',
+
+                    `${product.name} is not currently available for checkout.`,
                 );
             }
 
-            inventoryLines.push({
-                productSlug: product.slug,
+            const inventoryTracked =
+                isInventoryTrackingEnabledForSelection(
+                    product,
 
-                ...(variant
-                    ? {
-                        variantId: variant.id,
-                    }
-                    : {}),
+                    variant,
+                );
 
-                sku: inventorySku,
+            if (
+                inventoryTracked
+            ) {
+                const inventorySku =
+                    getInventorySku(
+                        product,
 
-                quantity: line.quantity,
-            });
-        }
+                        variant,
+                    );
 
-        const price = getPrice(product, variant);
+                if (
+                    !inventorySku
+                ) {
+                    throw new CheckoutValidationError(
+                        503,
 
-        const stripePriceId = variant?.stripePriceId ?? product.stripeDefaultPriceId;
+                        'inventory-not-configured',
 
-        if (!stripePriceId || !stripePriceId.startsWith('price_')) {
-            throw new CheckoutValidationError(
-                400,
-                'price-not-configured',
-                `${product.name} does not have a valid Stripe Sandbox Price ID.`,
+                        `${product.name} inventory is temporarily unavailable.`,
+                    );
+                }
+
+                inventoryLines.push(
+                    {
+                        productSlug:
+                            product.slug,
+
+                        ...(variant
+                            ? {
+                                variantId:
+                                    variant.id,
+                            }
+                            : {}),
+
+                        sku:
+                            inventorySku,
+
+                        quantity:
+                            line.quantity,
+                    },
+                );
+            }
+
+            const price =
+                getPrice(
+                    product,
+
+                    variant,
+                );
+
+            const stripePriceId =
+                variant?.stripePriceId ??
+                product.stripeDefaultPriceId;
+
+            if (
+                !stripePriceId ||
+                !stripePriceId.startsWith(
+                    'price_',
+                )
+            ) {
+                throw new CheckoutValidationError(
+                    400,
+
+                    'price-not-configured',
+
+                    `${product.name} does not have a valid Stripe Sandbox Price ID.`,
+                );
+            }
+
+            merchandiseSubtotalAmount +=
+                price.amount *
+                line.quantity;
+
+            productWeightOz +=
+                getProductShippingWeightOz(
+                    product,
+                ) *
+                line.quantity;
+
+            const existingQuantity =
+                groupedLines.get(
+                    stripePriceId,
+                ) ??
+                0;
+
+            const nextQuantity =
+                existingQuantity +
+                line.quantity;
+
+            if (
+                nextQuantity >
+                MAXIMUM_QUANTITY
+            ) {
+                throw new CheckoutValidationError(
+                    400,
+
+                    'invalid-cart',
+
+                    `A product quantity cannot exceed ${MAXIMUM_QUANTITY}.`,
+                );
+            }
+
+            groupedLines.set(
+                stripePriceId,
+
+                nextQuantity,
             );
-        }
+        },
+    );
 
-        merchandiseSubtotalAmount += price.amount * line.quantity;
+    const shippingWeightOz =
+        Math.ceil(
+            productWeightOz +
+            shippingConfig
+                .packagingWeightOz,
+        );
 
-        productWeightOz += getProductShippingWeightOz(product) * line.quantity;
-
-        const existingQuantity = groupedLines.get(stripePriceId) ?? 0;
-
-        const nextQuantity = existingQuantity + line.quantity;
-
-        if (nextQuantity > MAXIMUM_QUANTITY) {
-            throw new CheckoutValidationError(
-                400,
-                'invalid-cart',
-                `A product quantity cannot exceed ${MAXIMUM_QUANTITY}.`,
-            );
-        }
-
-        groupedLines.set(stripePriceId, nextQuantity);
-    });
-
-    const shippingWeightOz = Math.ceil(productWeightOz + shippingConfig.packagingWeightOz);
-
-    if (shippingWeightOz > shippingConfig.maximumAutomaticWeightOz) {
+    if (
+        shippingWeightOz >
+        shippingConfig
+            .maximumAutomaticWeightOz
+    ) {
         throw new CheckoutValidationError(
             400,
+
             'invalid-cart',
+
             'This cart is too heavy for automatic standard-shipping estimation.',
         );
     }
@@ -324,10 +819,18 @@ export function validateCheckoutCart(
 
         inventoryLines,
 
-        lineItems: Array.from(groupedLines.entries()).map(([price, quantity]) => ({
-            price,
+        lineItems:
+            Array.from(
+                groupedLines.entries(),
+            ).map(
+                ([
+                    price,
+                    quantity,
+                ]) => ({
+                    price,
 
-            quantity,
-        })),
+                    quantity,
+                }),
+            ),
     };
 }
