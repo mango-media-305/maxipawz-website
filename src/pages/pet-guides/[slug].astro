@@ -1,5 +1,6 @@
 ---
 import type { GetStaticPaths } from 'astro';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
 
 import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
 import CheckCircleBold from 'phosphor-astro/CheckCircleBold.astro';
@@ -14,27 +15,53 @@ import SuitcaseRollingBold from 'phosphor-astro/SuitcaseRollingBold.astro';
 import maxipawzLogo from '../../assets/brand/maxipawz-horizontal-logo.webp';
 
 import GuideShareBar from '@components/guides/GuideShareBar.astro';
+import BlogPostLayout from '@layouts/BlogPostLayout.astro';
 import GuideArticleLayout from '@layouts/GuideArticleLayout.astro';
 
 import { petGuides, type PetGuide, type PetGuideIcon } from '../../data/pet-guides';
+import { buildBlogStructuredData } from '../../utils/blog';
 
-interface Props {
-  guide: PetGuide;
-}
+type BlogPost = CollectionEntry<'blog'>;
 
-export const getStaticPaths = (() => {
-  return petGuides.map((guide) => ({
-    params: {
-      slug: guide.slug,
-    },
+type Props =
+  | {
+      kind: 'blog';
+      post: BlogPost;
+    }
+  | {
+      kind: 'legacy';
+      guide: PetGuide;
+    };
 
-    props: {
-      guide,
-    },
-  }));
+export const getStaticPaths = (async () => {
+  const blogPosts = await getCollection('blog');
+  const migratedSlugs = new Set(blogPosts.map((post) => post.id));
+
+  return [
+    ...blogPosts.map((post) => ({
+      params: {
+        slug: post.id,
+      },
+      props: {
+        kind: 'blog' as const,
+        post,
+      },
+    })),
+    ...petGuides
+      .filter((guide) => !migratedSlugs.has(guide.slug))
+      .map((guide) => ({
+        params: {
+          slug: guide.slug,
+        },
+        props: {
+          kind: 'legacy' as const,
+          guide,
+        },
+      })),
+  ];
 }) satisfies GetStaticPaths;
 
-const { guide } = Astro.props as Props;
+const props = Astro.props as Props;
 
 const iconByGuide: Record<PetGuideIcon, typeof PawPrintBold> = {
   choosing: CheckCircleBold,
@@ -46,360 +73,329 @@ const iconByGuide: Record<PetGuideIcon, typeof PawPrintBold> = {
   accessories: ShoppingBagOpenBold,
 };
 
-const GuideIcon = iconByGuide[guide.icon];
+const buildLegacyPageData = (guide: PetGuide) => {
+  const tableOfContents = guide.sections.map((section) => ({
+    id: section.id,
+    label: section.title,
+  }));
 
-const tableOfContents = guide.sections.map((section) => ({
-  id: section.id,
-  label: section.title,
-}));
+  const siteURL = Astro.site ?? new URL('https://maxipawz.com');
+  const homeURL = new URL('/', siteURL).toString();
+  const petGuidesURL = new URL('/pet-guides', siteURL).toString();
+  const guideURL = new URL(guide.href, siteURL).toString();
+  const logoURL = new URL(maxipawzLogo.src, siteURL).toString();
+  const guideSocialImage = `/images/og/guides/${guide.slug}.webp`;
+  const guideSocialImageURL = new URL(guideSocialImage, siteURL).toString();
+  const guideSocialImageAlt = `${guide.title} — Maxi Pawz Pet Guide.`;
+  const organizationID = `${homeURL}#organization`;
 
-const siteURL = Astro.site ?? new URL('https://maxipawz.com');
+  const guideText = [
+    guide.title,
+    guide.description,
+    guide.introduction,
+    ...guide.learningPoints,
+    ...guide.sections.flatMap((section) => [
+      section.title,
+      ...section.paragraphs,
+      ...(section.points ?? []),
+      ...(section.tip ? [section.tip.title, section.tip.description] : []),
+    ]),
+    guide.closingTitle,
+    guide.closingDescription,
+  ].join(' ');
 
-const homeURL = new URL('/', siteURL).toString();
+  const wordCount = guideText.trim().split(/\s+/).filter(Boolean).length;
 
-const petGuidesURL = new URL('/pet-guides', siteURL).toString();
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': organizationID,
+        name: 'Maxi Pawz Store',
+        url: homeURL,
+        logo: {
+          '@type': 'ImageObject',
+          url: logoURL,
+        },
+      },
+      {
+        '@type': 'Article',
+        '@id': `${guideURL}#article`,
+        url: guideURL,
+        headline: guide.title,
+        description: guide.seoDescription,
+        image: {
+          '@type': 'ImageObject',
+          url: guideSocialImageURL,
+          width: 1200,
+          height: 630,
+          caption: guideSocialImageAlt,
+        },
+        articleSection: guide.eyebrow,
+        wordCount,
+        inLanguage: 'en-US',
+        datePublished: guide.publishedAt,
+        dateModified: guide.updatedAt,
+        mainEntityOfPage: {
+          '@type': 'WebPage',
+          '@id': guideURL,
+        },
+        isPartOf: {
+          '@type': 'CollectionPage',
+          '@id': petGuidesURL,
+          name: 'Maxi Pawz Pet Guides',
+          url: petGuidesURL,
+        },
+        author: {
+          '@id': organizationID,
+        },
+        publisher: {
+          '@id': organizationID,
+        },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: homeURL,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Pet Guides',
+            item: petGuidesURL,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: guide.title,
+            item: guideURL,
+          },
+        ],
+      },
+    ],
+  };
 
-const guideURL = new URL(guide.href, siteURL).toString();
+  const formattedUpdatedAt = new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(`${guide.updatedAt}T12:00:00Z`));
 
-const logoURL = new URL(maxipawzLogo.src, siteURL).toString();
-
-const guideSocialImage = `/images/og/guides/${guide.slug}.webp`;
-
-const guideSocialImageURL = new URL(guideSocialImage, siteURL).toString();
-
-const guideSocialImageAlt = `${guide.title} — Maxi Pawz Pet Guide.`;
-
-const organizationID = `${homeURL}#organization`;
-
-const guideText = [
-  guide.title,
-  guide.description,
-  guide.introduction,
-
-  ...guide.learningPoints,
-
-  ...guide.sections.flatMap((section) => [
-    section.title,
-
-    ...section.paragraphs,
-
-    ...(section.points ?? []),
-
-    ...(section.tip ? [section.tip.title, section.tip.description] : []),
-  ]),
-
-  guide.closingTitle,
-  guide.closingDescription,
-].join(' ');
-
-const wordCount = guideText.trim().split(/\s+/).filter(Boolean).length;
-
-const organizationStructuredData = {
-  '@type': 'Organization',
-
-  '@id': organizationID,
-
-  name: 'Maxi Pawz Store',
-
-  url: homeURL,
-
-  logo: {
-    '@type': 'ImageObject',
-
-    url: logoURL,
-  },
+  return {
+    GuideIcon: iconByGuide[guide.icon],
+    tableOfContents,
+    guideURL,
+    guideSocialImage,
+    guideSocialImageAlt,
+    structuredData,
+    formattedUpdatedAt,
+  };
 };
 
-const articleStructuredData = {
-  '@type': 'Article',
+const legacy = props.kind === 'legacy' ? buildLegacyPageData(props.guide) : undefined;
+const LegacyGuideIcon = legacy?.GuideIcon;
 
-  '@id': `${guideURL}#article`,
-
-  url: guideURL,
-
-  headline: guide.title,
-
-  description: guide.seoDescription,
-
-  image: {
-    '@type': 'ImageObject',
-
-    url: guideSocialImageURL,
-
-    width: 1200,
-    height: 630,
-
-    caption: guideSocialImageAlt,
-  },
-
-  articleSection: guide.eyebrow,
-
-  wordCount,
-
-  inLanguage: 'en-US',
-
-  datePublished: guide.publishedAt,
-
-  dateModified: guide.updatedAt,
-
-  mainEntityOfPage: {
-    '@type': 'WebPage',
-
-    '@id': guideURL,
-  },
-
-  isPartOf: {
-    '@type': 'CollectionPage',
-
-    '@id': petGuidesURL,
-
-    name: 'Maxi Pawz Pet Guides',
-
-    url: petGuidesURL,
-  },
-
-  author: {
-    '@id': organizationID,
-  },
-
-  publisher: {
-    '@id': organizationID,
-  },
-};
-
-const breadcrumbStructuredData = {
-  '@type': 'BreadcrumbList',
-
-  itemListElement: [
-    {
-      '@type': 'ListItem',
-
-      position: 1,
-
-      name: 'Home',
-
-      item: homeURL,
-    },
-
-    {
-      '@type': 'ListItem',
-
-      position: 2,
-
-      name: 'Pet Guides',
-
-      item: petGuidesURL,
-    },
-
-    {
-      '@type': 'ListItem',
-
-      position: 3,
-
-      name: guide.title,
-
-      item: guideURL,
-    },
-  ],
-};
-
-const structuredData = {
-  '@context': 'https://schema.org',
-
-  '@graph': [organizationStructuredData, articleStructuredData, breadcrumbStructuredData],
-};
-
-const formattedUpdatedAt = new Intl.DateTimeFormat('en-US', {
-  month: 'long',
-  day: 'numeric',
-  year: 'numeric',
-
-  timeZone: 'UTC',
-}).format(new Date(`${guide.updatedAt}T12:00:00Z`));
+const renderedBlog = props.kind === 'blog' ? await render(props.post) : undefined;
+const BlogContent = renderedBlog?.Content;
+const blogStructuredData = props.kind === 'blog' ? buildBlogStructuredData({ post: props.post }) : undefined;
 ---
 
-<GuideArticleLayout
-  title={guide.title}
-  description={guide.description}
-  seoTitle={guide.seoTitle}
-  seoDescription={guide.seoDescription}
-  image={guideSocialImage}
-  imageAlt={guideSocialImageAlt}
-  publishedAt={guide.publishedAt}
-  modifiedAt={guide.updatedAt}
-  articleSection={guide.eyebrow}
-  eyebrow={guide.eyebrow}
-  readingTime={guide.readingTime}
-  updatedAt={formattedUpdatedAt}
-  updatedAtISO={guide.updatedAt}
-  sections={tableOfContents}
-  noIndex={!guide.indexable}
-  structuredData={structuredData}
->
-  <!-- Article introduction -->
-  <div
-    class="rounded-4xl border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-5 shadow-sm sm:p-6"
-  >
-    <span
-      class="grid size-12 place-items-center rounded-2xl bg-brand-500 text-white shadow-blue"
-      aria-hidden="true"
+{
+  props.kind === 'blog' && BlogContent ? (
+    <BlogPostLayout
+      title={props.post.data.title}
+      description={props.post.data.description}
+      seoTitle={props.post.data.seoTitle}
+      seoDescription={props.post.data.seoDescription}
+      category={props.post.data.category}
+      publishedAt={props.post.data.publishedAt}
+      updatedAt={props.post.data.updatedAt}
+      author={props.post.data.author}
+      heroImage={props.post.data.heroImage}
+      ogImage={props.post.data.ogImage}
+      ogImageAlt={props.post.data.ogImageAlt}
+      headings={renderedBlog?.headings ?? []}
+      sources={props.post.data.sources}
+      noIndex={!props.post.data.indexable}
+      structuredData={blogStructuredData}
     >
-      <GuideIcon class="size-6" />
-    </span>
+      <BlogContent />
+    </BlogPostLayout>
+  ) : props.kind === 'legacy' && legacy && LegacyGuideIcon ? (
+    <GuideArticleLayout
+      title={props.guide.title}
+      description={props.guide.description}
+      seoTitle={props.guide.seoTitle}
+      seoDescription={props.guide.seoDescription}
+      image={legacy.guideSocialImage}
+      imageAlt={legacy.guideSocialImageAlt}
+      publishedAt={props.guide.publishedAt}
+      modifiedAt={props.guide.updatedAt}
+      articleSection={props.guide.eyebrow}
+      eyebrow={props.guide.eyebrow}
+      readingTime={props.guide.readingTime}
+      updatedAt={legacy.formattedUpdatedAt}
+      updatedAtISO={props.guide.updatedAt}
+      sections={legacy.tableOfContents}
+      noIndex={!props.guide.indexable}
+      structuredData={legacy.structuredData}
+    >
+      <div
+        class="rounded-4xl border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-5 shadow-sm sm:p-6"
+      >
+        <span
+          class="grid size-12 place-items-center rounded-2xl bg-brand-500 text-white shadow-blue"
+          aria-hidden="true"
+        >
+          <LegacyGuideIcon class="size-6" />
+        </span>
 
-    <p class="mt-5 text-lg leading-8 text-ink-700">
-      {guide.introduction}
-    </p>
+        <p class="mt-5 text-lg leading-8 text-ink-700">
+          {props.guide.introduction}
+        </p>
 
-    <div class="mt-6 grid gap-3">
-      {
-        guide.learningPoints.map((point) => (
-          <div class="flex items-start gap-3 rounded-2xl border border-sand/80 bg-white-warm/80 p-4">
-            <CheckCircleFill class="mt-0.5 size-5 shrink-0 text-brand-500" aria-hidden="true" />
+        <div class="mt-6 grid gap-3">
+          {props.guide.learningPoints.map((point) => (
+            <div class="flex items-start gap-3 rounded-2xl border border-sand/80 bg-white-warm/80 p-4">
+              <CheckCircleFill class="mt-0.5 size-5 shrink-0 text-brand-500" aria-hidden="true" />
+              <p class="text-sm font-bold leading-6 text-ink-700">{point}</p>
+            </div>
+          ))}
+        </div>
+      </div>
 
-            <p class="text-sm font-bold leading-6 text-ink-700">{point}</p>
-          </div>
-        ))
-      }
-    </div>
-  </div>
+      <GuideShareBar
+        guideTitle={props.guide.title}
+        guideSlug={props.guide.slug}
+        guideURL={legacy.guideURL}
+      />
 
-  <GuideShareBar guideTitle={guide.title} guideSlug={guide.slug} guideURL={guideURL} />
-
-  <!-- Guide sections -->
-  {
-    guide.sections.map((section, index) => (
-      <section id={section.id} class="mt-12 scroll-mt-32" aria-labelledby={`${section.id}-title`}>
-        <div class="flex items-start gap-4">
-          <span
-            class:list={[
-              'grid size-12 shrink-0 place-items-center rounded-2xl',
-
-              index % 2 === 0
-                ? 'bg-brand-500 text-white shadow-blue'
-                : 'bg-accent-500 text-ink-950 shadow-orange',
-            ]}
-            aria-hidden="true"
-          >
-            <span class="text-sm font-black">{String(index + 1).padStart(2, '0')}</span>
-          </span>
-
-          <div class="min-w-0">
-            <p
+      {props.guide.sections.map((section, index) => (
+        <section id={section.id} class="mt-12 scroll-mt-32" aria-labelledby={`${section.id}-title`}>
+          <div class="flex items-start gap-4">
+            <span
               class:list={[
-                'text-xs font-extrabold tracking-[0.09em] uppercase',
-
-                index % 2 === 0 ? 'text-brand-700' : 'text-accent-700',
+                'grid size-12 shrink-0 place-items-center rounded-2xl',
+                index % 2 === 0
+                  ? 'bg-brand-500 text-white shadow-blue'
+                  : 'bg-accent-500 text-ink-950 shadow-orange',
               ]}
+              aria-hidden="true"
             >
-              Guide Section
-            </p>
+              <span class="text-sm font-black">{String(index + 1).padStart(2, '0')}</span>
+            </span>
 
-            <h2 id={`${section.id}-title`} class="mt-2 text-3xl text-ink-900 sm:text-4xl">
-              {section.title}
-            </h2>
+            <div class="min-w-0">
+              <p
+                class:list={[
+                  'text-xs font-extrabold tracking-[0.09em] uppercase',
+                  index % 2 === 0 ? 'text-brand-700' : 'text-accent-700',
+                ]}
+              >
+                Guide Section
+              </p>
+
+              <h2 id={`${section.id}-title`} class="mt-2 text-3xl text-ink-900 sm:text-4xl">
+                {section.title}
+              </h2>
+            </div>
           </div>
-        </div>
 
-        <div class="mt-6 max-w-3xl space-y-4 text-base leading-8 text-ink-600 sm:text-lg">
-          {section.paragraphs.map((paragraph) => (
-            <p>{paragraph}</p>
-          ))}
-        </div>
-
-        {section.points && section.points.length > 0 && (
-          <ul class="mt-7 grid gap-3">
-            {section.points.map((point) => (
-              <li class="flex items-start gap-3 rounded-2xl border border-sand bg-cream-soft p-4 text-sm font-bold leading-6 text-ink-700">
-                <CheckCircleFill class="mt-0.5 size-5 shrink-0 text-brand-500" aria-hidden="true" />
-
-                <span>{point}</span>
-              </li>
+          <div class="mt-6 max-w-3xl space-y-4 text-base leading-8 text-ink-600 sm:text-lg">
+            {section.paragraphs.map((paragraph) => (
+              <p>{paragraph}</p>
             ))}
-          </ul>
-        )}
-
-        {section.tip && (
-          <aside class="mt-7 rounded-4xl border border-accent-200 bg-linear-to-br from-accent-50 via-white-warm to-brand-50 p-5 sm:p-6">
-            <HeartBold class="size-8 text-accent-500" aria-hidden="true" />
-
-            <h3 class="mt-4 text-2xl text-ink-900">{section.tip.title}</h3>
-
-            <p class="mt-3 text-base leading-7 text-ink-600">{section.tip.description}</p>
-          </aside>
-        )}
-      </section>
-    ))
-  }
-
-  <!-- Guide conclusion -->
-  <section
-    class="mt-12 rounded-4xl border border-brand-200 bg-brand-50 p-5 sm:p-6"
-    aria-labelledby="guide-conclusion-title"
-  >
-    <GuideIcon class="size-8 text-brand-500" aria-hidden="true" />
-
-    <h2 id="guide-conclusion-title" class="mt-5 text-3xl text-ink-900">
-      {guide.closingTitle}
-    </h2>
-
-    <p class="mt-4 text-base leading-7 text-ink-600 sm:text-lg">
-      {guide.closingDescription}
-    </p>
-  </section>
-
-  <!-- Related guides -->
-  {
-    guide.relatedLinks.length > 0 && (
-      <section class="mt-12" aria-labelledby="related-guides-title">
-        <div class="flex items-center gap-4">
-          <span
-            class="grid size-12 shrink-0 place-items-center rounded-2xl bg-accent-500 text-ink-950 shadow-orange"
-            aria-hidden="true"
-          >
-            <PawPrintBold class="size-6" />
-          </span>
-
-          <div>
-            <p class="text-xs font-extrabold uppercase tracking-[0.09em] text-accent-700">
-              Continue Learning
-            </p>
-
-            <h2 id="related-guides-title" class="mt-2 text-3xl text-ink-900 sm:text-4xl">
-              Related Maxi Pawz resources
-            </h2>
           </div>
-        </div>
 
-        <div class="mt-7 grid gap-4">
-          {guide.relatedLinks.map((relatedLink) => (
-            <a
-              href={relatedLink.href}
-              class="group rounded-3xl border border-sand bg-white-warm p-5 shadow-soft transition hover:-translate-y-1 hover:border-brand-300 hover:shadow-card sm:p-6"
-              data-guide-related-link
-              data-related-href={relatedLink.href}
-              data-related-title={relatedLink.title}
-            >
-              <div class="flex items-start justify-between gap-5">
-                <div class="min-w-0">
-                  <h3 class="text-xl text-ink-900 sm:text-2xl">{relatedLink.title}</h3>
+          {section.points && section.points.length > 0 && (
+            <ul class="mt-7 grid gap-3">
+              {section.points.map((point) => (
+                <li class="flex items-start gap-3 rounded-2xl border border-sand bg-cream-soft p-4 text-sm font-bold leading-6 text-ink-700">
+                  <CheckCircleFill class="mt-0.5 size-5 shrink-0 text-brand-500" aria-hidden="true" />
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
+          )}
 
-                  <p class="mt-3 max-w-2xl text-sm leading-6 text-ink-600 sm:text-base sm:leading-7">
-                    {relatedLink.description}
-                  </p>
-                </div>
+          {section.tip && (
+            <aside class="mt-7 rounded-4xl border border-accent-200 bg-linear-to-br from-accent-50 via-white-warm to-brand-50 p-5 sm:p-6">
+              <HeartBold class="size-8 text-accent-500" aria-hidden="true" />
+              <h3 class="mt-4 text-2xl text-ink-900">{section.tip.title}</h3>
+              <p class="mt-3 text-base leading-7 text-ink-600">{section.tip.description}</p>
+            </aside>
+          )}
+        </section>
+      ))}
 
-                <span
-                  class="grid size-10 shrink-0 place-items-center rounded-full bg-brand-100 text-brand-700 transition group-hover:translate-x-1 group-hover:bg-brand-500 group-hover:text-white"
-                  aria-hidden="true"
-                >
-                  <ArrowRightBold class="size-5" />
-                </span>
-              </div>
-            </a>
-          ))}
-        </div>
+      <section
+        class="mt-12 rounded-4xl border border-brand-200 bg-brand-50 p-5 sm:p-6"
+        aria-labelledby="guide-conclusion-title"
+      >
+        <LegacyGuideIcon class="size-8 text-brand-500" aria-hidden="true" />
+        <h2 id="guide-conclusion-title" class="mt-5 text-3xl text-ink-900">
+          {props.guide.closingTitle}
+        </h2>
+        <p class="mt-4 text-base leading-7 text-ink-600 sm:text-lg">
+          {props.guide.closingDescription}
+        </p>
       </section>
-    )
-  }
-</GuideArticleLayout>
+
+      {props.guide.relatedLinks.length > 0 && (
+        <section class="mt-12" aria-labelledby="related-guides-title">
+          <div class="flex items-center gap-4">
+            <span
+              class="grid size-12 shrink-0 place-items-center rounded-2xl bg-accent-500 text-ink-950 shadow-orange"
+              aria-hidden="true"
+            >
+              <PawPrintBold class="size-6" />
+            </span>
+
+            <div>
+              <p class="text-xs font-extrabold uppercase tracking-[0.09em] text-accent-700">
+                Continue Learning
+              </p>
+              <h2 id="related-guides-title" class="mt-2 text-3xl text-ink-900 sm:text-4xl">
+                Related Maxi Pawz resources
+              </h2>
+            </div>
+          </div>
+
+          <div class="mt-7 grid gap-4">
+            {props.guide.relatedLinks.map((relatedLink) => (
+              <a
+                href={relatedLink.href}
+                class="group rounded-3xl border border-sand bg-white-warm p-5 shadow-soft transition hover:-translate-y-1 hover:border-brand-300 hover:shadow-card sm:p-6"
+                data-guide-related-link
+                data-related-href={relatedLink.href}
+                data-related-title={relatedLink.title}
+              >
+                <div class="flex items-start justify-between gap-5">
+                  <div class="min-w-0">
+                    <h3 class="text-xl text-ink-900 sm:text-2xl">{relatedLink.title}</h3>
+                    <p class="mt-3 max-w-2xl text-sm leading-6 text-ink-600 sm:text-base sm:leading-7">
+                      {relatedLink.description}
+                    </p>
+                  </div>
+
+                  <span
+                    class="grid size-10 shrink-0 place-items-center rounded-full bg-brand-100 text-brand-700 transition group-hover:translate-x-1 group-hover:bg-brand-500 group-hover:text-white"
+                    aria-hidden="true"
+                  >
+                    <ArrowRightBold class="size-5" />
+                  </span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+    </GuideArticleLayout>
+  ) : null
+}
