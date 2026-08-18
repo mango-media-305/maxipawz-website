@@ -1,3 +1,4 @@
+import mdx from '@astrojs/mdx';
 import preact from '@astrojs/preact';
 
 import sitemap from '@astrojs/sitemap';
@@ -163,6 +164,8 @@ export default defineConfig(
       'static',
 
     integrations: [
+      mdx(),
+
       preact(),
 
       sitemap(
