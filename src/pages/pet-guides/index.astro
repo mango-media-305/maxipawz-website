@@ -36,6 +36,14 @@ const iconByGuide: Record<PetGuideIcon, typeof PawPrintBold> = {
 
 const FeaturedGuideIcon = iconByGuide[featuredGuide.icon];
 
+const seasonalGuide = {
+  cardTitle: 'Hurricane Preparedness',
+  description:
+    'Build a practical emergency kit, evacuation plan, identification checklist, and storm-safety routine for your dog before severe weather arrives.',
+  href: '/pet-guides/hurricane-preparedness-for-dogs',
+  eyebrow: 'Storm & Emergency Safety',
+};
+
 const guidePrinciples = [
   {
     icon: PawPrintBold,
@@ -67,7 +75,7 @@ const guidePrinciples = [
 
 <BaseLayout
   title="Pet Guides"
-  description="Explore practical Maxi Pawz guides for dog toys, enrichment, walking, travel, feeding, hydration, comfort, grooming, collars, and everyday care."
+  description="Explore practical Maxi Pawz guides for dog toys, enrichment, walking, travel, feeding, hydration, comfort, grooming, collars, emergency preparedness, and everyday care."
 >
   <!-- Hero -->
   <section class="relative overflow-hidden">
@@ -100,7 +108,7 @@ const guidePrinciples = [
 
         <p class="mt-6 max-w-xl text-lg leading-8 text-ink-600 sm:text-xl">
           Learn how to approach toys, accessories, walking, travel, hydration, comfort, grooming,
-          and everyday products with your dog’s real needs in mind.
+          emergency planning, and everyday products with your dog’s real needs in mind.
         </p>
 
         <div class="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -198,11 +206,21 @@ const guidePrinciples = [
 
         <p class="section-description mx-auto mt-4">
           Each topic introduces practical considerations that can help you make more thoughtful
-          product choices for your dog.
+          choices and plans for your dog.
         </p>
       </div>
 
       <div class="mt-10 grid gap-4 sm:grid-cols-2 sm:gap-5 lg:mt-12 lg:grid-cols-3 lg:gap-6">
+        <GuideCard
+          title={seasonalGuide.cardTitle}
+          description={seasonalGuide.description}
+          href={seasonalGuide.href}
+          tone="accent"
+          eyebrow={seasonalGuide.eyebrow}
+        >
+          <ShieldCheckBold slot="icon" aria-hidden="true" />
+        </GuideCard>
+
         {
           petGuideTopics.map((guide) => {
             const Icon = iconByGuide[guide.icon];
