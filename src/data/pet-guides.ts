@@ -31,6 +31,17 @@ export interface HomepagePetGuide {
 
 export const homepagePetGuides: HomepagePetGuide[] = [
   {
+    slug: 'dog-hydration-miami-heat',
+    href: '/pet-guides/dog-hydration-miami-heat',
+    cardTitle: 'Dog Hydration in Miami Heat',
+    description:
+      'Plan safer warm-weather walks with practical guidance for fresh water, cooler walking hours, shade breaks, hot pavement, and signs of overheating.',
+    eyebrow: 'Miami Dog Safety',
+    icon: 'hydration',
+    tone: 'brand',
+    readingTime: '7 min read',
+  },
+  {
     slug: 'play-and-enrichment',
     href: '/pet-guides/play-and-enrichment',
     cardTitle: 'Play & Enrichment',
