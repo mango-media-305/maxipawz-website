@@ -151,7 +151,7 @@ const maxiGuideTips = [
       </div>
 
       <div
-        class="relative rounded-[2.25rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-5 shadow-card sm:p-6"
+        class="relative rounded-card-lg border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-5 shadow-card sm:p-6"
       >
         <div
           class="pointer-events-none absolute -top-16 -right-16 size-40 rounded-full bg-white/70 blur-2xl"
@@ -213,13 +213,13 @@ const maxiGuideTips = [
             return (
               <article
                 class:list={[
-                  'group relative overflow-hidden rounded-[2rem] border border-white/80 bg-ink-950 shadow-card transition duration-300 hover:-translate-y-1.5 hover:shadow-xl',
+                  'group relative overflow-hidden rounded-4xl border border-white/80 bg-ink-950 shadow-card transition duration-300 hover:-translate-y-1.5 hover:shadow-xl',
                   isWide && 'sm:col-span-2',
                 ]}
               >
                 <a
                   href={getBlogPostPath(post)}
-                  class="absolute inset-0 z-20 rounded-[2rem] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white-warm"
+                  class="absolute inset-0 z-20 rounded-4xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white-warm"
                   aria-label={`Read guide: ${post.data.title}`}
                 >
                   <span class="sr-only">Read {post.data.title}</span>
@@ -255,14 +255,6 @@ const maxiGuideTips = [
                       >
                         {post.data.category}
                       </span>
-
-                      {post.data.localSeo.localIntent && (
-                        <span
-                          class="rounded-full border border-accent-200/60 bg-accent-400/90 px-3 py-1.5 text-[0.68rem] font-black uppercase tracking-[0.12em] text-ink-950 shadow-sm"
-                        >
-                          Miami + Nationwide
-                        </span>
-                      )}
                     </div>
 
                     <div class:list={['mt-24', isWide ? 'max-w-3xl' : 'max-w-xl']}>
@@ -383,7 +375,7 @@ const maxiGuideTips = [
             </div>
           </div>
 
-          <div class="overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 shadow-card">
+          <div class="overflow-hidden rounded-4xl border border-white/10 bg-white/5 shadow-card">
             <img
               src={featuredPost.data.heroImage.src}
               alt={featuredPost.data.heroImage.alt}
@@ -391,7 +383,7 @@ const maxiGuideTips = [
               height={featuredPost.data.heroImage.height}
               loading="lazy"
               decoding="async"
-              class="aspect-[4/3] w-full object-cover"
+              class="aspect-4/3 w-full object-cover"
             />
 
             <div class="p-5 sm:p-6">
@@ -475,7 +467,7 @@ const maxiGuideTips = [
   <section class="section-spacing">
     <div class="site-container">
       <div
-        class="relative overflow-hidden rounded-[2.25rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 text-center shadow-card sm:p-8 lg:p-10"
+        class="relative overflow-hidden rounded-card-lg border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 text-center shadow-card sm:p-8 lg:p-10"
       >
         <div
           class="pointer-events-none absolute -top-24 -right-20 size-64 rounded-full bg-brand-300/25 blur-3xl"
