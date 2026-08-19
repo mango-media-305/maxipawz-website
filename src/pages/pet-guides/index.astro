@@ -4,15 +4,12 @@ import { getCollection } from 'astro:content';
 import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
 import CheckCircleBold from 'phosphor-astro/CheckCircleBold.astro';
 import CheckCircleFill from 'phosphor-astro/CheckCircleFill.astro';
-import ConfettiBold from 'phosphor-astro/ConfettiBold.astro';
 import HeartBold from 'phosphor-astro/HeartBold.astro';
 import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
 import ShieldCheckBold from 'phosphor-astro/ShieldCheckBold.astro';
 import ShoppingBagOpenBold from 'phosphor-astro/ShoppingBagOpenBold.astro';
 import SparkleBold from 'phosphor-astro/SparkleBold.astro';
-import SuitcaseRollingBold from 'phosphor-astro/SuitcaseRollingBold.astro';
 
-import GuideCard from '@components/guides/GuideCard.astro';
 import Badge from '@components/ui/Badge.astro';
 import Button from '@components/ui/Button.astro';
 import BaseLayout from '@layouts/BaseLayout.astro';
@@ -31,29 +28,7 @@ const featuredPosts = posts.filter((post) => post.data.featured);
 const featuredPost = featuredPosts[0] ?? posts[0];
 const topicPosts = posts.filter((post) => post.id !== featuredPost?.id);
 
-const iconByPostId: Record<string, typeof PawPrintBold> = {
-  'choosing-the-right-product': CheckCircleBold,
-  'play-and-enrichment': ConfettiBold,
-  'walk-and-travel': SuitcaseRollingBold,
-  'feeding-and-hydration': HeartBold,
-  'comfort-at-home': PawPrintBold,
-  'grooming-and-care': ShieldCheckBold,
-  'collars-and-accessories': ShoppingBagOpenBold,
-  'hurricane-preparedness-for-dogs': ShieldCheckBold,
-};
-
-const toneByPostId: Record<string, 'brand' | 'accent' | 'sand'> = {
-  'choosing-the-right-product': 'brand',
-  'play-and-enrichment': 'accent',
-  'walk-and-travel': 'brand',
-  'feeding-and-hydration': 'sand',
-  'comfort-at-home': 'brand',
-  'grooming-and-care': 'accent',
-  'collars-and-accessories': 'sand',
-  'hurricane-preparedness-for-dogs': 'accent',
-};
-
-const FeaturedGuideIcon = featuredPost ? (iconByPostId[featuredPost.id] ?? PawPrintBold) : PawPrintBold;
+const FeaturedGuideIcon = CheckCircleBold;
 
 const guidePrinciples = [
   {
@@ -220,30 +195,135 @@ const maxiGuideTips = [
         </Badge>
 
         <h2 id="guide-topics-title" class="section-title mx-auto mt-5 text-4xl sm:text-5xl">
-          Start with the moment or routine you want to improve.
+          Pick a guide and dive in.
         </h2>
 
         <p class="section-description mx-auto mt-4">
-          Every article now lives in the Maxi Pawz content system, so new guides, local Miami topics,
-          and evergreen resources can grow from the same SEO-friendly foundation.
+          Explore visual guides built around real dog routines, practical decisions, and the moments
+          that matter most in everyday life with your pet.
         </p>
       </div>
 
-      <div class="mt-10 grid gap-4 sm:grid-cols-2 sm:gap-5 lg:mt-12 lg:grid-cols-3 lg:gap-6">
+      <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 lg:gap-6">
         {
-          topicPosts.map((post) => {
-            const Icon = iconByPostId[post.id] ?? PawPrintBold;
+          topicPosts.map((post, index) => {
+            const isWide = index === 0 || index === 4;
+            const image = post.data.heroImage;
 
             return (
-              <GuideCard
-                title={post.data.title}
-                description={post.data.description}
-                href={getBlogPostPath(post)}
-                tone={toneByPostId[post.id] ?? 'brand'}
-                eyebrow={post.data.category}
+              <article
+                class:list={[
+                  'group relative overflow-hidden rounded-[2rem] border border-white/80 bg-ink-950 shadow-card transition duration-300 hover:-translate-y-1.5 hover:shadow-xl',
+                  isWide && 'sm:col-span-2',
+                ]}
               >
-                <Icon slot="icon" aria-hidden="true" />
-              </GuideCard>
+                <a
+                  href={getBlogPostPath(post)}
+                  class="absolute inset-0 z-20 rounded-[2rem] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white-warm"
+                  aria-label={`Read guide: ${post.data.title}`}
+                >
+                  <span class="sr-only">Read {post.data.title}</span>
+                </a>
+
+                <div class:list={['relative overflow-hidden', isWide ? 'min-h-104 sm:min-h-112' : 'min-h-96']}>
+                  <img
+                    src={image.src}
+                    alt={image.alt}
+                    width={image.width}
+                    height={image.height}
+                    loading="lazy"
+                    decoding="async"
+                    class="absolute inset-0 size-full object-cover transition duration-700 ease-out group-hover:scale-[1.045]"
+                  />
+
+                  <div
+                    class="pointer-events-none absolute inset-0 bg-linear-to-t from-ink-950 via-ink-950/48 to-transparent"
+                    aria-hidden="true"
+                  >
+                  </div>
+
+                  <div
+                    class="pointer-events-none absolute inset-x-0 top-0 h-40 bg-linear-to-b from-ink-950/30 to-transparent"
+                    aria-hidden="true"
+                  >
+                  </div>
+
+                  <div class="relative z-10 flex min-h-inherit h-full flex-col justify-between p-5 sm:p-6 lg:p-7">
+                    <div class="flex items-start justify-between gap-4">
+                      <span
+                        class="rounded-full border border-white/25 bg-ink-950/45 px-3 py-1.5 text-[0.68rem] font-black uppercase tracking-[0.14em] text-white backdrop-blur-md"
+                      >
+                        {post.data.category}
+                      </span>
+
+                      {post.data.localSeo.localIntent && (
+                        <span
+                          class="rounded-full border border-accent-200/60 bg-accent-400/90 px-3 py-1.5 text-[0.68rem] font-black uppercase tracking-[0.12em] text-ink-950 shadow-sm"
+                        >
+                          Miami + Nationwide
+                        </span>
+                      )}
+                    </div>
+
+                    <div class:list={['mt-24', isWide ? 'max-w-3xl' : 'max-w-xl']}>
+                      <h3
+                        class:list={[
+                          'text-white drop-shadow-sm',
+                          isWide ? 'text-3xl sm:text-4xl lg:text-5xl' : 'text-2xl sm:text-3xl',
+                        ]}
+                      >
+                        {post.data.title}
+                      </h3>
+
+                      <p
+                        class:list={[
+                          'mt-3 text-sm leading-6 text-white/78 sm:text-base sm:leading-7',
+                          isWide ? 'max-w-2xl' : 'max-w-lg',
+                        ]}
+                      >
+                        {post.data.description}
+                      </p>
+
+                      <div class="mt-5 flex items-center gap-2 font-extrabold text-white">
+                        <span>Read guide</span>
+                        <ArrowRightBold
+                          class="size-5 transition-transform duration-300 group-hover:translate-x-1.5"
+                          aria-hidden="true"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {(image.credit || image.source) && (
+                  <div class="relative z-30 border-t border-white/10 bg-ink-950 px-5 py-3 text-[0.68rem] leading-5 text-white/55 sm:px-6">
+                    {image.credit && (
+                      <>
+                        Photo by{' '}
+                        <a
+                          href={image.credit.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="font-bold text-white/75 underline decoration-white/30 underline-offset-2 transition hover:text-white"
+                        >
+                          {image.credit.name}
+                        </a>
+                      </>
+                    )}
+                    {image.credit && image.source && ' · '}
+                    {image.source && (
+                      <a
+                        href={image.source.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="font-bold text-white/75 underline decoration-white/30 underline-offset-2 transition hover:text-white"
+                      >
+                        {image.source.name}
+                      </a>
+                    )}
+                  </div>
+                )}
+              </article>
             );
           })
         }
