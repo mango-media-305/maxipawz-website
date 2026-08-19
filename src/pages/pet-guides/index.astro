@@ -1,83 +1,83 @@
 ---
+import { getCollection } from 'astro:content';
+
 import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
 import CheckCircleBold from 'phosphor-astro/CheckCircleBold.astro';
 import CheckCircleFill from 'phosphor-astro/CheckCircleFill.astro';
-import ConfettiBold from 'phosphor-astro/ConfettiBold.astro';
 import HeartBold from 'phosphor-astro/HeartBold.astro';
 import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
 import ShieldCheckBold from 'phosphor-astro/ShieldCheckBold.astro';
 import ShoppingBagOpenBold from 'phosphor-astro/ShoppingBagOpenBold.astro';
 import SparkleBold from 'phosphor-astro/SparkleBold.astro';
-import SuitcaseRollingBold from 'phosphor-astro/SuitcaseRollingBold.astro';
 
-import GuideCard from '@components/guides/GuideCard.astro';
 import Badge from '@components/ui/Badge.astro';
 import Button from '@components/ui/Button.astro';
 import BaseLayout from '@layouts/BaseLayout.astro';
 
 import { isStoreLive } from '../../config/storefront';
-
 import {
-  featuredGuide,
-  maxiGuideTips,
-  petGuideTopics,
-  type PetGuideIcon,
-} from '../../data/pet-guides';
+  getBlogPostPath,
+  getIndexableBlogPosts,
+  sortBlogPostsNewestFirst,
+} from '../../utils/blog';
 
-const iconByGuide: Record<PetGuideIcon, typeof PawPrintBold> = {
-  choosing: CheckCircleBold,
-  play: ConfettiBold,
-  travel: SuitcaseRollingBold,
-  hydration: HeartBold,
-  comfort: PawPrintBold,
-  care: ShieldCheckBold,
-  accessories: ShoppingBagOpenBold,
-};
+const allPosts = await getCollection('blog');
+const posts = sortBlogPostsNewestFirst(getIndexableBlogPosts(allPosts));
 
-const FeaturedGuideIcon = iconByGuide[featuredGuide.icon];
+const featuredPosts = posts.filter((post) => post.data.featured);
+const featuredPost = featuredPosts[0] ?? posts[0];
+const topicPosts = posts.filter((post) => post.id !== featuredPost?.id);
 
-const seasonalGuide = {
-  cardTitle: 'Hurricane Preparedness',
-  description:
-    'Build a practical emergency kit, evacuation plan, identification checklist, and storm-safety routine for your dog before severe weather arrives.',
-  href: '/pet-guides/hurricane-preparedness-for-dogs',
-  eyebrow: 'Storm & Emergency Safety',
-};
+const FeaturedGuideIcon = CheckCircleBold;
 
 const guidePrinciples = [
   {
     icon: PawPrintBold,
-
     title: 'Inspired by Maxi',
-
     description:
       'Our guides begin with the lessons we have learned through everyday life with our own dog.',
   },
-
   {
     icon: CheckCircleBold,
-
     title: 'Practical first',
-
     description: 'We focus on comfort, usefulness, purpose, maintenance, and real daily routines.',
   },
-
   {
     icon: ShieldCheckBold,
-
     title: 'Clear and responsible',
-
     description:
       'Our guidance supports informed choices without replacing professional veterinary advice.',
   },
 ];
+
+const maxiGuideTips = [
+  {
+    title: 'Start with your dog',
+    description:
+      'Personality, size, age, habits, and routines matter more than choosing a product only because it looks appealing.',
+  },
+  {
+    title: 'Introduce products gradually',
+    description:
+      'Give your dog time to investigate unfamiliar toys, accessories, bowls, carriers, or grooming tools.',
+  },
+  {
+    title: 'Observe real use',
+    description:
+      'Watch how your dog interacts with a product and adjust when the product creates discomfort or unsafe use.',
+  },
+  {
+    title: 'Inspect products regularly',
+    description:
+      'Replace items that become damaged, loose, sharp, heavily worn, or no longer appropriate for continued use.',
+  },
+] as const;
 ---
 
 <BaseLayout
   title="Pet Guides"
-  description="Explore practical Maxi Pawz guides for dog toys, enrichment, walking, travel, feeding, hydration, comfort, grooming, collars, emergency preparedness, and everyday care."
+  description="Explore practical Maxi Pawz guides for dog toys, enrichment, walking, travel, feeding, hydration, comfort, grooming, collars, hurricane preparedness, and everyday care."
 >
-  <!-- Hero -->
   <section class="relative overflow-hidden">
     <div
       class="pointer-events-none absolute -top-40 -left-40 size-128 rounded-full bg-brand-300/25 blur-3xl"
@@ -97,18 +97,17 @@ const guidePrinciples = [
       <div class="relative z-10 max-w-2xl">
         <Badge variant="accent" size="md">
           <SparkleBold slot="icon" aria-hidden="true" />
-
           Maxi Pawz Pet Guides
         </Badge>
 
         <h1 class="mt-6 max-w-2xl text-5xl text-ink-900 sm:text-6xl lg:text-7xl">
-          Practical guidance for{' '}
-          <span class="text-brand-gradient"> happier dog days. </span>
+          Practical guidance for <span class="text-brand-gradient">happier dog days.</span>
         </h1>
 
         <p class="mt-6 max-w-xl text-lg leading-8 text-ink-600 sm:text-xl">
-          Learn how to approach toys, accessories, walking, travel, hydration, comfort, grooming,
-          emergency planning, and everyday products with your dog’s real needs in mind.
+          Explore practical articles about toys, walking, travel, hydration, comfort, grooming,
+          emergency planning, and everyday products — with Miami and South Florida guidance when
+          location genuinely changes the answer.
         </p>
 
         <div class="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -120,7 +119,6 @@ const guidePrinciples = [
             class="w-full sm:w-auto"
           >
             <ArrowRightBold slot="icon" aria-hidden="true" />
-
             Browse the Guides
           </Button>
 
@@ -152,9 +150,8 @@ const guidePrinciples = [
         </div>
       </div>
 
-      <!-- Guide principles -->
       <div
-        class="relative rounded-[2.25rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-5 shadow-card sm:p-6"
+        class="relative rounded-card-lg border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-5 shadow-card sm:p-6"
       >
         <div
           class="pointer-events-none absolute -top-16 -right-16 size-40 rounded-full bg-white/70 blur-2xl"
@@ -175,7 +172,6 @@ const guidePrinciples = [
 
                 <div class="min-w-0">
                   <h2 class="text-lg text-ink-900">{title}</h2>
-
                   <p class="mt-1 text-sm leading-6 text-ink-600">{description}</p>
                 </div>
               </article>
@@ -186,7 +182,6 @@ const guidePrinciples = [
     </div>
   </section>
 
-  <!-- Guide categories -->
   <section
     id="guide-topics"
     class="section-spacing scroll-mt-28 border-y border-sand bg-white-warm/70"
@@ -196,45 +191,131 @@ const guidePrinciples = [
       <div class="mx-auto max-w-4xl text-center">
         <Badge variant="brand" size="md" class="mx-auto">
           <PawPrintBold slot="icon" aria-hidden="true" />
-
           Browse by Topic
         </Badge>
 
         <h2 id="guide-topics-title" class="section-title mx-auto mt-5 text-4xl sm:text-5xl">
-          Start with the moment or routine you want to improve.
+          Pick a guide and dive in.
         </h2>
 
         <p class="section-description mx-auto mt-4">
-          Each topic introduces practical considerations that can help you make more thoughtful
-          choices and plans for your dog.
+          Explore visual guides built around real dog routines, practical decisions, and the moments
+          that matter most in everyday life with your pet.
         </p>
       </div>
 
-      <div class="mt-10 grid gap-4 sm:grid-cols-2 sm:gap-5 lg:mt-12 lg:grid-cols-3 lg:gap-6">
-        <GuideCard
-          title={seasonalGuide.cardTitle}
-          description={seasonalGuide.description}
-          href={seasonalGuide.href}
-          tone="accent"
-          eyebrow={seasonalGuide.eyebrow}
-        >
-          <ShieldCheckBold slot="icon" aria-hidden="true" />
-        </GuideCard>
-
+      <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 lg:gap-6">
         {
-          petGuideTopics.map((guide) => {
-            const Icon = iconByGuide[guide.icon];
+          topicPosts.map((post, index) => {
+            const isWide = index === 0 || index === 4;
+            const image = post.data.heroImage;
 
             return (
-              <GuideCard
-                title={guide.cardTitle}
-                description={guide.description}
-                href={guide.href}
-                tone={guide.tone}
-                eyebrow={guide.eyebrow}
+              <article
+                class:list={[
+                  'group relative overflow-hidden rounded-4xl border border-white/80 bg-ink-950 shadow-card transition duration-300 hover:-translate-y-1.5 hover:shadow-xl',
+                  isWide && 'sm:col-span-2',
+                ]}
               >
-                <Icon slot="icon" aria-hidden="true" />
-              </GuideCard>
+                <a
+                  href={getBlogPostPath(post)}
+                  class="absolute inset-0 z-20 rounded-4xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white-warm"
+                  aria-label={`Read guide: ${post.data.title}`}
+                >
+                  <span class="sr-only">Read {post.data.title}</span>
+                </a>
+
+                <div class:list={['relative overflow-hidden', isWide ? 'min-h-104 sm:min-h-112' : 'min-h-96']}>
+                  <img
+                    src={image.src}
+                    alt={image.alt}
+                    width={image.width}
+                    height={image.height}
+                    loading="lazy"
+                    decoding="async"
+                    class="absolute inset-0 size-full object-cover transition duration-700 ease-out group-hover:scale-[1.045]"
+                  />
+
+                  <div
+                    class="pointer-events-none absolute inset-0 bg-linear-to-t from-ink-950 via-ink-950/48 to-transparent"
+                    aria-hidden="true"
+                  >
+                  </div>
+
+                  <div
+                    class="pointer-events-none absolute inset-x-0 top-0 h-40 bg-linear-to-b from-ink-950/30 to-transparent"
+                    aria-hidden="true"
+                  >
+                  </div>
+
+                  <div class="relative z-10 flex min-h-inherit h-full flex-col justify-between p-5 sm:p-6 lg:p-7">
+                    <div class="flex items-start justify-between gap-4">
+                      <span
+                        class="rounded-full border border-white/25 bg-ink-950/45 px-3 py-1.5 text-[0.68rem] font-black uppercase tracking-[0.14em] text-white backdrop-blur-md"
+                      >
+                        {post.data.category}
+                      </span>
+                    </div>
+
+                    <div class:list={['mt-24', isWide ? 'max-w-3xl' : 'max-w-xl']}>
+                      <h3
+                        class:list={[
+                          'text-white drop-shadow-sm',
+                          isWide ? 'text-3xl sm:text-4xl lg:text-5xl' : 'text-2xl sm:text-3xl',
+                        ]}
+                      >
+                        {post.data.title}
+                      </h3>
+
+                      <p
+                        class:list={[
+                          'mt-3 text-sm leading-6 text-white/78 sm:text-base sm:leading-7',
+                          isWide ? 'max-w-2xl' : 'max-w-lg',
+                        ]}
+                      >
+                        {post.data.description}
+                      </p>
+
+                      <div class="mt-5 flex items-center gap-2 font-extrabold text-white">
+                        <span>Read guide</span>
+                        <ArrowRightBold
+                          class="size-5 transition-transform duration-300 group-hover:translate-x-1.5"
+                          aria-hidden="true"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {(image.credit || image.source) && (
+                  <div class="relative z-30 border-t border-white/10 bg-ink-950 px-5 py-3 text-[0.68rem] leading-5 text-white/55 sm:px-6">
+                    {image.credit && (
+                      <>
+                        Photo by{' '}
+                        <a
+                          href={image.credit.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="font-bold text-white/75 underline decoration-white/30 underline-offset-2 transition hover:text-white"
+                        >
+                          {image.credit.name}
+                        </a>
+                      </>
+                    )}
+                    {image.credit && image.source && ' · '}
+                    {image.source && (
+                      <a
+                        href={image.source.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="font-bold text-white/75 underline decoration-white/30 underline-offset-2 transition hover:text-white"
+                      >
+                        {image.source.name}
+                      </a>
+                    )}
+                  </div>
+                )}
+              </article>
             );
           })
         }
@@ -242,69 +323,111 @@ const guidePrinciples = [
     </div>
   </section>
 
-  <!-- Featured guide -->
-  <section
-    class="section-spacing relative overflow-hidden bg-ink-950 text-white"
-    aria-labelledby="featured-guide-title"
-  >
-    <div
-      class="pointer-events-none absolute -top-32 -left-24 size-80 rounded-full bg-brand-500/20 blur-3xl"
-      aria-hidden="true"
-    >
-    </div>
-
-    <div
-      class="pointer-events-none absolute -right-24 -bottom-32 size-96 rounded-full bg-accent-500/20 blur-3xl"
-      aria-hidden="true"
-    >
-    </div>
-
-    <div
-      class="site-container relative grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14"
-    >
-      <div class="max-w-xl">
-        <Badge variant="accent" size="md">
-          <FeaturedGuideIcon slot="icon" aria-hidden="true" />
-
-          {featuredGuide.eyebrow}
-        </Badge>
-
-        <h2 id="featured-guide-title" class="section-title mt-5 text-4xl text-white sm:text-5xl">
-          {featuredGuide.title}
-        </h2>
-
-        <p class="mt-5 text-base leading-7 text-white/75 sm:text-lg sm:leading-8">
-          {featuredGuide.description}
-        </p>
-
-        <p class="mt-4 text-base leading-7 text-white/65">
-          {featuredGuide.introduction}
-        </p>
-
-        <div class="mt-7">
-          <Button href={featuredGuide.href} variant="primary" size="lg" iconPosition="right">
-            <ArrowRightBold slot="icon" aria-hidden="true" />
-
-            Read the Full Guide
-          </Button>
+  {
+    featuredPost && (
+      <section
+        class="section-spacing relative overflow-hidden bg-ink-950 text-white"
+        aria-labelledby="featured-guide-title"
+      >
+        <div
+          class="pointer-events-none absolute -top-32 -left-24 size-80 rounded-full bg-brand-500/20 blur-3xl"
+          aria-hidden="true"
+        >
         </div>
-      </div>
 
-      <div class="grid gap-3">
-        {
-          featuredGuide.learningPoints.map((point) => (
-            <div class="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5">
-              <CheckCircleFill class="mt-0.5 size-5 shrink-0 text-accent-300" aria-hidden="true" />
+        <div
+          class="pointer-events-none absolute -right-24 -bottom-32 size-96 rounded-full bg-accent-500/20 blur-3xl"
+          aria-hidden="true"
+        >
+        </div>
 
-              <p class="text-sm font-bold leading-6 text-white/80">{point}</p>
+        <div
+          class="site-container relative grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14"
+        >
+          <div class="max-w-xl">
+            <Badge variant="accent" size="md">
+              <FeaturedGuideIcon slot="icon" aria-hidden="true" />
+              Featured Guide
+            </Badge>
+
+            <h2 id="featured-guide-title" class="section-title mt-5 text-4xl text-white sm:text-5xl">
+              {featuredPost.data.title}
+            </h2>
+
+            <p class="mt-5 text-base leading-7 text-white/75 sm:text-lg sm:leading-8">
+              {featuredPost.data.description}
+            </p>
+
+            <p class="mt-4 text-sm font-bold uppercase tracking-[0.09em] text-accent-300">
+              {featuredPost.data.category}
+            </p>
+
+            <div class="mt-7">
+              <Button
+                href={getBlogPostPath(featuredPost)}
+                variant="primary"
+                size="lg"
+                iconPosition="right"
+              >
+                <ArrowRightBold slot="icon" aria-hidden="true" />
+                Read the Full Guide
+              </Button>
             </div>
-          ))
-        }
-      </div>
-    </div>
-  </section>
+          </div>
 
-  <!-- Maxi tips -->
+          <div class="overflow-hidden rounded-4xl border border-white/10 bg-white/5 shadow-card">
+            <img
+              src={featuredPost.data.heroImage.src}
+              alt={featuredPost.data.heroImage.alt}
+              width={featuredPost.data.heroImage.width}
+              height={featuredPost.data.heroImage.height}
+              loading="lazy"
+              decoding="async"
+              class="aspect-4/3 w-full object-cover"
+            />
+
+            <div class="p-5 sm:p-6">
+              <p class="text-sm leading-6 text-white/70">
+                {featuredPost.data.heroImage.caption ?? featuredPost.data.description}
+              </p>
+
+              {
+                (featuredPost.data.heroImage.credit || featuredPost.data.heroImage.source) && (
+                  <p class="mt-3 text-xs leading-5 text-white/50">
+                    {featuredPost.data.heroImage.credit && (
+                      <>
+                        Photo by{' '}
+                        <a
+                          href={featuredPost.data.heroImage.credit.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="font-bold text-white/70 underline underline-offset-2"
+                        >
+                          {featuredPost.data.heroImage.credit.name}
+                        </a>
+                      </>
+                    )}
+                    {featuredPost.data.heroImage.credit && featuredPost.data.heroImage.source && ' · '}
+                    {featuredPost.data.heroImage.source && (
+                      <a
+                        href={featuredPost.data.heroImage.source.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="font-bold text-white/70 underline underline-offset-2"
+                      >
+                        {featuredPost.data.heroImage.source.name}
+                      </a>
+                    )}
+                  </p>
+                )
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   <section
     class="section-spacing border-y border-sand bg-white-warm/70"
     aria-labelledby="maxi-tips-title"
@@ -313,7 +436,6 @@ const guidePrinciples = [
       <div class="mx-auto max-w-4xl text-center">
         <Badge variant="accent" size="md" class="mx-auto">
           <PawPrintBold slot="icon" aria-hidden="true" />
-
           Lessons from Maxi
         </Badge>
 
@@ -327,9 +449,7 @@ const guidePrinciples = [
           maxiGuideTips.map((tip) => (
             <article class="rounded-card border border-sand bg-cream-soft p-5 shadow-sm">
               <CheckCircleFill class="size-7 text-brand-500" aria-hidden="true" />
-
               <h3 class="mt-5 text-xl text-ink-900">{tip.title}</h3>
-
               <p class="mt-3 text-sm leading-6 text-ink-600">{tip.description}</p>
             </article>
           ))
@@ -344,11 +464,10 @@ const guidePrinciples = [
     </div>
   </section>
 
-  <!-- Final CTA -->
   <section class="section-spacing">
     <div class="site-container">
       <div
-        class="relative overflow-hidden rounded-[2.25rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 text-center shadow-card sm:p-8 lg:p-10"
+        class="relative overflow-hidden rounded-card-lg border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 text-center shadow-card sm:p-8 lg:p-10"
       >
         <div
           class="pointer-events-none absolute -top-24 -right-20 size-64 rounded-full bg-brand-300/25 blur-3xl"
@@ -359,7 +478,6 @@ const guidePrinciples = [
         <div class="relative mx-auto max-w-3xl">
           <Badge variant="brand" size="md" class="mx-auto">
             <HeartBold slot="icon" aria-hidden="true" />
-
             Keep Learning with Maxi Pawz
           </Badge>
 
@@ -371,7 +489,7 @@ const guidePrinciples = [
             {
               isStoreLive
                 ? 'Use our guides alongside the Maxi Pawz collection to discover products that fit your dog’s routines and personality.'
-                : 'Join the pack for new guides, launch updates, product news, and more lessons inspired by life with Maxi.'
+                : 'Join the pack for new guides, Miami pet resources, launch updates, product news, and more lessons inspired by life with Maxi.'
             }
           </p>
 

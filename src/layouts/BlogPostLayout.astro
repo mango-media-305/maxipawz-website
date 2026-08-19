@@ -6,6 +6,7 @@ import SparkleBold from 'phosphor-astro/SparkleBold.astro';
 
 import ArticleSources from '@components/blog/ArticleSources.astro';
 import BlogImage from '@components/blog/BlogImage.astro';
+import RelatedPosts from '@components/blog/RelatedPosts.astro';
 import Badge from '@components/ui/Badge.astro';
 import Button from '@components/ui/Button.astro';
 import BaseLayout from '@layouts/BaseLayout.astro';
@@ -40,6 +41,17 @@ interface ArticleSource {
   accessedAt?: Date | string;
 }
 
+interface RelatedPost {
+  href: string;
+  title: string;
+  description: string;
+  category: string;
+  image: {
+    src: string;
+    alt: string;
+  };
+}
+
 type StructuredData = Record<string, unknown> | Array<Record<string, unknown>>;
 
 interface Props {
@@ -56,6 +68,7 @@ interface Props {
   ogImageAlt?: string;
   headings?: Heading[];
   sources?: ArticleSource[];
+  relatedPosts?: RelatedPost[];
   noIndex?: boolean;
   structuredData?: StructuredData;
 }
@@ -74,6 +87,7 @@ const {
   ogImageAlt,
   headings = [],
   sources = [],
+  relatedPosts = [],
   noIndex = false,
   structuredData,
 } = Astro.props;
@@ -130,42 +144,51 @@ const updatedLabel = dateFormatter.format(updatedAt);
         Back to Pet Guides
       </a>
 
-      <div class="mt-8 max-w-4xl">
-        <Badge variant="accent" size="md">
-          <PawPrintBold slot="icon" aria-hidden="true" />
-          {category}
-        </Badge>
+      <div class="mt-8 grid items-center gap-8 lg:grid-cols-[minmax(0,1.02fr)_minmax(24rem,0.98fr)] lg:gap-12 xl:gap-16">
+        <div class="min-w-0">
+          <Badge variant="accent" size="md">
+            <PawPrintBold slot="icon" aria-hidden="true" />
+            {category}
+          </Badge>
 
-        <h1 class="mt-6 max-w-4xl text-5xl text-ink-900 sm:text-6xl lg:text-7xl">
-          {title}
-        </h1>
+          <h1 class="mt-6 max-w-3xl text-5xl text-ink-900 sm:text-6xl lg:text-[3.9rem] xl:text-[4.45rem]">
+            {title}
+          </h1>
 
-        <p class="mt-6 max-w-3xl text-lg leading-8 text-ink-600 sm:text-xl">
-          {description}
-        </p>
+          <p class="mt-6 max-w-2xl text-lg leading-8 text-ink-600 sm:text-xl">
+            {description}
+          </p>
 
-        <div class="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold text-ink-500">
-          <span class="inline-flex items-center gap-2">
-            <SparkleBold class="size-5 text-brand-500" aria-hidden="true" />
-            Published {publishedLabel}
-          </span>
-
-          <span class="inline-flex items-center gap-2">
-            <HeartBold class="size-5 text-brand-500" aria-hidden="true" />
-            {author}
-          </span>
-
-          {updatedAt.getTime() !== publishedAt.getTime() && (
+          <div class="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold text-ink-500">
             <span class="inline-flex items-center gap-2">
-              <PawPrintBold class="size-5 text-brand-500" aria-hidden="true" />
-              Updated {updatedLabel}
+              <SparkleBold class="size-5 text-brand-500" aria-hidden="true" />
+              Published {publishedLabel}
             </span>
-          )}
-        </div>
-      </div>
 
-      <div class="mt-9 max-w-5xl">
-        <BlogImage {...heroImage} loading="eager" fetchpriority="high" class="my-0" />
+            <span class="inline-flex items-center gap-2">
+              <HeartBold class="size-5 text-brand-500" aria-hidden="true" />
+              {author}
+            </span>
+
+            {updatedAt.getTime() !== publishedAt.getTime() && (
+              <span class="inline-flex items-center gap-2">
+                <PawPrintBold class="size-5 text-brand-500" aria-hidden="true" />
+                Updated {updatedLabel}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div class="min-w-0 lg:self-stretch">
+          <div class="h-full lg:flex lg:items-center">
+            <BlogImage
+              {...heroImage}
+              loading="eager"
+              fetchpriority="high"
+              class="my-0 w-full lg:[&_img]:aspect-[4/3] lg:[&_img]:h-full lg:[&_img]:max-h-[34rem] lg:[&_img]:object-cover"
+            />
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -217,6 +240,7 @@ const updatedLabel = dateFormatter.format(updatedAt);
         </div>
 
         <ArticleSources sources={sources} />
+        <RelatedPosts posts={relatedPosts} />
       </article>
     </div>
   </section>
