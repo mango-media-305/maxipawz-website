@@ -6,6 +6,7 @@ import SparkleBold from 'phosphor-astro/SparkleBold.astro';
 
 import ArticleSources from '@components/blog/ArticleSources.astro';
 import BlogImage from '@components/blog/BlogImage.astro';
+import RelatedPosts from '@components/blog/RelatedPosts.astro';
 import Badge from '@components/ui/Badge.astro';
 import Button from '@components/ui/Button.astro';
 import BaseLayout from '@layouts/BaseLayout.astro';
@@ -40,6 +41,17 @@ interface ArticleSource {
   accessedAt?: Date | string;
 }
 
+interface RelatedPost {
+  href: string;
+  title: string;
+  description: string;
+  category: string;
+  image: {
+    src: string;
+    alt: string;
+  };
+}
+
 type StructuredData = Record<string, unknown> | Array<Record<string, unknown>>;
 
 interface Props {
@@ -56,6 +68,7 @@ interface Props {
   ogImageAlt?: string;
   headings?: Heading[];
   sources?: ArticleSource[];
+  relatedPosts?: RelatedPost[];
   noIndex?: boolean;
   structuredData?: StructuredData;
 }
@@ -74,6 +87,7 @@ const {
   ogImageAlt,
   headings = [],
   sources = [],
+  relatedPosts = [],
   noIndex = false,
   structuredData,
 } = Astro.props;
@@ -217,6 +231,7 @@ const updatedLabel = dateFormatter.format(updatedAt);
         </div>
 
         <ArticleSources sources={sources} />
+        <RelatedPosts posts={relatedPosts} />
       </article>
     </div>
   </section>
