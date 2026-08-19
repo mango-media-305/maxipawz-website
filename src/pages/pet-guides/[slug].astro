@@ -4,7 +4,7 @@ import { getCollection, render, type CollectionEntry } from 'astro:content';
 
 import BlogPostLayout from '@layouts/BlogPostLayout.astro';
 
-import { buildBlogStructuredData } from '../../utils/blog';
+import { buildBlogStructuredData, getBlogPostPath } from '../../utils/blog';
 
 type BlogPost = CollectionEntry<'blog'>;
 
@@ -29,6 +29,22 @@ const { post } = Astro.props as Props;
 const rendered = await render(post);
 const { Content, headings } = rendered;
 const structuredData = buildBlogStructuredData({ post });
+
+const allPosts = await getCollection('blog');
+const postById = new Map(allPosts.map((candidate) => [candidate.id, candidate]));
+const relatedPosts = post.data.relatedPosts
+  .map((id) => postById.get(id))
+  .filter((candidate): candidate is BlogPost => Boolean(candidate) && candidate.data.indexable)
+  .map((candidate) => ({
+    href: getBlogPostPath(candidate),
+    title: candidate.data.title,
+    description: candidate.data.description,
+    category: candidate.data.category,
+    image: {
+      src: candidate.data.heroImage.src,
+      alt: candidate.data.heroImage.alt,
+    },
+  }));
 ---
 
 <BlogPostLayout
@@ -45,6 +61,7 @@ const structuredData = buildBlogStructuredData({ post });
   ogImageAlt={post.data.ogImageAlt}
   headings={headings}
   sources={post.data.sources}
+  relatedPosts={relatedPosts}
   noIndex={!post.data.indexable}
   structuredData={structuredData}
 >
