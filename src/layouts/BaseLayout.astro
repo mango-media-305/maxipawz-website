@@ -19,49 +19,78 @@ type SocialType = 'website' | 'article';
 
 interface SocialImageConfig {
   src: string;
+
   alt: string;
 }
 
 interface Props {
   title: string;
+
   description: string;
 
   image?: string;
+
   imageAlt?: string;
+
   imageType?: string;
+
   imageWidth?: number;
+
   imageHeight?: number;
 
   socialType?: SocialType;
 
   publishedAt?: string;
+
   modifiedAt?: string;
+
   articleSection?: string;
 
   noIndex?: boolean;
+
   hideSiteChrome?: boolean;
+
+  /**
+   * Optional canonical pathname.
+   *
+   * When omitted, the current page is self-canonical.
+   *
+   * Example:
+   * /shop/adventure-fit-harness
+   */
+  canonicalPath?: string;
 
   structuredData?: StructuredData;
 }
 
 const {
   title,
+
   description,
 
   image,
+
   imageAlt,
+
   imageType,
+
   imageWidth,
+
   imageHeight,
 
   socialType = 'website',
 
   publishedAt,
+
   modifiedAt,
+
   articleSection,
 
   noIndex = false,
+
   hideSiteChrome = false,
+
+  canonicalPath,
 
   structuredData,
 } = Astro.props;
@@ -72,9 +101,11 @@ const shouldNoIndex = noIndex || environmentNoIndex;
 
 const fullTitle = title === siteConfig.name ? title : `${title} | ${siteConfig.name}`;
 
-const canonicalURL = Astro.site
-  ? new URL(Astro.url.pathname, Astro.site)
-  : new URL(Astro.url.pathname, Astro.url);
+const pageBaseUrl = Astro.site ?? new URL(siteConfig.url);
+
+const pageURL = new URL(Astro.url.pathname, pageBaseUrl);
+
+const canonicalURL = canonicalPath ? new URL(canonicalPath, pageBaseUrl) : pageURL;
 
 const normalizedPath = Astro.url.pathname === '/' ? '/' : Astro.url.pathname.replace(/\/+$/, '');
 
@@ -129,7 +160,7 @@ const resolvedImage = mappedSocialImage?.src ?? image ?? '/images/og/default.web
 const resolvedImageAlt =
   mappedSocialImage?.alt ?? imageAlt ?? `${siteConfig.name} — Happy Pets, Happy Life.`;
 
-const socialImageURL = new URL(resolvedImage, canonicalURL).toString();
+const socialImageURL = new URL(resolvedImage, pageURL).toString();
 
 const isManagedOgImage = resolvedImage.startsWith('/images/og/');
 
@@ -139,9 +170,19 @@ const resolvedImageWidth = imageWidth ?? (isManagedOgImage ? 1200 : undefined);
 
 const resolvedImageHeight = imageHeight ?? (isManagedOgImage ? 630 : undefined);
 
-const robotsContent = shouldNoIndex
+/**
+ * Environment-wide noindex is stricter because staging
+ * and development environments should not be crawled.
+ *
+ * Page-level noindex keeps links followable so campaign
+ * pages can still point search engines toward the canonical
+ * product destination.
+ */
+const robotsContent = environmentNoIndex
   ? 'noindex, nofollow'
-  : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
+  : shouldNoIndex
+    ? 'noindex, follow, max-image-preview:large'
+    : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
 ---
 
 <!doctype html>
@@ -153,7 +194,9 @@ const robotsContent = shouldNoIndex
 
     <meta name="generator" content={Astro.generator} />
 
-    <title>{fullTitle}</title>
+    <title>
+      {fullTitle}
+    </title>
 
     <meta name="description" content={description} />
 
@@ -185,7 +228,11 @@ const robotsContent = shouldNoIndex
 
     <meta property="og:description" content={description} />
 
-    <meta property="og:url" content={canonicalURL} />
+    <!--
+      Open Graph URL represents the actual campaign page.
+      It intentionally remains independent from canonical URL.
+    -->
+    <meta property="og:url" content={pageURL} />
 
     <meta property="og:image" content={socialImageURL} />
 

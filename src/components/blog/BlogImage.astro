@@ -1,0 +1,87 @@
+---
+interface ImageAttribution {
+  name: string;
+  url: string;
+}
+
+interface Props {
+  src: string;
+  alt: string;
+  caption?: string;
+  width?: number;
+  height?: number;
+  credit?: ImageAttribution;
+  source?: ImageAttribution;
+  loading?: 'eager' | 'lazy';
+  fetchpriority?: 'high' | 'low' | 'auto';
+  class?: string;
+}
+
+const {
+  src,
+  alt,
+  caption,
+  width,
+  height,
+  credit,
+  source,
+  loading = 'lazy',
+  fetchpriority = 'auto',
+  class: className,
+} = Astro.props;
+
+const hasAttribution = Boolean(credit || source);
+---
+
+<figure class:list={['my-8 overflow-hidden rounded-4xl border border-sand bg-white-warm shadow-sm', className]}>
+  <img
+    src={src}
+    alt={alt}
+    width={width}
+    height={height}
+    loading={loading}
+    fetchpriority={fetchpriority}
+    decoding="async"
+    class="h-auto w-full object-cover"
+  />
+
+  {(caption || hasAttribution) && (
+    <figcaption class="border-t border-sand px-4 py-3 sm:px-5">
+      {caption && <p class="text-sm leading-6 text-ink-600">{caption}</p>}
+
+      {hasAttribution && (
+        <p class:list={['text-xs leading-5 text-ink-500', caption && 'mt-1.5']}>
+          {credit && (
+            <>
+              Photo by{' '}
+              <a
+                href={credit.url}
+                target="_blank"
+                rel="noopener noreferrer external"
+                class="font-bold text-brand-700 underline decoration-brand-300 underline-offset-2 hover:text-brand-800"
+              >
+                {credit.name}
+              </a>
+            </>
+          )}
+
+          {credit && source && <span aria-hidden="true"> · </span>}
+
+          {source && (
+            <>
+              Source:{' '}
+              <a
+                href={source.url}
+                target="_blank"
+                rel="noopener noreferrer external"
+                class="font-bold text-brand-700 underline decoration-brand-300 underline-offset-2 hover:text-brand-800"
+              >
+                {source.name}
+              </a>
+            </>
+          )}
+        </p>
+      )}
+    </figcaption>
+  )}
+</figure>

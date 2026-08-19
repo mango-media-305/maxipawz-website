@@ -1,0 +1,359 @@
+---
+import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
+import HeartBold from 'phosphor-astro/HeartBold.astro';
+import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
+import SparkleBold from 'phosphor-astro/SparkleBold.astro';
+
+import ArticleSources from '@components/blog/ArticleSources.astro';
+import BlogImage from '@components/blog/BlogImage.astro';
+import RelatedPosts from '@components/blog/RelatedPosts.astro';
+import Badge from '@components/ui/Badge.astro';
+import Button from '@components/ui/Button.astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+import { isStoreLive } from '../config/storefront';
+
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface ImageAttribution {
+  name: string;
+  url: string;
+}
+
+interface BlogImageData {
+  src: string;
+  alt: string;
+  caption?: string;
+  width?: number;
+  height?: number;
+  credit?: ImageAttribution;
+  source?: ImageAttribution;
+}
+
+interface ArticleSource {
+  title: string;
+  publisher: string;
+  url: string;
+  accessedAt?: Date | string;
+}
+
+interface RelatedPost {
+  href: string;
+  title: string;
+  description: string;
+  category: string;
+  image: {
+    src: string;
+    alt: string;
+  };
+}
+
+type StructuredData = Record<string, unknown> | Array<Record<string, unknown>>;
+
+interface Props {
+  title: string;
+  description: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  category: string;
+  publishedAt: Date;
+  updatedAt: Date;
+  author?: string;
+  heroImage: BlogImageData;
+  ogImage?: string;
+  ogImageAlt?: string;
+  headings?: Heading[];
+  sources?: ArticleSource[];
+  relatedPosts?: RelatedPost[];
+  noIndex?: boolean;
+  structuredData?: StructuredData;
+}
+
+const {
+  title,
+  description,
+  seoTitle,
+  seoDescription,
+  category,
+  publishedAt,
+  updatedAt,
+  author = 'Maxi Pawz Store',
+  heroImage,
+  ogImage,
+  ogImageAlt,
+  headings = [],
+  sources = [],
+  relatedPosts = [],
+  noIndex = false,
+  structuredData,
+} = Astro.props;
+
+const pageTitle = seoTitle ?? title;
+const pageDescription = seoDescription ?? description;
+const socialImage = ogImage ?? heroImage.src;
+const socialImageAlt = ogImageAlt ?? heroImage.alt;
+
+const articleHeadings = headings.filter((heading) => heading.depth === 2);
+
+const dateFormatter = new Intl.DateTimeFormat('en-US', {
+  month: 'long',
+  day: 'numeric',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+
+const publishedLabel = dateFormatter.format(publishedAt);
+const updatedLabel = dateFormatter.format(updatedAt);
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  image={socialImage}
+  imageAlt={socialImageAlt}
+  socialType="article"
+  publishedAt={publishedAt.toISOString()}
+  modifiedAt={updatedAt.toISOString()}
+  articleSection={category}
+  noIndex={noIndex}
+  structuredData={structuredData}
+>
+  <section class="relative overflow-hidden">
+    <div
+      class="pointer-events-none absolute -top-40 -left-40 size-128 rounded-full bg-brand-300/25 blur-3xl"
+      aria-hidden="true"
+    >
+    </div>
+
+    <div
+      class="pointer-events-none absolute top-6 -right-48 size-136 rounded-full bg-accent-300/25 blur-3xl"
+      aria-hidden="true"
+    >
+    </div>
+
+    <div class="site-container relative py-10 sm:py-12 lg:py-16">
+      <a
+        href="/pet-guides"
+        class="inline-flex items-center gap-2 rounded-full text-sm font-extrabold text-brand-700 transition hover:gap-3 hover:text-brand-800"
+      >
+        <ArrowRightBold class="size-4 rotate-180" aria-hidden="true" />
+        Back to Pet Guides
+      </a>
+
+      <div class="mt-8 grid items-center gap-8 lg:grid-cols-[minmax(0,1.02fr)_minmax(24rem,0.98fr)] lg:gap-12 xl:gap-16">
+        <div class="min-w-0">
+          <Badge variant="accent" size="md">
+            <PawPrintBold slot="icon" aria-hidden="true" />
+            {category}
+          </Badge>
+
+          <h1 class="mt-6 max-w-3xl text-5xl text-ink-900 sm:text-6xl lg:text-[3.9rem] xl:text-[4.45rem]">
+            {title}
+          </h1>
+
+          <p class="mt-6 max-w-2xl text-lg leading-8 text-ink-600 sm:text-xl">
+            {description}
+          </p>
+
+          <div class="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold text-ink-500">
+            <span class="inline-flex items-center gap-2">
+              <SparkleBold class="size-5 text-brand-500" aria-hidden="true" />
+              Published {publishedLabel}
+            </span>
+
+            <span class="inline-flex items-center gap-2">
+              <HeartBold class="size-5 text-brand-500" aria-hidden="true" />
+              {author}
+            </span>
+
+            {updatedAt.getTime() !== publishedAt.getTime() && (
+              <span class="inline-flex items-center gap-2">
+                <PawPrintBold class="size-5 text-brand-500" aria-hidden="true" />
+                Updated {updatedLabel}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div class="min-w-0 lg:self-stretch">
+          <div class="h-full lg:flex lg:items-center">
+            <BlogImage
+              {...heroImage}
+              loading="eager"
+              fetchpriority="high"
+              class="my-0 w-full lg:[&_img]:aspect-[4/3] lg:[&_img]:h-full lg:[&_img]:max-h-[34rem] lg:[&_img]:object-cover"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-y border-sand bg-white-warm/70">
+    <div
+      class="site-container grid gap-8 py-10 sm:py-12 lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-14 lg:py-16"
+    >
+      {articleHeadings.length > 0 && (
+        <aside class="lg:order-2">
+          <div class="rounded-card border border-brand-200 bg-brand-50/80 p-5 shadow-sm lg:sticky lg:top-28">
+            <div class="flex items-center gap-3">
+              <span
+                class="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-500 text-white shadow-blue"
+                aria-hidden="true"
+              >
+                <PawPrintBold class="size-5" />
+              </span>
+              <h2 class="text-lg text-ink-900">In this article</h2>
+            </div>
+
+            <nav class="mt-5" aria-label="Article sections">
+              <ol class="grid gap-2">
+                {articleHeadings.map((heading, index) => (
+                  <li>
+                    <a
+                      href={`#${heading.slug}`}
+                      class="group flex items-start gap-3 rounded-xl px-3 py-2.5 text-sm font-bold leading-5 text-ink-600 transition hover:bg-white-warm hover:text-brand-800"
+                    >
+                      <span
+                        class="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-brand-100 text-[0.65rem] text-brand-800"
+                        aria-hidden="true"
+                      >
+                        {index + 1}
+                      </span>
+                      <span>{heading.text}</span>
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </nav>
+          </div>
+        </aside>
+      )}
+
+      <article class:list={['min-w-0 lg:order-1', articleHeadings.length === 0 && 'lg:col-span-2']}>
+        <div class="blog-article max-w-3xl">
+          <slot />
+        </div>
+
+        <ArticleSources sources={sources} />
+        <RelatedPosts posts={relatedPosts} />
+      </article>
+    </div>
+  </section>
+
+  <section class="section-spacing">
+    <div class="site-container">
+      <div class="rounded-card-lg border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 text-center shadow-card sm:p-8 lg:p-10">
+        <Badge variant="brand" size="md" class="mx-auto">
+          <HeartBold slot="icon" aria-hidden="true" />
+          Keep Exploring
+        </Badge>
+
+        <h2 class="section-title mx-auto mt-5 text-4xl sm:text-5xl">
+          More practical ideas for life with your dog.
+        </h2>
+
+        <p class="section-description mx-auto mt-4">
+          {isStoreLive
+            ? 'Explore more Maxi Pawz guides, practical pet resources, and products selected for everyday routines.'
+            : 'Explore more Maxi Pawz guides and join the pack for new articles, product news, and launch updates.'}
+        </p>
+
+        <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <Button href="/pet-guides" variant="secondary" size="lg" class="w-full sm:w-auto">
+            More Pet Guides
+          </Button>
+
+          {isStoreLive ? (
+            <Button href="/shop" variant="primary" size="lg" class="w-full sm:w-auto">
+              Explore the Shop
+            </Button>
+          ) : (
+            <Button href="/#join-the-pack" variant="primary" size="lg" class="w-full sm:w-auto">
+              Join the Pack
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .blog-article :global(h2) {
+    margin-top: 3rem;
+    scroll-margin-top: 8rem;
+    font-size: clamp(1.875rem, 4vw, 2.5rem);
+    line-height: 1.15;
+    color: var(--color-ink-900);
+  }
+
+  .blog-article :global(h3) {
+    margin-top: 2rem;
+    font-size: clamp(1.4rem, 3vw, 1.875rem);
+    line-height: 1.2;
+    color: var(--color-ink-900);
+  }
+
+  .blog-article :global(p),
+  .blog-article :global(li) {
+    color: var(--color-ink-600);
+    font-size: 1.0625rem;
+    line-height: 1.85;
+  }
+
+  .blog-article :global(p) {
+    margin-top: 1.25rem;
+  }
+
+  .blog-article :global(ul),
+  .blog-article :global(ol) {
+    margin-top: 1.25rem;
+    padding-left: 1.5rem;
+  }
+
+  .blog-article :global(ul) {
+    list-style: disc;
+  }
+
+  .blog-article :global(ol) {
+    list-style: decimal;
+  }
+
+  .blog-article :global(li + li) {
+    margin-top: 0.55rem;
+  }
+
+  .blog-article :global(a) {
+    color: var(--color-brand-700);
+    font-weight: 800;
+    text-decoration: underline;
+    text-decoration-color: var(--color-brand-300);
+    text-underline-offset: 0.18em;
+  }
+
+  .blog-article :global(a:hover) {
+    color: var(--color-brand-800);
+  }
+
+  .blog-article :global(strong) {
+    color: var(--color-ink-800);
+  }
+
+  .blog-article :global(blockquote) {
+    margin-top: 1.75rem;
+    border-left: 4px solid var(--color-brand-400);
+    border-radius: 0.75rem;
+    background: var(--color-brand-50);
+    padding: 1rem 1.25rem;
+  }
+
+  .blog-article :global(hr) {
+    margin-block: 2.5rem;
+    border-color: var(--color-sand);
+  }
+</style>

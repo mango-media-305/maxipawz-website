@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Hurricane Preparedness for Dogs</title>
+  <desc id="desc">Maxi Pawz editorial graphic with storm cloud, rain, paw print, and emergency preparedness headline.</desc>
+  <rect width="1200" height="630" fill="#F6F1E4"/>
+  <rect x="40" y="40" width="1120" height="550" rx="40" fill="#FFF" stroke="#2F7EE8" stroke-width="8"/>
+  <rect x="40" y="420" width="1120" height="170" fill="#EF7432"/>
+  <g fill="#463F3A">
+    <circle cx="840" cy="185" r="80"/><circle cx="930" cy="155" r="90"/><circle cx="1025" cy="190" r="70"/><rect x="790" y="180" width="300" height="85" rx="35"/>
+    <ellipse cx="930" cy="405" rx="55" ry="43"/><circle cx="855" cy="365" r="25"/><circle cx="905" cy="335" r="25"/><circle cx="960" cy="335" r="25"/><circle cx="1010" cy="370" r="25"/>
+  </g>
+  <g stroke="#2F7EE8" stroke-width="12" stroke-linecap="round"><path d="M830 290l-25 65"/><path d="M900 290l-25 65"/><path d="M970 290l-25 65"/><path d="M1040 290l-25 65"/></g>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="90" y="125" font-size="32" font-weight="700" fill="#2F7EE8">MAXI PAWZ PET GUIDE</text>
+    <text x="90" y="225" font-size="74" font-weight="800" fill="#463F3A">Hurricane</text>
+    <text x="90" y="305" font-size="58" font-weight="800" fill="#463F3A">Preparedness for Dogs</text>
+    <text x="90" y="485" font-size="34" font-weight="700" fill="#FFF">Emergency kit • evacuation plan • storm safety</text>
+    <text x="90" y="545" font-size="25" fill="#FFF">Practical preparation before severe weather arrives</text>
+  </g>
+</svg>

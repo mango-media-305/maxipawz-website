@@ -1,0 +1,191 @@
+---
+import ProductLandingPage from '@components/landing/ProductLandingPage.astro';
+
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+import { siteConfig } from '../../config/site';
+
+import { isStoreLive } from '../../config/storefront';
+
+import type { ProductImage } from '../../types/product';
+
+import { getProductLandingPageSeoPolicy } from '../../utils/product-landing-page-seo';
+
+import type { ResolvedProductLandingPage } from '../../utils/product-landing-pages';
+
+import { getActiveProductLandingPages } from '../../utils/product-landing-pages';
+
+interface Props {
+  landingPage: ResolvedProductLandingPage;
+}
+
+export function getStaticPaths() {
+  return getActiveProductLandingPages().map((landingPage) => ({
+    params: {
+      slug: landingPage.slug,
+    },
+
+    props: {
+      landingPage,
+    },
+  }));
+}
+
+const { landingPage } = Astro.props as Props;
+
+const product = landingPage.product;
+
+function getImage(index = 0): ProductImage | undefined {
+  return product.images[index] ?? product.images[0];
+}
+
+function getImageSource(image: ProductImage | undefined): string | undefined {
+  if (!image) {
+    return undefined;
+  }
+
+  return typeof image.src === 'string' ? image.src : image.src.src;
+}
+
+function getImageWidth(image: ProductImage | undefined): number | undefined {
+  if (!image) {
+    return undefined;
+  }
+
+  return typeof image.src === 'string' ? image.width : image.src.width;
+}
+
+function getImageHeight(image: ProductImage | undefined): number | undefined {
+  if (!image) {
+    return undefined;
+  }
+
+  return typeof image.src === 'string' ? image.height : image.src.height;
+}
+
+function getImageType(source: string | undefined): string | undefined {
+  if (!source) {
+    return undefined;
+  }
+
+  try {
+    const pathname = new URL(source, siteConfig.url).pathname.toLowerCase();
+
+    if (pathname.endsWith('.webp')) {
+      return 'image/webp';
+    }
+
+    if (pathname.endsWith('.png')) {
+      return 'image/png';
+    }
+
+    if (pathname.endsWith('.jpg') || pathname.endsWith('.jpeg')) {
+      return 'image/jpeg';
+    }
+  } catch {
+    return undefined;
+  }
+
+  return undefined;
+}
+
+function getAbsoluteImageUrl(image: ProductImage): string {
+  const source = getImageSource(image);
+
+  return new URL(
+    source ?? '/images/og/default.webp',
+
+    siteConfig.url,
+  ).toString();
+}
+
+const seoPolicy = getProductLandingPageSeoPolicy(
+  landingPage,
+
+  isStoreLive,
+);
+
+const socialImage = getImage(landingPage.seo.imageIndex ?? landingPage.hero.imageIndex ?? 0);
+
+const socialImageSource = getImageSource(socialImage);
+
+const socialImageWidth = getImageWidth(socialImage);
+
+const socialImageHeight = getImageHeight(socialImage);
+
+const socialImageType = getImageType(socialImageSource);
+
+const siteUrl = siteConfig.url.endsWith('/') ? siteConfig.url : `${siteConfig.url}/`;
+
+const landingPageUrl = new URL(
+    seoPolicy.landingPath,
+
+    siteUrl,
+).toString();
+
+const productPageUrl = new URL(
+    seoPolicy.productPath,
+
+    siteUrl,
+).toString();
+
+const productImageUrls = product.images.map(getAbsoluteImageUrl);
+
+const structuredData = {
+    '@context': 'https://schema.org',
+
+    '@type': 'WebPage',
+
+    '@id': `${landingPageUrl}#webpage`,
+
+    url: landingPageUrl,
+
+    name: landingPage.seo.title,
+
+    description: landingPage.seo.description,
+
+    isPartOf: {
+        '@type': 'WebSite',
+
+        '@id': `${siteUrl}#website`,
+
+        url: siteUrl,
+
+        name: siteConfig.name,
+    },
+
+    about: {
+        '@type': 'Product',
+
+        '@id': `${productPageUrl}#product`,
+
+        name: product.name,
+
+        description: product.shortDescription,
+
+        url: productPageUrl,
+
+        ...(productImageUrls.length > 0
+        ? {
+            image: productImageUrls,
+            }
+        : {}),
+    },
+};
+---
+
+<BaseLayout
+    title={landingPage.seo.title}
+    description={landingPage.seo.description}
+    noIndex={seoPolicy.noIndex}
+    canonicalPath={seoPolicy.canonicalPath}
+    hideSiteChrome={false}
+    image={socialImageSource}
+    imageAlt={socialImage?.alt}
+    imageType={socialImageType}
+    imageWidth={socialImageWidth}
+    imageHeight={socialImageHeight}
+    structuredData={structuredData}
+>
+    <ProductLandingPage landingPage={landingPage} />
+</BaseLayout>
