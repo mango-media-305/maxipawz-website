@@ -207,7 +207,8 @@ const maxiGuideTips = [
       <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 lg:gap-6">
         {
           topicPosts.map((post, index) => {
-            const isWide = index === 0 || index === 4;
+            const positionInPattern = index % 7;
+            const isWide = positionInPattern === 0 || positionInPattern === 6;
             const image = post.data.heroImage;
 
             return (

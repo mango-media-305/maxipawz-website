@@ -1,0 +1,85 @@
+<script>
+  const GUIDES_PER_PAGE = 7;
+
+  const section = document.getElementById('guide-topics');
+  const grid = section?.querySelector('.site-container > .grid');
+
+  if (section && grid) {
+    const cards = Array.from(grid.children).filter(
+      (child): child is HTMLElement => child instanceof HTMLElement && child.tagName === 'ARTICLE',
+    );
+
+    const totalPages = Math.ceil(cards.length / GUIDES_PER_PAGE);
+
+    if (totalPages > 1) {
+      const pagination = document.createElement('nav');
+      pagination.setAttribute('aria-label', 'Pet guides pagination');
+      pagination.className =
+        'mt-8 flex flex-wrap items-center justify-center gap-3 sm:mt-10';
+
+      const previousButton = document.createElement('button');
+      previousButton.type = 'button';
+      previousButton.className =
+        'rounded-full border border-sand bg-white-warm px-5 py-2.5 text-sm font-extrabold text-ink-700 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-300 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0';
+      previousButton.textContent = 'Previous';
+
+      const pageStatus = document.createElement('span');
+      pageStatus.className =
+        'min-w-28 text-center text-sm font-bold text-ink-600';
+      pageStatus.setAttribute('aria-live', 'polite');
+
+      const nextButton = document.createElement('button');
+      nextButton.type = 'button';
+      nextButton.className = previousButton.className;
+      nextButton.textContent = 'Next';
+
+      pagination.append(previousButton, pageStatus, nextButton);
+      grid.insertAdjacentElement('afterend', pagination);
+
+      const params = new URLSearchParams(window.location.search);
+      const requestedPage = Number.parseInt(params.get('guidesPage') ?? '1', 10);
+      let currentPage = Number.isFinite(requestedPage)
+        ? Math.min(Math.max(requestedPage, 1), totalPages)
+        : 1;
+
+      const renderPage = (page: number, scroll = false) => {
+        currentPage = Math.min(Math.max(page, 1), totalPages);
+        const start = (currentPage - 1) * GUIDES_PER_PAGE;
+        const end = start + GUIDES_PER_PAGE;
+
+        cards.forEach((card, index) => {
+          card.hidden = index < start || index >= end;
+        });
+
+        previousButton.disabled = currentPage === 1;
+        nextButton.disabled = currentPage === totalPages;
+        pageStatus.textContent = `Page ${currentPage} of ${totalPages}`;
+
+        const nextUrl = new URL(window.location.href);
+        if (currentPage === 1) {
+          nextUrl.searchParams.delete('guidesPage');
+        } else {
+          nextUrl.searchParams.set('guidesPage', String(currentPage));
+        }
+        window.history.replaceState({ guidesPage: currentPage }, '', nextUrl);
+
+        if (scroll) {
+          section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      };
+
+      previousButton.addEventListener('click', () => renderPage(currentPage - 1, true));
+      nextButton.addEventListener('click', () => renderPage(currentPage + 1, true));
+
+      window.addEventListener('popstate', () => {
+        const pageFromUrl = Number.parseInt(
+          new URLSearchParams(window.location.search).get('guidesPage') ?? '1',
+          10,
+        );
+        renderPage(Number.isFinite(pageFromUrl) ? pageFromUrl : 1);
+      });
+
+      renderPage(currentPage);
+    }
+  }
+</script>
