@@ -47,3 +47,31 @@ export interface WelcomeDiscountRecord {
 
     updatedAt: string;
 }
+
+export type WelcomeDiscountClaimErrorCode =
+    | 'invalid-request'
+    | 'invalid-email'
+    | 'consent-required'
+    | 'temporarily-unavailable';
+
+export interface WelcomeDiscountClaimSuccessResponse {
+    ok: true;
+
+    accepted: true;
+
+    message: string;
+}
+
+export interface WelcomeDiscountClaimErrorResponse {
+    ok: false;
+
+    accepted: false;
+
+    code: WelcomeDiscountClaimErrorCode;
+
+    message: string;
+}
+
+export type WelcomeDiscountClaimResponse =
+    | WelcomeDiscountClaimSuccessResponse
+    | WelcomeDiscountClaimErrorResponse;
