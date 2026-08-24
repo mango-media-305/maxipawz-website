@@ -12,6 +12,7 @@
     "packageJson": {
       "dependencies": [
         "npm:@astrojs/check@0.9.8",
+        "npm:@astrojs/mdx@7.0.5",
         "npm:@astrojs/preact@6.0.1",
         "npm:@astrojs/sitemap@^3.7.3",
         "npm:@eslint/js@10.0.1",

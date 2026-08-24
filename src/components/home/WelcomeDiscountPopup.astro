@@ -1,0 +1,1364 @@
+---
+import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
+import CheckCircleBold from 'phosphor-astro/CheckCircleBold.astro';
+import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
+import XBold from 'phosphor-astro/XBold.astro';
+
+import BrandLogo from '../brand/BrandLogo.astro';
+import Button from '../ui/Button.astro';
+---
+
+<div
+    class="fixed inset-0 z-100"
+    data-welcome-discount
+    data-state="closed"
+    hidden
+>
+    <div
+        class="absolute inset-0 bg-ink-950/72 opacity-0 backdrop-blur-md transition-opacity duration-200 motion-reduce:transition-none"
+        data-welcome-discount-backdrop
+        aria-hidden="true"
+    >
+    </div>
+
+    <div
+        class="absolute inset-0 overflow-y-auto overscroll-contain px-4 py-5 sm:px-6 sm:py-6"
+        data-welcome-discount-viewport
+    >
+        <div class="flex min-h-full items-center justify-center">
+        <section
+            class="relative w-full max-w-4xl translate-y-5 scale-[0.975] overflow-hidden rounded-4xl border border-sand bg-white-warm opacity-0 shadow-2xl transition duration-250 ease-out outline-none sm:rounded-[2.5rem] motion-reduce:translate-y-0 motion-reduce:scale-100 motion-reduce:transition-none"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="welcome-discount-title"
+            aria-describedby="welcome-discount-description"
+            tabindex="-1"
+            data-welcome-discount-dialog
+        >
+            <div
+            class="pointer-events-none absolute top-0 left-0 z-2 h-1.5 w-[58%] bg-accent-500"
+            aria-hidden="true"
+            >
+            </div>
+
+            <div
+            class="pointer-events-none absolute top-0 right-0 z-2 h-1.5 w-[42%] bg-brand-500"
+            aria-hidden="true"
+            >
+            </div>
+
+            <div
+            class="pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-accent-200/35 blur-3xl"
+            aria-hidden="true"
+            >
+            </div>
+
+            <div
+            class="pointer-events-none absolute -bottom-28 left-[36%] size-80 rounded-full bg-brand-200/35 blur-3xl"
+            aria-hidden="true"
+            >
+            </div>
+
+            <PawPrintBold
+            class="pointer-events-none absolute top-[14%] right-[5%] size-12 rotate-12 text-brand-500/8"
+            aria-hidden="true"
+            />
+
+            <PawPrintBold
+            class="pointer-events-none absolute bottom-[8%] left-[47%] size-9 -rotate-12 text-accent-500/10"
+            aria-hidden="true"
+            />
+
+            <button
+            type="button"
+            class="absolute top-4 right-4 z-20 grid size-11 cursor-pointer place-items-center rounded-full border border-ink-900/10 bg-white-warm/95 text-ink-700 shadow-sm transition hover:rotate-3 hover:scale-105 hover:bg-cream hover:text-accent-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-200 motion-reduce:transition-none"
+            aria-label="Close welcome offer"
+            data-welcome-discount-close
+            >
+            <XBold class="size-5" aria-hidden="true" />
+            </button>
+
+            <div class="relative z-1 grid lg:grid-cols-[0.82fr_1.18fr]">
+            <div
+                class="relative hidden min-h-full overflow-hidden bg-brand-600 lg:block"
+                aria-hidden="true"
+            >
+                <div
+                class="pointer-events-none absolute -top-24 -left-20 size-80 rounded-full bg-white/15 blur-3xl"
+                >
+                </div>
+
+                <div
+                class="pointer-events-none absolute -right-20 -bottom-16 size-72 rounded-full bg-accent-400/20 blur-3xl"
+                >
+                </div>
+
+                <div
+                class="absolute top-1/2 left-1/2 grid aspect-square w-[72%] max-w-68 -translate-x-1/2 translate-y-[-55%] place-items-center rounded-full border-8 border-white/15 bg-cream shadow-2xl"
+                >
+                <BrandLogo
+                    variant="mascot"
+                    decorative={true}
+                    eager={true}
+                    class="size-[92%] object-contain"
+                />
+                </div>
+
+                <div
+                class="absolute right-6 bottom-6 left-6 flex items-center justify-center gap-2 rounded-full border border-white/20 bg-ink-950/45 px-4 py-3 text-xs font-black tracking-widest text-white uppercase backdrop-blur-md"
+                >
+                <PawPrintBold class="size-4" />
+
+                Maxi approved
+                </div>
+            </div>
+
+            <div class="relative min-w-0 p-5 pt-14 sm:p-7 sm:pt-14 lg:p-9">
+                <div data-welcome-discount-form-view>
+                <p
+                    class="inline-flex items-center gap-2 text-xs font-black tracking-[0.14em] text-brand-700 uppercase"
+                >
+                    <PawPrintBold class="size-4" aria-hidden="true" />
+
+                    A little treat for you
+                </p>
+
+                <h2
+                    id="welcome-discount-title"
+                    class="mt-2 max-w-xl text-4xl leading-[0.95] tracking-[-0.04em] text-ink-900 sm:text-[2.75rem]"
+                >
+                    <span class="block text-[1.1em] text-accent-600">
+                    10% off
+                    </span>
+
+                    your first order.
+                </h2>
+
+                <p
+                    id="welcome-discount-description"
+                    class="mt-4 max-w-xl text-sm leading-6 text-ink-600 sm:text-base sm:leading-7"
+                >
+                    Join the Maxi Pawz pack and we'll email you a unique welcome code for your first
+                    eligible order.
+                </p>
+
+                <form
+                    class="mt-5 grid gap-3.5"
+                    data-welcome-discount-form
+                    novalidate
+                >
+                    <div
+                    class="pointer-events-none absolute size-px overflow-hidden [clip-path:inset(50%)]"
+                    aria-hidden="true"
+                    >
+                    <label>
+                        Leave this field empty
+
+                        <input
+                        type="text"
+                        name="company"
+                        tabindex="-1"
+                        autocomplete="off"
+                        data-welcome-discount-bot-field
+                        />
+                    </label>
+                    </div>
+
+                    <div>
+                    <label
+                        for="welcome-discount-email"
+                        class="form-label"
+                    >
+                        Email address
+                    </label>
+
+                    <input
+                        id="welcome-discount-email"
+                        name="email"
+                        type="email"
+                        inputmode="email"
+                        autocomplete="email"
+                        spellcheck="false"
+                        required
+                        maxlength="254"
+                        placeholder="you@example.com"
+                        class="form-control bg-white/85"
+                        aria-describedby="welcome-discount-email-help welcome-discount-error"
+                        data-welcome-discount-email
+                    />
+
+                    <p
+                        id="welcome-discount-email-help"
+                        class="mt-1.5 text-xs leading-5 text-ink-500"
+                    >
+                        Your unique welcome code will be sent here.
+                    </p>
+                    </div>
+
+                    <div
+                    class="rounded-3xl border border-brand-200/70 bg-brand-50/75 p-3.5"
+                    >
+                    <label
+                        for="welcome-discount-consent"
+                        class="flex cursor-pointer items-start gap-3"
+                    >
+                        <input
+                        id="welcome-discount-consent"
+                        name="marketing-consent"
+                        type="checkbox"
+                        value="yes"
+                        required
+                        class="mt-1 size-5 shrink-0 cursor-pointer accent-brand-600"
+                        data-welcome-discount-consent
+                        />
+
+                        <span class="min-w-0">
+                        <span class="font-extrabold leading-6 text-ink-800">
+                            Yes, send me Maxi Pawz emails and my welcome offer.
+                        </span>
+
+                        <span class="mt-0.5 block text-xs leading-5 text-ink-500">
+                            You'll receive product news, helpful pet content, and occasional offers.
+                            Unsubscribe anytime.
+                        </span>
+                        </span>
+                    </label>
+                    </div>
+
+                    <p
+                    id="welcome-discount-error"
+                    class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold leading-6 text-red-800"
+                    role="alert"
+                    data-welcome-discount-error
+                    hidden
+                    >
+                    </p>
+
+                    <Button
+                    type="submit"
+                    variant="primary"
+                    size="lg"
+                    fullWidth={true}
+                    iconPosition="right"
+                    >
+                    <ArrowRightBold slot="icon" aria-hidden="true" />
+
+                    <span data-welcome-discount-submit-label>
+                        Get my 10% off
+                    </span>
+                    </Button>
+
+                    <button
+                    type="button"
+                    class="mx-auto min-h-10 cursor-pointer rounded-full px-4 text-sm font-extrabold text-ink-500 underline decoration-ink-400/30 underline-offset-4 transition hover:text-ink-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-200"
+                    data-welcome-discount-decline
+                    >
+                    No thanks
+                    </button>
+
+                    <p class="-mt-2 text-center text-xs leading-5 text-ink-400">
+                    First eligible order only. One redemption per code.
+                    </p>
+                </form>
+                </div>
+
+                <div
+                class="py-5 text-center"
+                data-welcome-discount-success
+                hidden
+                >
+                <span
+                    class="mx-auto grid size-18 place-items-center rounded-full border border-brand-200 bg-brand-50 text-brand-700"
+                    aria-hidden="true"
+                >
+                    <CheckCircleBold class="size-8" />
+                </span>
+
+                <p
+                    class="mt-5 text-xs font-black tracking-[0.14em] text-brand-700 uppercase"
+                >
+                    Treat incoming
+                </p>
+
+                <h2
+                    class="mt-2 text-4xl leading-tight tracking-[-0.035em] text-ink-900 sm:text-5xl"
+                >
+                    Check your inbox.
+                </h2>
+
+                <p class="mx-auto mt-4 max-w-lg text-sm leading-7 text-ink-600 sm:text-base">
+                    Your Maxi Pawz welcome treat is on its way. Look for an email with your unique 10%
+                    off code.
+                </p>
+
+                <button
+                    type="button"
+                    class="group relative isolate mt-7 inline-flex min-h-12 w-full cursor-pointer items-center justify-center overflow-hidden rounded-full border border-brand-700 bg-brand-500 px-6 text-base font-extrabold leading-none tracking-[-0.01em] text-white shadow-blue transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-200 focus-visible:ring-offset-2 focus-visible:ring-offset-cream-soft active:translate-y-0 active:scale-[0.98]"
+                    data-welcome-discount-success-close
+                >
+                    Keep exploring Maxi Pawz
+                </button>
+                </div>
+            </div>
+            </div>
+        </section>
+        </div>
+    </div>
+</div>
+
+<script>
+    const STORAGE_KEY = 'maxipawz:welcome-discount:v1';
+
+    const DISMISSAL_DURATION_MS =
+        14 * 24 * 60 * 60 * 1000;
+
+    const MINIMUM_VISIT_DURATION_MS = 8_000;
+
+    const MINIMUM_SCROLL_PROGRESS = 0.4;
+
+    const ANALYTICS_COMPONENT =
+        'welcome_discount_popup';
+
+    const ANALYTICS_OFFER =
+        'first_order_10_percent';
+
+    type WelcomeDiscountStoredState =
+        | {
+            status: 'dismissed';
+
+            dismissedAt: number;
+        }
+        | {
+            status: 'converted';
+
+            convertedAt: number;
+        };
+
+    type WelcomeDiscountClaimResponse =
+        | {
+            ok: true;
+
+            accepted: true;
+
+            message: string;
+        }
+        | {
+            ok: false;
+
+            accepted: false;
+
+            code?: string;
+
+            message?: string;
+        };
+
+    type DiscountPopupDismissMethod =
+        | 'close_button'
+        | 'no_thanks'
+        | 'backdrop'
+        | 'escape';
+
+    type DiscountPopupErrorType =
+        | 'invalid_email'
+        | 'consent_required'
+        | 'api_error'
+        | 'network_error';
+
+    type AnalyticsValue =
+        | string
+        | number
+        | boolean;
+
+    interface AnalyticsWindow
+        extends Window {
+        gtag?: (
+        command: string,
+        eventName: string,
+        parameters?: Record<
+            string,
+            AnalyticsValue
+        >,
+        ) => void;
+
+        clarity?: (
+        command: string,
+        eventName: string,
+        ) => void;
+    }
+
+    const trackPopupEvent = (
+        eventName: string,
+        parameters: Record<
+        string,
+        AnalyticsValue
+        > = {},
+    ): void => {
+        const analyticsWindow =
+        window as AnalyticsWindow;
+
+        /*
+        * Never place email addresses, hashes, promotion codes,
+        * provider errors, or other customer identifiers inside
+        * analytics parameters.
+        */
+        analyticsWindow.gtag?.(
+        'event',
+        eventName,
+        {
+            component:
+            ANALYTICS_COMPONENT,
+
+            offer:
+            ANALYTICS_OFFER,
+
+            ...parameters,
+        },
+        );
+
+        /*
+        * The site already initializes the Clarity queue alongside
+        * GA4. Mirror the event name there without customer data so
+        * session recordings can be correlated with funnel steps.
+        */
+        analyticsWindow.clarity?.(
+        'event',
+        eventName,
+        );
+    };
+
+    const root =
+        document.querySelector<HTMLElement>(
+        '[data-welcome-discount]',
+        );
+
+    if (root) {
+        const backdrop =
+        root.querySelector<HTMLElement>(
+            '[data-welcome-discount-backdrop]',
+        );
+
+        const viewport =
+        root.querySelector<HTMLElement>(
+            '[data-welcome-discount-viewport]',
+        );
+
+        const dialog =
+        root.querySelector<HTMLElement>(
+            '[data-welcome-discount-dialog]',
+        );
+
+        const form =
+        root.querySelector<HTMLFormElement>(
+            '[data-welcome-discount-form]',
+        );
+
+        const emailInput =
+        root.querySelector<HTMLInputElement>(
+            '[data-welcome-discount-email]',
+        );
+
+        const consentInput =
+        root.querySelector<HTMLInputElement>(
+            '[data-welcome-discount-consent]',
+        );
+
+        const botField =
+        root.querySelector<HTMLInputElement>(
+            '[data-welcome-discount-bot-field]',
+        );
+
+        const closeButton =
+        root.querySelector<HTMLButtonElement>(
+            '[data-welcome-discount-close]',
+        );
+
+        const declineButton =
+        root.querySelector<HTMLButtonElement>(
+            '[data-welcome-discount-decline]',
+        );
+
+        const submitButton =
+        form?.querySelector<HTMLButtonElement>(
+            'button[type="submit"]',
+        );
+
+        const submitLabel =
+        root.querySelector<HTMLElement>(
+            '[data-welcome-discount-submit-label]',
+        );
+
+        const errorMessage =
+        root.querySelector<HTMLElement>(
+            '[data-welcome-discount-error]',
+        );
+
+        const formView =
+        root.querySelector<HTMLElement>(
+            '[data-welcome-discount-form-view]',
+        );
+
+        const successView =
+        root.querySelector<HTMLElement>(
+            '[data-welcome-discount-success]',
+        );
+
+        const successCloseButton =
+        root.querySelector<HTMLButtonElement>(
+            '[data-welcome-discount-success-close]',
+        );
+
+        let visitDurationReached = false;
+
+        let scrollProgressReached = false;
+
+        let isOpen = false;
+
+        let isSubmitting = false;
+
+        let hasOpenedThisPageView = false;
+
+        let previouslyFocusedElement:
+        HTMLElement | null =
+        null;
+
+        let bodyOverflowBeforeOpen = '';
+
+        const readStoredState =
+        (): WelcomeDiscountStoredState | null => {
+            try {
+            const raw =
+                window.localStorage.getItem(
+                STORAGE_KEY,
+                );
+
+            if (!raw) {
+                return null;
+            }
+
+            const parsed =
+                JSON.parse(
+                raw,
+                ) as Partial<WelcomeDiscountStoredState>;
+
+            if (
+                parsed.status ===
+                'converted' &&
+                typeof parsed.convertedAt ===
+                'number'
+            ) {
+                return {
+                status:
+                    'converted',
+
+                convertedAt:
+                    parsed.convertedAt,
+                };
+            }
+
+            if (
+                parsed.status ===
+                'dismissed' &&
+                typeof parsed.dismissedAt ===
+                'number'
+            ) {
+                return {
+                status:
+                    'dismissed',
+
+                dismissedAt:
+                    parsed.dismissedAt,
+                };
+            }
+
+            window.localStorage.removeItem(
+                STORAGE_KEY,
+            );
+
+            return null;
+            } catch {
+            return null;
+            }
+        };
+
+        const writeStoredState = (
+        state:
+            WelcomeDiscountStoredState,
+        ): void => {
+        try {
+            window.localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(
+                state,
+            ),
+            );
+        } catch {
+            // Storage can be unavailable in restricted browsing contexts.
+        }
+        };
+
+        const isEligible =
+        (): boolean => {
+            const stored =
+            readStoredState();
+
+            if (!stored) {
+            return true;
+            }
+
+            if (
+            stored.status ===
+            'converted'
+            ) {
+            return false;
+            }
+
+            const dismissalAge =
+            Date.now() -
+            stored.dismissedAt;
+
+            if (
+            dismissalAge <
+            DISMISSAL_DURATION_MS
+            ) {
+            return false;
+            }
+
+            try {
+            window.localStorage.removeItem(
+                STORAGE_KEY,
+            );
+            } catch {
+            // Ignore unavailable storage.
+            }
+
+            return true;
+        };
+
+        const setVisualOpenState = (
+        open:
+            boolean,
+        ): void => {
+        if (
+            !backdrop ||
+            !dialog
+        ) {
+            return;
+        }
+
+        backdrop.classList.toggle(
+            'opacity-0',
+            !open,
+        );
+
+        backdrop.classList.toggle(
+            'opacity-100',
+            open,
+        );
+
+        dialog.classList.toggle(
+            'opacity-0',
+            !open,
+        );
+
+        dialog.classList.toggle(
+            'opacity-100',
+            open,
+        );
+
+        dialog.classList.toggle(
+            'translate-y-5',
+            !open,
+        );
+
+        dialog.classList.toggle(
+            'translate-y-0',
+            open,
+        );
+
+        dialog.classList.toggle(
+            'scale-[0.975]',
+            !open,
+        );
+
+        dialog.classList.toggle(
+            'scale-100',
+            open,
+        );
+        };
+
+        const getFocusableElements =
+        (): HTMLElement[] => {
+            if (!dialog) {
+            return [];
+            }
+
+            return [
+            ...dialog.querySelectorAll<HTMLElement>(
+                [
+                'a[href]',
+                'button:not([disabled])',
+                'input:not([disabled]):not([type="hidden"])',
+                'select:not([disabled])',
+                'textarea:not([disabled])',
+                '[tabindex]:not([tabindex="-1"])',
+                ].join(','),
+            ),
+            ].filter(
+            (element) =>
+                !element.hasAttribute(
+                'hidden',
+                ) &&
+                element.getClientRects()
+                .length >
+                0,
+            );
+        };
+
+        const clearError =
+        (): void => {
+            if (!errorMessage) {
+            return;
+            }
+
+            errorMessage.textContent =
+            '';
+
+            errorMessage.hidden =
+            true;
+        };
+
+        const showError = (
+        message:
+            string,
+        ): void => {
+        if (!errorMessage) {
+            return;
+        }
+
+        errorMessage.textContent =
+            message;
+
+        errorMessage.hidden =
+            false;
+        };
+
+        const setSubmitting = (
+        submitting:
+            boolean,
+        ): void => {
+        isSubmitting =
+            submitting;
+
+        if (submitButton) {
+            submitButton.disabled =
+            submitting;
+
+            submitButton.setAttribute(
+            'aria-busy',
+            submitting
+                ? 'true'
+                : 'false',
+            );
+        }
+
+        if (submitLabel) {
+            submitLabel.textContent =
+            submitting
+                ? 'Sending your treat...'
+                : 'Get my 10% off';
+        }
+
+        if (emailInput) {
+            emailInput.disabled =
+            submitting;
+        }
+
+        if (consentInput) {
+            consentInput.disabled =
+            submitting;
+        }
+        };
+
+        const showSuccess =
+        (): void => {
+            if (formView) {
+            formView.hidden =
+                true;
+            }
+
+            if (successView) {
+            successView.hidden =
+                false;
+            }
+
+            writeStoredState({
+            status:
+                'converted',
+
+            convertedAt:
+                Date.now(),
+            });
+
+            viewport?.scrollTo({
+            top:
+                0,
+
+            behavior:
+                'instant',
+            });
+
+            window.setTimeout(
+            () => {
+                successCloseButton?.focus({
+                preventScroll:
+                    true,
+                });
+            },
+            0,
+            );
+        };
+
+        const closeModal = (
+        options: {
+            rememberDismissal?: boolean;
+
+            dismissMethod?: DiscountPopupDismissMethod;
+        } = {},
+        ): void => {
+        if (
+            !isOpen ||
+            isSubmitting
+        ) {
+            return;
+        }
+
+        const {
+            rememberDismissal =
+            true,
+
+            dismissMethod,
+        } = options;
+
+        const alreadyConverted =
+            readStoredState()?.status ===
+            'converted';
+
+        if (
+            rememberDismissal &&
+            !alreadyConverted
+        ) {
+            writeStoredState({
+            status:
+                'dismissed',
+
+            dismissedAt:
+                Date.now(),
+            });
+        }
+
+        if (
+            dismissMethod &&
+            !alreadyConverted
+        ) {
+            trackPopupEvent(
+            'discount_popup_dismiss',
+            {
+                dismiss_method:
+                dismissMethod,
+            },
+            );
+        }
+
+        isOpen =
+            false;
+
+        root.dataset.state =
+            'closed';
+
+        setVisualOpenState(
+            false,
+        );
+
+        document.body.style.overflow =
+            bodyOverflowBeforeOpen;
+
+        const focusTarget =
+            previouslyFocusedElement;
+
+        window.setTimeout(
+            () => {
+            root.hidden =
+                true;
+
+            focusTarget?.focus({
+                preventScroll:
+                true,
+            });
+            },
+            220,
+        );
+        };
+
+        const openModal =
+        (): void => {
+            if (
+            isOpen ||
+            hasOpenedThisPageView ||
+            !dialog ||
+            !isEligible()
+            ) {
+            return;
+            }
+
+            hasOpenedThisPageView =
+            true;
+
+            isOpen =
+            true;
+
+            previouslyFocusedElement =
+            document.activeElement instanceof
+            HTMLElement
+                ? document.activeElement
+                : null;
+
+            bodyOverflowBeforeOpen =
+            document.body.style.overflow;
+
+            document.body.style.overflow =
+            'hidden';
+
+            root.hidden =
+            false;
+
+            root.dataset.state =
+            'opening';
+
+            viewport?.scrollTo({
+            top:
+                0,
+
+            behavior:
+                'instant',
+            });
+
+            setVisualOpenState(
+            false,
+            );
+
+            trackPopupEvent(
+            'discount_popup_view',
+            {
+                trigger:
+                'time_and_scroll',
+            },
+            );
+
+            window.requestAnimationFrame(
+            () => {
+                window.requestAnimationFrame(
+                () => {
+                    root.dataset.state =
+                    'open';
+
+                    setVisualOpenState(
+                    true,
+                    );
+
+                    emailInput?.focus({
+                    preventScroll:
+                        true,
+                    });
+                },
+                );
+            },
+            );
+        };
+
+        const maybeOpen =
+        (): void => {
+            if (
+            visitDurationReached &&
+            scrollProgressReached
+            ) {
+            openModal();
+            }
+        };
+
+        const updateScrollProgress =
+        (): void => {
+            if (
+            scrollProgressReached
+            ) {
+            return;
+            }
+
+            const scrollableDistance =
+            document.documentElement
+                .scrollHeight -
+            window.innerHeight;
+
+            if (
+            scrollableDistance <=
+            0
+            ) {
+            scrollProgressReached =
+                true;
+
+            maybeOpen();
+
+            return;
+            }
+
+            const progress =
+            window.scrollY /
+            scrollableDistance;
+
+            if (
+            progress >=
+            MINIMUM_SCROLL_PROGRESS
+            ) {
+            scrollProgressReached =
+                true;
+
+            window.removeEventListener(
+                'scroll',
+                updateScrollProgress,
+            );
+
+            maybeOpen();
+            }
+        };
+
+        window.setTimeout(
+        () => {
+            visitDurationReached =
+            true;
+
+            maybeOpen();
+        },
+        MINIMUM_VISIT_DURATION_MS,
+        );
+
+        window.addEventListener(
+        'scroll',
+        updateScrollProgress,
+        {
+            passive:
+            true,
+        },
+        );
+
+        window.addEventListener(
+        'resize',
+        updateScrollProgress,
+        {
+            passive:
+            true,
+        },
+        );
+
+        updateScrollProgress();
+
+        closeButton?.addEventListener(
+        'click',
+        () => {
+            closeModal({
+            dismissMethod:
+                'close_button',
+            });
+        },
+        );
+
+        declineButton?.addEventListener(
+        'click',
+        () => {
+            closeModal({
+            dismissMethod:
+                'no_thanks',
+            });
+        },
+        );
+
+        successCloseButton?.addEventListener(
+        'click',
+        () => {
+            closeModal({
+            rememberDismissal:
+                false,
+            });
+        },
+        );
+
+        backdrop?.addEventListener(
+        'click',
+        () => {
+            closeModal({
+            dismissMethod:
+                'backdrop',
+            });
+        },
+        );
+
+        document.addEventListener(
+        'keydown',
+        (event) => {
+            if (!isOpen) {
+            return;
+            }
+
+            if (
+            event.key ===
+            'Escape'
+            ) {
+            event.preventDefault();
+
+            closeModal({
+                dismissMethod:
+                'escape',
+            });
+
+            return;
+            }
+
+            if (
+            event.key !==
+            'Tab'
+            ) {
+            return;
+            }
+
+            const focusable =
+            getFocusableElements();
+
+            if (
+            focusable.length ===
+            0
+            ) {
+            event.preventDefault();
+
+            dialog?.focus({
+                preventScroll:
+                true,
+            });
+
+            return;
+            }
+
+            const first =
+            focusable[0];
+
+            const last =
+            focusable[
+                focusable.length -
+                1
+            ];
+
+            if (
+            event.shiftKey &&
+            document.activeElement ===
+                first
+            ) {
+            event.preventDefault();
+
+            last?.focus({
+                preventScroll:
+                true,
+            });
+
+            return;
+            }
+
+            if (
+            !event.shiftKey &&
+            document.activeElement ===
+                last
+            ) {
+            event.preventDefault();
+
+            first?.focus({
+                preventScroll:
+                true,
+            });
+            }
+        },
+        );
+
+        form?.addEventListener(
+        'submit',
+        async (event) => {
+            event.preventDefault();
+
+            if (
+            isSubmitting ||
+            !emailInput ||
+            !consentInput
+            ) {
+            return;
+            }
+
+            clearError();
+
+            const email =
+            emailInput.value.trim();
+
+            if (
+            !email ||
+            !emailInput.validity.valid
+            ) {
+            trackPopupEvent(
+                'discount_popup_error',
+                {
+                error_type:
+                    'invalid_email',
+                },
+            );
+
+            showError(
+                'Please enter a valid email address.',
+            );
+
+            emailInput.focus({
+                preventScroll:
+                true,
+            });
+
+            return;
+            }
+
+            if (
+            !consentInput.checked
+            ) {
+            trackPopupEvent(
+                'discount_popup_error',
+                {
+                error_type:
+                    'consent_required',
+                },
+            );
+
+            showError(
+                'Please agree to receive Maxi Pawz emails so we can send your welcome offer.',
+            );
+
+            consentInput.focus({
+                preventScroll:
+                true,
+            });
+
+            return;
+            }
+
+            trackPopupEvent(
+            'discount_popup_submit',
+            );
+
+            setSubmitting(
+            true,
+            );
+
+            try {
+            const response =
+                await fetch(
+                '/api/welcome-discount/claim',
+                {
+                    method:
+                    'POST',
+
+                    headers: {
+                    'Content-Type':
+                        'application/json',
+
+                    Accept:
+                        'application/json',
+                    },
+
+                    body:
+                    JSON.stringify({
+                        email,
+
+                        marketingConsent:
+                        true,
+
+                        botField:
+                        botField?.value ??
+                        '',
+                    }),
+                },
+                );
+
+            const result =
+                (await response
+                .json()
+                .catch(
+                    () =>
+                    null,
+                )) as
+                | WelcomeDiscountClaimResponse
+                | null;
+
+            if (
+                !response.ok ||
+                !result ||
+                !result.ok
+            ) {
+                trackPopupEvent(
+                'discount_popup_error',
+                {
+                    error_type:
+                    'api_error',
+
+                    response_status:
+                    response.status,
+                },
+                );
+
+                throw new Error(
+                result &&
+                !result.ok &&
+                result.message
+                    ? result.message
+                    : 'We could not send your welcome offer right now. Please try again.',
+                );
+            }
+
+            trackPopupEvent(
+                'discount_popup_success',
+            );
+
+            showSuccess();
+            } catch (error) {
+            /*
+            * API errors were already tracked above.
+            *
+            * A response status of 0 means no HTTP response was
+            * received, which we classify as a network/client error.
+            */
+            if (
+                error instanceof
+                TypeError
+            ) {
+                trackPopupEvent(
+                'discount_popup_error',
+                {
+                    error_type:
+                    'network_error',
+                },
+                );
+            }
+
+            showError(
+                error instanceof
+                Error
+                ? error.message
+                : 'We could not send your welcome offer right now. Please try again.',
+            );
+            } finally {
+            setSubmitting(
+                false,
+            );
+            }
+        },
+        );
+    }
+</script>

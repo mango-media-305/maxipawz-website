@@ -748,7 +748,7 @@ export default async function handler(
             },
 
             allow_promotion_codes:
-              false,
+              true,
 
             client_reference_id:
               cartReference,
