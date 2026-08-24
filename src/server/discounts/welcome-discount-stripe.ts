@@ -252,7 +252,7 @@ function assertExistingPromotionOwnership(
     );
 
     if (
-        promotion.metadata
+        promotion.metadata && promotion.metadata
             .incentive !==
         'welcome-discount'
     ) {
@@ -262,7 +262,7 @@ function assertExistingPromotionOwnership(
     }
 
     if (
-        promotion.metadata
+        promotion.metadata && promotion.metadata
             .lead_hash !==
         emailHash
     ) {
@@ -272,7 +272,7 @@ function assertExistingPromotionOwnership(
     }
 
     if (
-        promotion.metadata
+        promotion.metadata && promotion.metadata
             .data_mode !==
         dataMode
     ) {
