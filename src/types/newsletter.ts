@@ -1,4 +1,6 @@
-export type NewsletterSource = 'homepage-join-the-pack';
+export type NewsletterSource =
+  | 'homepage-join-the-pack'
+  | 'homepage-welcome-discount-popup';
 
 export type NewsletterMarketingPreferenceMethod =
   | 'prechecked-checkbox-submission'

@@ -14,6 +14,7 @@ import HomeMotion from '@components/home/HomeMotion.astro';
 import LaunchSignup from '@components/home/LaunchSignup.astro';
 import PetGuidesPreview from '@components/home/PetGuidesPreview.astro';
 import ShopByLifestyle from '@components/home/ShopByLifestyle.astro';
+import WelcomeDiscountPopup from '@components/home/WelcomeDiscountPopup.astro';
 import Badge from '@components/ui/Badge.astro';
 
 import BaseLayout from '@layouts/BaseLayout.astro';
@@ -309,4 +310,6 @@ const currentActions = [
 
     <HomeMotion />
   </div>
+
+  {isStoreLive && <WelcomeDiscountPopup />}
 </BaseLayout>
