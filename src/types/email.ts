@@ -3,7 +3,9 @@ export type TransactionalEmailKind =
   | 'internal-new-order'
   | 'customer-shipping-confirmation';
 
-export type MarketingEmailKind = 'welcome-to-the-pack';
+export type MarketingEmailKind =
+  | 'welcome-to-the-pack'
+  | 'welcome-discount';
 
 export type MarketingEmailDataMode = 'test' | 'live';
 
@@ -61,7 +63,11 @@ export interface MarketingEmailDeliveryRecord {
   updatedAt: string;
 }
 
-export type PaidOrderEmailJobStatus = 'queued' | 'processing' | 'completed' | 'failed';
+export type PaidOrderEmailJobStatus =
+  | 'queued'
+  | 'processing'
+  | 'completed'
+  | 'failed';
 
 export interface PaidOrderEmailJobRecord {
   version: 1;
@@ -83,7 +89,12 @@ export interface PaidOrderEmailJobRecord {
   completedAt?: string;
 }
 
-export type WelcomeEmailJobStatus = 'queued' | 'processing' | 'completed' | 'failed' | 'skipped';
+export type WelcomeEmailJobStatus =
+  | 'queued'
+  | 'processing'
+  | 'completed'
+  | 'failed'
+  | 'skipped';
 
 export interface WelcomeEmailJobRecord {
   version: 1;
@@ -127,7 +138,9 @@ export type ResendEmailDeliveryStatus =
   | 'failed'
   | 'suppressed';
 
-export type ResendWebhookEventOutcome = 'processed' | 'ignored';
+export type ResendWebhookEventOutcome =
+  | 'processed'
+  | 'ignored';
 
 export interface ProcessedResendWebhookEventRecord {
   version: 1;
@@ -138,7 +151,9 @@ export interface ProcessedResendWebhookEventRecord {
 
   providerMessageId?: string;
 
-  kind?: TransactionalEmailKind | MarketingEmailKind;
+  kind?:
+    | TransactionalEmailKind
+    | MarketingEmailKind;
 
   sessionId?: string;
 
