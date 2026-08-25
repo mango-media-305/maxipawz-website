@@ -14,11 +14,12 @@
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "npm run test:landing-pages && npm run test:inventory && npm run test:checkout-inventory && npm run test:back-in-stock",
+    "test": "npm run test:landing-pages && npm run test:inventory && npm run test:checkout-inventory && npm run test:back-in-stock && npm run test:founding-pack",
     "test:landing-pages": "tsx --test tests/landing-pages/*.test.ts",
     "test:inventory": "tsx --test tests/inventory/*.test.ts",
     "test:checkout-inventory": "tsx --test tests/checkout/*.test.ts",
     "test:back-in-stock": "tsx --test tests/back-in-stock/*.test.ts",
+    "test:founding-pack": "tsx --test tests/founding-pack/*.test.ts",
     "validate": "npm run check && npm run lint && npm run format:check && npm test && npm run build",
     "stripe:create-test-catalog": "tsx scripts/stripe/create-test-catalog.ts"
   },

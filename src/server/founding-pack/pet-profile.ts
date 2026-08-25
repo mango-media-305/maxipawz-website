@@ -24,6 +24,23 @@ interface NewsletterLeadReference {
     emailHash?: unknown;
 }
 
+interface JsonStore {
+    get(
+        key: string,
+        options: {
+            type: 'json';
+        },
+    ): Promise<unknown>;
+
+    setJSON(key: string, value: unknown): Promise<unknown>;
+}
+
+export interface FoundingPackPetProfileDependencies {
+    getNewsletterLeadStore?: (dataMode: FoundingPackDataMode) => JsonStore;
+
+    getPetProfileStore?: (dataMode: FoundingPackDataMode) => JsonStore;
+}
+
 export type FoundingPackPetProfileErrorCode =
     | 'invalid-email'
     | 'invalid-pet-name'
@@ -69,13 +86,13 @@ function getDataMode(): FoundingPackDataMode {
     );
 }
 
-function getNewsletterLeadStore(dataMode: FoundingPackDataMode) {
+function getDefaultNewsletterLeadStore(dataMode: FoundingPackDataMode): JsonStore {
     return getStore(`maxipawz-newsletter-leads-${dataMode}`, {
         consistency: 'strong',
     });
 }
 
-function getPetProfileStore(dataMode: FoundingPackDataMode) {
+function getDefaultPetProfileStore(dataMode: FoundingPackDataMode): JsonStore {
     return getStore(`maxipawz-founding-pack-profiles-${dataMode}`, {
         consistency: 'strong',
     });
@@ -190,12 +207,10 @@ function normalizeOptionalLaunchInterest(
 }
 
 async function newsletterLeadExists(
-    dataMode: FoundingPackDataMode,
+    store: JsonStore,
 
     emailHash: string,
 ): Promise<boolean> {
-    const store = getNewsletterLeadStore(dataMode);
-
     const lead = (await store.get(getEmailKey(emailHash), {
         type: 'json',
     })) as NewsletterLeadReference | null;
@@ -208,24 +223,20 @@ async function newsletterLeadExists(
 }
 
 async function getPetProfile(
-    dataMode: FoundingPackDataMode,
+    store: JsonStore,
 
     emailHash: string,
 ): Promise<FoundingPackPetProfileRecord | null> {
-    const store = getPetProfileStore(dataMode);
-
     return (await store.get(getEmailKey(emailHash), {
         type: 'json',
     })) as FoundingPackPetProfileRecord | null;
 }
 
 async function savePetProfile(
-    dataMode: FoundingPackDataMode,
+    store: JsonStore,
 
     record: FoundingPackPetProfileRecord,
 ): Promise<void> {
-    const store = getPetProfileStore(dataMode);
-
     await store.setJSON(getEmailKey(record.emailHash), record);
 }
 
@@ -257,29 +268,26 @@ export function parseFoundingPackPetProfileInput(
 
 export async function submitFoundingPackPetProfile(
     input: FoundingPackPetProfileInput,
+
+    dependencies: FoundingPackPetProfileDependencies = {},
 ): Promise<FoundingPackPetProfileSubmissionResult> {
     const dataMode = getDataMode();
 
-    /*
-     * Normalize again at the persistence boundary.
-     *
-     * The public HTTP endpoint uses parseFoundingPackPetProfileInput(),
-     * but keeping the persistence layer defensive means other future
-     * callers cannot accidentally bypass normalization.
-     */
     const email = normalizeEmail(input.email);
 
     const emailHash = hashEmail(email);
 
-    const hasNewsletterLead = await newsletterLeadExists(dataMode, emailHash);
+    const newsletterStore =
+        dependencies.getNewsletterLeadStore?.(dataMode) ?? getDefaultNewsletterLeadStore(dataMode);
+
+    const profileStore =
+        dependencies.getPetProfileStore?.(dataMode) ?? getDefaultPetProfileStore(dataMode);
+
+    const hasNewsletterLead = await newsletterLeadExists(newsletterStore, emailHash);
 
     /*
      * A Founding Pack profile is enrichment for an existing signup,
      * not an independent lead source.
-     *
-     * This also prevents the profile endpoint from becoming an
-     * alternative way to populate customer data without first going
-     * through the newsletter signup flow.
      */
     if (!hasNewsletterLead) {
         throw new FoundingPackPetProfileError(
@@ -289,7 +297,7 @@ export async function submitFoundingPackPetProfile(
         );
     }
 
-    const existing = await getPetProfile(dataMode, emailHash);
+    const existing = await getPetProfile(profileStore, emailHash);
 
     const now = new Date().toISOString();
 
@@ -325,7 +333,7 @@ export async function submitFoundingPackPetProfile(
         updatedAt: now,
     };
 
-    await savePetProfile(dataMode, record);
+    await savePetProfile(profileStore, record);
 
     return {
         accepted: true,
