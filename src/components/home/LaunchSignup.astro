@@ -5,11 +5,42 @@ import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
 import CheckCircleBold from 'phosphor-astro/CheckCircleBold.astro';
 import HeartBold from 'phosphor-astro/HeartBold.astro';
 import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
+import SparkleBold from 'phosphor-astro/SparkleBold.astro';
 
 import launchSignupBackground from '../../assets/home/join-the-pack-background.webp';
 
+import {
+  FOUNDING_PACK_LAUNCH_INTERESTS,
+  FOUNDING_PACK_PET_PERSONALITIES,
+  FOUNDING_PACK_PET_TYPES,
+} from '../../types/founding-pack';
+
 import BrandLogo from '../brand/BrandLogo.astro';
 import Button from '../ui/Button.astro';
+
+const petTypeLabels = {
+  dog: 'Dog',
+  cat: 'Cat',
+  other: 'Other pet',
+} as const;
+
+const petPersonalityLabels = {
+  'fetch-fanatic': 'Fetch Fanatic',
+  'power-chewer': 'Power Chewer',
+  'puzzle-master': 'Puzzle Master',
+  'professional-napper': 'Professional Napper',
+  'adventure-buddy': 'Adventure Buddy',
+  'something-else': 'Something Else',
+} as const;
+
+const launchInterestLabels = {
+  toys: 'Toys',
+  treats: 'Treats',
+  walking: 'Walking',
+  travel: 'Travel',
+  feeding: 'Feeding',
+  accessories: 'Accessories',
+} as const;
 ---
 
 <section
@@ -47,7 +78,7 @@ import Button from '../ui/Button.astro';
   </div>
 
   <span
-    class="launch-signup__floating-paw launch-signup__floating-paw--one pointer-events-none absolute top-[13%] right-[5%] hidden text-brand-300/32 lg:block"
+    class="launch-signup__floating-paw pointer-events-none absolute top-[13%] right-[5%] hidden text-brand-300/32 lg:block"
     data-motion-continuous
     aria-hidden="true"
   >
@@ -55,7 +86,7 @@ import Button from '../ui/Button.astro';
   </span>
 
   <span
-    class="launch-signup__floating-paw launch-signup__floating-paw--two pointer-events-none absolute bottom-[10%] left-[4%] hidden text-accent-300/28 lg:block"
+    class="launch-signup__floating-paw launch-signup__floating-paw--reverse pointer-events-none absolute bottom-[10%] left-[4%] hidden text-accent-300/28 lg:block"
     data-motion-continuous
     aria-hidden="true"
   >
@@ -68,14 +99,14 @@ import Button from '../ui/Button.astro';
       data-reveal
     >
       <div
-        class="launch-signup__shell-glow launch-signup__shell-glow--blue pointer-events-none absolute -top-40 -left-36 size-112 rounded-full bg-brand-500/28 blur-3xl"
+        class="launch-signup__shell-glow pointer-events-none absolute -top-40 -left-36 size-112 rounded-full bg-brand-500/28 blur-3xl"
         data-motion-continuous
         aria-hidden="true"
       >
       </div>
 
       <div
-        class="launch-signup__shell-glow launch-signup__shell-glow--orange pointer-events-none absolute -right-36 -bottom-44 size-120 rounded-full bg-accent-500/22 blur-3xl"
+        class="launch-signup__shell-glow launch-signup__shell-glow--reverse pointer-events-none absolute -right-36 -bottom-44 size-120 rounded-full bg-accent-500/22 blur-3xl"
         data-motion-continuous
         aria-hidden="true"
       >
@@ -84,7 +115,6 @@ import Button from '../ui/Button.astro';
       <div
         class="launch-signup__grid relative grid min-h-168 overflow-hidden lg:grid-cols-[0.92fr_1.08fr]"
       >
-        <!-- Decorative full-grid background -->
         <div
           class="launch-signup__background pointer-events-none absolute inset-0 z-0 overflow-hidden"
           aria-hidden="true"
@@ -103,7 +133,7 @@ import Button from '../ui/Button.astro';
           <div class="launch-signup__background-wash absolute inset-0" aria-hidden="true"></div>
         </div>
 
-        <!-- Conversion copy -->
+        <!-- Brand / conversion copy -->
         <div
           class="launch-signup__copy-panel relative z-10 flex flex-col justify-end overflow-hidden p-6 sm:p-8 lg:p-10 xl:p-12"
           data-reveal="left"
@@ -116,7 +146,7 @@ import Button from '../ui/Button.astro';
           </div>
 
           <div
-            class="launch-signup__copy-glow pointer-events-none absolute -bottom-28 -left-24 size-80 rounded-full bg-accent-500/18 blur-3xl"
+            class="pointer-events-none absolute -bottom-28 -left-24 size-80 rounded-full bg-accent-500/18 blur-3xl"
             aria-hidden="true"
           >
           </div>
@@ -127,20 +157,46 @@ import Button from '../ui/Button.astro';
             >
               <HeartBold class="size-4" aria-hidden="true" />
 
-              Be First to Know
+              Founding Pack
             </p>
 
             <h2
               id="maxi-pawz-updates-title"
               class="mt-6 max-w-xl text-3xl text-white sm:text-4xl lg:text-[2.8rem]"
             >
-              Be first to discover what is coming to Maxi Pawz.
+              Join the Maxi Pawz Founding Pack.
             </h2>
 
             <p class="mt-5 max-w-xl text-base leading-7 text-white/78 sm:text-lg sm:leading-8">
-              Get Maxi Pawz updates for launch news, new products, helpful pet guides, and
-              occasional subscriber-only offers.
+              Be part of Maxi Pawz before the first collection arrives. Get launch news, helpful pet
+              guides, new-product updates, and occasional subscriber-only offers.
             </p>
+
+            <div class="mt-7 grid gap-3 text-sm font-bold text-white/82 sm:grid-cols-2">
+              <span class="flex items-center gap-2">
+                <CheckCircleBold class="size-5 shrink-0 text-accent-300" aria-hidden="true" />
+
+                Early launch updates
+              </span>
+
+              <span class="flex items-center gap-2">
+                <CheckCircleBold class="size-5 shrink-0 text-accent-300" aria-hidden="true" />
+
+                Help shape what comes next
+              </span>
+
+              <span class="flex items-center gap-2">
+                <CheckCircleBold class="size-5 shrink-0 text-accent-300" aria-hidden="true" />
+
+                Useful pet guidance
+              </span>
+
+              <span class="flex items-center gap-2">
+                <CheckCircleBold class="size-5 shrink-0 text-accent-300" aria-hidden="true" />
+
+                Optional pet profile
+              </span>
+            </div>
           </div>
 
           <div
@@ -160,13 +216,13 @@ import Button from '../ui/Button.astro';
               <p class="font-display text-xl text-white sm:text-2xl">Happy pets. Happy life.</p>
 
               <p class="mt-1 text-sm leading-6 text-white/68">
-                Friendly updates from a store built around pets and the people who love them.
+                The Founding Pack is for the people helping us build Maxi Pawz from the beginning.
               </p>
             </div>
           </div>
         </div>
 
-        <!-- Form side -->
+        <!-- Interactive side -->
         <div
           class="launch-signup__form-panel relative z-10 flex items-center p-5 sm:p-7 lg:p-9 xl:p-12"
           data-reveal="right"
@@ -195,21 +251,9 @@ import Button from '../ui/Button.astro';
               class="motion-tilt-surface launch-signup__tilt-surface rounded-card"
               data-tilt-surface
             >
-              <form
-                name="maxipawz-launch-list"
-                action="/api/newsletter/subscribe"
-                method="POST"
+              <div
                 class="launch-signup__form surface-card relative overflow-hidden p-5 sm:p-7 lg:p-8"
-                data-launch-form
               >
-                <p hidden>
-                  <label>
-                    Do not fill out this field:
-
-                    <input name="bot-field" tabindex="-1" autocomplete="off" />
-                  </label>
-                </p>
-
                 <div
                   class="launch-signup__form-spotlight pointer-events-none absolute inset-0 z-0"
                   aria-hidden="true"
@@ -229,135 +273,392 @@ import Button from '../ui/Button.astro';
                 </div>
 
                 <div class="relative z-10">
-                  <div class="flex items-start gap-4 pr-0 sm:pr-20">
-                    <h3 class="mt-2 text-2xl text-ink-900 sm:text-3xl">
-                      Stay connected with Maxi Pawz.
+                  <!-- STEP 1 -->
+                  <div data-founding-pack-step="signup">
+                    <div class="flex items-center gap-2 text-xs font-black tracking-[0.14em] text-brand-700 uppercase">
+                      <span
+                        class="grid size-7 place-items-center rounded-full bg-brand-100 text-brand-700"
+                        aria-hidden="true"
+                      >
+                        1
+                      </span>
+
+                      Join the Pack
+                    </div>
+
+                    <h3 class="mt-5 pr-0 text-2xl text-ink-900 sm:pr-20 sm:text-3xl">
+                      Be here from the beginning.
                     </h3>
-                  </div>
 
-                  <p class="mt-5 leading-7 text-ink-600">
-                    Tell us a little about you. Your first name is optional, but your email address
-                    is required.
-                  </p>
+                    <p class="mt-4 leading-7 text-ink-600">
+                      Sign up for the Maxi Pawz Founding Pack to get early launch updates, helpful
+                      pet guides, and occasional subscriber-only offers.
+                    </p>
 
-                  <div class="mt-7 grid gap-5 sm:grid-cols-2">
-                    <div class="launch-signup__field">
-                      <div class="flex items-center justify-between gap-3">
-                        <label for="launch-first-name" class="form-label"> First name </label>
+                    <form
+                      name="maxipawz-launch-list"
+                      action="/api/newsletter/subscribe"
+                      method="POST"
+                      class="mt-7"
+                      data-launch-form
+                    >
+                      <p hidden>
+                        <label>
+                          Do not fill out this field:
 
-                        <span class="text-xs font-bold text-ink-400"> Optional </span>
+                          <input name="bot-field" tabindex="-1" autocomplete="off" />
+                        </label>
+                      </p>
+
+                      <div class="grid gap-5 sm:grid-cols-2">
+                        <div>
+                          <div class="flex items-center justify-between gap-3">
+                            <label for="launch-first-name" class="form-label">First name</label>
+
+                            <span class="text-xs font-bold text-ink-400">Optional</span>
+                          </div>
+
+                          <input
+                            id="launch-first-name"
+                            name="first-name"
+                            type="text"
+                            autocomplete="given-name"
+                            class="launch-signup__input form-control"
+                            placeholder="Your first name"
+                            maxlength="80"
+                            data-launch-field
+                          />
+                        </div>
+
+                        <div>
+                          <label for="launch-email" class="form-label">Email address</label>
+
+                          <input
+                            id="launch-email"
+                            name="email"
+                            type="email"
+                            inputmode="email"
+                            autocomplete="email"
+                            spellcheck="false"
+                            class="launch-signup__input form-control"
+                            placeholder="you@example.com"
+                            aria-describedby="launch-email-help"
+                            required
+                            data-launch-field
+                            data-launch-email
+                          />
+                        </div>
                       </div>
 
-                      <input
-                        id="launch-first-name"
-                        name="first-name"
-                        type="text"
-                        autocomplete="given-name"
-                        class="launch-signup__input form-control"
-                        placeholder="Your first name"
-                        maxlength="80"
-                        data-launch-field
-                      />
+                      <div
+                        class="mt-6 rounded-3xl border border-brand-200/70 bg-brand-50/85 p-4 sm:p-5"
+                      >
+                        <label
+                          for="launch-marketing-consent"
+                          class="flex cursor-pointer items-start gap-3"
+                        >
+                          <input
+                            id="launch-marketing-consent"
+                            name="marketing-consent"
+                            type="checkbox"
+                            value="yes"
+                            checked
+                            class="mt-1 size-5 shrink-0 cursor-pointer accent-brand-600"
+                          />
 
-                      <p class="mt-2 text-xs leading-5 text-ink-500">
-                        Helps us make your Maxi Pawz experience feel a little more personal.
+                          <span class="min-w-0">
+                            <span class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                              <span class="font-extrabold leading-6 text-ink-800">
+                                Yes, send me Maxi Pawz emails.
+                              </span>
+
+                              <span
+                                class="rounded-full border border-brand-200 bg-white-warm px-2 py-0.5 text-[0.7rem] font-extrabold tracking-wider text-brand-700 uppercase"
+                              >
+                                Optional
+                              </span>
+                            </span>
+
+                            <span class="mt-1 block text-sm leading-6 text-ink-600">
+                              I want launch updates, new-product news, helpful pet guides, and
+                              occasional Maxi Pawz offers by email.
+                            </span>
+
+                            <span class="mt-2 block text-xs leading-5 text-ink-500">
+                              Uncheck this box if you prefer not to receive marketing emails. You can
+                              unsubscribe at any time.
+                            </span>
+                          </span>
+                        </label>
+                      </div>
+
+                      <div class="mt-6">
+                        <Button
+                          type="submit"
+                          variant="primary"
+                          size="lg"
+                          fullWidth={true}
+                          iconPosition="right"
+                        >
+                          <ArrowRightBold slot="icon" aria-hidden="true" />
+
+                          <span data-launch-submit-label>Join the Founding Pack</span>
+                        </Button>
+                      </div>
+
+                      <p
+                        class="mt-4 hidden rounded-2xl border px-4 py-3 text-sm leading-6"
+                        role="status"
+                        aria-live="polite"
+                        data-launch-form-status
+                      >
                       </p>
-                    </div>
 
-                    <div class="launch-signup__field">
-                      <label for="launch-email" class="form-label"> Email address </label>
+                      <div class="mt-4 flex items-start justify-center gap-2 text-center">
+                        <CheckCircleBold
+                          class="mt-0.5 size-4 shrink-0 text-brand-700"
+                          aria-hidden="true"
+                        />
 
-                      <input
-                        id="launch-email"
-                        name="email"
-                        type="email"
-                        inputmode="email"
-                        autocomplete="email"
-                        spellcheck="false"
-                        class="launch-signup__input form-control"
-                        placeholder="you@example.com"
-                        aria-describedby="launch-email-help"
-                        required
-                        data-launch-field
-                      />
-
-                      <p id="launch-email-help" class="mt-2 text-xs leading-5 text-ink-500">
-                        Enter the email address you check most often.
-                      </p>
-                    </div>
+                        <p class="max-w-md text-xs leading-5 text-ink-500">
+                          Your pet profile comes later and is completely optional.
+                        </p>
+                      </div>
+                    </form>
                   </div>
 
-                  <div
-                    class="mt-6 rounded-3xl border border-brand-200/70 bg-brand-50/85 p-4 sm:p-5"
-                  >
-                    <label
-                      for="launch-marketing-consent"
-                      class="flex cursor-pointer items-start gap-3"
-                    >
-                      <input
-                        id="launch-marketing-consent"
-                        name="marketing-consent"
-                        type="checkbox"
-                        value="yes"
-                        checked
-                        class="mt-1 size-5 shrink-0 cursor-pointer accent-brand-600"
-                      />
-
-                      <span class="min-w-0">
-                        <span class="flex flex-wrap items-center gap-x-2 gap-y-1">
-                          <span class="font-extrabold leading-6 text-ink-800">
-                            Yes, send me Maxi Pawz emails.
-                          </span>
-
-                          <span
-                            class="rounded-full border border-brand-200 bg-white-warm px-2 py-0.5 text-[0.7rem] font-extrabold tracking-wider text-brand-700 uppercase"
-                          >
-                            Optional
-                          </span>
-                        </span>
-
-                        <span class="mt-1 block text-sm leading-6 text-ink-600">
-                          I want launch updates, new-product news, helpful pet guides, and
-                          occasional Maxi Pawz offers by email.
-                        </span>
-
-                        <span class="mt-2 block text-xs leading-5 text-ink-500">
-                          Uncheck this box if you prefer not to receive marketing emails. You can
-                          unsubscribe at any time.
-                        </span>
+                  <!-- STEP 2 -->
+                  <div data-founding-pack-step="profile" hidden>
+                    <div class="flex items-center gap-2 text-xs font-black tracking-[0.14em] text-accent-700 uppercase">
+                      <span
+                        class="grid size-7 place-items-center rounded-full bg-accent-100 text-accent-700"
+                        aria-hidden="true"
+                      >
+                        2
                       </span>
-                    </label>
-                  </div>
 
-                  <div class="mt-6">
-                    <Button
-                      type="submit"
-                      variant="primary"
-                      size="lg"
-                      fullWidth={true}
-                      iconPosition="right"
+                      Optional
+                    </div>
+
+                    <div
+                      class="mt-5 flex items-start gap-4 rounded-3xl border border-brand-200/70 bg-brand-50/85 p-4 sm:p-5"
                     >
-                      <ArrowRightBold slot="icon" aria-hidden="true" />
+                      <span
+                        class="grid size-11 shrink-0 place-items-center rounded-2xl bg-white text-brand-700 shadow-sm"
+                        aria-hidden="true"
+                      >
+                        <CheckCircleBold class="size-6" />
+                      </span>
 
-                      <span data-launch-submit-label> Get Maxi Pawz Updates </span>
-                    </Button>
+                      <div>
+                        <p class="font-extrabold text-ink-900">You're in the Founding Pack.</p>
+
+                        <p class="mt-1 text-sm leading-6 text-ink-600">
+                          Your signup has already been saved. Everything below is optional.
+                        </p>
+                      </div>
+                    </div>
+
+                    <h3 class="mt-6 pr-0 text-2xl text-ink-900 sm:pr-16 sm:text-3xl">
+                      Tell Maxi about your best friend.
+                    </h3>
+
+                    <p class="mt-4 leading-7 text-ink-600">
+                      A few details can help us understand what our community actually wants. No
+                      birthday, breed, address, phone number, or other unnecessary information.
+                    </p>
+
+                    <form class="mt-7" data-pet-profile-form>
+                      <div class="hidden" aria-hidden="true">
+                        <label>
+                          Leave this field empty
+
+                          <input
+                            name="website"
+                            type="text"
+                            tabindex="-1"
+                            autocomplete="off"
+                            data-profile-bot-field
+                          />
+                        </label>
+                      </div>
+
+                      <div class="grid gap-5 sm:grid-cols-2">
+                        <div>
+                          <label for="founding-pet-name" class="form-label">Pet name</label>
+
+                          <input
+                            id="founding-pet-name"
+                            name="pet-name"
+                            type="text"
+                            class="launch-signup__input form-control"
+                            placeholder="Maxi"
+                            maxlength="80"
+                            required
+                            data-profile-field
+                          />
+                        </div>
+
+                        <div>
+                          <label for="founding-pet-type" class="form-label">Pet type</label>
+
+                          <select
+                            id="founding-pet-type"
+                            name="pet-type"
+                            class="launch-signup__input form-control"
+                            required
+                            data-profile-field
+                          >
+                            <option value="">Choose one</option>
+
+                            {
+                              FOUNDING_PACK_PET_TYPES.map((petType) => (
+                                <option value={petType}>{petTypeLabels[petType]}</option>
+                              ))
+                            }
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="mt-5">
+                        <div class="flex items-center justify-between gap-3">
+                          <label for="founding-pet-personality" class="form-label">
+                            Play personality
+                          </label>
+
+                          <span class="text-xs font-bold text-ink-400">Optional</span>
+                        </div>
+
+                        <select
+                          id="founding-pet-personality"
+                          name="pet-personality"
+                          class="launch-signup__input form-control"
+                          data-profile-field
+                        >
+                          <option value="">No preference</option>
+
+                          {
+                            FOUNDING_PACK_PET_PERSONALITIES.map((personality) => (
+                              <option value={personality}>
+                                {petPersonalityLabels[personality]}
+                              </option>
+                            ))
+                          }
+                        </select>
+
+                        <p class="mt-2 text-xs leading-5 text-ink-500">
+                          Just for fun — choose whichever description feels closest.
+                        </p>
+                      </div>
+
+                      <fieldset class="mt-6">
+                        <legend class="form-label">What should Maxi Pawz launch first?</legend>
+
+                        <p class="mt-1 text-xs leading-5 text-ink-500">
+                          Optional. This helps us understand what the Founding Pack wants most.
+                        </p>
+
+                        <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                          {
+                            FOUNDING_PACK_LAUNCH_INTERESTS.map((interest) => (
+                              <label class="launch-signup__interest-option cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name="launch-interest"
+                                  value={interest}
+                                  class="peer sr-only"
+                                />
+
+                                <span class="flex min-h-12 items-center justify-center rounded-2xl border border-sand bg-white px-3 py-2 text-center text-sm font-extrabold text-ink-700 transition hover:border-brand-300 hover:bg-brand-50 peer-checked:border-brand-500 peer-checked:bg-brand-100 peer-checked:text-brand-800 peer-focus-visible:ring-3 peer-focus-visible:ring-brand-300/45">
+                                  {launchInterestLabels[interest]}
+                                </span>
+                              </label>
+                            ))
+                          }
+                        </div>
+                      </fieldset>
+
+                      <div class="mt-7">
+                        <Button
+                          type="submit"
+                          variant="primary"
+                          size="lg"
+                          fullWidth={true}
+                          iconPosition="right"
+                        >
+                          <PawPrintBold slot="icon" aria-hidden="true" />
+
+                          <span data-profile-submit-label>Save Pet Profile</span>
+                        </Button>
+                      </div>
+
+                      <button
+                        type="button"
+                        class="mt-3 w-full rounded-2xl px-4 py-3 text-sm font-extrabold text-ink-500 transition hover:bg-cream hover:text-ink-800 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-brand-300/45"
+                        data-profile-skip
+                      >
+                        Skip for now
+                      </button>
+
+                      <p
+                        class="mt-4 hidden rounded-2xl border px-4 py-3 text-sm leading-6"
+                        role="status"
+                        aria-live="polite"
+                        data-profile-status
+                      >
+                      </p>
+                    </form>
                   </div>
 
-                  <p class="sr-only" aria-live="polite" data-launch-form-status></p>
-
-                  <div class="mt-4 flex items-start justify-center gap-2 text-center">
-                    <CheckCircleBold
-                      class="mt-0.5 size-4 shrink-0 text-brand-700"
+                  <!-- COMPLETE -->
+                  <div class="py-4 text-center" data-founding-pack-step="complete" hidden>
+                    <span
+                      class="mx-auto grid size-16 place-items-center rounded-full bg-brand-100 text-brand-700 shadow-sm"
                       aria-hidden="true"
-                    />
+                    >
+                      <PawPrintBold class="size-8" />
+                    </span>
 
-                    <p class="max-w-md text-xs leading-5 text-ink-500">
-                      Submitting this form records your interest in Maxi Pawz. Marketing email
-                      preferences are controlled by the checkbox above.
+                    <p class="mt-5 text-xs font-black tracking-[0.14em] text-accent-700 uppercase">
+                      Founding Pack Member
                     </p>
+
+                    <h3 class="mt-3 text-3xl text-ink-900">Welcome to the Pack.</h3>
+
+                    <p
+                      class="mx-auto mt-4 max-w-md leading-7 text-ink-600"
+                      data-complete-message
+                    >
+                      You're officially part of the Maxi Pawz Founding Pack.
+                    </p>
+
+                    <div
+                      class="mx-auto mt-7 max-w-md rounded-3xl border border-brand-200/70 bg-brand-50/80 p-5 text-left"
+                    >
+                      <div class="flex items-start gap-3">
+                        <SparkleBold
+                          class="mt-0.5 size-5 shrink-0 text-brand-700"
+                          aria-hidden="true"
+                        />
+
+                        <p class="text-sm leading-6 text-ink-600">
+                          We'll keep building while you explore the Pet Guides and follow along as
+                          the first Maxi Pawz collection takes shape.
+                        </p>
+                      </div>
+                    </div>
+
+                    <a
+                      href="/pet-guides"
+                      class="mt-7 inline-flex items-center gap-2 font-extrabold text-brand-700 transition hover:text-brand-800"
+                    >
+                      Explore Pet Guides
+
+                      <ArrowRightBold class="size-5" aria-hidden="true" />
+                    </a>
                   </div>
                 </div>
-              </form>
+              </div>
             </div>
           </div>
         </div>
@@ -392,40 +693,10 @@ import Button from '../ui/Button.astro';
     opacity: 0.72;
   }
 
-  .launch-signup__orb.is-motion-active {
-    animation: launch-orb-drift 11s ease-in-out infinite;
-    will-change: transform;
-  }
-
-  .launch-signup__orb--orange.is-motion-active {
-    animation-delay: -5s;
-    animation-direction: reverse;
-  }
-
-  .launch-signup__floating-paw.is-motion-active {
-    animation: launch-paw-float 7s ease-in-out infinite;
-    will-change: transform;
-  }
-
-  .launch-signup__floating-paw--two.is-motion-active {
-    animation-delay: -3.5s;
-    animation-direction: reverse;
-  }
-
   .launch-signup__shell {
     background:
       radial-gradient(circle at 10% 10%, rgb(0 138 255 / 22%), transparent 23rem),
       radial-gradient(circle at 34% 100%, rgb(255 102 0 / 17%), transparent 25rem), #211711;
-  }
-
-  .launch-signup__shell-glow.is-motion-active {
-    animation: launch-shell-glow 10s ease-in-out infinite;
-    will-change: transform;
-  }
-
-  .launch-signup__shell-glow--orange.is-motion-active {
-    animation-delay: -4.5s;
-    animation-direction: reverse;
   }
 
   .launch-signup__background {
@@ -435,18 +706,8 @@ import Button from '../ui/Button.astro';
   .launch-signup__background-image {
     object-position: center 46%;
     opacity: 0.88;
-
     transform: translate3d(-1.5%, 0, 0) scale(1.06);
-
     filter: saturate(0.92) contrast(1.03);
-  }
-
-  @media (min-width: 64rem) {
-    .launch-signup__background-image.is-motion-active {
-      animation: launch-ken-burns 20s ease-in-out infinite alternate;
-
-      will-change: transform;
-    }
   }
 
   .launch-signup__background-wash {
@@ -472,10 +733,6 @@ import Button from '../ui/Button.astro';
       linear-gradient(90deg, rgb(33 23 17 / 35%), rgb(33 23 17 / 8%));
   }
 
-  /*
-   * This surface is deliberately more opaque than before.
-   * It preserves the visual separation without repainting a backdrop blur.
-   */
   .launch-signup__form-panel {
     background: linear-gradient(
       145deg,
@@ -491,9 +748,7 @@ import Button from '../ui/Button.astro';
       linear-gradient(90deg, rgb(255 255 255 / 3%) 1px, transparent 1px);
 
     background-size: 3rem 3rem;
-
     mask-image: linear-gradient(to bottom right, black, transparent 76%);
-
     opacity: 0.65;
   }
 
@@ -506,42 +761,20 @@ import Button from '../ui/Button.astro';
 
   .launch-signup__brand-note:hover {
     transform: translateY(-0.25rem);
-
     border-color: rgb(255 174 102 / 30%);
-
     background-color: rgb(33 23 17 / 82%);
   }
 
-  .launch-signup__mascot.is-motion-active {
-    animation: launch-mascot-bob 5s ease-in-out infinite;
-
-    will-change: transform;
-  }
-
-  .launch-signup__floating-mark.is-motion-active {
-    animation: launch-mark-float 5.5s ease-in-out infinite;
-
-    will-change: transform;
-  }
-
-  /*
-   * HomeMotion owns the transform and active will-change state.
-   */
   .launch-signup__tilt-surface {
     border-radius: var(--radius-card);
   }
 
-  /*
-   * Disable HomeMotion's generic spotlight for this surface because
-   * the form uses a more precisely positioned internal spotlight.
-   */
   .launch-signup__tilt-surface::after {
     display: none;
   }
 
   .launch-signup__form {
     background: rgb(255 254 249 / 97%);
-
     transition:
       border-color 240ms var(--ease-friendly),
       box-shadow 260ms var(--ease-friendly);
@@ -549,7 +782,6 @@ import Button from '../ui/Button.astro';
 
   .motion-tilt-shell:hover .launch-signup__form {
     border-color: rgb(0 138 255 / 28%);
-
     box-shadow: var(--shadow-card-hover);
   }
 
@@ -561,7 +793,6 @@ import Button from '../ui/Button.astro';
     );
 
     opacity: 0;
-
     transition: opacity 220ms ease;
   }
 
@@ -587,17 +818,13 @@ import Button from '../ui/Button.astro';
 
   .launch-signup__input.is-valid {
     border-color: rgb(34 169 104 / 55%);
-
     background-color: rgb(239 252 245 / 72%);
-
     box-shadow: 0 0 0 4px rgb(34 169 104 / 10%);
   }
 
   .launch-signup__input.is-invalid {
     border-color: rgb(220 69 69 / 70%);
-
     background-color: rgb(255 241 241 / 82%);
-
     box-shadow: 0 0 0 4px rgb(220 69 69 / 11%);
   }
 
@@ -605,13 +832,9 @@ import Button from '../ui/Button.astro';
     pointer-events: none;
   }
 
-  .launch-signup__form button[type='submit']:disabled {
+  .launch-signup__form.is-submitting button[type='submit'] {
     cursor: wait;
     opacity: 0.72;
-  }
-
-  .launch-signup__form.is-submitting button[type='submit'] {
-    animation: launch-submit-pulse 1.25s ease-in-out infinite;
   }
 
   @keyframes launch-ken-burns {
@@ -683,15 +906,52 @@ import Button from '../ui/Button.astro';
     }
   }
 
-  @keyframes launch-submit-pulse {
-    0%,
-    100% {
-      transform: scale(1);
+  @media (min-width: 64rem) {
+    .launch-signup__background-image.is-motion-active {
+      animation: launch-ken-burns 20s ease-in-out infinite alternate;
+      will-change: transform;
     }
+  }
 
-    50% {
-      transform: scale(0.985);
-    }
+  .launch-signup__orb.is-motion-active {
+    animation: launch-orb-drift 11s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  .launch-signup__orb--orange.is-motion-active,
+  .launch-signup__orb--reverse.is-motion-active {
+    animation-delay: -5s;
+    animation-direction: reverse;
+  }
+
+  .launch-signup__shell-glow.is-motion-active {
+    animation: launch-shell-glow 10s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  .launch-signup__shell-glow--reverse.is-motion-active {
+    animation-delay: -4.5s;
+    animation-direction: reverse;
+  }
+
+  .launch-signup__floating-paw.is-motion-active {
+    animation: launch-paw-float 7s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  .launch-signup__floating-paw--reverse.is-motion-active {
+    animation-delay: -3.5s;
+    animation-direction: reverse;
+  }
+
+  .launch-signup__mascot.is-motion-active {
+    animation: launch-mascot-bob 5s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  .launch-signup__floating-mark.is-motion-active {
+    animation: launch-mark-float 5.5s ease-in-out infinite;
+    will-change: transform;
   }
 
   @media (max-width: 1023px) {
@@ -718,7 +978,6 @@ import Button from '../ui/Button.astro';
   @media (hover: none), (pointer: coarse) {
     .launch-signup__brand-note:hover {
       transform: none;
-
       background-color: rgb(33 23 17 / 72%);
     }
 
@@ -734,7 +993,6 @@ import Button from '../ui/Button.astro';
   @media (prefers-reduced-motion: reduce) {
     .launch-signup__background-image {
       animation: none !important;
-
       transform: scale(1.08) !important;
     }
 
@@ -744,8 +1002,7 @@ import Button from '../ui/Button.astro';
     .launch-signup__brand-note,
     .launch-signup__mascot,
     .launch-signup__floating-mark,
-    .launch-signup__input,
-    .launch-signup__form button[type='submit'] {
+    .launch-signup__input {
       animation: none !important;
       transition: none !important;
       will-change: auto !important;
@@ -758,6 +1015,18 @@ import Button from '../ui/Button.astro';
 </style>
 
 <script>
+  interface NewsletterSignupResponse {
+    ok?: boolean;
+
+    message?: string;
+  }
+
+  interface PetProfileResponse {
+    ok?: boolean;
+
+    message?: string;
+  }
+
   const initializeLaunchSignupForms = (): void => {
     const sections = Array.from(document.querySelectorAll<HTMLElement>('[data-launch-signup]'));
 
@@ -768,159 +1037,422 @@ import Button from '../ui/Button.astro';
 
       section.dataset.launchFormInitialized = 'true';
 
-      const form = section.querySelector<HTMLFormElement>('[data-launch-form]');
+      const signupStep = section.querySelector<HTMLElement>(
+        '[data-founding-pack-step="signup"]',
+      );
 
-      if (!form) {
+      const profileStep = section.querySelector<HTMLElement>(
+        '[data-founding-pack-step="profile"]',
+      );
+
+      const completeStep = section.querySelector<HTMLElement>(
+        '[data-founding-pack-step="complete"]',
+      );
+
+      const signupForm = section.querySelector<HTMLFormElement>('[data-launch-form]');
+
+      const profileForm = section.querySelector<HTMLFormElement>('[data-pet-profile-form]');
+
+      const signupSubmitButton =
+        signupForm?.querySelector<HTMLButtonElement>('button[type="submit"]');
+
+      const signupSubmitLabel =
+        signupForm?.querySelector<HTMLElement>('[data-launch-submit-label]');
+
+      const signupStatus =
+        signupForm?.querySelector<HTMLElement>('[data-launch-form-status]');
+
+      const marketingConsentCheckbox =
+        signupForm?.querySelector<HTMLInputElement>('#launch-marketing-consent');
+
+      const emailField =
+        signupForm?.querySelector<HTMLInputElement>('[data-launch-email]');
+
+      const profileSubmitButton =
+        profileForm?.querySelector<HTMLButtonElement>('button[type="submit"]');
+
+      const profileSubmitLabel =
+        profileForm?.querySelector<HTMLElement>('[data-profile-submit-label]');
+
+      const profileStatus =
+        profileForm?.querySelector<HTMLElement>('[data-profile-status]');
+
+      const profileSkipButton =
+        profileForm?.querySelector<HTMLButtonElement>('[data-profile-skip]');
+
+      const completeMessage =
+        section.querySelector<HTMLElement>('[data-complete-message]');
+
+      if (
+        !signupStep ||
+        !profileStep ||
+        !completeStep ||
+        !signupForm ||
+        !profileForm ||
+        !emailField
+      ) {
         continue;
       }
 
-      const submitButton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      let foundingPackEmail = '';
 
-      const submitLabel = form.querySelector<HTMLElement>('[data-launch-submit-label]');
+      const cleanupFunctions: Array<() => void> = [];
 
-      const formStatus = form.querySelector<HTMLElement>('[data-launch-form-status]');
-
-      const marketingConsentCheckbox = form.querySelector<HTMLInputElement>(
-        '#launch-marketing-consent',
-      );
-
-      const fields = Array.from(form.querySelectorAll<HTMLInputElement>('[data-launch-field]'));
-
-      let resetTimer = 0;
-
-      const getIdleSubmitLabel = (): string =>
-        marketingConsentCheckbox?.checked === false
-          ? 'Save My Preference'
-          : 'Get Maxi Pawz Updates';
-
-      const syncSubmitLabel = (): void => {
-        if (!submitLabel || form.classList.contains('is-submitting')) {
+      const showStatus = (
+        element: HTMLElement | null | undefined,
+        message: string,
+        state: 'success' | 'error',
+      ): void => {
+        if (!element) {
           return;
         }
 
-        submitLabel.textContent = getIdleSubmitLabel();
+        element.textContent = message;
+
+        element.classList.remove(
+          'hidden',
+          'border-red-200',
+          'bg-red-50',
+          'text-red-800',
+          'border-emerald-200',
+          'bg-emerald-50',
+          'text-emerald-800',
+        );
+
+        if (state === 'success') {
+          element.classList.add(
+            'border-emerald-200',
+            'bg-emerald-50',
+            'text-emerald-800',
+          );
+
+          return;
+        }
+
+        element.classList.add('border-red-200', 'bg-red-50', 'text-red-800');
       };
 
-      const updateFieldState = (field: HTMLInputElement): void => {
-        const hasValue = field.value.trim().length > 0;
+      const clearStatus = (element: HTMLElement | null | undefined): void => {
+        if (!element) {
+          return;
+        }
 
+        element.textContent = '';
+        element.classList.add('hidden');
+      };
+
+      const setSignupSubmitting = (submitting: boolean): void => {
+        signupForm.classList.toggle('is-submitting', submitting);
+        signupForm.toggleAttribute('aria-busy', submitting);
+
+        if (signupSubmitButton) {
+          signupSubmitButton.disabled = submitting;
+          signupSubmitButton.toggleAttribute('aria-busy', submitting);
+        }
+
+        if (signupSubmitLabel) {
+          signupSubmitLabel.textContent = submitting
+            ? 'Joining the Pack…'
+            : marketingConsentCheckbox?.checked === false
+              ? 'Save My Preference'
+              : 'Join the Founding Pack';
+        }
+      };
+
+      const setProfileSubmitting = (submitting: boolean): void => {
+        profileForm.classList.toggle('is-submitting', submitting);
+        profileForm.toggleAttribute('aria-busy', submitting);
+
+        if (profileSubmitButton) {
+          profileSubmitButton.disabled = submitting;
+          profileSubmitButton.toggleAttribute('aria-busy', submitting);
+        }
+
+        if (profileSubmitLabel) {
+          profileSubmitLabel.textContent = submitting
+            ? 'Saving Pet Profile…'
+            : 'Save Pet Profile';
+        }
+
+        if (profileSkipButton) {
+          profileSkipButton.disabled = submitting;
+        }
+      };
+
+      const showStep = (step: 'signup' | 'profile' | 'complete'): void => {
+        signupStep.hidden = step !== 'signup';
+        profileStep.hidden = step !== 'profile';
+        completeStep.hidden = step !== 'complete';
+
+        const target =
+          step === 'signup'
+            ? signupStep
+            : step === 'profile'
+              ? profileStep
+              : completeStep;
+
+        requestAnimationFrame(() => {
+          const heading = target.querySelector<HTMLElement>('h3');
+
+          heading?.setAttribute('tabindex', '-1');
+          heading?.focus({ preventScroll: true });
+        });
+      };
+
+      const updateFieldState = (
+        field: HTMLInputElement | HTMLSelectElement,
+      ): void => {
+        const hasValue = field.value.trim().length > 0;
         const isValid = field.validity.valid;
 
         field.classList.toggle('is-valid', hasValue && isValid);
 
         if (isValid) {
           field.classList.remove('is-invalid');
-
           field.removeAttribute('aria-invalid');
         }
       };
 
-      const fieldCleanupFunctions: Array<() => void> = [];
+      const initializeFieldValidation = (
+        fields: Array<HTMLInputElement | HTMLSelectElement>,
+      ): void => {
+        for (const field of fields) {
+          const handleInvalid = (): void => {
+            field.classList.add('is-invalid');
+            field.classList.remove('is-valid');
+            field.setAttribute('aria-invalid', 'true');
+          };
 
-      for (const field of fields) {
-        const handleInvalid = (): void => {
-          field.classList.add('is-invalid');
+          const handleUpdate = (): void => {
+            updateFieldState(field);
+          };
 
-          field.classList.remove('is-valid');
+          field.addEventListener('invalid', handleInvalid);
+          field.addEventListener('input', handleUpdate);
+          field.addEventListener('change', handleUpdate);
+          field.addEventListener('blur', handleUpdate);
 
-          field.setAttribute('aria-invalid', 'true');
-        };
-
-        const handleFieldUpdate = (): void => {
-          updateFieldState(field);
-        };
-
-        field.addEventListener('invalid', handleInvalid);
-
-        field.addEventListener('input', handleFieldUpdate);
-
-        field.addEventListener('blur', handleFieldUpdate);
-
-        fieldCleanupFunctions.push(() => {
-          field.removeEventListener('invalid', handleInvalid);
-
-          field.removeEventListener('input', handleFieldUpdate);
-
-          field.removeEventListener('blur', handleFieldUpdate);
-        });
-      }
-
-      const resetSubmittingState = (): void => {
-        form.classList.remove('is-submitting');
-
-        form.removeAttribute('aria-busy');
-
-        if (submitButton) {
-          submitButton.disabled = false;
-
-          submitButton.removeAttribute('aria-busy');
-        }
-
-        syncSubmitLabel();
-
-        if (formStatus) {
-          formStatus.textContent = '';
-        }
-
-        if (resetTimer !== 0) {
-          window.clearTimeout(resetTimer);
-
-          resetTimer = 0;
+          cleanupFunctions.push(() => {
+            field.removeEventListener('invalid', handleInvalid);
+            field.removeEventListener('input', handleUpdate);
+            field.removeEventListener('change', handleUpdate);
+            field.removeEventListener('blur', handleUpdate);
+          });
         }
       };
 
-      const handleSubmit = (): void => {
-        if (!form.checkValidity()) {
+      const signupFields = Array.from(
+        signupForm.querySelectorAll<HTMLInputElement>('[data-launch-field]'),
+      );
+
+      const profileFields = Array.from(
+        profileForm.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
+          '[data-profile-field]',
+        ),
+      );
+
+      initializeFieldValidation(signupFields);
+      initializeFieldValidation(profileFields);
+
+      const syncSignupButtonLabel = (): void => {
+        if (signupForm.classList.contains('is-submitting') || !signupSubmitLabel) {
           return;
         }
 
-        form.classList.add('is-submitting');
-
-        form.setAttribute('aria-busy', 'true');
-
-        if (submitLabel) {
-          submitLabel.textContent = 'Saving your preferences…';
-        }
-
-        if (formStatus) {
-          formStatus.textContent = 'Saving your information and email preference.';
-        }
-
-        window.setTimeout(() => {
-          if (submitButton) {
-            submitButton.disabled = true;
-
-            submitButton.setAttribute('aria-busy', 'true');
-          }
-        }, 0);
-
-        resetTimer = window.setTimeout(resetSubmittingState, 12000);
+        signupSubmitLabel.textContent =
+          marketingConsentCheckbox?.checked === false
+            ? 'Save My Preference'
+            : 'Join the Founding Pack';
       };
 
-      marketingConsentCheckbox?.addEventListener('change', syncSubmitLabel);
+      const handleMarketingConsentChange = (): void => {
+        syncSignupButtonLabel();
+      };
 
-      syncSubmitLabel();
+      const handleSignupSubmit = async (event: SubmitEvent): Promise<void> => {
+        if (!signupForm.checkValidity()) {
+          return;
+        }
 
-      form.addEventListener('submit', handleSubmit);
+        event.preventDefault();
 
-      window.addEventListener('pageshow', resetSubmittingState);
+        clearStatus(signupStatus);
+
+        setSignupSubmitting(true);
+
+        try {
+          const formData = new FormData(signupForm);
+
+          const response = await fetch(signupForm.action, {
+            method: 'POST',
+
+            headers: {
+              Accept: 'application/json',
+            },
+
+            body: formData,
+          });
+
+          const body = (await response.json().catch(() => null)) as
+            | NewsletterSignupResponse
+            | null;
+
+          if (!response.ok || body?.ok !== true) {
+            throw new Error(
+              body?.message ??
+                'We could not save your Founding Pack signup. Please try again.',
+            );
+          }
+
+          foundingPackEmail = emailField.value.trim().toLowerCase();
+
+          showStep('profile');
+        } catch (error) {
+          const message =
+            error instanceof Error
+              ? error.message
+              : 'We could not save your Founding Pack signup. Please try again.';
+
+          showStatus(signupStatus, message, 'error');
+        } finally {
+          setSignupSubmitting(false);
+        }
+      };
+
+      const handleProfileSubmit = async (event: SubmitEvent): Promise<void> => {
+        event.preventDefault();
+
+        if (!profileForm.checkValidity()) {
+          profileForm.reportValidity();
+
+          return;
+        }
+
+        clearStatus(profileStatus);
+
+        setProfileSubmitting(true);
+
+        try {
+          const petNameField =
+            profileForm.querySelector<HTMLInputElement>('[name="pet-name"]');
+
+          const petTypeField =
+            profileForm.querySelector<HTMLSelectElement>('[name="pet-type"]');
+
+          const petPersonalityField =
+            profileForm.querySelector<HTMLSelectElement>(
+              '[name="pet-personality"]',
+            );
+
+          const selectedLaunchInterest =
+            profileForm.querySelector<HTMLInputElement>(
+              '[name="launch-interest"]:checked',
+            );
+
+          const botField =
+            profileForm.querySelector<HTMLInputElement>(
+              '[data-profile-bot-field]',
+            );
+
+          if (!petNameField || !petTypeField) {
+            throw new Error('The pet profile form is unavailable. Please try again.');
+          }
+
+          const response = await fetch('/api/founding-pack/profile', {
+            method: 'POST',
+
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+
+            body: JSON.stringify({
+              email: foundingPackEmail,
+              petName: petNameField.value,
+              petType: petTypeField.value,
+              petPersonality: petPersonalityField?.value || undefined,
+              launchInterest: selectedLaunchInterest?.value || undefined,
+              botField: botField?.value || undefined,
+            }),
+          });
+
+          const body = (await response.json().catch(() => null)) as
+            | PetProfileResponse
+            | null;
+
+          if (!response.ok || body?.ok !== true) {
+            throw new Error(
+              body?.message ?? 'We could not save your pet profile. Please try again.',
+            );
+          }
+
+          if (completeMessage) {
+            completeMessage.textContent =
+              body.message ??
+              `Thanks for introducing ${petNameField.value.trim()} to Maxi. You're officially part of the Founding Pack.`;
+          }
+
+          showStep('complete');
+        } catch (error) {
+          const message =
+            error instanceof Error
+              ? error.message
+              : 'We could not save your pet profile. Please try again.';
+
+          showStatus(profileStatus, message, 'error');
+        } finally {
+          setProfileSubmitting(false);
+        }
+      };
+
+      const handleSkipProfile = (): void => {
+        if (completeMessage) {
+          completeMessage.textContent =
+            "You're officially part of the Maxi Pawz Founding Pack. You can tell us more about your pet another time.";
+        }
+
+        showStep('complete');
+      };
+
+      const handlePageShow = (): void => {
+        setSignupSubmitting(false);
+        setProfileSubmitting(false);
+      };
+
+      marketingConsentCheckbox?.addEventListener(
+        'change',
+        handleMarketingConsentChange,
+      );
+
+      signupForm.addEventListener('submit', handleSignupSubmit);
+
+      profileForm.addEventListener('submit', handleProfileSubmit);
+
+      profileSkipButton?.addEventListener('click', handleSkipProfile);
+
+      window.addEventListener('pageshow', handlePageShow);
+
+      syncSignupButtonLabel();
 
       const cleanup = (): void => {
-        if (resetTimer !== 0) {
-          window.clearTimeout(resetTimer);
+        marketingConsentCheckbox?.removeEventListener(
+          'change',
+          handleMarketingConsentChange,
+        );
 
-          resetTimer = 0;
-        }
+        signupForm.removeEventListener('submit', handleSignupSubmit);
 
-        marketingConsentCheckbox?.removeEventListener('change', syncSubmitLabel);
+        profileForm.removeEventListener('submit', handleProfileSubmit);
 
-        form.removeEventListener('submit', handleSubmit);
+        profileSkipButton?.removeEventListener('click', handleSkipProfile);
 
-        window.removeEventListener('pageshow', resetSubmittingState);
+        window.removeEventListener('pageshow', handlePageShow);
 
-        for (const cleanupField of fieldCleanupFunctions) {
+        for (const cleanupField of cleanupFunctions) {
           cleanupField();
         }
+
+        delete section.dataset.launchFormInitialized;
       };
 
       document.addEventListener('astro:before-swap', cleanup, {

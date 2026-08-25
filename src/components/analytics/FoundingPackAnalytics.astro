@@ -1,0 +1,296 @@
+---
+const analyticsEnabled =
+    import.meta.env.PROD && import.meta.env.PUBLIC_ANALYTICS_ENABLED === 'true';
+
+const gaMeasurementId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID?.trim() ?? '';
+
+const clarityProjectId = import.meta.env.PUBLIC_CLARITY_PROJECT_ID?.trim() ?? '';
+
+const gaEnabled = analyticsEnabled && gaMeasurementId.startsWith('G-');
+
+const clarityEnabled = analyticsEnabled && clarityProjectId.length > 0;
+---
+
+{
+    (gaEnabled || clarityEnabled) && (
+        <script
+        is:inline
+        define:vars={{
+            gaEnabled,
+            clarityEnabled,
+        }}
+        >
+        (() => {
+            const initializeFoundingPackAnalytics = () => {
+            const section = document.querySelector(
+                '[data-launch-signup]',
+            );
+
+            if (
+                !(section instanceof HTMLElement) ||
+                section.dataset.foundingPackAnalyticsInitialized ===
+                'true'
+            ) {
+                return;
+            }
+
+            const signupForm = section.querySelector(
+                '[data-launch-form]',
+            );
+
+            const profileForm = section.querySelector(
+                '[data-pet-profile-form]',
+            );
+
+            const profileStep = section.querySelector(
+                '[data-founding-pack-step="profile"]',
+            );
+
+            const completeStep = section.querySelector(
+                '[data-founding-pack-step="complete"]',
+            );
+
+            const skipButton = section.querySelector(
+                '[data-profile-skip]',
+            );
+
+            if (
+                !(signupForm instanceof HTMLFormElement) ||
+                !(profileForm instanceof HTMLFormElement) ||
+                !(profileStep instanceof HTMLElement) ||
+                !(completeStep instanceof HTMLElement)
+            ) {
+                return;
+            }
+
+            section.dataset.foundingPackAnalyticsInitialized =
+                'true';
+
+            const cleanupFunctions = [];
+
+            const track = (eventName) => {
+                const storageKey = [
+                'maxipawz',
+                'founding-pack',
+                window.location.pathname,
+                eventName,
+                ].join(':');
+
+                let alreadyTracked = false;
+
+                try {
+                alreadyTracked =
+                    window.sessionStorage.getItem(storageKey) ===
+                    '1';
+                } catch {
+                alreadyTracked = false;
+                }
+
+                if (alreadyTracked) {
+                return;
+                }
+
+                /*
+                * Deliberately no customer or pet-profile
+                * parameters are attached to these events.
+                *
+                * We only need funnel-stage measurement.
+                */
+                if (
+                gaEnabled &&
+                typeof window.gtag === 'function'
+                ) {
+                window.gtag('event', eventName);
+                }
+
+                if (
+                clarityEnabled &&
+                typeof window.clarity === 'function'
+                ) {
+                window.clarity('event', eventName);
+                }
+
+                try {
+                window.sessionStorage.setItem(
+                    storageKey,
+                    '1',
+                );
+                } catch {
+                // Analytics must never interrupt the form.
+                }
+            };
+
+            let signupStarted = false;
+
+            const handleSignupInteraction = () => {
+                if (signupStarted) {
+                return;
+                }
+
+                signupStarted = true;
+
+                track('founding_pack_signup_started');
+            };
+
+            signupForm.addEventListener(
+                'input',
+                handleSignupInteraction,
+                {
+                once: true,
+                },
+            );
+
+            signupForm.addEventListener(
+                'focusin',
+                handleSignupInteraction,
+                {
+                once: true,
+                },
+            );
+
+            cleanupFunctions.push(() => {
+                signupForm.removeEventListener(
+                'input',
+                handleSignupInteraction,
+                );
+
+                signupForm.removeEventListener(
+                'focusin',
+                handleSignupInteraction,
+                );
+            });
+
+            let profileWasVisible = !profileStep.hidden;
+
+            const profileObserver = new MutationObserver(() => {
+                const profileIsVisible = !profileStep.hidden;
+
+                if (
+                profileIsVisible &&
+                !profileWasVisible
+                ) {
+                /*
+                * LaunchSignup only reveals Step 2 after the
+                * newsletter endpoint confirms success.
+                */
+                track('founding_pack_signup_completed');
+
+                track('founding_pack_profile_viewed');
+                }
+
+                profileWasVisible = profileIsVisible;
+            });
+
+            profileObserver.observe(profileStep, {
+                attributes: true,
+
+                attributeFilter: ['hidden'],
+            });
+
+            cleanupFunctions.push(() => {
+                profileObserver.disconnect();
+            });
+
+            let profileSubmissionPending = false;
+
+            const handleProfileSubmit = () => {
+                if (!profileForm.checkValidity()) {
+                return;
+                }
+
+                profileSubmissionPending = true;
+            };
+
+            profileForm.addEventListener(
+                'submit',
+                handleProfileSubmit,
+            );
+
+            cleanupFunctions.push(() => {
+                profileForm.removeEventListener(
+                'submit',
+                handleProfileSubmit,
+                );
+            });
+
+            const handleSkip = () => {
+                profileSubmissionPending = false;
+
+                track('founding_pack_profile_skipped');
+            };
+
+            skipButton?.addEventListener(
+                'click',
+                handleSkip,
+            );
+
+            cleanupFunctions.push(() => {
+                skipButton?.removeEventListener(
+                'click',
+                handleSkip,
+                );
+            });
+
+            let completeWasVisible = !completeStep.hidden;
+
+            const completeObserver = new MutationObserver(() => {
+                const completeIsVisible =
+                !completeStep.hidden;
+
+                if (
+                completeIsVisible &&
+                !completeWasVisible &&
+                profileSubmissionPending
+                ) {
+                /*
+                * The completion step only appears after the
+                * profile API has returned success.
+                */
+                track('founding_pack_profile_completed');
+
+                profileSubmissionPending = false;
+                }
+
+                completeWasVisible = completeIsVisible;
+            });
+
+            completeObserver.observe(completeStep, {
+                attributes: true,
+
+                attributeFilter: ['hidden'],
+            });
+
+            cleanupFunctions.push(() => {
+                completeObserver.disconnect();
+            });
+
+            const cleanup = () => {
+                cleanupFunctions.forEach(
+                (cleanupFunction) => {
+                    cleanupFunction();
+                },
+                );
+
+                delete section.dataset
+                .foundingPackAnalyticsInitialized;
+            };
+
+            document.addEventListener(
+                'astro:before-swap',
+                cleanup,
+                {
+                once: true,
+                },
+            );
+            };
+
+            initializeFoundingPackAnalytics();
+
+            document.addEventListener(
+            'astro:page-load',
+            initializeFoundingPackAnalytics,
+            );
+        })();
+        </script>
+    )
+}
