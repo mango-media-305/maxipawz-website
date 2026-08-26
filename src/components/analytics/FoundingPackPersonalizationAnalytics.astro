@@ -44,8 +44,7 @@ const clarityEnabled =
     type FoundingPackPersonalizedGuideSlug,
   } from '../../types/founding-pack-personalization';
 
-  interface MaxiPawzAnalyticsWindow
-    extends Window {
+  interface MaxiPawzAnalyticsWindow extends Window {
     gtag?: (
       command: string,
       eventName: string,
@@ -79,8 +78,14 @@ const clarityEnabled =
   const GUIDE_LINK_SELECTOR =
     '[data-guide-interactive]';
 
+  const WELCOME_SECTION_SELECTOR =
+    '[data-founding-pet-welcome]';
+
   const RECOMMENDATION_VISIBILITY_THRESHOLD =
     0.5;
+
+  const WELCOME_VISIBILITY_THRESHOLD =
+    0.35;
 
   const isPersonalizedGuideSlug =
     (
@@ -125,7 +130,7 @@ const clarityEnabled =
         'true';
 
       /*
-       * Analytics remains a complete no-op outside the
+       * Analytics remains completely inactive outside the
        * configured production analytics environment.
        */
       if (
@@ -136,8 +141,7 @@ const clarityEnabled =
       }
 
       const analyticsWindow =
-        window as
-          MaxiPawzAnalyticsWindow;
+        window as MaxiPawzAnalyticsWindow;
 
       let currentProfile:
         FoundingPackPersonalizationProfile |
@@ -149,6 +153,11 @@ const clarityEnabled =
         [];
 
       let recommendationObserver:
+        IntersectionObserver |
+        null =
+        null;
+
+      let welcomeObserver:
         IntersectionObserver |
         null =
         null;
@@ -200,9 +209,7 @@ const clarityEnabled =
             profile.savedAt,
 
             ...(discriminator
-              ? [
-                  discriminator,
-                ]
+              ? [discriminator]
               : []),
           ].join(
             ':',
@@ -319,10 +326,8 @@ const clarityEnabled =
                 guideSlug,
             );
 
-          return index >=
-            0
-            ? index +
-                1
+          return index >= 0
+            ? index + 1
             : 0;
         };
 
@@ -370,6 +375,47 @@ const clarityEnabled =
               },
             );
 
+          if (
+            hasTracked(
+              analyticsEvent.eventName,
+              profile,
+            )
+          ) {
+            return;
+          }
+
+          sendAnalyticsEvent(
+            analyticsEvent.eventName,
+            analyticsEvent.parameters,
+          );
+        };
+
+      const trackWelcomeViewed =
+        (
+          profile:
+            FoundingPackPersonalizationProfile,
+        ): void => {
+          const context =
+            buildFoundingPackAnalyticsContext(
+              profile,
+            );
+
+          const analyticsEvent =
+            buildFoundingPackAnalyticsEvent(
+              {
+                event:
+                  'founding_pet_welcome_viewed',
+
+                ...context,
+              },
+            );
+
+          /*
+           * This is an impression, not an action.
+           *
+           * Count it only once per saved profile during
+           * the browser session.
+           */
           if (
             hasTracked(
               analyticsEvent.eventName,
@@ -436,10 +482,6 @@ const clarityEnabled =
               },
             );
 
-          /*
-           * A recommended guide is counted once per
-           * browser session for this exact saved profile.
-           */
           if (
             hasTracked(
               analyticsEvent.eventName,
@@ -507,11 +549,41 @@ const clarityEnabled =
             );
 
           /*
-           * Clicks are intentionally NOT session-deduped.
+           * Clicks are deliberate user actions and are
+           * intentionally not deduplicated.
+           */
+          sendAnalyticsEvent(
+            analyticsEvent.eventName,
+            analyticsEvent.parameters,
+          );
+        };
+
+      const trackPersonalizationForgotten =
+        (
+          profile:
+            FoundingPackPersonalizationProfile,
+        ): void => {
+          const context =
+            buildFoundingPackAnalyticsContext(
+              profile,
+            );
+
+          const analyticsEvent =
+            buildFoundingPackAnalyticsEvent(
+              {
+                event:
+                  'founding_pet_personalization_forgotten',
+
+                ...context,
+              },
+            );
+
+          /*
+           * Forget is also a deliberate user action.
            *
-           * A click is a real user action. If the visitor
-           * deliberately clicks the same guide twice, GA4
-           * should receive two click events.
+           * Do not session-dedupe it. If a visitor later
+           * creates another profile and forgets that one,
+           * both actions should be measurable.
            */
           sendAnalyticsEvent(
             analyticsEvent.eventName,
@@ -524,6 +596,14 @@ const clarityEnabled =
           recommendationObserver?.disconnect();
 
           recommendationObserver =
+            null;
+        };
+
+      const disconnectWelcomeObserver =
+        (): void => {
+          welcomeObserver?.disconnect();
+
+          welcomeObserver =
             null;
         };
 
@@ -549,10 +629,9 @@ const clarityEnabled =
             )
           ) {
             /*
-             * Without IntersectionObserver we deliberately
-             * avoid manufacturing impressions.
-             *
-             * Click tracking continues to work normally.
+             * We deliberately avoid manufacturing
+             * impressions when visibility cannot be
+             * measured reliably.
              */
             return;
           }
@@ -651,6 +730,81 @@ const clarityEnabled =
           }
         };
 
+      const observeWelcomeBack =
+        (): void => {
+          disconnectWelcomeObserver();
+
+          const profile =
+            currentProfile;
+
+          if (!profile) {
+            return;
+          }
+
+          const welcomeSection =
+            document.querySelector<HTMLElement>(
+              WELCOME_SECTION_SELECTOR,
+            );
+
+          if (!welcomeSection) {
+            return;
+          }
+
+          if (
+            !(
+              'IntersectionObserver' in
+              window
+            )
+          ) {
+            /*
+             * Just like guide recommendations, we avoid
+             * claiming an impression if we cannot observe
+             * viewport visibility.
+             */
+            return;
+          }
+
+          welcomeObserver =
+            new IntersectionObserver(
+              (
+                entries,
+                observer,
+              ) => {
+                for (
+                  const entry of
+                  entries
+                ) {
+                  if (
+                    !entry.isIntersecting ||
+                    entry.intersectionRatio <
+                      WELCOME_VISIBILITY_THRESHOLD
+                  ) {
+                    continue;
+                  }
+
+                  trackWelcomeViewed(
+                    profile,
+                  );
+
+                  observer.unobserve(
+                    entry.target,
+                  );
+                }
+              },
+              {
+                threshold:
+                  WELCOME_VISIBILITY_THRESHOLD,
+
+                rootMargin:
+                  '0px 0px -6% 0px',
+              },
+            );
+
+          welcomeObserver.observe(
+            welcomeSection,
+          );
+        };
+
       const attachGuideClickTracking =
         (): void => {
           const cards =
@@ -718,16 +872,16 @@ const clarityEnabled =
           );
 
           /*
-           * PetGuidesPreview applies its browser
-           * personalization during page initialization.
+           * The personalization UI and Pet Guides both
+           * react to the same browser profile.
            *
-           * One animation frame gives DOM reordering a
-           * chance to settle before we determine actual
-           * recommendation positions and start measuring
-           * visibility.
+           * Wait one frame so their DOM state can settle
+           * before viewport observation begins.
            */
           window.requestAnimationFrame(
             () => {
+              observeWelcomeBack();
+
               observeRecommendations();
             },
           );
@@ -742,6 +896,8 @@ const clarityEnabled =
             setCurrentProfile(
               null,
             );
+
+            disconnectWelcomeObserver();
 
             disconnectRecommendationObserver();
 
@@ -772,11 +928,10 @@ const clarityEnabled =
           }
 
           /*
-           * Never trust arbitrary CustomEvent data.
+           * CustomEvent payloads are browser-controlled.
            *
-           * Run it through the same versioned browser
-           * profile parser before allowing it into the
-           * analytics layer.
+           * Validate them against the versioned safe
+           * personalization contract before analytics.
            */
           let serialized:
             string;
@@ -810,46 +965,51 @@ const clarityEnabled =
 
       const handleForgottenProfile =
         (): void => {
+          /*
+           * FoundingPackWelcomeBack removes localStorage
+           * before dispatching the forgotten event.
+           *
+           * Therefore we intentionally use the validated
+           * profile already held in memory here.
+           */
+          const profile =
+            currentProfile;
+
+          if (profile) {
+            trackPersonalizationForgotten(
+              profile,
+            );
+          }
+
+          disconnectWelcomeObserver();
+
+          disconnectRecommendationObserver();
+
           setCurrentProfile(
             null,
           );
-
-          disconnectRecommendationObserver();
         };
 
       /*
-       * Attach click handlers once.
-       *
-       * PetGuidesPreview reorders existing cards rather
-       * than replacing them, so the listeners remain valid
-       * after personalization changes the DOM order.
+       * Cards are moved during personalization but not
+       * replaced, so one click-listener attachment is
+       * sufficient for the component lifecycle.
        */
       attachGuideClickTracking();
 
       /*
-       * Existing visitor profile:
+       * Existing saved profile:
        *
-       * homepage load
-       *     ↓
-       * valid local profile
-       *     ↓
+       * homepage
+       *   ↓
        * personalization_loaded
-       *     ↓
-       * recommendation impression observation
+       *   ↓
+       * Welcome Back impression
+       *   ↓
+       * recommendation impressions
        */
       activateStoredProfile();
 
-      /*
-       * Newly saved profile:
-       *
-       * profile API succeeds
-       *     ↓
-       * persistence adapter stores safe local profile
-       *     ↓
-       * saved event
-       *     ↓
-       * lifecycle + recommendation analytics refresh
-       */
       window.addEventListener(
         PERSONALIZATION_SAVED_EVENT,
         handleSavedProfile,
@@ -862,6 +1022,8 @@ const clarityEnabled =
 
       const cleanup =
         (): void => {
+          disconnectWelcomeObserver();
+
           disconnectRecommendationObserver();
 
           window.removeEventListener(
