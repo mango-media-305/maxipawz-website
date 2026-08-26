@@ -6,6 +6,10 @@ import {
     submitFoundingPackPetProfile,
 } from '../../src/server/founding-pack/pet-profile';
 
+import {
+    syncFoundingPackSegmentationToResend,
+} from '../../src/server/founding-pack/resend-segmentation';
+
 interface FoundingPackProfileSuccessResponse {
     ok: true;
 
@@ -28,36 +32,72 @@ type FoundingPackProfileResponse =
     | FoundingPackProfileSuccessResponse
     | FoundingPackProfileErrorResponse;
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null && !Array.isArray(value);
+function isRecord(
+    value: unknown,
+): value is Record<
+    string,
+    unknown
+> {
+    return (
+        typeof value ===
+        'object' &&
+        value !==
+        null &&
+        !Array.isArray(
+            value,
+        )
+    );
 }
 
-function optionalString(value: unknown): string | undefined {
-    if (typeof value !== 'string') {
+function optionalString(
+    value: unknown,
+): string | undefined {
+    if (
+        typeof value !==
+        'string'
+    ) {
         return undefined;
     }
 
-    const normalized = value.trim();
+    const normalized =
+        value.trim();
 
-    return normalized || undefined;
+    return normalized ||
+        undefined;
 }
 
 function requiredString(
-    value: unknown,
+    value:
+        unknown,
 
-    message: string,
+    message:
+        string,
 ): string {
-    const normalized = optionalString(value);
+    const normalized =
+        optionalString(
+            value,
+        );
 
     if (!normalized) {
-        throw new FoundingPackPetProfileError('invalid-pet-name', 400, message);
+        throw new FoundingPackPetProfileError(
+            'invalid-pet-name',
+            400,
+            message,
+        );
     }
 
     return normalized;
 }
 
-function parseRequest(value: unknown) {
-    if (!isRecord(value)) {
+function parseRequest(
+    value:
+        unknown,
+) {
+    if (
+        !isRecord(
+            value,
+        )
+    ) {
         throw new FoundingPackPetProfileError(
             'invalid-pet-name',
             400,
@@ -65,138 +105,223 @@ function parseRequest(value: unknown) {
         );
     }
 
-    const email = requiredString(value.email, 'An email address is required.');
+    const email =
+        requiredString(
+            value.email,
+            'An email address is required.',
+        );
 
-    const petName = requiredString(value.petName, "Please enter your pet's name.");
+    const petName =
+        requiredString(
+            value.petName,
+            "Please enter your pet's name.",
+        );
 
-    const petType = requiredString(value.petType, 'Please select your pet type.');
+    const petType =
+        requiredString(
+            value.petType,
+            'Please select your pet type.',
+        );
 
-    const petPersonality = optionalString(value.petPersonality);
+    const petPersonality =
+        optionalString(
+            value.petPersonality,
+        );
 
-    const launchInterest = optionalString(value.launchInterest);
+    const launchInterest =
+        optionalString(
+            value.launchInterest,
+        );
 
-    const botField = optionalString(value.botField);
+    const botField =
+        optionalString(
+            value.botField,
+        );
 
     return {
         email,
-
         petName,
-
         petType,
-
         petPersonality,
-
         launchInterest,
-
         botField,
     };
 }
 
 function jsonResponse(
-    body: FoundingPackProfileResponse,
+    body:
+        FoundingPackProfileResponse,
 
-    status: number,
+    status:
+        number,
 ): Response {
-    return Response.json(body, {
-        status,
+    return Response.json(
+        body,
+        {
+            status,
 
-        headers: {
-            'Cache-Control': 'no-store, max-age=0',
+            headers: {
+                'Cache-Control':
+                    'no-store, max-age=0',
+            },
         },
-    });
+    );
 }
 
-export default async function handler(request: Request): Promise<Response> {
-    if (request.method !== 'POST') {
+export default async function handler(
+    request:
+        Request,
+): Promise<Response> {
+    if (
+        request.method !==
+        'POST'
+    ) {
         return jsonResponse(
             {
-                ok: false,
+                ok:
+                    false,
 
-                message: 'This endpoint accepts POST requests only.',
+                message:
+                    'This endpoint accepts POST requests only.',
             },
             405,
         );
     }
 
     try {
-        const rawRequest = await request.json().catch(() => null);
+        const rawRequest =
+            await request
+                .json()
+                .catch(
+                    () =>
+                        null,
+                );
 
-        const payload = parseRequest(rawRequest);
+        const payload =
+            parseRequest(
+                rawRequest,
+            );
 
         /*
          * Manual honeypot.
          *
-         * As with the newsletter and back-in-stock endpoints, bots receive
-         * an apparent successful response while no data is written.
+         * Bots receive an apparent successful response while
+         * no profile or segmentation data is written.
          */
-        if (payload.botField) {
+        if (
+            payload.botField
+        ) {
             return jsonResponse(
                 {
-                    ok: true,
+                    ok:
+                        true,
 
-                    accepted: true,
+                    accepted:
+                        true,
 
-                    profileSaved: true,
+                    profileSaved:
+                        true,
 
-                    message: 'Your pet profile has been saved.',
+                    message:
+                        'Your pet profile has been saved.',
                 },
                 202,
             );
         }
 
-        const input = parseFoundingPackPetProfileInput(
-            payload.email,
+        const input =
+            parseFoundingPackPetProfileInput(
+                payload.email,
+                payload.petName,
+                payload.petType,
+                payload.petPersonality,
+                payload.launchInterest,
+            );
 
-            payload.petName,
+        const result =
+            await submitFoundingPackPetProfile(
+                input,
+            );
 
-            payload.petType,
-
-            payload.petPersonality,
-
-            payload.launchInterest,
-        );
-
-        const result = await submitFoundingPackPetProfile(input);
+        /*
+         * The pet-profile write is the primary operation.
+         *
+         * Resend segmentation is secondary enrichment.
+         * A provider/configuration failure must never convert
+         * an already-saved profile into a failed customer
+         * experience.
+         */
+        try {
+            await syncFoundingPackSegmentationToResend(
+                input.email,
+            );
+        } catch (error) {
+            console.error(
+                'Founding Pack profile was saved, but Resend segmentation synchronization failed.',
+                {
+                    error,
+                },
+            );
+        }
 
         return jsonResponse(
             {
-                ok: true,
+                ok:
+                    true,
 
                 ...result,
 
-                message: `Thanks for introducing ${input.petName} to Maxi.`,
+                message:
+                    `Thanks for introducing ${input.petName} to Maxi.`,
             },
             201,
         );
     } catch (error) {
-        if (error instanceof FoundingPackPetProfileError) {
-            console.warn('Founding Pack pet profile could not be saved.', {
-                code: error.code,
+        if (
+            error instanceof
+            FoundingPackPetProfileError
+        ) {
+            console.warn(
+                'Founding Pack pet profile could not be saved.',
+                {
+                    code:
+                        error.code,
 
-                status: error.status,
+                    status:
+                        error.status,
 
-                message: error.message,
-            });
+                    message:
+                        error.message,
+                },
+            );
 
             return jsonResponse(
                 {
-                    ok: false,
+                    ok:
+                        false,
 
-                    code: error.code,
+                    code:
+                        error.code,
 
-                    message: error.message,
+                    message:
+                        error.message,
                 },
                 error.status,
             );
         }
 
-        console.error('Unexpected Founding Pack pet profile failure.', error);
+        console.error(
+            'Unexpected Founding Pack pet profile failure.',
+            error,
+        );
 
         return jsonResponse(
             {
-                ok: false,
+                ok:
+                    false,
 
-                message: 'Pet profiles are temporarily unavailable. Please try again.',
+                message:
+                    'Pet profiles are temporarily unavailable. Please try again.',
             },
             500,
         );
@@ -204,21 +329,29 @@ export default async function handler(request: Request): Promise<Response> {
 }
 
 export const config: Config = {
-    path: '/api/founding-pack/profile',
+    path:
+        '/api/founding-pack/profile',
 
-    method: 'POST',
+    method:
+        'POST',
 
     /*
      * Public profile-enrichment endpoint.
      *
-     * Five attempts per minute per IP/domain is more than enough for a
-     * normal visitor while limiting automated writes to Netlify Blobs.
+     * Five attempts per minute per IP/domain is more than
+     * enough for a normal visitor while limiting automated
+     * writes to Netlify Blobs and Resend.
      */
     rateLimit: {
-        windowLimit: 5,
+        windowLimit:
+            5,
 
-        windowSize: 60,
+        windowSize:
+            60,
 
-        aggregateBy: ['ip', 'domain'],
+        aggregateBy: [
+            'ip',
+            'domain',
+        ],
     },
 };
