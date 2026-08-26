@@ -1,0 +1,229 @@
+---
+const analyticsEnabled =
+    import.meta.env.PROD && import.meta.env.PUBLIC_ANALYTICS_ENABLED === 'true';
+
+const gaMeasurementId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID?.trim() ?? '';
+
+const clarityProjectId = import.meta.env.PUBLIC_CLARITY_PROJECT_ID?.trim() ?? '';
+
+const gaEnabled = analyticsEnabled && gaMeasurementId.startsWith('G-');
+
+const clarityEnabled = analyticsEnabled && clarityProjectId.length > 0;
+---
+
+<div
+    hidden
+    aria-hidden="true"
+    data-founding-pack-personalization-analytics
+    data-ga-enabled={String(gaEnabled)}
+    data-clarity-enabled={String(clarityEnabled)}
+>
+</div>
+
+<script>
+    import {
+        buildFoundingPackAnalyticsContext,
+        buildFoundingPackAnalyticsEvent,
+    } from '../../lib/founding-pack-personalization-analytics';
+
+    import {
+        deserializeFoundingPackPersonalizationProfile,
+        getPersonalizedGuidePriorities,
+    } from '../../lib/founding-pack-personalization';
+
+    import {
+        FOUNDING_PACK_PERSONALIZATION_STORAGE_KEY,
+        type FoundingPackPersonalizationProfile,
+    } from '../../types/founding-pack-personalization';
+
+    interface MaxiPawzAnalyticsWindow extends Window {
+        gtag?: (
+        command: string,
+        eventName: string,
+        parameters?: Record<string, boolean | number | string>,
+        ) => void;
+
+        clarity?: (command: string, eventName: string) => void;
+    }
+
+    const PERSONALIZATION_SAVED_EVENT = 'maxipawz:founding-pet-personalization-saved';
+
+    const ANALYTICS_COMPONENT_SELECTOR = '[data-founding-pack-personalization-analytics]';
+
+    const initializeFoundingPackPersonalizationAnalytics = (): void => {
+        const element = document.querySelector<HTMLElement>(ANALYTICS_COMPONENT_SELECTOR);
+
+        if (!element || element.dataset.foundingPackPersonalizationAnalyticsInitialized === 'true') {
+        return;
+        }
+
+        element.dataset.foundingPackPersonalizationAnalyticsInitialized = 'true';
+
+        const gaEnabled = element.dataset.gaEnabled === 'true';
+
+        const clarityEnabled = element.dataset.clarityEnabled === 'true';
+
+        /*
+        * Analytics is intentionally a no-op whenever the
+        * production analytics configuration is disabled.
+        */
+        if (!gaEnabled && !clarityEnabled) {
+        return;
+        }
+
+        const analyticsWindow = window as MaxiPawzAnalyticsWindow;
+
+        const readStoredProfile = (): FoundingPackPersonalizationProfile | null => {
+        try {
+            const serialized = window.localStorage.getItem(FOUNDING_PACK_PERSONALIZATION_STORAGE_KEY);
+
+            if (!serialized) {
+            return null;
+            }
+
+            return deserializeFoundingPackPersonalizationProfile(serialized);
+        } catch {
+            /*
+            * Analytics must never interfere with the
+            * visitor experience or personalization UI.
+            */
+            return null;
+        }
+        };
+
+        const wasTracked = (
+        eventName: string,
+
+        profile: FoundingPackPersonalizationProfile,
+        ): boolean => {
+        const storageKey = [
+            'maxipawz',
+            'personalization-analytics',
+            window.location.pathname,
+            eventName,
+            profile.savedAt,
+        ].join(':');
+
+        try {
+            if (window.sessionStorage.getItem(storageKey) === '1') {
+            return true;
+            }
+
+            window.sessionStorage.setItem(storageKey, '1');
+
+            return false;
+        } catch {
+            /*
+            * If sessionStorage is unavailable, analytics
+            * remains best-effort rather than affecting UX.
+            */
+            return false;
+        }
+        };
+
+        const trackPersonalizationLoaded = (profile: FoundingPackPersonalizationProfile): void => {
+        const guidePriorities = getPersonalizedGuidePriorities(profile);
+
+        const context = buildFoundingPackAnalyticsContext(profile);
+
+        const analyticsEvent = buildFoundingPackAnalyticsEvent({
+            event: 'founding_pet_personalization_loaded',
+
+            ...context,
+
+            personalizedGuideCount: guidePriorities.length,
+        });
+
+        if (wasTracked(analyticsEvent.eventName, profile)) {
+            return;
+        }
+
+        if (gaEnabled && typeof analyticsWindow.gtag === 'function') {
+            analyticsWindow.gtag('event', analyticsEvent.eventName, analyticsEvent.parameters);
+        }
+
+        if (clarityEnabled && typeof analyticsWindow.clarity === 'function') {
+            analyticsWindow.clarity('event', analyticsEvent.eventName);
+        }
+        };
+
+        const trackStoredProfile = (): void => {
+        const profile = readStoredProfile();
+
+        if (!profile) {
+            return;
+        }
+
+        trackPersonalizationLoaded(profile);
+        };
+
+        const handleSavedProfile = (event: Event): void => {
+        const customEvent = event as CustomEvent<FoundingPackPersonalizationProfile>;
+
+        /*
+        * The saved event already carries the safe,
+        * browser-only profile contract.
+        *
+        * We still fall back to localStorage if detail is
+        * missing rather than trusting an invalid shape.
+        */
+        const eventProfile = customEvent.detail;
+
+        if (!eventProfile) {
+            trackStoredProfile();
+
+            return;
+        }
+
+        const serialized = JSON.stringify(eventProfile);
+
+        const profile = deserializeFoundingPackPersonalizationProfile(serialized);
+
+        if (!profile) {
+            trackStoredProfile();
+
+            return;
+        }
+
+        trackPersonalizationLoaded(profile);
+        };
+
+        /*
+        * Existing profile:
+        *
+        * Browser loads homepage
+        *       ↓
+        * valid local profile
+        *       ↓
+        * personalization_loaded
+        */
+        trackStoredProfile();
+
+        /*
+        * Newly-created profile:
+        *
+        * profile API succeeds
+        *       ↓
+        * persistence adapter saves local profile
+        *       ↓
+        * saved event
+        *       ↓
+        * personalization_loaded
+        */
+        window.addEventListener(PERSONALIZATION_SAVED_EVENT, handleSavedProfile);
+
+        const cleanup = (): void => {
+        window.removeEventListener(PERSONALIZATION_SAVED_EVENT, handleSavedProfile);
+
+        delete element.dataset.foundingPackPersonalizationAnalyticsInitialized;
+        };
+
+        document.addEventListener('astro:before-swap', cleanup, {
+        once: true,
+        });
+    };
+
+    initializeFoundingPackPersonalizationAnalytics();
+
+    document.addEventListener('astro:page-load', initializeFoundingPackPersonalizationAnalytics);
+</script>
