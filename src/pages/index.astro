@@ -11,6 +11,7 @@ import maxipawzLogo from '../assets/brand/maxipawz-horizontal-logo.webp';
 import FoundingPackAnalytics from '@components/analytics/FoundingPackAnalytics.astro';
 import BrandStorySection from '@components/home/BrandStorySection.astro';
 import FoundingPackPersonalizationPersistence from '@components/home/FoundingPackPersonalizationPersistence.astro';
+import FoundingPackWelcomeBack from '@components/home/FoundingPackWelcomeBack.astro';
 import HeroSection from '@components/home/HeroSection.astro';
 import HomeMotion from '@components/home/HomeMotion.astro';
 import LaunchSignup from '@components/home/LaunchSignup.astro';
@@ -201,7 +202,6 @@ const currentActions = [
   <div class="home-motion-scope" data-home-motion>
     <HeroSection />
 
-    <!-- Brand promises -->
     <section
       class="border-y border-sand bg-white-warm/65"
       aria-labelledby="why-maxipawz-title"
@@ -240,7 +240,6 @@ const currentActions = [
       </div>
     </section>
 
-    <!-- Functional prelaunch section -->
     {
       !isStoreLive && (
         <section class="section-spacing" aria-labelledby="useful-now-title">
@@ -320,6 +319,8 @@ const currentActions = [
     <div data-reveal>
       <BrandStorySection />
     </div>
+
+    <FoundingPackWelcomeBack />
 
     <div data-reveal>
       <PetGuidesPreview />

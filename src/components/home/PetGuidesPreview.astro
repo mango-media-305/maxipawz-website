@@ -1,4 +1,6 @@
 ---
+import { getCollection } from 'astro:content';
+
 import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
 import CheckCircleBold from 'phosphor-astro/CheckCircleBold.astro';
 import ConfettiBold from 'phosphor-astro/ConfettiBold.astro';
@@ -14,14 +16,12 @@ import Button from '../ui/Button.astro';
 
 import {
     homepagePetGuides,
+    type HomepagePetGuide,
     type PetGuideIcon,
     type PetGuideTone,
 } from '../../data/pet-guides';
 
-const iconByGuide: Record<
-    PetGuideIcon,
-    typeof PawPrintBold
-> = {
+const iconByGuide: Record<PetGuideIcon, typeof PawPrintBold> = {
     choosing: CheckCircleBold,
     play: ConfettiBold,
     travel: SuitcaseRollingBold,
@@ -31,99 +31,116 @@ const iconByGuide: Record<
     accessories: ShoppingBagOpenBold,
 };
 
-const cardToneClasses: Record<
-    PetGuideTone,
-    string
-> = {
+const cardToneClasses: Record<PetGuideTone, string> = {
     brand: [
         'border-brand-200',
-        'bg-linear-to-br from-brand-50 via-white-warm to-brand-100/80',
+        'bg-brand-50',
         'hover:border-brand-300',
         'focus-visible:border-brand-400',
     ].join(' '),
 
     accent: [
         'border-accent-200',
-        'bg-linear-to-br from-accent-50 via-white-warm to-accent-100/80',
+        'bg-accent-50',
         'hover:border-accent-300',
         'focus-visible:border-accent-400',
     ].join(' '),
 
     sand: [
         'border-sand-dark/70',
-        'bg-linear-to-br from-cream-soft via-white-warm to-sand/70',
+        'bg-cream-soft',
         'hover:border-sand-dark',
         'focus-visible:border-sand-dark',
     ].join(' '),
 };
 
-const iconToneClasses: Record<
-    PetGuideTone,
-    string
-> = {
-    brand:
-        'bg-brand-500 text-white shadow-blue',
+const iconToneClasses: Record<PetGuideTone, string> = {
+    brand: 'bg-brand-500 text-white shadow-blue',
 
-    accent:
-        'bg-accent-500 text-ink-950 shadow-orange',
+    accent: 'bg-accent-500 text-ink-950 shadow-orange',
 
-    sand:
-        'bg-ink-800 text-white shadow-soft',
+    sand: 'bg-ink-800 text-white shadow-soft',
 };
 
-const eyebrowToneClasses: Record<
-    PetGuideTone,
-    string
-> = {
-    brand: 'text-brand-700',
-    accent: 'text-accent-700',
-    sand: 'text-ink-600',
+const eyebrowToneClasses: Record<PetGuideTone, string> = {
+    brand: 'text-brand-800',
+
+    accent: 'text-accent-800',
+
+    sand: 'text-ink-700',
 };
 
-const accentToneClasses: Record<
-    PetGuideTone,
-    string
-> = {
-    brand:
-        'from-brand-300 via-brand-500 to-accent-400',
+const accentToneClasses: Record<PetGuideTone, string> = {
+    brand: 'from-brand-300 via-brand-500 to-accent-400',
 
-    accent:
-        'from-accent-300 via-accent-500 to-brand-400',
+    accent: 'from-accent-300 via-accent-500 to-brand-400',
 
-    sand:
-        'from-sand-dark via-ink-500 to-brand-400',
+    sand: 'from-sand-dark via-ink-500 to-brand-400',
 };
 
-const numberToneClasses: Record<
-    PetGuideTone,
-    string
-> = {
-    brand:
-        'border-brand-200 bg-brand-50 text-brand-800',
+const numberToneClasses: Record<PetGuideTone, string> = {
+    brand: 'border-brand-200 bg-brand-50/90 text-brand-800',
 
-    accent:
-        'border-accent-200 bg-accent-50 text-accent-800',
+    accent: 'border-accent-200 bg-accent-50/90 text-accent-800',
 
-    sand:
-        'border-sand-dark/55 bg-cream text-ink-700',
+    sand: 'border-sand-dark/55 bg-cream/90 text-ink-700',
 };
 
-const featuredHomepageGuide =
-    homepagePetGuides[0];
+interface GuideHeroImage {
+    src: string;
 
-const supportingHomepageGuides =
-    homepagePetGuides.slice(1);
+    alt: string;
+}
 
-const FeaturedGuideIcon =
-    featuredHomepageGuide
-        ? iconByGuide[
-            featuredHomepageGuide.icon
-        ]
-        : PawPrintBold;
+interface HomepageGuideWithImage extends HomepagePetGuide {
+    image?: GuideHeroImage;
+}
+
+/*
+ * Presentation metadata lives in data/pet-guides.ts.
+ *
+ * Editorial imagery is sourced directly from the blog
+ * Content Collection so changing the heroImage of an
+ * article automatically updates its homepage preview.
+ */
+const blogEntries = await getCollection('blog');
+
+const heroImageBySlug = new Map<string, GuideHeroImage>();
+
+for (const entry of blogEntries) {
+    const normalizedId = entry.id.replace(/\.(md|mdx)$/i, '');
+
+    const heroImage = entry.data.heroImage;
+
+    if (!heroImage?.src || !heroImage.alt) {
+        continue;
+    }
+
+    heroImageBySlug.set(normalizedId, {
+        src: heroImage.src,
+
+        alt: heroImage.alt,
+    });
+}
+
+const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
+    ...guide,
+
+    image: heroImageBySlug.get(guide.slug),
+}));
+
+const featuredHomepageGuide = guides[0];
+
+const supportingHomepageGuides = guides.slice(1);
+
+const FeaturedGuideIcon = featuredHomepageGuide
+    ? iconByGuide[featuredHomepageGuide.icon]
+    : PawPrintBold;
 ---
 
 <section
-    class="pet-guides-preview section-spacing relative isolate overflow-hidden border-b border-sand bg-white-warm/75"
+    id="pet-guides-preview"
+    class="pet-guides-preview section-spacing relative isolate scroll-mt-28 overflow-hidden border-b border-sand bg-white-warm/75"
     aria-labelledby="pet-guides-preview-title"
     data-pet-guides-preview
 >
@@ -172,19 +189,10 @@ const FeaturedGuideIcon =
     </span>
 
     <div class="site-container relative z-10">
-        <!-- Section heading -->
-        <div
-        class="grid items-end gap-7 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14"
-        >
+        <div class="grid items-end gap-7 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
         <div data-guide-reveal>
-            <Badge
-            variant="accent"
-            size="md"
-            >
-            <SparkleBold
-                slot="icon"
-                aria-hidden="true"
-            />
+            <Badge variant="accent" size="md">
+            <SparkleBold slot="icon" aria-hidden="true" />
 
             Practical Pet Guides
             </Badge>
@@ -202,45 +210,30 @@ const FeaturedGuideIcon =
             data-guide-reveal
             style="--guide-reveal-delay: 90ms;"
         >
-            <p
-            class="section-description max-w-2xl lg:ml-auto"
-            >
-            Explore practical information inspired
-            by our experiences with Maxi—from
-            choosing toys to preparing for walks,
-            travel, feeding, hydration, comfort,
-            and care.
+            <p class="section-description max-w-2xl lg:ml-auto">
+            Explore practical information inspired by our experiences with Maxi—from choosing toys to
+            preparing for walks, travel, feeding, hydration, comfort, and care.
             </p>
 
-            <div
-            class="mt-5 flex flex-wrap items-center gap-3"
-            >
+            <div class="mt-5 flex flex-wrap items-center gap-3">
             <span
                 class="inline-flex items-center gap-2 rounded-full border border-accent-200 bg-accent-50/90 px-4 py-2 text-sm font-extrabold text-accent-800 shadow-sm"
             >
-                <CheckCircleBold
-                class="size-4"
-                aria-hidden="true"
-                />
+                <CheckCircleBold class="size-4" aria-hidden="true" />
 
                 Practical and easy to follow
             </span>
 
-            <span
-                class="text-sm font-bold text-ink-500"
-            >
+            <span class="text-sm font-bold text-ink-500">
                 Built for real pet routines.
             </span>
             </div>
         </div>
         </div>
 
-        <!-- Editorial guide layout -->
         {
         featuredHomepageGuide && (
-            <div
-            class="mt-10 grid gap-5 lg:mt-12 lg:grid-cols-[1.16fr_0.84fr] lg:gap-6"
-            >
+            <div class="mt-10 grid gap-5 lg:mt-12 lg:grid-cols-[1.16fr_0.84fr] lg:gap-6">
             <!-- Featured guide -->
             <article
                 class="guide-preview-card guide-preview-card--featured h-full"
@@ -248,49 +241,80 @@ const FeaturedGuideIcon =
                 style="--guide-reveal-delay: 150ms;"
             >
                 <a
-                href={
-                    featuredHomepageGuide.href
-                }
+                href={featuredHomepageGuide.href}
                 class:list={[
-                    'guide-preview-card__surface group relative isolate flex min-h-128 h-full flex-col overflow-hidden rounded-card-lg border p-6 shadow-card sm:p-8',
+                    'guide-preview-card__surface group relative isolate flex h-full min-h-128 flex-col overflow-hidden rounded-card-lg border p-6 shadow-card sm:p-8',
                     'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-300',
                     'focus-visible:ring-offset-2 focus-visible:ring-offset-cream-soft',
-                    cardToneClasses[
-                    featuredHomepageGuide
-                        .tone
-                    ],
+                    cardToneClasses[featuredHomepageGuide.tone],
                 ]}
                 data-guide-interactive
                 data-guide-strength="4.2"
                 aria-label={`Read guide: ${featuredHomepageGuide.cardTitle}`}
                 >
+                {
+                    featuredHomepageGuide.image && (
+                    <div
+                        class="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-[inherit]"
+                        aria-hidden="true"
+                    >
+                        <img
+                        src={featuredHomepageGuide.image.src}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                        class={[
+                            'size-full object-cover',
+                            'scale-[1.03] opacity-90',
+                            'saturate-[0.95] contrast-[0.98]',
+                            'transition-[transform,opacity,filter] duration-700 ease-out',
+                            'group-hover:scale-[1.12] group-hover:opacity-100',
+                            'group-hover:saturate-100 group-hover:contrast-100',
+                            'group-focus-visible:scale-[1.12] group-focus-visible:opacity-100',
+                            'group-focus-visible:saturate-100 group-focus-visible:contrast-100',
+                            'motion-reduce:scale-[1.03] motion-reduce:transition-none',
+                        ].join(' ')}
+                        />
+
+                        <div
+                        class={[
+                            'absolute inset-0',
+                            'bg-[linear-gradient(180deg,rgba(255,254,249,0.06)_0%,rgba(255,254,249,0.10)_38%,rgba(255,254,249,0.55)_100%)]',
+                            'transition-[background] duration-500 ease-out',
+                            'group-hover:bg-[linear-gradient(180deg,rgba(255,254,249,0.03)_0%,rgba(255,254,249,0.06)_38%,rgba(255,254,249,0.48)_100%)]',
+                            'group-focus-visible:bg-[linear-gradient(180deg,rgba(255,254,249,0.03)_0%,rgba(255,254,249,0.06)_38%,rgba(255,254,249,0.48)_100%)]',
+                            'motion-reduce:transition-none',
+                        ].join(' ')}
+                        >
+                        </div>
+                    </div>
+                    )
+                }
+
                 <span
                     class:list={[
                     'absolute inset-x-0 top-0 z-20 h-1.5 bg-linear-to-r',
-                    accentToneClasses[
-                        featuredHomepageGuide
-                        .tone
-                    ],
+                    accentToneClasses[featuredHomepageGuide.tone],
                     ]}
                     aria-hidden="true"
                 >
                 </span>
 
                 <div
-                    class="guide-preview-card__background-icon pointer-events-none absolute -right-12 -bottom-14 text-white/55"
+                    class="guide-preview-card__background-icon pointer-events-none absolute -right-12 -bottom-14 z-1 text-white/55"
                     aria-hidden="true"
                 >
                     <FeaturedGuideIcon class="size-72" />
                 </div>
 
                 <div
-                    class="guide-preview-card__orb guide-preview-card__orb--one pointer-events-none absolute -top-24 -right-20 size-72 rounded-full bg-white/75 blur-3xl"
+                    class="guide-preview-card__orb guide-preview-card__orb--one pointer-events-none absolute -top-24 -right-20 z-1 size-72 rounded-full bg-white/55 blur-3xl"
                     aria-hidden="true"
                 >
                 </div>
 
                 <div
-                    class="guide-preview-card__orb guide-preview-card__orb--two pointer-events-none absolute -bottom-28 -left-20 size-72 rounded-full bg-brand-200/25 blur-3xl"
+                    class="guide-preview-card__orb guide-preview-card__orb--two pointer-events-none absolute -bottom-28 -left-20 z-1 size-72 rounded-full bg-brand-200/20 blur-3xl"
                     aria-hidden="true"
                 >
                 </div>
@@ -301,20 +325,13 @@ const FeaturedGuideIcon =
                 >
                 </div>
 
-                <div
-                    class="relative z-10 flex h-full flex-col"
-                >
-                    <div
-                    class="flex items-start justify-between gap-4"
-                    >
+                <div class="relative z-10 flex h-full flex-col">
+                    <div class="flex items-start justify-between gap-4">
                     <span
                         class:list={[
                         'guide-preview-card__icon grid size-14 shrink-0 place-items-center rounded-2xl sm:size-16',
                         '[&>svg]:size-7 sm:[&>svg]:size-8',
-                        iconToneClasses[
-                            featuredHomepageGuide
-                            .tone
-                        ],
+                        iconToneClasses[featuredHomepageGuide.tone],
                         ]}
                         aria-hidden="true"
                     >
@@ -323,11 +340,8 @@ const FeaturedGuideIcon =
 
                     <span
                         class:list={[
-                        'rounded-full border px-3 py-1.5 text-xs font-black uppercase tracking-[0.13em]',
-                        numberToneClasses[
-                            featuredHomepageGuide
-                            .tone
-                        ],
+                        'rounded-full border px-3 py-1.5 text-xs font-black uppercase tracking-[0.13em] backdrop-blur-md',
+                        numberToneClasses[featuredHomepageGuide.tone],
                         ]}
                     >
                         Featured guide
@@ -335,23 +349,16 @@ const FeaturedGuideIcon =
                     </div>
 
                     <div
-                    class="mt-auto max-w-2xl pt-20"
+                    class="mt-auto max-w-2xl rounded-3xl bg-white/72 p-5 shadow-sm backdrop-blur-[2px] sm:p-6"
                     >
-                    <div
-                        class="flex flex-wrap items-center gap-3"
-                    >
+                    <div class="flex flex-wrap items-center gap-3">
                         <span
                         class:list={[
                             'text-xs font-black uppercase tracking-[0.16em]',
-                            eyebrowToneClasses[
-                            featuredHomepageGuide
-                                .tone
-                            ],
+                            eyebrowToneClasses[featuredHomepageGuide.tone],
                         ]}
                         >
-                        {
-                            featuredHomepageGuide.eyebrow
-                        }
+                        {featuredHomepageGuide.eyebrow}
                         </span>
 
                         <span
@@ -360,29 +367,19 @@ const FeaturedGuideIcon =
                         >
                         </span>
 
-                        <span
-                        class="text-xs font-extrabold text-ink-500"
-                        >
-                        {
-                            featuredHomepageGuide.readingTime
-                        }
+                        <span class="text-xs font-extrabold text-ink-600">
+                        {featuredHomepageGuide.readingTime}
                         </span>
                     </div>
 
                     <h3
-                        class="mt-3 max-w-xl text-3xl text-ink-900 sm:text-4xl lg:text-[2.75rem]"
+                        class="mt-3 max-w-xl text-3xl text-ink-950 sm:text-4xl lg:text-[2.75rem]"
                     >
-                        {
-                        featuredHomepageGuide.cardTitle
-                        }
+                        {featuredHomepageGuide.cardTitle}
                     </h3>
 
-                    <p
-                        class="mt-4 max-w-xl text-base leading-7 text-ink-600 sm:text-lg sm:leading-8"
-                    >
-                        {
-                        featuredHomepageGuide.description
-                        }
+                    <p class="mt-4 max-w-xl text-base leading-7 text-ink-800 sm:text-lg sm:leading-8">
+                        {featuredHomepageGuide.description}
                     </p>
 
                     <span
@@ -401,183 +398,175 @@ const FeaturedGuideIcon =
             </article>
 
             <!-- Supporting guides -->
-            <div
-                class="grid gap-5"
-            >
+            <div class="grid gap-5">
                 {
-                supportingHomepageGuides.map(
-                    (guide, index) => {
-                    const Icon =
-                        iconByGuide[
-                        guide.icon
-                        ];
-
-                    const guideNumber =
-                        String(
-                        index + 2,
-                        ).padStart(2, '0');
+                supportingHomepageGuides.map((guide, index) => {
+                    const Icon = iconByGuide[guide.icon];
 
                     return (
-                        <article
+                    <article
                         class="guide-preview-card h-full"
                         data-guide-reveal="right"
-                        style={`--guide-reveal-delay: ${
-                            230 + index * 90
-                        }ms;`}
-                        >
+                        style={`--guide-reveal-delay: ${230 + index * 90}ms;`}
+                    >
                         <a
-                            href={guide.href}
-                            class:list={[
-                            'guide-preview-card__surface group relative isolate flex min-h-60 h-full flex-col overflow-hidden rounded-card border p-5 shadow-sm sm:p-6',
+                        href={guide.href}
+                        class:list={[
+                            'guide-preview-card__surface group relative isolate flex h-full min-h-60 flex-col overflow-hidden rounded-card border p-5 shadow-sm sm:p-6',
                             'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-300',
                             'focus-visible:ring-offset-2 focus-visible:ring-offset-cream-soft',
-                            cardToneClasses[
-                                guide.tone
-                            ],
-                            ]}
-                            data-guide-interactive
-                            data-guide-strength="3.1"
-                            aria-label={`Read guide: ${guide.cardTitle}`}
+                            cardToneClasses[guide.tone],
+                        ]}
+                        data-guide-interactive
+                        data-guide-strength="3.1"
+                        aria-label={`Read guide: ${guide.cardTitle}`}
                         >
-                            <span
+                        {
+                            guide.image && (
+                            <div
+                                class="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-[inherit]"
+                                aria-hidden="true"
+                            >
+                                <img
+                                src={guide.image.src}
+                                alt=""
+                                loading="lazy"
+                                decoding="async"
+                                class={[
+                                    'size-full object-cover',
+                                    'scale-[1.035] opacity-[0.88]',
+                                    'saturate-[0.95] contrast-[0.98]',
+                                    'transition-[transform,opacity,filter] duration-700 ease-out',
+                                    'group-hover:scale-[1.13] group-hover:opacity-[0.98]',
+                                    'group-hover:saturate-100 group-hover:contrast-100',
+                                    'group-focus-visible:scale-[1.13] group-focus-visible:opacity-[0.98]',
+                                    'group-focus-visible:saturate-100 group-focus-visible:contrast-100',
+                                    'motion-reduce:scale-[1.035] motion-reduce:transition-none',
+                                ].join(' ')}
+                                />
+
+                                <div
+                                class={[
+                                    'absolute inset-0',
+                                    'bg-[linear-gradient(180deg,rgba(255,254,249,0.04)_0%,rgba(255,254,249,0.08)_38%,rgba(255,254,249,0.60)_100%)]',
+                                    'transition-[background] duration-500 ease-out',
+                                    'group-hover:bg-[linear-gradient(180deg,rgba(255,254,249,0.02)_0%,rgba(255,254,249,0.04)_38%,rgba(255,254,249,0.52)_100%)]',
+                                    'group-focus-visible:bg-[linear-gradient(180deg,rgba(255,254,249,0.02)_0%,rgba(255,254,249,0.04)_38%,rgba(255,254,249,0.52)_100%)]',
+                                    'motion-reduce:transition-none',
+                                ].join(' ')}
+                                >
+                                </div>
+                            </div>
+                            )
+                        }
+
+                        <span
                             class:list={[
-                                'absolute inset-x-0 top-0 z-20 h-1 bg-linear-to-r',
-                                accentToneClasses[
-                                guide.tone
-                                ],
+                            'absolute inset-x-0 top-0 z-20 h-1 bg-linear-to-r',
+                            accentToneClasses[guide.tone],
                             ]}
                             aria-hidden="true"
-                            >
-                            </span>
+                        >
+                        </span>
 
-                            <div
-                            class="guide-preview-card__orb guide-preview-card__orb--one pointer-events-none absolute -top-20 -right-16 size-56 rounded-full bg-white/75 blur-3xl"
+                        <div
+                            class="guide-preview-card__orb guide-preview-card__orb--one pointer-events-none absolute -top-20 -right-16 z-1 size-56 rounded-full bg-white/45 blur-3xl"
                             aria-hidden="true"
-                            >
-                            </div>
+                        >
+                        </div>
 
-                            <div
-                            class="guide-preview-card__watermark pointer-events-none absolute -right-5 -bottom-8 text-white/60"
+                        <div
+                            class="guide-preview-card__watermark pointer-events-none absolute -right-5 -bottom-8 z-1 text-white/60"
                             aria-hidden="true"
-                            >
+                        >
                             <Icon class="size-40" />
-                            </div>
+                        </div>
 
-                            <div
+                        <div
                             class="guide-preview-card__spotlight pointer-events-none absolute inset-0 z-2"
                             aria-hidden="true"
-                            >
-                            </div>
+                        >
+                        </div>
 
-                            <div
-                            class="relative z-10 flex h-full flex-col"
-                            >
-                            <div
-                                class="flex items-start justify-between gap-4"
-                            >
-                                <span
+                        <div class="relative z-10 flex h-full flex-col">
+                            <div class="flex items-start justify-between gap-4">
+                            <span
                                 class:list={[
-                                    'guide-preview-card__icon grid size-12 shrink-0 place-items-center rounded-2xl',
-                                    '[&>svg]:size-6',
-                                    iconToneClasses[
-                                    guide.tone
-                                    ],
+                                'guide-preview-card__icon grid size-12 shrink-0 place-items-center rounded-2xl',
+                                '[&>svg]:size-6',
+                                iconToneClasses[guide.tone],
                                 ]}
                                 aria-hidden="true"
-                                >
+                            >
                                 <Icon />
-                                </span>
+                            </span>
                             </div>
 
                             <div
-                                class="mt-auto pt-8"
+                            class="mt-auto rounded-2xl bg-white/74 p-4 shadow-sm backdrop-blur-[2px]"
                             >
-                                <div
-                                class="flex flex-wrap items-center gap-2"
-                                >
+                            <div class="flex flex-wrap items-center gap-2">
                                 <span
-                                    class:list={[
+                                class:list={[
                                     'text-xs font-black uppercase tracking-[0.15em]',
-                                    eyebrowToneClasses[
-                                        guide.tone
-                                    ],
-                                    ]}
+                                    eyebrowToneClasses[guide.tone],
+                                ]}
                                 >
-                                    {
-                                    guide.eyebrow
-                                    }
+                                {guide.eyebrow}
                                 </span>
 
                                 <span
-                                    class="size-1 rounded-full bg-ink-300"
-                                    aria-hidden="true"
+                                class="size-1 rounded-full bg-ink-300"
+                                aria-hidden="true"
                                 >
                                 </span>
 
-                                <span
-                                    class="text-xs font-extrabold text-ink-500"
-                                >
-                                    {
-                                    guide.readingTime
-                                    }
+                                <span class="text-xs font-extrabold text-ink-600">
+                                {guide.readingTime}
                                 </span>
-                                </div>
+                            </div>
 
-                                <h3
-                                class="mt-2 text-2xl text-ink-900 sm:text-[1.7rem]"
-                                >
-                                {
-                                    guide.cardTitle
-                                }
-                                </h3>
+                            <h3 class="mt-2 text-2xl text-ink-950 sm:text-[1.7rem]">
+                                {guide.cardTitle}
+                            </h3>
 
-                                <p
-                                class="mt-3 line-clamp-3 text-sm leading-6 text-ink-600"
-                                >
-                                {
-                                    guide.description
-                                }
-                                </p>
+                            <p class="mt-3 line-clamp-3 text-sm leading-6 text-ink-800">
+                                {guide.description}
+                            </p>
 
-                                <span
-                                class="guide-preview-card__text-link mt-4 inline-flex w-fit items-center gap-2 font-extrabold text-brand-700"
-                                >
+                            <span
+                                class="guide-preview-card__text-link mt-4 inline-flex w-fit items-center gap-2 font-extrabold text-brand-800"
+                            >
                                 Read guide
 
                                 <ArrowRightBold
-                                    class="guide-preview-card__arrow size-4"
-                                    aria-hidden="true"
+                                class="guide-preview-card__arrow size-4"
+                                aria-hidden="true"
                                 />
-                                </span>
+                            </span>
                             </div>
-                            </div>
+                        </div>
                         </a>
-                        </article>
+                    </article>
                     );
-                    },
-                )
+                })
                 }
             </div>
             </div>
         )
         }
 
-        <!-- Guides library CTA -->
         <div
         class="pet-guides-preview__cta mt-10 overflow-hidden rounded-card-lg border border-accent-200/70 bg-linear-to-br from-accent-50 via-white-warm to-brand-50 p-6 shadow-card sm:p-8 lg:mt-12"
         data-guide-reveal
         style={`--guide-reveal-delay: ${
-            300 +
-            supportingHomepageGuides.length *
-            90
+            300 + supportingHomepageGuides.length * 90
         }ms;`}
         >
         <div
             class="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between"
         >
-            <div
-            class="flex max-w-2xl items-start gap-4"
-            >
+            <div class="flex max-w-2xl items-start gap-4">
             <span
                 class="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-500 text-white shadow-blue"
                 aria-hidden="true"
@@ -586,21 +575,13 @@ const FeaturedGuideIcon =
             </span>
 
             <div>
-                <h3
-                class="text-2xl text-ink-900 sm:text-3xl"
-                >
-                Practical answers for more of
-                your everyday pet questions.
+                <h3 class="text-2xl text-ink-900 sm:text-3xl">
+                Practical answers for more of your everyday pet questions.
                 </h3>
 
-                <p
-                class="mt-2 leading-7 text-ink-600"
-                >
-                Browse the full Maxi Pawz guide
-                library for help with products,
-                play, travel, hydration,
-                comfort, grooming, and
-                accessories.
+                <p class="mt-2 leading-7 text-ink-600">
+                Browse the full Maxi Pawz guide library for help with products, play, travel,
+                hydration, comfort, grooming, and accessories.
                 </p>
             </div>
             </div>
@@ -613,10 +594,7 @@ const FeaturedGuideIcon =
                 iconPosition="right"
                 class="w-full sm:w-auto"
             >
-                <ArrowRightBold
-                slot="icon"
-                aria-hidden="true"
-                />
+                <ArrowRightBold slot="icon" aria-hidden="true" />
 
                 Explore All Pet Guides
             </Button>
@@ -627,27 +605,23 @@ const FeaturedGuideIcon =
 </section>
 
 <style>
+    /*
+    * Tailwind handles the card visuals, editorial images,
+    * overlays, opacity, zoom and hover/focus appearance.
+    *
+    * CSS below remains only for motion that depends on
+    * runtime CSS variables or custom keyframes.
+    */
+
     .pet-guides-preview {
         --guide-parallax-y: 0px;
     }
 
     .pet-guides-preview__pattern {
         background-image:
-        radial-gradient(
-            circle at 20% 30%,
-            rgb(0 138 255 / 7%) 0,
-            transparent 24rem
-        ),
-        radial-gradient(
-            circle at 82% 70%,
-            rgb(255 102 0 / 7%) 0,
-            transparent 25rem
-        ),
-        radial-gradient(
-            circle,
-            rgb(113 87 72 / 8%) 1px,
-            transparent 1px
-        );
+        radial-gradient(circle at 20% 30%, rgb(0 138 255 / 7%) 0, transparent 24rem),
+        radial-gradient(circle at 82% 70%, rgb(255 102 0 / 7%) 0, transparent 25rem),
+        radial-gradient(circle, rgb(113 87 72 / 8%) 1px, transparent 1px);
 
         background-size:
         auto,
@@ -674,18 +648,13 @@ const FeaturedGuideIcon =
     }
 
     .pet-guides-preview__parallax {
-        transform: translate3d(
-        0,
-        var(--guide-parallax-y),
-        0
-        );
+        transform: translate3d(0, var(--guide-parallax-y), 0);
 
         will-change: transform;
     }
 
     .pet-guides-preview__orb {
-        animation: guide-orb-drift 11s
-        ease-in-out infinite;
+        animation: guide-orb-drift 11s ease-in-out infinite;
 
         will-change: transform;
     }
@@ -696,8 +665,7 @@ const FeaturedGuideIcon =
     }
 
     .pet-guides-preview__floating-paw {
-        animation: guide-paw-float 7s
-        ease-in-out infinite;
+        animation: guide-paw-float 7s ease-in-out infinite;
 
         will-change: transform;
     }
@@ -716,7 +684,8 @@ const FeaturedGuideIcon =
         --guide-card-icon-x: 0px;
         --guide-card-icon-y: 0px;
 
-        transform: perspective(1100px)
+        transform:
+        perspective(1100px)
         translate3d(
             0,
             var(--guide-card-lift),
@@ -732,63 +701,25 @@ const FeaturedGuideIcon =
         transform-style: preserve-3d;
 
         transition:
-        transform 280ms
-            var(--ease-friendly),
-        border-color 240ms
-            var(--ease-friendly),
-        box-shadow 280ms
-            var(--ease-friendly);
+        transform 280ms var(--ease-friendly),
+        border-color 240ms var(--ease-friendly),
+        box-shadow 280ms var(--ease-friendly);
 
         will-change: transform;
     }
 
-    .guide-preview-card__surface::before {
-        position: absolute;
-        z-index: 3;
-        inset: -25% auto -25% -55%;
-
-        width: 40%;
-
-        background: linear-gradient(
-        105deg,
-        transparent 0%,
-        rgb(255 255 255 / 8%) 30%,
-        rgb(255 255 255 / 44%) 50%,
-        rgb(255 255 255 / 8%) 70%,
-        transparent 100%
-        );
-
-        content: '';
-        pointer-events: none;
-
-        transform: translate3d(
-            -160%,
-            0,
-            0
-        )
-        skewX(-12deg);
-
-        transition: transform 850ms
-        var(--ease-friendly);
-    }
+    /*
+    * No ::before shine / glass light-ray effect here.
+    *
+    * The card still keeps its lift, tilt, spotlight,
+    * icon movement and image zoom.
+    */
 
     .guide-preview-card__surface:hover,
     .guide-preview-card__surface:focus-visible {
         --guide-card-lift: -6px;
 
-        box-shadow: var(
-        --shadow-card-hover
-        );
-    }
-
-    .guide-preview-card__surface:hover::before,
-    .guide-preview-card__surface:focus-visible::before {
-        transform: translate3d(
-            510%,
-            0,
-            0
-        )
-        skewX(-12deg);
+        box-shadow: var(--shadow-card-hover);
     }
 
     .guide-preview-card__spotlight {
@@ -796,7 +727,7 @@ const FeaturedGuideIcon =
         circle 15rem at
             var(--guide-card-spotlight-x)
             var(--guide-card-spotlight-y),
-        rgb(255 255 255 / 28%),
+        rgb(255 255 255 / 20%),
         transparent 68%
         );
 
@@ -813,7 +744,8 @@ const FeaturedGuideIcon =
     }
 
     .guide-preview-card__icon {
-        transform: translate3d(
+        transform:
+        translate3d(
             var(--guide-card-icon-x),
             var(--guide-card-icon-y),
             2rem
@@ -822,10 +754,8 @@ const FeaturedGuideIcon =
         scale(1);
 
         transition:
-        transform 260ms
-            var(--ease-bounce-soft),
-        box-shadow 260ms
-            var(--ease-friendly);
+        transform 260ms var(--ease-bounce-soft),
+        box-shadow 260ms var(--ease-friendly);
 
         will-change: transform;
     }
@@ -834,7 +764,8 @@ const FeaturedGuideIcon =
         .guide-preview-card__icon,
     .guide-preview-card__surface:focus-visible
         .guide-preview-card__icon {
-        transform: translate3d(
+        transform:
+        translate3d(
             var(--guide-card-icon-x),
             var(--guide-card-icon-y),
             2.4rem
@@ -852,12 +783,10 @@ const FeaturedGuideIcon =
         );
 
         transition:
-        transform 600ms
-            var(--ease-friendly),
-        opacity 600ms
-            var(--ease-friendly);
+        transform 600ms var(--ease-friendly),
+        opacity 600ms var(--ease-friendly);
 
-        opacity: 0.42;
+        opacity: 0.25;
     }
 
     .guide-preview-card__surface:hover
@@ -868,19 +797,19 @@ const FeaturedGuideIcon =
         .guide-preview-card__background-icon,
     .guide-preview-card__surface:focus-visible
         .guide-preview-card__watermark {
-        opacity: 0.62;
+        opacity: 0.42;
     }
 
     .guide-preview-card__orb {
-        transition: transform 650ms
-        var(--ease-friendly);
+        transition: transform 650ms var(--ease-friendly);
     }
 
     .guide-preview-card__surface:hover
         .guide-preview-card__orb--one,
     .guide-preview-card__surface:focus-visible
         .guide-preview-card__orb--one {
-        transform: translate3d(
+        transform:
+        translate3d(
             -0.8rem,
             0.6rem,
             0
@@ -892,7 +821,8 @@ const FeaturedGuideIcon =
         .guide-preview-card__orb--two,
     .guide-preview-card__surface:focus-visible
         .guide-preview-card__orb--two {
-        transform: translate3d(
+        transform:
+        translate3d(
             0.8rem,
             -0.6rem,
             0
@@ -904,10 +834,8 @@ const FeaturedGuideIcon =
     .guide-preview-card__text-link {
         transition:
         gap 200ms var(--ease-friendly),
-        transform 200ms
-            var(--ease-bounce-soft),
-        background-color 200ms
-            var(--ease-friendly);
+        transform 200ms var(--ease-bounce-soft),
+        background-color 200ms var(--ease-friendly);
     }
 
     .guide-preview-card__surface:hover
@@ -915,6 +843,7 @@ const FeaturedGuideIcon =
     .guide-preview-card__surface:focus-visible
         .guide-preview-card__link {
         gap: 0.8rem;
+
         transform: translateY(-2px);
     }
 
@@ -926,8 +855,7 @@ const FeaturedGuideIcon =
     }
 
     .guide-preview-card__arrow {
-        transition: transform 200ms
-        var(--ease-friendly);
+        transition: transform 200ms var(--ease-friendly);
     }
 
     .guide-preview-card__surface:hover
@@ -951,9 +879,7 @@ const FeaturedGuideIcon =
 
         border-radius: 9999px;
 
-        background: rgb(
-        0 138 255 / 16%
-        );
+        background: rgb(0 138 255 / 16%);
 
         content: '';
         filter: blur(2.5rem);
@@ -970,9 +896,7 @@ const FeaturedGuideIcon =
 
         border-radius: 9999px;
 
-        background: rgb(
-        255 102 0 / 14%
-        );
+        background: rgb(255 102 0 / 14%);
 
         content: '';
         filter: blur(2.5rem);
@@ -983,7 +907,8 @@ const FeaturedGuideIcon =
         [data-guide-reveal] {
         opacity: 0;
 
-        transform: translate3d(
+        transform:
+        translate3d(
             0,
             1.65rem,
             0
@@ -991,25 +916,24 @@ const FeaturedGuideIcon =
         scale(0.985);
 
         transition:
-        opacity 660ms
+        opacity
+            660ms
             var(--ease-friendly)
-            var(
-            --guide-reveal-delay,
-            0ms
-            ),
-        transform 660ms
+            var(--guide-reveal-delay, 0ms),
+        transform
+            660ms
             var(--ease-friendly)
-            var(
-            --guide-reveal-delay,
-            0ms
-            );
+            var(--guide-reveal-delay, 0ms);
 
-        will-change: opacity, transform;
+        will-change:
+        opacity,
+        transform;
     }
 
     .pet-guides-motion-ready
         [data-guide-reveal='left'] {
-        transform: translate3d(
+        transform:
+        translate3d(
             -2rem,
             0,
             0
@@ -1019,7 +943,8 @@ const FeaturedGuideIcon =
 
     .pet-guides-motion-ready
         [data-guide-reveal='right'] {
-        transform: translate3d(
+        transform:
+        translate3d(
             2rem,
             0,
             0
@@ -1031,19 +956,30 @@ const FeaturedGuideIcon =
         [data-guide-reveal].is-guide-visible {
         opacity: 1;
 
-        transform: translate3d(0, 0, 0)
+        transform:
+        translate3d(
+            0,
+            0,
+            0
+        )
         scale(1);
     }
 
     @keyframes guide-orb-drift {
         0%,
         100% {
-        transform: translate3d(0, 0, 0)
+        transform:
+            translate3d(
+            0,
+            0,
+            0
+            )
             scale(1);
         }
 
         50% {
-        transform: translate3d(
+        transform:
+            translate3d(
             1rem,
             -1rem,
             0
@@ -1055,12 +991,18 @@ const FeaturedGuideIcon =
     @keyframes guide-paw-float {
         0%,
         100% {
-        transform: translate3d(0, 0, 0)
+        transform:
+            translate3d(
+            0,
+            0,
+            0
+            )
             rotate(-4deg);
         }
 
         50% {
-        transform: translate3d(
+        transform:
+            translate3d(
             0.45rem,
             -0.75rem,
             0
@@ -1069,14 +1011,13 @@ const FeaturedGuideIcon =
         }
     }
 
-    @media (hover: none),
-        (pointer: coarse) {
+    @media (hover: none), (pointer: coarse) {
         .guide-preview-card__surface {
         transform: none !important;
+
         will-change: auto;
         }
 
-        .guide-preview-card__surface::before,
         .guide-preview-card__spotlight {
         display: none;
         }
@@ -1085,6 +1026,7 @@ const FeaturedGuideIcon =
         .guide-preview-card__background-icon,
         .guide-preview-card__watermark {
         transform: none;
+
         will-change: auto;
         }
     }
@@ -1094,7 +1036,6 @@ const FeaturedGuideIcon =
         .pet-guides-preview__orb,
         .pet-guides-preview__floating-paw,
         .guide-preview-card__surface,
-        .guide-preview-card__surface::before,
         .guide-preview-card__spotlight,
         .guide-preview-card__icon,
         .guide-preview-card__background-icon,
@@ -1106,8 +1047,21 @@ const FeaturedGuideIcon =
         .pet-guides-motion-ready
         [data-guide-reveal] {
         animation: none !important;
-        transform: none !important;
+
         transition: none !important;
+        }
+
+        .guide-preview-card__surface,
+        .guide-preview-card__icon,
+        .guide-preview-card__background-icon,
+        .guide-preview-card__watermark,
+        .guide-preview-card__orb,
+        .guide-preview-card__link,
+        .guide-preview-card__text-link,
+        .guide-preview-card__arrow,
+        .pet-guides-motion-ready
+        [data-guide-reveal] {
+        transform: none !important;
         }
 
         .pet-guides-motion-ready
@@ -1115,7 +1069,6 @@ const FeaturedGuideIcon =
         opacity: 1 !important;
         }
 
-        .guide-preview-card__surface::before,
         .guide-preview-card__spotlight {
         display: none !important;
         }
@@ -1125,13 +1078,17 @@ const FeaturedGuideIcon =
 <script>
     const initializePetGuidePreviews =
         (): void => {
-        const sections = Array.from(
+        const sections =
+            Array.from(
             document.querySelectorAll<HTMLElement>(
-            '[data-pet-guides-preview]',
+                '[data-pet-guides-preview]',
             ),
-        );
+            );
 
-        for (const section of sections) {
+        for (
+            const section of
+            sections
+        ) {
             if (
             section.dataset
                 .petGuidesInitialized ===
@@ -1140,7 +1097,8 @@ const FeaturedGuideIcon =
             continue;
             }
 
-            section.dataset.petGuidesInitialized =
+            section.dataset
+            .petGuidesInitialized =
             'true';
 
             const reducedMotion =
@@ -1165,8 +1123,14 @@ const FeaturedGuideIcon =
 
             const revealObserver =
                 new IntersectionObserver(
-                (entries, observer) => {
-                    for (const entry of entries) {
+                (
+                    entries,
+                    observer,
+                ) => {
+                    for (
+                    const entry of
+                    entries
+                    ) {
                     if (
                         !entry.isIntersecting
                     ) {
@@ -1186,22 +1150,27 @@ const FeaturedGuideIcon =
                     rootMargin:
                     '0px 0px -8% 0px',
 
-                    threshold: 0.1,
+                    threshold:
+                    0.1,
                 },
                 );
 
-            window.requestAnimationFrame(() => {
+            window.requestAnimationFrame(
+                () => {
                 for (
-                const element of revealElements
+                    const element of
+                    revealElements
                 ) {
-                revealObserver.observe(
+                    revealObserver.observe(
                     element,
-                );
+                    );
                 }
-            });
+                },
+            );
             } else {
             for (
-                const element of revealElements
+                const element of
+                revealElements
             ) {
                 element.classList.add(
                 'is-guide-visible',
@@ -1216,51 +1185,66 @@ const FeaturedGuideIcon =
                 ),
             );
 
-            let parallaxFrame = 0;
+            let parallaxFrame =
+            0;
 
-            const updateParallax = (): void => {
-            parallaxFrame = 0;
+            const updateParallax =
+            (): void => {
+                parallaxFrame =
+                0;
 
-            const sectionRect =
+                const sectionRect =
                 section.getBoundingClientRect();
 
-            const viewportCenter =
-                window.innerHeight / 2;
+                const viewportCenter =
+                window.innerHeight /
+                2;
 
-            const sectionCenter =
+                const sectionCenter =
                 sectionRect.top +
-                sectionRect.height / 2;
+                sectionRect.height /
+                2;
 
-            const distanceFromCenter =
-                sectionCenter - viewportCenter;
+                const distanceFromCenter =
+                sectionCenter -
+                viewportCenter;
 
-            for (
-                const element of parallaxElements
-            ) {
-                const speed = Number(
-                element.dataset
-                    .guideParallaxSpeed ??
-                    '0.03',
-                );
+                for (
+                const element of
+                parallaxElements
+                ) {
+                const speed =
+                    Number(
+                    element.dataset
+                        .guideParallaxSpeed ??
+                        '0.03',
+                    );
 
-                const offset = Math.max(
-                -44,
-                Math.min(
-                    44,
-                    -distanceFromCenter * speed,
-                ),
-                );
+                const offset =
+                    Math.max(
+                    -44,
+                    Math.min(
+                        44,
+                        -distanceFromCenter *
+                        speed,
+                    ),
+                    );
 
                 element.style.setProperty(
-                '--guide-parallax-y',
-                `${offset.toFixed(2)}px`,
+                    '--guide-parallax-y',
+                    `${offset.toFixed(
+                    2,
+                    )}px`,
                 );
-            }
+                }
             };
 
             const requestParallaxUpdate =
             (): void => {
-                if (parallaxFrame !== 0) {
+                if (
+                parallaxFrame !==
+                0
+                ) {
                 return;
                 }
 
@@ -1272,7 +1256,8 @@ const FeaturedGuideIcon =
 
             if (
             !reducedMotion &&
-            parallaxElements.length > 0
+            parallaxElements.length >
+                0
             ) {
             updateParallax();
 
@@ -1280,7 +1265,8 @@ const FeaturedGuideIcon =
                 'scroll',
                 requestParallaxUpdate,
                 {
-                passive: true,
+                passive:
+                    true,
                 },
             );
 
@@ -1288,7 +1274,8 @@ const FeaturedGuideIcon =
                 'resize',
                 requestParallaxUpdate,
                 {
-                passive: true,
+                passive:
+                    true,
                 },
             );
             }
@@ -1305,48 +1292,65 @@ const FeaturedGuideIcon =
             continue;
             }
 
-            const cards = Array.from(
-            section.querySelectorAll<HTMLElement>(
+            const cards =
+            Array.from(
+                section.querySelectorAll<HTMLElement>(
                 '[data-guide-interactive]',
-            ),
+                ),
             );
 
-            for (const card of cards) {
-            let animationFrame = 0;
-            let pointerX = 0;
-            let pointerY = 0;
+            for (
+            const card of
+            cards
+            ) {
+            let animationFrame =
+                0;
 
-            const strength = Number(
-                card.dataset.guideStrength ??
-                '3.2',
-            );
+            let pointerX =
+                0;
+
+            let pointerY =
+                0;
+
+            const strength =
+                Number(
+                card.dataset
+                    .guideStrength ??
+                    '3.2',
+                );
 
             const renderCardMotion =
                 (): void => {
-                animationFrame = 0;
+                animationFrame =
+                    0;
 
                 const rect =
                     card.getBoundingClientRect();
 
                 if (
-                    rect.width === 0 ||
-                    rect.height === 0
+                    rect.width ===
+                    0 ||
+                    rect.height ===
+                    0
                 ) {
                     return;
                 }
 
                 const normalizedX =
-                    (pointerX - rect.left) /
+                    (pointerX -
+                    rect.left) /
                     rect.width -
                     0.5;
 
                 const normalizedY =
-                    (pointerY - rect.top) /
+                    (pointerY -
+                    rect.top) /
                     rect.height -
                     0.5;
 
                 const rotateY =
-                    normalizedX * strength;
+                    normalizedX *
+                    strength;
 
                 const rotateX =
                     normalizedY *
@@ -1354,35 +1358,46 @@ const FeaturedGuideIcon =
                     -0.88;
 
                 const iconX =
-                    normalizedX * -8;
+                    normalizedX *
+                    -8;
 
                 const iconY =
-                    normalizedY * -8;
+                    normalizedY *
+                    -8;
 
                 card.style.setProperty(
                     '--guide-card-rotate-x',
-                    `${rotateX.toFixed(2)}deg`,
+                    `${rotateX.toFixed(
+                    2,
+                    )}deg`,
                 );
 
                 card.style.setProperty(
                     '--guide-card-rotate-y',
-                    `${rotateY.toFixed(2)}deg`,
+                    `${rotateY.toFixed(
+                    2,
+                    )}deg`,
                 );
 
                 card.style.setProperty(
                     '--guide-card-icon-x',
-                    `${iconX.toFixed(2)}px`,
+                    `${iconX.toFixed(
+                    2,
+                    )}px`,
                 );
 
                 card.style.setProperty(
                     '--guide-card-icon-y',
-                    `${iconY.toFixed(2)}px`,
+                    `${iconY.toFixed(
+                    2,
+                    )}px`,
                 );
 
                 card.style.setProperty(
                     '--guide-card-spotlight-x',
                     `${
-                    (normalizedX + 0.5) *
+                    (normalizedX +
+                        0.5) *
                     100
                     }%`,
                 );
@@ -1390,34 +1405,47 @@ const FeaturedGuideIcon =
                 card.style.setProperty(
                     '--guide-card-spotlight-y',
                     `${
-                    (normalizedY + 0.5) *
+                    (normalizedY +
+                        0.5) *
                     100
                     }%`,
                 );
                 };
 
-            const handlePointerMove = (
-                event: PointerEvent,
-            ): void => {
-                pointerX = event.clientX;
-                pointerY = event.clientY;
+            const handlePointerMove =
+                (
+                event:
+                    PointerEvent,
+                ): void => {
+                pointerX =
+                    event.clientX;
 
-                if (animationFrame === 0) {
-                animationFrame =
+                pointerY =
+                    event.clientY;
+
+                if (
+                    animationFrame ===
+                    0
+                ) {
+                    animationFrame =
                     window.requestAnimationFrame(
-                    renderCardMotion,
+                        renderCardMotion,
                     );
                 }
-            };
+                };
 
             const resetCardMotion =
                 (): void => {
-                if (animationFrame !== 0) {
+                if (
+                    animationFrame !==
+                    0
+                ) {
                     window.cancelAnimationFrame(
                     animationFrame,
                     );
 
-                    animationFrame = 0;
+                    animationFrame =
+                    0;
                 }
 
                 card.style.setProperty(
@@ -1455,7 +1483,8 @@ const FeaturedGuideIcon =
                 'pointermove',
                 handlePointerMove,
                 {
-                passive: true,
+                passive:
+                    true,
                 },
             );
 

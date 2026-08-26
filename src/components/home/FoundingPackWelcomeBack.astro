@@ -1,0 +1,271 @@
+---
+import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
+import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
+import SparkleBold from 'phosphor-astro/SparkleBold.astro';
+
+import BrandLogo from '../brand/BrandLogo.astro';
+---
+
+<section
+    class="hidden border-b border-sand bg-linear-to-b from-brand-50/55 via-white-warm to-cream-soft/65 py-10 sm:py-12"
+    aria-labelledby="founding-pet-welcome-title"
+    data-founding-pet-welcome
+>
+    <div class="site-container">
+        <div
+        class="relative isolate overflow-hidden rounded-[2.5rem] border border-brand-200 bg-white-warm shadow-card"
+        >
+        <div
+            class="pointer-events-none absolute -top-32 -right-24 size-80 rounded-full bg-brand-200/35 blur-3xl"
+            aria-hidden="true"
+        >
+        </div>
+
+        <div
+            class="pointer-events-none absolute -bottom-36 -left-24 size-80 rounded-full bg-accent-200/30 blur-3xl"
+            aria-hidden="true"
+        >
+        </div>
+
+        <div
+            class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(0,138,255,0.05),transparent_20rem),radial-gradient(circle_at_88%_78%,rgba(255,102,0,0.06),transparent_22rem)]"
+            aria-hidden="true"
+        >
+        </div>
+
+        <div class="relative z-10 grid gap-0 lg:grid-cols-[0.36fr_0.64fr]">
+            <div
+            class="relative flex min-h-64 items-center justify-center overflow-hidden border-b border-brand-100 bg-brand-50/80 p-7 sm:min-h-72 lg:min-h-full lg:border-r lg:border-b-0 lg:p-9"
+            >
+            <div class="pointer-events-none absolute inset-0 opacity-55" aria-hidden="true">
+                <span class="absolute top-7 left-8 text-brand-200">
+                <PawPrintBold class="size-10 -rotate-12" />
+                </span>
+
+                <span class="absolute right-8 bottom-8 text-accent-200">
+                <PawPrintBold class="size-14 rotate-12" />
+                </span>
+            </div>
+
+            <div
+                class="relative grid size-40 place-items-center rounded-full border-8 border-white bg-cream-soft shadow-blue sm:size-48"
+                aria-hidden="true"
+            >
+                <BrandLogo variant="mascot" class="size-full object-contain p-3" />
+            </div>
+            </div>
+
+            <div class="relative p-6 sm:p-8 lg:p-10 xl:p-12">
+            <div class="max-w-3xl">
+                <div
+                class="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-xs font-black tracking-[0.14em] text-brand-700 uppercase"
+                >
+                <SparkleBold class="size-4" aria-hidden="true" />
+
+                Your Maxi Pawz Pet
+                </div>
+
+                <h2
+                id="founding-pet-welcome-title"
+                class="mt-5 text-3xl text-ink-900 sm:text-4xl lg:text-5xl"
+                data-founding-pet-greeting
+                >
+                Welcome back.
+                </h2>
+
+                <div class="mt-4 flex flex-wrap items-center gap-2">
+                <span
+                    class="inline-flex items-center gap-2 rounded-full border border-accent-200 bg-accent-50 px-3 py-1.5 text-sm font-extrabold text-accent-800"
+                    data-founding-pet-summary
+                >
+                    <PawPrintBold class="size-4" aria-hidden="true" />
+
+                    Founding Pet
+                </span>
+                </div>
+
+                <p
+                    class="mt-5 max-w-2xl text-base leading-7 text-ink-600 sm:text-lg sm:leading-8"
+                    data-founding-pet-launch-message
+                    hidden
+                >
+                </p>
+
+                <div class="mt-7 flex flex-wrap items-center gap-3">
+                <a
+                    href="/#pet-guides-preview"
+                    class="inline-flex min-h-12 items-center gap-2 rounded-full bg-brand-500 px-5 py-3 font-extrabold text-white shadow-blue transition hover:-translate-y-0.5 hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-300/45"
+                    data-founding-pet-guide-link
+                >
+                    <span data-founding-pet-guide-link-label> Explore pet guides </span>
+
+                    <ArrowRightBold class="size-5" aria-hidden="true" />
+                </a>
+
+                <button
+                    type="button"
+                    class="min-h-12 rounded-full border border-sand-dark/70 bg-white px-5 py-3 text-sm font-extrabold text-ink-600 transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-300/35"
+                    data-founding-pet-forget
+                >
+                    Forget this pet on this device
+                </button>
+                </div>
+            </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    import {
+        buildFoundingPackPersonalizedMessaging,
+        deserializeFoundingPackPersonalizationProfile,
+    } from '../../lib/founding-pack-personalization';
+
+    import {
+        FOUNDING_PACK_PERSONALIZATION_STORAGE_KEY,
+        type FoundingPackPersonalizationProfile,
+    } from '../../types/founding-pack-personalization';
+
+    const PERSONALIZATION_SAVED_EVENT = 'maxipawz:founding-pet-personalization-saved';
+
+    const initializeFoundingPackWelcomeBack = (): void => {
+        const sections = Array.from(
+        document.querySelectorAll<HTMLElement>('[data-founding-pet-welcome]'),
+        );
+
+        for (const section of sections) {
+        if (section.dataset.foundingPetWelcomeInitialized === 'true') {
+            continue;
+        }
+
+        section.dataset.foundingPetWelcomeInitialized = 'true';
+
+        const greeting = section.querySelector<HTMLElement>('[data-founding-pet-greeting]');
+
+        const summary = section.querySelector<HTMLElement>('[data-founding-pet-summary]');
+
+        const launchMessage = section.querySelector<HTMLElement>(
+            '[data-founding-pet-launch-message]',
+        );
+
+        const guideLinkLabel = section.querySelector<HTMLElement>(
+            '[data-founding-pet-guide-link-label]',
+        );
+
+        const forgetButton = section.querySelector<HTMLButtonElement>('[data-founding-pet-forget]');
+
+        const renderProfile = (profile: FoundingPackPersonalizationProfile): void => {
+            const messaging = buildFoundingPackPersonalizedMessaging(profile);
+
+            if (greeting) {
+            greeting.textContent = messaging.greeting;
+            }
+
+            if (summary) {
+            summary.textContent = messaging.profileSummary;
+            }
+
+            if (launchMessage) {
+            if (messaging.launchMessage) {
+                launchMessage.textContent = messaging.launchMessage;
+
+                launchMessage.hidden = false;
+            } else {
+                launchMessage.textContent = '';
+
+                launchMessage.hidden = true;
+            }
+            }
+
+            if (guideLinkLabel) {
+            guideLinkLabel.textContent = `Explore guides for ${profile.petName}`;
+            }
+
+            section.classList.remove('hidden');
+        };
+
+        const hideSection = (): void => {
+            section.classList.add('hidden');
+        };
+
+        const readStoredProfile = (): FoundingPackPersonalizationProfile | null => {
+            try {
+            const serialized = window.localStorage.getItem(FOUNDING_PACK_PERSONALIZATION_STORAGE_KEY);
+
+            if (!serialized) {
+                return null;
+            }
+
+            return deserializeFoundingPackPersonalizationProfile(serialized);
+            } catch (error) {
+            console.warn('Maxi Pawz pet personalization could not be read on this device.', error);
+
+            return null;
+            }
+        };
+
+        const renderStoredProfile = (): void => {
+            const profile = readStoredProfile();
+
+            if (!profile) {
+            hideSection();
+
+            return;
+            }
+
+            renderProfile(profile);
+        };
+
+        const handleSavedProfile = (event: Event): void => {
+            const customEvent = event as CustomEvent<FoundingPackPersonalizationProfile>;
+
+            const profile = customEvent.detail;
+
+            if (!profile) {
+            renderStoredProfile();
+
+            return;
+            }
+
+            renderProfile(profile);
+        };
+
+        const handleForget = (): void => {
+            try {
+            window.localStorage.removeItem(FOUNDING_PACK_PERSONALIZATION_STORAGE_KEY);
+            } catch (error) {
+            console.warn(
+                'Maxi Pawz pet personalization could not be removed from this device.',
+                error,
+            );
+            }
+
+            hideSection();
+        };
+
+        forgetButton?.addEventListener('click', handleForget);
+
+        window.addEventListener(PERSONALIZATION_SAVED_EVENT, handleSavedProfile);
+
+        renderStoredProfile();
+
+        const cleanup = (): void => {
+            forgetButton?.removeEventListener('click', handleForget);
+
+            window.removeEventListener(PERSONALIZATION_SAVED_EVENT, handleSavedProfile);
+
+            delete section.dataset.foundingPetWelcomeInitialized;
+        };
+
+        document.addEventListener('astro:before-swap', cleanup, {
+            once: true,
+        });
+        }
+    };
+
+    initializeFoundingPackWelcomeBack();
+
+    document.addEventListener('astro:page-load', initializeFoundingPackWelcomeBack);
+</script>
