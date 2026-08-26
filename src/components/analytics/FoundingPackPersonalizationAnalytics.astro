@@ -1,229 +1,908 @@
 ---
 const analyticsEnabled =
-    import.meta.env.PROD && import.meta.env.PUBLIC_ANALYTICS_ENABLED === 'true';
+  import.meta.env.PROD &&
+  import.meta.env.PUBLIC_ANALYTICS_ENABLED === 'true';
 
-const gaMeasurementId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID?.trim() ?? '';
+const gaMeasurementId =
+  import.meta.env.PUBLIC_GA_MEASUREMENT_ID?.trim() ?? '';
 
-const clarityProjectId = import.meta.env.PUBLIC_CLARITY_PROJECT_ID?.trim() ?? '';
+const clarityProjectId =
+  import.meta.env.PUBLIC_CLARITY_PROJECT_ID?.trim() ?? '';
 
-const gaEnabled = analyticsEnabled && gaMeasurementId.startsWith('G-');
+const gaEnabled =
+  analyticsEnabled &&
+  gaMeasurementId.startsWith('G-');
 
-const clarityEnabled = analyticsEnabled && clarityProjectId.length > 0;
+const clarityEnabled =
+  analyticsEnabled &&
+  clarityProjectId.length > 0;
 ---
 
 <div
-    hidden
-    aria-hidden="true"
-    data-founding-pack-personalization-analytics
-    data-ga-enabled={String(gaEnabled)}
-    data-clarity-enabled={String(clarityEnabled)}
+  hidden
+  aria-hidden="true"
+  data-founding-pack-personalization-analytics
+  data-ga-enabled={String(gaEnabled)}
+  data-clarity-enabled={String(clarityEnabled)}
 >
 </div>
 
 <script>
-    import {
-        buildFoundingPackAnalyticsContext,
-        buildFoundingPackAnalyticsEvent,
-    } from '../../lib/founding-pack-personalization-analytics';
+  import {
+    buildFoundingPackAnalyticsContext,
+    buildFoundingPackAnalyticsEvent,
+  } from '../../lib/founding-pack-personalization-analytics';
 
-    import {
-        deserializeFoundingPackPersonalizationProfile,
-        getPersonalizedGuidePriorities,
-    } from '../../lib/founding-pack-personalization';
+  import {
+    deserializeFoundingPackPersonalizationProfile,
+    getPersonalizedGuidePriorities,
+  } from '../../lib/founding-pack-personalization';
 
-    import {
-        FOUNDING_PACK_PERSONALIZATION_STORAGE_KEY,
-        type FoundingPackPersonalizationProfile,
-    } from '../../types/founding-pack-personalization';
+  import {
+    FOUNDING_PACK_PERSONALIZATION_STORAGE_KEY,
+    type FoundingPackPersonalizationProfile,
+    type FoundingPackPersonalizedGuideSlug,
+  } from '../../types/founding-pack-personalization';
 
-    interface MaxiPawzAnalyticsWindow extends Window {
-        gtag?: (
-        command: string,
-        eventName: string,
-        parameters?: Record<string, boolean | number | string>,
-        ) => void;
+  interface MaxiPawzAnalyticsWindow
+    extends Window {
+    gtag?: (
+      command: string,
+      eventName: string,
+      parameters?: Record<
+        string,
+        boolean | number | string
+      >,
+    ) => void;
 
-        clarity?: (command: string, eventName: string) => void;
-    }
+    clarity?: (
+      command: string,
+      eventName: string,
+    ) => void;
+  }
 
-    const PERSONALIZATION_SAVED_EVENT = 'maxipawz:founding-pet-personalization-saved';
+  const PERSONALIZATION_SAVED_EVENT =
+    'maxipawz:founding-pet-personalization-saved';
 
-    const ANALYTICS_COMPONENT_SELECTOR = '[data-founding-pack-personalization-analytics]';
+  const PERSONALIZATION_FORGOTTEN_EVENT =
+    'maxipawz:founding-pet-personalization-forgotten';
 
-    const initializeFoundingPackPersonalizationAnalytics = (): void => {
-        const element = document.querySelector<HTMLElement>(ANALYTICS_COMPONENT_SELECTOR);
+  const ANALYTICS_COMPONENT_SELECTOR =
+    '[data-founding-pack-personalization-analytics]';
 
-        if (!element || element.dataset.foundingPackPersonalizationAnalyticsInitialized === 'true') {
+  const GUIDE_SECTION_SELECTOR =
+    '[data-pet-guides-preview]';
+
+  const GUIDE_CARD_SELECTOR =
+    '[data-guide-card]';
+
+  const GUIDE_LINK_SELECTOR =
+    '[data-guide-interactive]';
+
+  const RECOMMENDATION_VISIBILITY_THRESHOLD =
+    0.5;
+
+  const isPersonalizedGuideSlug =
+    (
+      value:
+        string | undefined,
+    ): value is FoundingPackPersonalizedGuideSlug =>
+      value ===
+        'dog-hydration-miami-heat' ||
+      value ===
+        'play-and-enrichment' ||
+      value ===
+        'walk-and-travel' ||
+      value ===
+        'feeding-and-hydration';
+
+  const initializeFoundingPackPersonalizationAnalytics =
+    (): void => {
+      const element =
+        document.querySelector<HTMLElement>(
+          ANALYTICS_COMPONENT_SELECTOR,
+        );
+
+      if (
+        !element ||
+        element.dataset
+          .foundingPackPersonalizationAnalyticsInitialized ===
+          'true'
+      ) {
         return;
-        }
+      }
 
-        element.dataset.foundingPackPersonalizationAnalyticsInitialized = 'true';
+      element.dataset
+        .foundingPackPersonalizationAnalyticsInitialized =
+        'true';
 
-        const gaEnabled = element.dataset.gaEnabled === 'true';
+      const gaEnabled =
+        element.dataset.gaEnabled ===
+        'true';
 
-        const clarityEnabled = element.dataset.clarityEnabled === 'true';
+      const clarityEnabled =
+        element.dataset.clarityEnabled ===
+        'true';
 
-        /*
-        * Analytics is intentionally a no-op whenever the
-        * production analytics configuration is disabled.
-        */
-        if (!gaEnabled && !clarityEnabled) {
+      /*
+       * Analytics remains a complete no-op outside the
+       * configured production analytics environment.
+       */
+      if (
+        !gaEnabled &&
+        !clarityEnabled
+      ) {
         return;
-        }
+      }
 
-        const analyticsWindow = window as MaxiPawzAnalyticsWindow;
+      const analyticsWindow =
+        window as
+          MaxiPawzAnalyticsWindow;
 
-        const readStoredProfile = (): FoundingPackPersonalizationProfile | null => {
-        try {
-            const serialized = window.localStorage.getItem(FOUNDING_PACK_PERSONALIZATION_STORAGE_KEY);
+      let currentProfile:
+        FoundingPackPersonalizationProfile |
+        null =
+        null;
+
+      let currentPriorities:
+        FoundingPackPersonalizedGuideSlug[] =
+        [];
+
+      let recommendationObserver:
+        IntersectionObserver |
+        null =
+        null;
+
+      const cleanupFunctions:
+        Array<() => void> =
+        [];
+
+      const readStoredProfile =
+        (): FoundingPackPersonalizationProfile | null => {
+          try {
+            const serialized =
+              window.localStorage.getItem(
+                FOUNDING_PACK_PERSONALIZATION_STORAGE_KEY,
+              );
 
             if (!serialized) {
-            return null;
+              return null;
             }
 
-            return deserializeFoundingPackPersonalizationProfile(serialized);
-        } catch {
+            return deserializeFoundingPackPersonalizationProfile(
+              serialized,
+            );
+          } catch {
             /*
-            * Analytics must never interfere with the
-            * visitor experience or personalization UI.
-            */
+             * Analytics must never interfere with the
+             * storefront or personalization experience.
+             */
             return null;
-        }
+          }
         };
 
-        const wasTracked = (
-        eventName: string,
+      const createTrackingStorageKey =
+        (
+          eventName:
+            string,
 
-        profile: FoundingPackPersonalizationProfile,
-        ): boolean => {
-        const storageKey = [
+          profile:
+            FoundingPackPersonalizationProfile,
+
+          discriminator?:
+            string,
+        ): string =>
+          [
             'maxipawz',
             'personalization-analytics',
             window.location.pathname,
             eventName,
             profile.savedAt,
-        ].join(':');
 
-        try {
-            if (window.sessionStorage.getItem(storageKey) === '1') {
-            return true;
+            ...(discriminator
+              ? [
+                  discriminator,
+                ]
+              : []),
+          ].join(
+            ':',
+          );
+
+      const hasTracked =
+        (
+          eventName:
+            string,
+
+          profile:
+            FoundingPackPersonalizationProfile,
+
+          discriminator?:
+            string,
+        ): boolean => {
+          const storageKey =
+            createTrackingStorageKey(
+              eventName,
+              profile,
+              discriminator,
+            );
+
+          try {
+            if (
+              window.sessionStorage.getItem(
+                storageKey,
+              ) ===
+              '1'
+            ) {
+              return true;
             }
 
-            window.sessionStorage.setItem(storageKey, '1');
+            window.sessionStorage.setItem(
+              storageKey,
+              '1',
+            );
 
             return false;
-        } catch {
+          } catch {
             /*
-            * If sessionStorage is unavailable, analytics
-            * remains best-effort rather than affecting UX.
-            */
+             * If sessionStorage is unavailable, analytics
+             * remains best-effort.
+             */
             return false;
-        }
+          }
         };
 
-        const trackPersonalizationLoaded = (profile: FoundingPackPersonalizationProfile): void => {
-        const guidePriorities = getPersonalizedGuidePriorities(profile);
+      const sendAnalyticsEvent =
+        (
+          eventName:
+            string,
 
-        const context = buildFoundingPackAnalyticsContext(profile);
+          parameters:
+            Record<
+              string,
+              boolean | number | string
+            >,
+        ): void => {
+          if (
+            gaEnabled &&
+            typeof analyticsWindow.gtag ===
+              'function'
+          ) {
+            analyticsWindow.gtag(
+              'event',
+              eventName,
+              parameters,
+            );
+          }
 
-        const analyticsEvent = buildFoundingPackAnalyticsEvent({
-            event: 'founding_pet_personalization_loaded',
+          if (
+            clarityEnabled &&
+            typeof analyticsWindow.clarity ===
+              'function'
+          ) {
+            analyticsWindow.clarity(
+              'event',
+              eventName,
+            );
+          }
+        };
 
-            ...context,
+      const getGuideCards =
+        (): HTMLElement[] => {
+          const section =
+            document.querySelector<HTMLElement>(
+              GUIDE_SECTION_SELECTOR,
+            );
 
-            personalizedGuideCount: guidePriorities.length,
-        });
+          if (!section) {
+            return [];
+          }
 
-        if (wasTracked(analyticsEvent.eventName, profile)) {
+          return Array.from(
+            section.querySelectorAll<HTMLElement>(
+              GUIDE_CARD_SELECTOR,
+            ),
+          );
+        };
+
+      const getGuidePosition =
+        (
+          guideSlug:
+            FoundingPackPersonalizedGuideSlug,
+        ): number => {
+          const cards =
+            getGuideCards();
+
+          const index =
+            cards.findIndex(
+              (card) =>
+                card.dataset.guideSlug ===
+                guideSlug,
+            );
+
+          return index >=
+            0
+            ? index +
+                1
+            : 0;
+        };
+
+      const setCurrentProfile =
+        (
+          profile:
+            FoundingPackPersonalizationProfile | null,
+        ): void => {
+          currentProfile =
+            profile;
+
+          currentPriorities =
+            profile
+              ? getPersonalizedGuidePriorities(
+                  profile,
+                )
+              : [];
+        };
+
+      const trackPersonalizationLoaded =
+        (
+          profile:
+            FoundingPackPersonalizationProfile,
+        ): void => {
+          const priorities =
+            getPersonalizedGuidePriorities(
+              profile,
+            );
+
+          const context =
+            buildFoundingPackAnalyticsContext(
+              profile,
+            );
+
+          const analyticsEvent =
+            buildFoundingPackAnalyticsEvent(
+              {
+                event:
+                  'founding_pet_personalization_loaded',
+
+                ...context,
+
+                personalizedGuideCount:
+                  priorities.length,
+              },
+            );
+
+          if (
+            hasTracked(
+              analyticsEvent.eventName,
+              profile,
+            )
+          ) {
             return;
-        }
+          }
 
-        if (gaEnabled && typeof analyticsWindow.gtag === 'function') {
-            analyticsWindow.gtag('event', analyticsEvent.eventName, analyticsEvent.parameters);
-        }
-
-        if (clarityEnabled && typeof analyticsWindow.clarity === 'function') {
-            analyticsWindow.clarity('event', analyticsEvent.eventName);
-        }
+          sendAnalyticsEvent(
+            analyticsEvent.eventName,
+            analyticsEvent.parameters,
+          );
         };
 
-        const trackStoredProfile = (): void => {
-        const profile = readStoredProfile();
+      const trackRecommendedGuide =
+        (
+          profile:
+            FoundingPackPersonalizationProfile,
 
-        if (!profile) {
+          guideSlug:
+            FoundingPackPersonalizedGuideSlug,
+        ): void => {
+          const priorityIndex =
+            currentPriorities.indexOf(
+              guideSlug,
+            );
+
+          if (
+            priorityIndex <
+            0
+          ) {
             return;
-        }
+          }
 
-        trackPersonalizationLoaded(profile);
+          const recommendationPosition =
+            getGuidePosition(
+              guideSlug,
+            );
+
+          if (
+            recommendationPosition <=
+            0
+          ) {
+            return;
+          }
+
+          const context =
+            buildFoundingPackAnalyticsContext(
+              profile,
+            );
+
+          const analyticsEvent =
+            buildFoundingPackAnalyticsEvent(
+              {
+                event:
+                  'founding_pet_guide_recommended',
+
+                ...context,
+
+                guideSlug,
+
+                recommendationPosition,
+              },
+            );
+
+          /*
+           * A recommended guide is counted once per
+           * browser session for this exact saved profile.
+           */
+          if (
+            hasTracked(
+              analyticsEvent.eventName,
+              profile,
+              guideSlug,
+            )
+          ) {
+            return;
+          }
+
+          sendAnalyticsEvent(
+            analyticsEvent.eventName,
+            analyticsEvent.parameters,
+          );
         };
 
-        const handleSavedProfile = (event: Event): void => {
-        const customEvent = event as CustomEvent<FoundingPackPersonalizationProfile>;
+      const trackGuideClick =
+        (
+          guideSlug:
+            FoundingPackPersonalizedGuideSlug,
+        ): void => {
+          const profile =
+            currentProfile;
 
-        /*
-        * The saved event already carries the safe,
-        * browser-only profile contract.
-        *
-        * We still fall back to localStorage if detail is
-        * missing rather than trusting an invalid shape.
-        */
-        const eventProfile = customEvent.detail;
+          if (!profile) {
+            return;
+          }
 
-        if (!eventProfile) {
-            trackStoredProfile();
+          const recommendationPosition =
+            getGuidePosition(
+              guideSlug,
+            );
+
+          if (
+            recommendationPosition <=
+            0
+          ) {
+            return;
+          }
+
+          const personalized =
+            currentPriorities.includes(
+              guideSlug,
+            );
+
+          const context =
+            buildFoundingPackAnalyticsContext(
+              profile,
+            );
+
+          const analyticsEvent =
+            buildFoundingPackAnalyticsEvent(
+              {
+                event:
+                  'founding_pet_guide_clicked',
+
+                ...context,
+
+                guideSlug,
+
+                recommendationPosition,
+
+                personalized,
+              },
+            );
+
+          /*
+           * Clicks are intentionally NOT session-deduped.
+           *
+           * A click is a real user action. If the visitor
+           * deliberately clicks the same guide twice, GA4
+           * should receive two click events.
+           */
+          sendAnalyticsEvent(
+            analyticsEvent.eventName,
+            analyticsEvent.parameters,
+          );
+        };
+
+      const disconnectRecommendationObserver =
+        (): void => {
+          recommendationObserver?.disconnect();
+
+          recommendationObserver =
+            null;
+        };
+
+      const observeRecommendations =
+        (): void => {
+          disconnectRecommendationObserver();
+
+          const profile =
+            currentProfile;
+
+          if (
+            !profile ||
+            currentPriorities.length ===
+              0
+          ) {
+            return;
+          }
+
+          if (
+            !(
+              'IntersectionObserver' in
+              window
+            )
+          ) {
+            /*
+             * Without IntersectionObserver we deliberately
+             * avoid manufacturing impressions.
+             *
+             * Click tracking continues to work normally.
+             */
+            return;
+          }
+
+          const cards =
+            getGuideCards();
+
+          recommendationObserver =
+            new IntersectionObserver(
+              (
+                entries,
+                observer,
+              ) => {
+                for (
+                  const entry of
+                  entries
+                ) {
+                  if (
+                    !entry.isIntersecting ||
+                    entry.intersectionRatio <
+                      RECOMMENDATION_VISIBILITY_THRESHOLD
+                  ) {
+                    continue;
+                  }
+
+                  const card =
+                    entry.target;
+
+                  if (
+                    !(
+                      card instanceof
+                      HTMLElement
+                    )
+                  ) {
+                    observer.unobserve(
+                      entry.target,
+                    );
+
+                    continue;
+                  }
+
+                  const guideSlug =
+                    card.dataset
+                      .guideSlug;
+
+                  if (
+                    isPersonalizedGuideSlug(
+                      guideSlug,
+                    ) &&
+                    currentPriorities.includes(
+                      guideSlug,
+                    )
+                  ) {
+                    trackRecommendedGuide(
+                      profile,
+                      guideSlug,
+                    );
+                  }
+
+                  observer.unobserve(
+                    entry.target,
+                  );
+                }
+              },
+              {
+                threshold:
+                  RECOMMENDATION_VISIBILITY_THRESHOLD,
+
+                rootMargin:
+                  '0px 0px -8% 0px',
+              },
+            );
+
+          for (
+            const card of
+            cards
+          ) {
+            const guideSlug =
+              card.dataset
+                .guideSlug;
+
+            if (
+              !isPersonalizedGuideSlug(
+                guideSlug,
+              ) ||
+              !currentPriorities.includes(
+                guideSlug,
+              )
+            ) {
+              continue;
+            }
+
+            recommendationObserver.observe(
+              card,
+            );
+          }
+        };
+
+      const attachGuideClickTracking =
+        (): void => {
+          const cards =
+            getGuideCards();
+
+          for (
+            const card of
+            cards
+          ) {
+            const guideSlug =
+              card.dataset
+                .guideSlug;
+
+            if (
+              !isPersonalizedGuideSlug(
+                guideSlug,
+              )
+            ) {
+              continue;
+            }
+
+            const link =
+              card.querySelector<HTMLElement>(
+                GUIDE_LINK_SELECTOR,
+              );
+
+            if (!link) {
+              continue;
+            }
+
+            const handleClick =
+              (): void => {
+                trackGuideClick(
+                  guideSlug,
+                );
+              };
+
+            link.addEventListener(
+              'click',
+              handleClick,
+            );
+
+            cleanupFunctions.push(
+              () => {
+                link.removeEventListener(
+                  'click',
+                  handleClick,
+                );
+              },
+            );
+          }
+        };
+
+      const activateProfileAnalytics =
+        (
+          profile:
+            FoundingPackPersonalizationProfile,
+        ): void => {
+          setCurrentProfile(
+            profile,
+          );
+
+          trackPersonalizationLoaded(
+            profile,
+          );
+
+          /*
+           * PetGuidesPreview applies its browser
+           * personalization during page initialization.
+           *
+           * One animation frame gives DOM reordering a
+           * chance to settle before we determine actual
+           * recommendation positions and start measuring
+           * visibility.
+           */
+          window.requestAnimationFrame(
+            () => {
+              observeRecommendations();
+            },
+          );
+        };
+
+      const activateStoredProfile =
+        (): void => {
+          const profile =
+            readStoredProfile();
+
+          if (!profile) {
+            setCurrentProfile(
+              null,
+            );
+
+            disconnectRecommendationObserver();
 
             return;
-        }
+          }
 
-        const serialized = JSON.stringify(eventProfile);
+          activateProfileAnalytics(
+            profile,
+          );
+        };
 
-        const profile = deserializeFoundingPackPersonalizationProfile(serialized);
+      const handleSavedProfile =
+        (
+          event:
+            Event,
+        ): void => {
+          const customEvent =
+            event as
+              CustomEvent<FoundingPackPersonalizationProfile>;
 
-        if (!profile) {
-            trackStoredProfile();
+          const eventProfile =
+            customEvent.detail;
+
+          if (!eventProfile) {
+            activateStoredProfile();
 
             return;
-        }
+          }
 
-        trackPersonalizationLoaded(profile);
+          /*
+           * Never trust arbitrary CustomEvent data.
+           *
+           * Run it through the same versioned browser
+           * profile parser before allowing it into the
+           * analytics layer.
+           */
+          let serialized:
+            string;
+
+          try {
+            serialized =
+              JSON.stringify(
+                eventProfile,
+              );
+          } catch {
+            activateStoredProfile();
+
+            return;
+          }
+
+          const profile =
+            deserializeFoundingPackPersonalizationProfile(
+              serialized,
+            );
+
+          if (!profile) {
+            activateStoredProfile();
+
+            return;
+          }
+
+          activateProfileAnalytics(
+            profile,
+          );
         };
 
-        /*
-        * Existing profile:
-        *
-        * Browser loads homepage
-        *       ↓
-        * valid local profile
-        *       ↓
-        * personalization_loaded
-        */
-        trackStoredProfile();
+      const handleForgottenProfile =
+        (): void => {
+          setCurrentProfile(
+            null,
+          );
 
-        /*
-        * Newly-created profile:
-        *
-        * profile API succeeds
-        *       ↓
-        * persistence adapter saves local profile
-        *       ↓
-        * saved event
-        *       ↓
-        * personalization_loaded
-        */
-        window.addEventListener(PERSONALIZATION_SAVED_EVENT, handleSavedProfile);
-
-        const cleanup = (): void => {
-        window.removeEventListener(PERSONALIZATION_SAVED_EVENT, handleSavedProfile);
-
-        delete element.dataset.foundingPackPersonalizationAnalyticsInitialized;
+          disconnectRecommendationObserver();
         };
 
-        document.addEventListener('astro:before-swap', cleanup, {
-        once: true,
-        });
+      /*
+       * Attach click handlers once.
+       *
+       * PetGuidesPreview reorders existing cards rather
+       * than replacing them, so the listeners remain valid
+       * after personalization changes the DOM order.
+       */
+      attachGuideClickTracking();
+
+      /*
+       * Existing visitor profile:
+       *
+       * homepage load
+       *     ↓
+       * valid local profile
+       *     ↓
+       * personalization_loaded
+       *     ↓
+       * recommendation impression observation
+       */
+      activateStoredProfile();
+
+      /*
+       * Newly saved profile:
+       *
+       * profile API succeeds
+       *     ↓
+       * persistence adapter stores safe local profile
+       *     ↓
+       * saved event
+       *     ↓
+       * lifecycle + recommendation analytics refresh
+       */
+      window.addEventListener(
+        PERSONALIZATION_SAVED_EVENT,
+        handleSavedProfile,
+      );
+
+      window.addEventListener(
+        PERSONALIZATION_FORGOTTEN_EVENT,
+        handleForgottenProfile,
+      );
+
+      const cleanup =
+        (): void => {
+          disconnectRecommendationObserver();
+
+          window.removeEventListener(
+            PERSONALIZATION_SAVED_EVENT,
+            handleSavedProfile,
+          );
+
+          window.removeEventListener(
+            PERSONALIZATION_FORGOTTEN_EVENT,
+            handleForgottenProfile,
+          );
+
+          for (
+            const cleanupFunction of
+            cleanupFunctions
+          ) {
+            cleanupFunction();
+          }
+
+          setCurrentProfile(
+            null,
+          );
+
+          delete element.dataset
+            .foundingPackPersonalizationAnalyticsInitialized;
+        };
+
+      document.addEventListener(
+        'astro:before-swap',
+        cleanup,
+        {
+          once:
+            true,
+        },
+      );
     };
 
-    initializeFoundingPackPersonalizationAnalytics();
+  initializeFoundingPackPersonalizationAnalytics();
 
-    document.addEventListener('astro:page-load', initializeFoundingPackPersonalizationAnalytics);
+  document.addEventListener(
+    'astro:page-load',
+    initializeFoundingPackPersonalizationAnalytics,
+  );
 </script>
