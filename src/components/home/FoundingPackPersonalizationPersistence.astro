@@ -1,0 +1,214 @@
+<script>
+    import {
+        createFoundingPackPersonalizationProfile,
+        serializeFoundingPackPersonalizationProfile,
+    } from '../../lib/founding-pack-personalization';
+
+    import {
+        FOUNDING_PACK_PERSONALIZATION_STORAGE_KEY,
+        type FoundingPackPersonalizationProfile,
+    } from '../../types/founding-pack-personalization';
+
+    import type {
+        FoundingPackLaunchInterest,
+        FoundingPackPetPersonality,
+        FoundingPackPetType,
+    } from '../../types/founding-pack';
+
+    interface PendingPetProfile {
+        petName: string;
+
+        petType: FoundingPackPetType;
+
+        petPersonality?: FoundingPackPetPersonality;
+
+        launchInterest?: FoundingPackLaunchInterest;
+    }
+
+    const PERSONALIZATION_SAVED_EVENT = 'maxipawz:founding-pet-personalization-saved';
+
+    const initializedSections = new WeakSet<HTMLElement>();
+
+    const getOptionalValue = (value: string | undefined): string | undefined => {
+        const normalized = value?.trim();
+
+        return normalized ? normalized : undefined;
+    };
+
+    const capturePendingProfile = (form: HTMLFormElement): PendingPetProfile | null => {
+        const petNameField = form.querySelector<HTMLInputElement>('[name="pet-name"]');
+
+        const petTypeField = form.querySelector<HTMLSelectElement>('[name="pet-type"]');
+
+        const petPersonalityField = form.querySelector<HTMLSelectElement>('[name="pet-personality"]');
+
+        const launchInterestField = form.querySelector<HTMLInputElement>(
+        '[name="launch-interest"]:checked',
+        );
+
+        if (!petNameField || !petTypeField) {
+        return null;
+        }
+
+        const petName = petNameField.value.trim();
+
+        const petType = petTypeField.value.trim();
+
+        if (!petName || !petType) {
+        return null;
+        }
+
+        return {
+        petName,
+
+        petType: petType as FoundingPackPetType,
+
+        ...(getOptionalValue(petPersonalityField?.value)
+            ? {
+                petPersonality: getOptionalValue(
+                petPersonalityField?.value,
+                ) as FoundingPackPetPersonality,
+            }
+            : {}),
+
+        ...(getOptionalValue(launchInterestField?.value)
+            ? {
+                launchInterest: getOptionalValue(
+                launchInterestField?.value,
+                ) as FoundingPackLaunchInterest,
+            }
+            : {}),
+        };
+    };
+
+    const persistProfile = (
+        pendingProfile: PendingPetProfile,
+    ): FoundingPackPersonalizationProfile | null => {
+        try {
+        const profile = createFoundingPackPersonalizationProfile(pendingProfile);
+
+        window.localStorage.setItem(
+            FOUNDING_PACK_PERSONALIZATION_STORAGE_KEY,
+            serializeFoundingPackPersonalizationProfile(profile),
+        );
+
+        return profile;
+        } catch (error) {
+        /*
+        * localStorage can fail when browser privacy settings,
+        * storage quotas, or user-controlled state prevent access.
+        *
+        * Personalization is an enhancement. A storage failure must
+        * never turn a successfully saved backend profile into a
+        * visible signup error.
+        */
+        console.warn('Maxi Pawz pet personalization could not be saved on this device.', error);
+
+        return null;
+        }
+    };
+
+    const announceSavedProfile = (profile: FoundingPackPersonalizationProfile): void => {
+        window.dispatchEvent(
+        new CustomEvent(PERSONALIZATION_SAVED_EVENT, {
+            detail: profile,
+        }),
+        );
+    };
+
+    const initializePersonalizationPersistence = (): void => {
+        const sections = Array.from(document.querySelectorAll<HTMLElement>('[data-launch-signup]'));
+
+        for (const section of sections) {
+        if (initializedSections.has(section)) {
+            continue;
+        }
+
+        const profileForm = section.querySelector<HTMLFormElement>('[data-pet-profile-form]');
+
+        const completeStep = section.querySelector<HTMLElement>(
+            '[data-founding-pack-step="complete"]',
+        );
+
+        if (!profileForm || !completeStep) {
+            continue;
+        }
+
+        initializedSections.add(section);
+
+        let pendingProfile: PendingPetProfile | null = null;
+
+        const handleProfileSubmit = (event: SubmitEvent): void => {
+            if (event.defaultPrevented && !profileForm.checkValidity()) {
+            pendingProfile = null;
+
+            return;
+            }
+
+            if (!profileForm.checkValidity()) {
+            pendingProfile = null;
+
+            return;
+            }
+
+            pendingProfile = capturePendingProfile(profileForm);
+        };
+
+        const persistWhenComplete = (): void => {
+            /*
+            * LaunchSignup only reveals the complete step after:
+            *
+            * - a successful pet-profile API response, or
+            * - the explicit Skip action.
+            *
+            * pendingProfile exists only when the pet-profile form
+            * itself was submitted, so Skip cannot create a local
+            * personalization profile.
+            */
+            if (completeStep.hidden || !pendingProfile) {
+            return;
+            }
+
+            const profile = persistProfile(pendingProfile);
+
+            pendingProfile = null;
+
+            if (profile) {
+            announceSavedProfile(profile);
+            }
+        };
+
+        const observer = new MutationObserver(persistWhenComplete);
+
+        observer.observe(completeStep, {
+            attributes: true,
+
+            attributeFilter: ['hidden'],
+        });
+
+        profileForm.addEventListener('submit', handleProfileSubmit, {
+            capture: true,
+        });
+
+        const cleanup = (): void => {
+            observer.disconnect();
+
+            profileForm.removeEventListener('submit', handleProfileSubmit, {
+            capture: true,
+            });
+
+            pendingProfile = null;
+
+            initializedSections.delete(section);
+        };
+
+        document.addEventListener('astro:before-swap', cleanup, {
+            once: true,
+        });
+        }
+    };
+
+    initializePersonalizationPersistence();
+
+    document.addEventListener('astro:page-load', initializePersonalizationPersistence);
+</script>

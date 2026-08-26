@@ -10,6 +10,8 @@ import maxipawzLogo from '../assets/brand/maxipawz-horizontal-logo.webp';
 
 import FoundingPackAnalytics from '@components/analytics/FoundingPackAnalytics.astro';
 import BrandStorySection from '@components/home/BrandStorySection.astro';
+import FoundingPackPersonalizationPersistence from '@components/home/FoundingPackPersonalizationPersistence.astro';
+import FoundingPackWelcomeBack from '@components/home/FoundingPackWelcomeBack.astro';
 import HeroSection from '@components/home/HeroSection.astro';
 import HomeMotion from '@components/home/HomeMotion.astro';
 import LaunchSignup from '@components/home/LaunchSignup.astro';
@@ -28,8 +30,8 @@ const homeURL = new URL('/', Astro.site ?? new URL(siteConfig.url)).toString();
 
 const logoURL = new URL(maxipawzLogo.src, homeURL).toString();
 
-const socialProfiles = Object.values(siteConfig.social).filter((profile): profile is string =>
-  Boolean(profile),
+const socialProfiles = Object.values(siteConfig.social).filter(
+  (profile): profile is string => Boolean(profile),
 );
 
 const onlineStoreData = {
@@ -200,9 +202,13 @@ const currentActions = [
   <div class="home-motion-scope" data-home-motion>
     <HeroSection />
 
-    <!-- Brand promises -->
-    <section class="border-y border-sand bg-white-warm/65" aria-labelledby="why-maxipawz-title">
-      <h2 id="why-maxipawz-title" class="sr-only">Why Maxi Pawz</h2>
+    <section
+      class="border-y border-sand bg-white-warm/65"
+      aria-labelledby="why-maxipawz-title"
+    >
+      <h2 id="why-maxipawz-title" class="sr-only">
+        Why Maxi Pawz
+      </h2>
 
       <div class="site-container grid gap-2 py-6 sm:py-8 md:grid-cols-3 md:gap-4">
         {
@@ -220,9 +226,13 @@ const currentActions = [
               </span>
 
               <div class="min-w-0">
-                <h3 class="interface-heading text-lg">{title}</h3>
+                <h3 class="interface-heading text-lg">
+                  {title}
+                </h3>
 
-                <p class="mt-2 text-sm leading-6 text-ink-600">{description}</p>
+                <p class="mt-2 text-sm leading-6 text-ink-600">
+                  {description}
+                </p>
               </div>
             </article>
           ))
@@ -230,7 +240,6 @@ const currentActions = [
       </div>
     </section>
 
-    <!-- Functional prelaunch section -->
     {
       !isStoreLive && (
         <section class="section-spacing" aria-labelledby="useful-now-title">
@@ -242,7 +251,10 @@ const currentActions = [
                 Useful from day one
               </Badge>
 
-              <h2 id="useful-now-title" class="section-title mx-auto mt-5 text-4xl sm:text-5xl">
+              <h2
+                id="useful-now-title"
+                class="section-title mx-auto mt-5 text-4xl sm:text-5xl"
+              >
                 Explore Maxi Pawz before the first collection arrives.
               </h2>
 
@@ -274,9 +286,13 @@ const currentActions = [
                         {eyebrow}
                       </span>
 
-                      <h3 class="mt-2 text-2xl">{title}</h3>
+                      <h3 class="mt-2 text-2xl">
+                        {title}
+                      </h3>
 
-                      <p class="mt-3 flex-1 leading-7 text-ink-600">{description}</p>
+                      <p class="mt-3 flex-1 leading-7 text-ink-600">
+                        {description}
+                      </p>
 
                       <span class="mt-6 inline-flex items-center gap-2 font-extrabold text-brand-700">
                         {linkLabel}
@@ -304,6 +320,8 @@ const currentActions = [
       <BrandStorySection />
     </div>
 
+    <FoundingPackWelcomeBack />
+
     <div data-reveal>
       <PetGuidesPreview />
     </div>
@@ -315,6 +333,8 @@ const currentActions = [
     <HomeMotion />
 
     <FoundingPackAnalytics />
+
+    <FoundingPackPersonalizationPersistence />
   </div>
 
   {isStoreLive && <WelcomeDiscountPopup />}
