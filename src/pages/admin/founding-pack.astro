@@ -1,0 +1,19 @@
+---
+import AdminFoundingPack from '@components/admin/AdminFoundingPack';
+import AdminNavigation from '@components/admin/AdminNavigation.astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+    title="Founding Pack Insights"
+    description="Private Maxi Pawz Founding Pack insights dashboard."
+    noIndex={true}
+>
+    <section class="section-spacing">
+        <div class="site-container">
+            <AdminNavigation current="founding-pack" />
+
+            <AdminFoundingPack client:load />
+        </div>
+    </section>
+</BaseLayout>
