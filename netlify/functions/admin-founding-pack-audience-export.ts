@@ -105,7 +105,7 @@ function csvEscape(
  * execution before placing it inside a CSV intended for
  * human/admin use.
  */
-function spreadsheetSafeText(
+export function spreadsheetSafeText(
     value: string,
 ): string {
     const normalized =
@@ -160,7 +160,7 @@ function campaignContactToCsvRow(
     );
 }
 
-function buildCsv(
+export function buildCsv(
     contacts:
         readonly FoundingPackCampaignContact[],
 ): string {
