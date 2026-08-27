@@ -10,6 +10,8 @@ import {
 
 import { queueWelcomeEmailJob } from '../../src/server/email/welcome-email-jobs';
 
+import { syncFoundingPackSegmentationToResend } from '../../src/server/founding-pack/resend-segmentation';
+
 import type { MarketingEmailDataMode } from '../../src/types/email';
 
 type WelcomeEmailDispatchStatus =
@@ -87,6 +89,40 @@ function getInternalFunctionSecret(): string {
 
 function hashEmail(email: string): string {
   return createHash('sha256').update(email.trim().toLowerCase(), 'utf8').digest('hex');
+}
+
+async function reconcileFoundingPackSegmentation(
+  email: string,
+): Promise<void> {
+  try {
+    const result = await syncFoundingPackSegmentationToResend(email);
+
+    /*
+     * member-not-found is expected for subscribers who have never
+     * completed a Founding Pack pet profile.
+     *
+     * not-eligible should be rare here because this reconciliation
+     * runs only after a successful opted-in Resend synchronization,
+     * but it remains a valid non-error domain result.
+     */
+    if (result.status === 'synced') {
+      console.info('Founding Pack segmentation was reconciled after newsletter opt-in.', {
+        emailHash: hashEmail(email),
+      });
+    }
+  } catch (error) {
+    /*
+     * Newsletter preference synchronization is the primary operation.
+     *
+     * Segmentation enrichment is secondary and must never turn an
+     * already-successful marketing opt-in into a failed signup.
+     */
+    console.error('Newsletter opt-in succeeded, but Founding Pack segmentation reconciliation failed.', {
+      emailHash: hashEmail(email),
+
+      error,
+    });
+  }
 }
 
 async function dispatchWelcomeEmail(
@@ -240,14 +276,24 @@ export default async function handler(request: Request): Promise<Response> {
     /*
      * The Contact synchronization is the primary signup operation.
      *
-     * Welcome Email dispatch happens only after the preference has
-     * been successfully stored and synchronized with Resend.
+     * Welcome Email dispatch and Founding Pack segmentation
+     * reconciliation happen only after the preference has been
+     * successfully stored and synchronized with Resend.
      */
     const result = await submitNewsletterLead(input);
 
     let welcomeEmailJobStatus: WelcomeEmailDispatchStatus = 'not-requested';
 
     if (result.marketingConsent && result.resendSyncStatus === 'synced') {
+      /*
+       * Reconcile any pet profile that may have been created during
+       * an earlier opted-out state.
+       *
+       * A missing pet profile is a normal condition and does not
+       * affect the newsletter signup.
+       */
+      await reconcileFoundingPackSegmentation(input.email);
+
       try {
         welcomeEmailJobStatus = await dispatchWelcomeEmail(request, input.email);
       } catch (error) {

@@ -4,7 +4,13 @@ import type {
     FoundingPackPetType,
 } from './founding-pack';
 
-export interface FoundingPackInsightCount<T extends string> {
+import type {
+    FoundingPackSegment,
+} from './founding-pack-segmentation';
+
+export interface FoundingPackInsightCount<
+    T extends string,
+> {
     id: T;
 
     count: number;
@@ -52,14 +58,45 @@ export interface FoundingPackRecentPetProfile {
     lastSubmittedAt: string;
 }
 
+/**
+ * Aggregated audience data only.
+ *
+ * No email, emailHash, firstName, petName, contact ID,
+ * or other member-level identifier belongs here.
+ */
+export interface FoundingPackSegmentInsight {
+    id: FoundingPackSegment;
+
+    count: number;
+
+    percentageOfProfiles: number;
+
+    marketingEligibleCount: number;
+
+    marketingEligibilityRate: number;
+}
+
+export interface FoundingPackSegmentInsights {
+    totalProfiledMembers: number;
+
+    totalMarketingEligibleProfiledMembers: number;
+
+    segments: FoundingPackSegmentInsight[];
+}
+
 export interface FoundingPackInsightsData {
     summary: FoundingPackInsightsSummary;
 
-    petTypes: FoundingPackInsightCount<FoundingPackPetType>[];
+    petTypes:
+    FoundingPackInsightCount<FoundingPackPetType>[];
 
-    petPersonalities: FoundingPackInsightCount<FoundingPackPetPersonality>[];
+    petPersonalities:
+    FoundingPackInsightCount<FoundingPackPetPersonality>[];
 
-    launchInterests: FoundingPackInsightCount<FoundingPackLaunchInterest>[];
+    launchInterests:
+    FoundingPackInsightCount<FoundingPackLaunchInterest>[];
+
+    segmentInsights: FoundingPackSegmentInsights;
 
     recentProfiles: FoundingPackRecentPetProfile[];
 

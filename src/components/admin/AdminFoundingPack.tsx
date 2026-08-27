@@ -8,7 +8,12 @@ import type {
     FoundingPackInsightCount,
     FoundingPackInsightsData,
     FoundingPackRecentPetProfile,
+    FoundingPackSegmentInsight,
 } from '../../types/founding-pack-insights';
+
+import type {
+    FoundingPackSegment,
+} from '../../types/founding-pack-segmentation';
 
 const ADMIN_TOKEN_KEY =
     'maxipawz-admin-token';
@@ -40,25 +45,85 @@ const PET_PERSONALITY_LABELS = {
 } as const;
 
 const LAUNCH_INTEREST_LABELS = {
-    toys: 'Toys',
-    treats: 'Treats',
-    walking: 'Walking',
+    toys:
+        'Toys',
 
-    travel: 'Travel',
+    treats:
+        'Treats',
 
-    feeding: 'Feeding',
+    walking:
+        'Walking',
+
+    travel:
+        'Travel',
+
+    feeding:
+        'Feeding',
 
     accessories:
         'Accessories',
 } as const;
+
+const SEGMENT_LABELS:
+    Record<
+        FoundingPackSegment,
+        string
+    > = {
+    'profile:completed':
+        'Profile Completed',
+
+    'pet-type:dog':
+        'Dogs',
+
+    'pet-type:cat':
+        'Cats',
+
+    'pet-type:other':
+        'Other Pets',
+
+    'pet-personality:fetch-fanatic':
+        'Fetch Fanatic',
+
+    'pet-personality:power-chewer':
+        'Power Chewer',
+
+    'pet-personality:puzzle-master':
+        'Puzzle Master',
+
+    'pet-personality:professional-napper':
+        'Professional Napper',
+
+    'pet-personality:adventure-buddy':
+        'Adventure Buddy',
+
+    'pet-personality:something-else':
+        'Something Else',
+
+    'launch-interest:toys':
+        'Toys',
+
+    'launch-interest:treats':
+        'Treats',
+
+    'launch-interest:walking':
+        'Walking',
+
+    'launch-interest:travel':
+        'Travel',
+
+    'launch-interest:feeding':
+        'Feeding',
+
+    'launch-interest:accessories':
+        'Accessories',
+};
 
 function formatPercentage(
     value:
         number,
 ): string {
     return `${value.toFixed(
-        value % 1 ===
-            0
+        value % 1 === 0
             ? 0
             : 1,
     )}%`;
@@ -140,25 +205,21 @@ function formatSimpleDate(
 
 function MetricCard({
     eyebrow,
-
     value,
-
     description,
-
-    emphasis =
-        false,
+    emphasis = false,
 }: {
     eyebrow:
-        string;
+    string;
 
     value:
-        string;
+    string;
 
     description:
-        string;
+    string;
 
     emphasis?:
-        boolean;
+    boolean;
 }) {
     return (
         <article
@@ -215,19 +276,17 @@ function MetricCard({
 
 function DistributionBar({
     label,
-
     count,
-
     percentage,
 }: {
     label:
-        string;
+    string;
 
     count:
-        number;
+    number;
 
     percentage:
-        number;
+    number;
 }) {
     const width =
         Math.min(
@@ -253,8 +312,7 @@ function DistributionBar({
                             count
                         }{' '}
                         {
-                            count ===
-                                1
+                            count === 1
                                 ? 'response'
                                 : 'responses'
                         }
@@ -283,40 +341,37 @@ function DistributionBar({
     );
 }
 
-function DistributionSection<T extends string>({
+function DistributionSection<
+    T extends string,
+>({
     eyebrow,
-
     title,
-
     description,
-
     items,
-
     labels,
 }: {
     eyebrow:
-        string;
+    string;
 
     title:
-        string;
+    string;
 
     description:
-        string;
+    string;
 
     items:
-        FoundingPackInsightCount<T>[];
+    FoundingPackInsightCount<T>[];
 
     labels:
-        Record<
-            T,
-            string
-        >;
+    Record<
+        T,
+        string
+    >;
 }) {
     const totalResponses =
         items.reduce(
             (
                 sum,
-
                 item,
             ) =>
                 sum +
@@ -325,7 +380,7 @@ function DistributionSection<T extends string>({
         );
 
     return (
-        <section className="rounded-[2.25rem] border border-sand bg-white-warm p-5 shadow-card sm:p-6 lg:p-7">
+        <section className="rounded-card-lg border border-sand bg-white-warm p-5 shadow-card sm:p-6 lg:p-7">
             <div>
                 <p className="text-xs font-extrabold tracking-[0.08em] text-brand-700 uppercase">
                     {
@@ -346,46 +401,222 @@ function DistributionSection<T extends string>({
                 </p>
             </div>
 
-            {totalResponses >
-                0 ? (
-                <div className="mt-7 grid gap-6">
-                    {
-                        items.map(
-                            (
-                                item,
-                            ) => (
-                                <DistributionBar
-                                    key={
-                                        item.id
-                                    }
-                                    label={
-                                        labels[
+            {
+                totalResponses >
+                    0 ? (
+                    <div className="mt-7 grid gap-6">
+                        {
+                            items.map(
+                                (
+                                    item,
+                                ) => (
+                                    <DistributionBar
+                                        key={
                                             item.id
-                                        ]
+                                        }
+                                        label={
+                                            labels[
+                                            item.id
+                                            ]
+                                        }
+                                        count={
+                                            item.count
+                                        }
+                                        percentage={
+                                            item.percentage
+                                        }
+                                    />
+                                ),
+                            )
+                        }
+                    </div>
+                ) : (
+                    <div className="mt-6 rounded-2xl border border-dashed border-sand bg-cream-soft p-5">
+                        <p className="font-extrabold text-ink-700">
+                            No responses yet
+                        </p>
+
+                        <p className="mt-1 text-sm leading-6 text-ink-600">
+                            This section will populate automatically as Founding Pack members complete pet profiles.
+                        </p>
+                    </div>
+                )
+            }
+        </section>
+    );
+}
+
+function SegmentAudienceCard({
+    segment,
+}: {
+    segment:
+    FoundingPackSegmentInsight;
+}) {
+    return (
+        <article className="rounded-3xl border border-sand bg-white-warm p-5 shadow-sm">
+            <div className="flex items-start justify-between gap-4">
+                <div>
+                    <p className="text-xs font-extrabold tracking-[0.08em] text-brand-700 uppercase">
+                        Segment
+                    </p>
+
+                    <h3 className="mt-2 text-lg font-black text-ink-900">
+                        {
+                            SEGMENT_LABELS[
+                            segment.id
+                            ]
+                        }
+                    </h3>
+                </div>
+
+                <span className="rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-xs font-black text-brand-700">
+                    {
+                        segment.marketingEligibleCount
+                    }{' '}
+                    ready
+                </span>
+            </div>
+
+            <dl className="mt-5 grid grid-cols-2 gap-3">
+                <div className="rounded-2xl bg-cream-soft p-4">
+                    <dt className="text-xs font-extrabold tracking-[0.06em] text-ink-500 uppercase">
+                        Members
+                    </dt>
+
+                    <dd className="mt-1 text-2xl font-black text-ink-900">
+                        {
+                            segment.count.toLocaleString(
+                                'en-US',
+                            )
+                        }
+                    </dd>
+                </div>
+
+                <div className="rounded-2xl bg-brand-50 p-4">
+                    <dt className="text-xs font-extrabold tracking-[0.06em] text-brand-700 uppercase">
+                        Campaign Ready
+                    </dt>
+
+                    <dd className="mt-1 text-2xl font-black text-brand-700">
+                        {
+                            segment.marketingEligibleCount.toLocaleString(
+                                'en-US',
+                            )
+                        }
+                    </dd>
+                </div>
+            </dl>
+
+            <div className="mt-4 flex items-center justify-between gap-3 text-xs font-bold text-ink-500">
+                <span>
+                    {
+                        formatPercentage(
+                            segment.percentageOfProfiles,
+                        )
+                    }{' '}
+                    of profiles
+                </span>
+
+                <span>
+                    {
+                        formatPercentage(
+                            segment.marketingEligibilityRate,
+                        )
+                    }{' '}
+                    eligible
+                </span>
+            </div>
+        </article>
+    );
+}
+
+function SegmentTable({
+    segments,
+}: {
+    segments:
+    FoundingPackSegmentInsight[];
+}) {
+    return (
+        <div className="overflow-x-auto rounded-3xl border border-sand">
+            <table className="min-w-full border-collapse text-left">
+                <thead className="bg-cream-soft">
+                    <tr>
+                        <th className="px-4 py-3 text-xs font-extrabold tracking-[0.07em] text-ink-500 uppercase">
+                            Audience
+                        </th>
+
+                        <th className="px-4 py-3 text-right text-xs font-extrabold tracking-[0.07em] text-ink-500 uppercase">
+                            Members
+                        </th>
+
+                        <th className="px-4 py-3 text-right text-xs font-extrabold tracking-[0.07em] text-ink-500 uppercase">
+                            Campaign Ready
+                        </th>
+
+                        <th className="px-4 py-3 text-right text-xs font-extrabold tracking-[0.07em] text-ink-500 uppercase">
+                            Ready Rate
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody className="divide-y divide-sand bg-white-warm">
+                    {
+                        segments.map(
+                            (
+                                segment,
+                            ) => (
+                                <tr
+                                    key={
+                                        segment.id
                                     }
-                                    count={
-                                        item.count
-                                    }
-                                    percentage={
-                                        item.percentage
-                                    }
-                                />
+                                    className="transition hover:bg-brand-50/40"
+                                >
+                                    <td className="px-4 py-4">
+                                        <p className="font-extrabold text-ink-900">
+                                            {
+                                                SEGMENT_LABELS[
+                                                segment.id
+                                                ]
+                                            }
+                                        </p>
+
+                                        <p className="mt-0.5 font-mono text-xs text-ink-400">
+                                            {
+                                                segment.id
+                                            }
+                                        </p>
+                                    </td>
+
+                                    <td className="px-4 py-4 text-right font-bold text-ink-700">
+                                        {
+                                            segment.count.toLocaleString(
+                                                'en-US',
+                                            )
+                                        }
+                                    </td>
+
+                                    <td className="px-4 py-4 text-right font-black text-brand-700">
+                                        {
+                                            segment.marketingEligibleCount.toLocaleString(
+                                                'en-US',
+                                            )
+                                        }
+                                    </td>
+
+                                    <td className="px-4 py-4 text-right font-bold text-ink-700">
+                                        {
+                                            formatPercentage(
+                                                segment.marketingEligibilityRate,
+                                            )
+                                        }
+                                    </td>
+                                </tr>
                             ),
                         )
                     }
-                </div>
-            ) : (
-                <div className="mt-6 rounded-2xl border border-dashed border-sand bg-cream-soft p-5">
-                    <p className="font-extrabold text-ink-700">
-                        No responses yet
-                    </p>
-
-                    <p className="mt-1 text-sm leading-6 text-ink-600">
-                        This section will populate automatically as Founding Pack members complete pet profiles.
-                    </p>
-                </div>
-            )}
-        </section>
+                </tbody>
+            </table>
+        </div>
     );
 }
 
@@ -393,7 +624,7 @@ function ProfileBadge({
     children,
 }: {
     children:
-        string;
+    string;
 }) {
     return (
         <span className="rounded-full border border-brand-100 bg-brand-50 px-3 py-1 text-xs font-extrabold text-brand-700">
@@ -408,7 +639,7 @@ function RecentProfileCard({
     profile,
 }: {
     profile:
-        FoundingPackRecentPetProfile;
+    FoundingPackRecentPetProfile;
 }) {
     return (
         <article className="rounded-3xl border border-sand bg-cream-soft p-5">
@@ -444,30 +675,34 @@ function RecentProfileCard({
                 <ProfileBadge>
                     {
                         PET_TYPE_LABELS[
-                            profile.petType
+                        profile.petType
                         ]
                     }
                 </ProfileBadge>
 
-                {profile.petPersonality && (
-                    <ProfileBadge>
-                        {
-                            PET_PERSONALITY_LABELS[
+                {
+                    profile.petPersonality && (
+                        <ProfileBadge>
+                            {
+                                PET_PERSONALITY_LABELS[
                                 profile.petPersonality
-                            ]
-                        }
-                    </ProfileBadge>
-                )}
+                                ]
+                            }
+                        </ProfileBadge>
+                    )
+                }
 
-                {profile.launchInterest && (
-                    <ProfileBadge>
-                        {
-                            LAUNCH_INTEREST_LABELS[
+                {
+                    profile.launchInterest && (
+                        <ProfileBadge>
+                            {
+                                LAUNCH_INTEREST_LABELS[
                                 profile.launchInterest
-                            ]
-                        }
-                    </ProfileBadge>
-                )}
+                                ]
+                            }
+                        </ProfileBadge>
+                    )
+                }
             </div>
 
             <dl className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -610,12 +845,12 @@ export default function AdminFoundingPack() {
                 !response.ok ||
                 !payload ||
                 payload.ok !==
-                    true
+                true
             ) {
                 throw new Error(
                     payload &&
                         payload.ok ===
-                            false
+                        false
                         ? payload.message
                         : 'Founding Pack insights could not be loaded.',
                 );
@@ -634,6 +869,9 @@ export default function AdminFoundingPack() {
                 launchInterests:
                     payload.launchInterests,
 
+                segmentInsights:
+                    payload.segmentInsights,
+
                 recentProfiles:
                     payload.recentProfiles,
 
@@ -650,7 +888,7 @@ export default function AdminFoundingPack() {
                 adminToken,
             );
         } catch (
-            loadError
+        loadError
         ) {
             if (
                 !quiet
@@ -744,7 +982,7 @@ export default function AdminFoundingPack() {
                 </h1>
 
                 <p className="mt-3 text-sm leading-6 text-ink-600">
-                    Enter the private administrator token to inspect aggregated Founding Pack membership, pet profiles, and product-interest signals.
+                    Enter the private administrator token to inspect aggregated Founding Pack membership, pet profiles, product-interest signals, and campaign-ready audiences.
                 </p>
 
                 <form
@@ -800,13 +1038,15 @@ export default function AdminFoundingPack() {
                     </button>
                 </form>
 
-                {error && (
-                    <p className="mt-4 rounded-2xl border border-danger-100 bg-danger-50 p-3 text-sm font-bold text-danger-700">
-                        {
-                            error
-                        }
-                    </p>
-                )}
+                {
+                    error && (
+                        <p className="mt-4 rounded-2xl border border-danger-100 bg-danger-50 p-3 text-sm font-bold text-danger-700">
+                            {
+                                error
+                            }
+                        </p>
+                    )
+                }
             </section>
         );
     }
@@ -820,13 +1060,15 @@ export default function AdminFoundingPack() {
                     Founding Pack insights are unavailable.
                 </p>
 
-                {error && (
-                    <p className="mt-3 text-sm font-bold text-danger-700">
-                        {
-                            error
-                        }
-                    </p>
-                )}
+                {
+                    error && (
+                        <p className="mt-3 text-sm font-bold text-danger-700">
+                            {
+                                error
+                            }
+                        </p>
+                    )
+                }
 
                 <button
                     type="button"
@@ -846,6 +1088,58 @@ export default function AdminFoundingPack() {
         );
     }
 
+    const campaignReadyRate =
+        data.segmentInsights
+            .totalProfiledMembers >
+            0
+            ? (
+                data.segmentInsights
+                    .totalMarketingEligibleProfiledMembers /
+                data.segmentInsights
+                    .totalProfiledMembers
+            ) *
+            100
+            : 0;
+
+    const launchSegments =
+        data.segmentInsights.segments.filter(
+            (
+                segment,
+            ) =>
+                segment.id.startsWith(
+                    'launch-interest:',
+                ),
+        );
+
+    const personalitySegments =
+        data.segmentInsights.segments.filter(
+            (
+                segment,
+            ) =>
+                segment.id.startsWith(
+                    'pet-personality:',
+                ),
+        );
+
+    const petTypeSegments =
+        data.segmentInsights.segments.filter(
+            (
+                segment,
+            ) =>
+                segment.id.startsWith(
+                    'pet-type:',
+                ),
+        );
+
+    const actionableSegments =
+        data.segmentInsights.segments.filter(
+            (
+                segment,
+            ) =>
+                segment.id !==
+                'profile:completed',
+        );
+
     return (
         <section className="grid gap-6">
             <header className="rounded-[2.5rem] border border-brand-200 bg-white-warm p-5 shadow-card sm:p-6 lg:p-8">
@@ -860,7 +1154,7 @@ export default function AdminFoundingPack() {
                         </h1>
 
                         <p className="mt-3 text-sm leading-6 text-ink-600 sm:text-base">
-                            A privacy-conscious view of who is joining Maxi Pawz, what kinds of pets they have, and what the community wants us to launch first.
+                            A privacy-conscious view of the Founding Pack, pet preferences, product demand, and campaign-ready launch audiences.
                         </p>
 
                         <p className="mt-3 text-xs font-bold text-ink-500">
@@ -909,13 +1203,15 @@ export default function AdminFoundingPack() {
                     </div>
                 </div>
 
-                {error && (
-                    <p className="mt-5 rounded-2xl border border-danger-100 bg-danger-50 p-3 text-sm font-bold text-danger-700">
-                        {
-                            error
-                        }
-                    </p>
-                )}
+                {
+                    error && (
+                        <p className="mt-5 rounded-2xl border border-danger-100 bg-danger-50 p-3 text-sm font-bold text-danger-700">
+                            {
+                                error
+                            }
+                        </p>
+                    )
+                }
             </header>
 
             <section
@@ -930,9 +1226,7 @@ export default function AdminFoundingPack() {
                         )
                     }
                     description="Unique people currently represented in the Maxi Pawz newsletter member base."
-                    emphasis={
-                        true
-                    }
+                    emphasis
                 />
 
                 <MetricCard
@@ -974,6 +1268,66 @@ export default function AdminFoundingPack() {
                 />
             </section>
 
+            <section className="rounded-[2.5rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50/50 p-5 shadow-card sm:p-6 lg:p-8">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                    <div className="max-w-3xl">
+                        <p className="text-xs font-extrabold tracking-[0.08em] text-brand-700 uppercase">
+                            Launch Readiness
+                        </p>
+
+                        <h2 className="mt-2 text-3xl font-black text-ink-900">
+                            Campaign-Ready Founding Pack
+                        </h2>
+
+                        <p className="mt-3 text-sm leading-6 text-ink-600 sm:text-base">
+                            These members have a completed pet profile, active marketing consent, a synchronized Resend contact, and are ready to receive relevant launch campaigns.
+                        </p>
+                    </div>
+
+                    <div className="rounded-3xl border border-brand-200 bg-white-warm px-6 py-5 text-left shadow-sm lg:text-right">
+                        <p className="text-xs font-extrabold tracking-[0.07em] text-brand-700 uppercase">
+                            Campaign Ready
+                        </p>
+
+                        <p className="mt-1 text-4xl font-black text-brand-700">
+                            {
+                                data.segmentInsights.totalMarketingEligibleProfiledMembers.toLocaleString(
+                                    'en-US',
+                                )
+                            }
+                        </p>
+
+                        <p className="mt-1 text-sm font-bold text-ink-500">
+                            {
+                                formatPercentage(
+                                    campaignReadyRate,
+                                )
+                            }{' '}
+                            of profiled members
+                        </p>
+                    </div>
+                </div>
+
+                <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {
+                        launchSegments.map(
+                            (
+                                segment,
+                            ) => (
+                                <SegmentAudienceCard
+                                    key={
+                                        segment.id
+                                    }
+                                    segment={
+                                        segment
+                                    }
+                                />
+                            ),
+                        )
+                    }
+                </div>
+            </section>
+
             <section className="grid gap-6 xl:grid-cols-2">
                 <DistributionSection
                     eyebrow="Community Mix"
@@ -1007,7 +1361,7 @@ export default function AdminFoundingPack() {
             <DistributionSection
                 eyebrow="Product Direction"
                 title="What Should Maxi Pawz Launch First?"
-                description="This is one of the strongest direct product-development signals in the Founding Pack profile. Percentages are based only on members who answered this optional question."
+                description="One of the strongest direct product-development signals in the Founding Pack profile. Percentages are based only on members who answered this optional question."
                 items={
                     data.launchInterests
                 }
@@ -1015,6 +1369,90 @@ export default function AdminFoundingPack() {
                     LAUNCH_INTEREST_LABELS
                 }
             />
+
+            <section className="rounded-[2.5rem] border border-sand bg-white-warm p-5 shadow-card sm:p-6 lg:p-8">
+                <div>
+                    <p className="text-xs font-extrabold tracking-[0.08em] text-brand-700 uppercase">
+                        Audience Segments
+                    </p>
+
+                    <h2 className="mt-2 text-2xl font-black text-ink-900 sm:text-3xl">
+                        Campaign Audience Breakdown
+                    </h2>
+
+                    <p className="mt-2 max-w-3xl text-sm leading-6 text-ink-600">
+                        Aggregated audience sizes only. Campaign Ready requires active marketing consent, a synchronized Resend contact, and a completed Founding Pack profile.
+                    </p>
+                </div>
+
+                <div className="mt-6">
+                    <SegmentTable
+                        segments={
+                            actionableSegments
+                        }
+                    />
+                </div>
+            </section>
+
+            <section className="grid gap-6 xl:grid-cols-2">
+                <section className="rounded-[2.25rem] border border-sand bg-white-warm p-5 shadow-card sm:p-6 lg:p-7">
+                    <p className="text-xs font-extrabold tracking-[0.08em] text-brand-700 uppercase">
+                        Pet Type Audiences
+                    </p>
+
+                    <h2 className="mt-2 text-2xl font-black text-ink-900">
+                        Reach by Pet Type
+                    </h2>
+
+                    <div className="mt-6 grid gap-4">
+                        {
+                            petTypeSegments.map(
+                                (
+                                    segment,
+                                ) => (
+                                    <SegmentAudienceCard
+                                        key={
+                                            segment.id
+                                        }
+                                        segment={
+                                            segment
+                                        }
+                                    />
+                                ),
+                            )
+                        }
+                    </div>
+                </section>
+
+                <section className="rounded-[2.25rem] border border-sand bg-white-warm p-5 shadow-card sm:p-6 lg:p-7">
+                    <p className="text-xs font-extrabold tracking-[0.08em] text-brand-700 uppercase">
+                        Personality Audiences
+                    </p>
+
+                    <h2 className="mt-2 text-2xl font-black text-ink-900">
+                        Reach by Personality
+                    </h2>
+
+                    <div className="mt-6 grid gap-4">
+                        {
+                            personalitySegments.map(
+                                (
+                                    segment,
+                                ) => (
+                                    <SegmentAudienceCard
+                                        key={
+                                            segment.id
+                                        }
+                                        segment={
+                                            segment
+                                        }
+                                    />
+                                ),
+                            )
+                        }
+                    </div>
+                </section>
+            </section>
 
             <section className="rounded-[2.5rem] border border-sand bg-white-warm p-5 shadow-card sm:p-6 lg:p-8">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -1041,35 +1479,37 @@ export default function AdminFoundingPack() {
                     </p>
                 </div>
 
-                {data.recentProfiles.length >
-                    0 ? (
-                    <div className="mt-6 grid gap-4 lg:grid-cols-2">
-                        {
-                            data.recentProfiles.map(
-                                (
-                                    profile,
-                                ) => (
-                                    <RecentProfileCard
-                                        key={`${profile.petName}-${profile.lastSubmittedAt}`}
-                                        profile={
-                                            profile
-                                        }
-                                    />
-                                ),
-                            )
-                        }
-                    </div>
-                ) : (
-                    <div className="mt-6 rounded-3xl border border-dashed border-sand bg-cream-soft p-6">
-                        <p className="font-extrabold text-ink-700">
-                            No pet profiles yet
-                        </p>
+                {
+                    data.recentProfiles.length >
+                        0 ? (
+                        <div className="mt-6 grid gap-4 lg:grid-cols-2">
+                            {
+                                data.recentProfiles.map(
+                                    (
+                                        profile,
+                                    ) => (
+                                        <RecentProfileCard
+                                            key={`${profile.petName}-${profile.lastSubmittedAt}`}
+                                            profile={
+                                                profile
+                                            }
+                                        />
+                                    ),
+                                )
+                            }
+                        </div>
+                    ) : (
+                        <div className="mt-6 rounded-3xl border border-dashed border-sand bg-cream-soft p-6">
+                            <p className="font-extrabold text-ink-700">
+                                No pet profiles yet
+                            </p>
 
-                        <p className="mt-1 text-sm leading-6 text-ink-600">
-                            As members complete the optional pet profile, their non-email pet information will appear here.
-                        </p>
-                    </div>
-                )}
+                            <p className="mt-1 text-sm leading-6 text-ink-600">
+                                As members complete the optional pet profile, their non-email pet information will appear here.
+                            </p>
+                        </div>
+                    )
+                }
             </section>
 
             <section className="grid gap-4 md:grid-cols-3">
@@ -1105,7 +1545,7 @@ export default function AdminFoundingPack() {
                     </p>
 
                     <p className="mt-2 text-sm leading-6 text-ink-600">
-                        Optional personality responses available for product and content planning.
+                        Optional personality responses available for product, content, and audience planning.
                     </p>
                 </article>
 
