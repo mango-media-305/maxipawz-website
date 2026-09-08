@@ -384,7 +384,20 @@ import Button from '../ui/Button.astro';
         command: string,
         eventName: string,
         ) => void;
+
+        posthog?: {
+        capture: (
+            eventName: string,
+            properties?: Record<
+            string,
+            AnalyticsValue
+            >,
+        ) => void;
+        };
     }
+
+    const analyticsWindow =
+        window as AnalyticsWindow;
 
     const trackPopupEvent = (
         eventName: string,
@@ -393,8 +406,6 @@ import Button from '../ui/Button.astro';
         AnalyticsValue
         > = {},
     ): void => {
-        const analyticsWindow =
-        window as AnalyticsWindow;
 
         /*
         * Never place email addresses, hashes, promotion codes,
@@ -867,6 +878,20 @@ import Button from '../ui/Button.astro';
                 dismissMethod,
             },
             );
+
+            analyticsWindow.posthog?.capture(
+            'discount_popup_dismiss',
+            {
+                component:
+                ANALYTICS_COMPONENT,
+
+                offer:
+                ANALYTICS_OFFER,
+
+                dismiss_method:
+                dismissMethod,
+            },
+            );
         }
 
         isOpen =
@@ -1253,6 +1278,17 @@ import Button from '../ui/Button.astro';
             'discount_popup_submit',
             );
 
+            analyticsWindow.posthog?.capture(
+            'discount_popup_submit',
+            {
+                component:
+                ANALYTICS_COMPONENT,
+
+                offer:
+                ANALYTICS_OFFER,
+            },
+            );
+
             setSubmitting(
             true,
             );
@@ -1324,6 +1360,17 @@ import Button from '../ui/Button.astro';
 
             trackPopupEvent(
                 'discount_popup_success',
+            );
+
+            analyticsWindow.posthog?.capture(
+                'discount_popup_success',
+                {
+                component:
+                    ANALYTICS_COMPONENT,
+
+                offer:
+                    ANALYTICS_OFFER,
+                },
             );
 
             showSuccess();

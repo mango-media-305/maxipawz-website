@@ -9,10 +9,12 @@ const clarityProjectId = import.meta.env.PUBLIC_CLARITY_PROJECT_ID?.trim() ?? ''
 const gaEnabled = analyticsEnabled && gaMeasurementId.startsWith('G-');
 
 const clarityEnabled = analyticsEnabled && clarityProjectId.length > 0;
+
+const posthogEnabled = import.meta.env.PUBLIC_POSTHOG_KEY?.trim().length > 0;
 ---
 
 {
-    (gaEnabled || clarityEnabled) && (
+    (gaEnabled || clarityEnabled || posthogEnabled) && (
         <script
         is:inline
         define:vars={{
@@ -109,6 +111,8 @@ const clarityEnabled = analyticsEnabled && clarityProjectId.length > 0;
                 ) {
                 window.clarity('event', eventName);
                 }
+
+                window.posthog?.capture(eventName);
 
                 try {
                 window.sessionStorage.setItem(

@@ -536,6 +536,25 @@ export default function AddToCartButton({
             },
         );
 
+        (
+            window as Window & {
+                posthog?: {
+                    capture: (
+                        event: string,
+                        properties?: Record<string, string | number | boolean>,
+                    ) => void;
+                };
+            }
+        ).posthog?.capture(
+            'cart_item_added',
+            {
+                product_slug: productSlug,
+                variant_id: selectedVariant?.id ?? 'default',
+                quantity,
+                is_demo_product: Boolean(product?.isDemo),
+            },
+        );
+
         setMessage(
             quantity ===
                 1
