@@ -84,6 +84,22 @@ export default function CheckoutButton({ lines, compact = false }: Props) {
     const stillReady = await inventoryReadiness.revalidate();
 
     if (wasReady && stillReady) {
+      (
+        window as Window & {
+          posthog?: {
+            capture: (
+              event: string,
+              properties?: Record<string, string | number | boolean>,
+            ) => void;
+          };
+        }
+      ).posthog?.capture('checkout_started', {
+        item_count: totals.itemCount,
+        subtotal_amount: totals.subtotalAmount,
+        currency: 'USD',
+        is_demo_cart: totals.hasDemoItems,
+      });
+
       window.location.assign('/checkout');
     }
   }

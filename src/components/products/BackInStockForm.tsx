@@ -165,6 +165,23 @@ export default function BackInStockForm({
                 'success',
             );
 
+            (
+                window as Window & {
+                    posthog?: {
+                        capture: (
+                            event: string,
+                            properties?: Record<string, string | number | boolean>,
+                        ) => void;
+                    };
+                }
+            ).posthog?.capture(
+                'back_in_stock_subscription_completed',
+                {
+                    product_slug: productSlug,
+                    variant_id: variantId ?? 'default',
+                },
+            );
+
             setMessage(
                 payload.message,
             );

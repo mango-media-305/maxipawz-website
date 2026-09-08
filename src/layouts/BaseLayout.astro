@@ -1,5 +1,6 @@
 ---
 import Analytics from '@components/analytics/Analytics.astro';
+import PostHog from '@components/posthog.astro';
 import PetGuidesPagination from '@components/pet-guides/PetGuidesPagination.astro';
 
 import '@fontsource-variable/nunito-sans/wght.css';
@@ -286,6 +287,8 @@ const robotsContent = environmentNoIndex
     }
 
     <Analytics />
+
+    <PostHog />
   </head>
 
   <body>
