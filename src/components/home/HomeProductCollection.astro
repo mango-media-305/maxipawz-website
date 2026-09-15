@@ -1,0 +1,217 @@
+---
+import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
+import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
+
+import ProductCard from '../products/ProductCard.astro';
+import ProductImage from '../products/ProductImage.astro';
+import Badge from '../ui/Badge.astro';
+import Button from '../ui/Button.astro';
+
+import {
+    formatProductPrice,
+    getActiveProducts,
+    getAvailabilityLabel,
+    getCategoryLabel,
+    getPrimaryProductImage,
+} from '../../utils/products';
+
+const maximumProducts = 4;
+
+const catalog = getActiveProducts().filter((product) => product.availability !== 'discontinued');
+
+// Preview modes use existing demo products only during local development.
+// Normal production builds always select real products.
+const requestedPreview = import.meta.env.HOME_COLLECTION_PREVIEW;
+
+const previewMode =
+    import.meta.env.DEV &&
+    (requestedPreview === 'single' || requestedPreview === 'grid' || requestedPreview === 'empty')
+        ? requestedPreview
+        : undefined;
+
+const realProducts = catalog.filter((product) => !product.isDemo);
+const demoProducts = catalog.filter((product) => product.isDemo);
+
+const collectionProducts =
+    previewMode === 'empty'
+        ? []
+        : previewMode
+            ? demoProducts.slice(0, previewMode === 'single' ? 1 : maximumProducts)
+            : realProducts.slice(0, maximumProducts);
+
+const hasProducts = collectionProducts.length > 0;
+
+const spotlightProduct = collectionProducts.length === 1 ? collectionProducts[0] : undefined;
+
+const spotlightOnSale = Boolean(
+    spotlightProduct?.price &&
+    spotlightProduct.compareAtPrice &&
+    spotlightProduct.compareAtPrice.amount > spotlightProduct.price.amount,
+);
+
+const gridClasses = [
+    'grid gap-5',
+    collectionProducts.length === 2 ? 'mx-auto max-w-4xl sm:grid-cols-2' : '',
+    collectionProducts.length === 3 ? 'sm:grid-cols-2 lg:grid-cols-3' : '',
+    collectionProducts.length >= 4 ? 'sm:grid-cols-2 xl:grid-cols-4' : '',
+];
+---
+
+<section
+    id="home-collection"
+    class="section-spacing scroll-mt-28 border-b border-sand bg-white-warm"
+    aria-labelledby="home-collection-title"
+>
+    <div class="site-container">
+        {
+        previewMode && (
+            <p
+            role="note"
+            class="mb-6 rounded-2xl border border-accent-200 bg-accent-50 px-4 py-3 text-sm font-bold text-ink-800"
+            >
+            Local layout preview: {previewMode}. Any products shown here are demo products.
+            </p>
+        )
+        }
+
+        {
+        hasProducts ? (
+            <>
+            <div class="mb-8 flex flex-col gap-5 sm:mb-10 lg:flex-row lg:items-end lg:justify-between">
+                <div class="max-w-3xl">
+                <Badge variant="brand" size="md">
+                    <PawPrintBold slot="icon" aria-hidden="true" />
+                    The Maxi Pawz collection
+                </Badge>
+
+                <h2 id="home-collection-title" class="mt-5 text-4xl text-ink-900 sm:text-5xl">
+                    {spotlightProduct
+                    ? 'A closer look at our collection.'
+                    : 'Find their next everyday favorite.'}
+                </h2>
+
+                <p class="mt-4 max-w-2xl text-base leading-7 text-ink-600 sm:text-lg">
+                    Explore the details, compare your options, and find what fits your pet’s routine.
+                </p>
+                </div>
+
+                {!spotlightProduct && (
+                <Button
+                    href="/shop#products"
+                    variant="ghost"
+                    size="lg"
+                    iconPosition="right"
+                    class="w-full shrink-0 sm:w-auto"
+                >
+                    <ArrowRightBold slot="icon" aria-hidden="true" />
+                    View all products
+                </Button>
+                )}
+            </div>
+
+            {spotlightProduct ? (
+                <article class="grid overflow-hidden rounded-card-lg border border-sand bg-cream-soft shadow-card md:grid-cols-2">
+                <a
+                    href={'/shop/' + spotlightProduct.slug}
+                    aria-label={'View ' + spotlightProduct.name}
+                    class="block min-w-0 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-brand-300"
+                >
+                    <ProductImage
+                    image={getPrimaryProductImage(spotlightProduct)}
+                    variant="detail"
+                    class="aspect-square"
+                    sizes="(min-width: 1280px) 36rem, (min-width: 768px) 48vw, calc(100vw - 2rem)"
+                    widths={[320, 480, 640, 800, 960, 1200]}
+                    />
+                </a>
+
+                <div class="flex min-w-0 flex-col justify-center p-6 sm:p-8 lg:p-10">
+                    <p class="text-sm font-extrabold uppercase tracking-wider text-brand-700">
+                    {getCategoryLabel(spotlightProduct.category)}
+                    </p>
+
+                    {spotlightProduct.isDemo && (
+                    <p class="mt-3 text-sm font-extrabold text-accent-800">Demo product</p>
+                    )}
+
+                    <h3 class="mt-4 wrap-break-word text-3xl text-ink-900 sm:text-4xl">
+                    {spotlightProduct.name}
+                    </h3>
+
+                    <p class="mt-4 text-base leading-7 text-ink-600 sm:text-lg">
+                    {spotlightProduct.shortDescription}
+                    </p>
+
+                    {spotlightProduct.availability !== 'in-stock' && (
+                    <p class="mt-4 text-sm font-extrabold text-ink-700">
+                        {getAvailabilityLabel(spotlightProduct.availability)}
+                    </p>
+                    )}
+
+                    <div class="mt-6 border-t border-sand pt-6">
+                    <p class="text-xs font-extrabold uppercase tracking-wider text-ink-500">
+                        {spotlightProduct.isDemo ? 'Demo price' : 'Price'}
+                    </p>
+
+                    <div class="mt-2 flex flex-wrap items-baseline gap-3">
+                        <p class="text-3xl font-black text-ink-900">
+                        {spotlightProduct.price
+                            ? formatProductPrice(spotlightProduct.price)
+                            : 'Coming soon'}
+                        </p>
+
+                        {spotlightOnSale && spotlightProduct.compareAtPrice && (
+                        <span class="text-lg text-ink-500">
+                            <span class="sr-only">Regular price: </span>
+                            <s>{formatProductPrice(spotlightProduct.compareAtPrice)}</s>
+                        </span>
+                        )}
+                    </div>
+                    </div>
+
+                    <div class="mt-7">
+                    <Button
+                        href={'/shop/' + spotlightProduct.slug}
+                        variant="primary"
+                        size="lg"
+                        iconPosition="right"
+                        class="w-full sm:w-auto"
+                    >
+                        <ArrowRightBold slot="icon" aria-hidden="true" />
+                        Explore this product
+                    </Button>
+                    </div>
+                </div>
+                </article>
+            ) : (
+                <div class:list={gridClasses}>
+                {collectionProducts.map((product, index) => (
+                    <ProductCard product={product} index={index} />
+                ))}
+                </div>
+            )}
+            </>
+        ) : (
+            <div class="mx-auto max-w-2xl rounded-card-lg border border-sand bg-cream-soft p-6 text-center sm:p-8">
+            <h2 id="home-collection-title" class="text-3xl text-ink-900 sm:text-4xl">
+                No products to show right now.
+            </h2>
+
+            <p class="mt-4 leading-7 text-ink-600">
+                Get product news or explore our pet guides while you wait.
+            </p>
+
+            <div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+                <Button href="/#maxi-pawz-updates" variant="primary" size="lg">
+                Get product updates
+                </Button>
+
+                <Button href="/pet-guides" variant="ghost" size="lg">
+                Explore pet guides
+                </Button>
+            </div>
+            </div>
+        )
+        }
+    </div>
+</section>

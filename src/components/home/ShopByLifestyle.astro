@@ -4,7 +4,6 @@ import HeartBold from 'phosphor-astro/HeartBold.astro';
 import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
 import ShieldCheckBold from 'phosphor-astro/ShieldCheckBold.astro';
 import ShoppingBagOpenBold from 'phosphor-astro/ShoppingBagOpenBold.astro';
-import SparkleBold from 'phosphor-astro/SparkleBold.astro';
 import SuitcaseRollingBold from 'phosphor-astro/SuitcaseRollingBold.astro';
 
 import CategoryCard from './CategoryCard.astro';
@@ -15,6 +14,9 @@ import Button from '../ui/Button.astro';
 import { isStoreLive } from '../../config/storefront';
 
 import { lifestyleCategories, type LifestyleCategoryIcon } from '../../data/homepage';
+import { getLifestyleCategoryItems } from '../../utils/storefront-categories';
+
+const categoryItems = getLifestyleCategoryItems(lifestyleCategories);
 
 const iconByCategory: Record<LifestyleCategoryIcon, typeof PawPrintBold> = {
   play: ConfettiBold,
@@ -27,194 +29,171 @@ const iconByCategory: Record<LifestyleCategoryIcon, typeof PawPrintBold> = {
 
 function getCategoryHref(slug: string): string {
   if (!isStoreLive) {
-    return '/#join-the-pack';
+    return '/#maxi-pawz-updates';
   }
 
-  return `/shop?category=${encodeURIComponent(slug)}`;
+  return `/shop?category=${encodeURIComponent(slug)}#products`;
 }
 
 const categoryLinkLabel = isStoreLive ? 'Explore category' : 'Get launch updates';
-
-const categoryCountLabel = `${lifestyleCategories.length} thoughtful categories`;
 ---
 
-<section
-  id="shop-by-lifestyle"
-  class="category-showcase section-spacing relative isolate overflow-hidden"
-  aria-labelledby="shop-by-lifestyle-title"
-  data-category-showcase
->
-  <div class="category-showcase__pattern pointer-events-none absolute inset-0" aria-hidden="true">
-  </div>
-
-  <div
-    class="category-showcase__orb category-showcase__orb--blue pointer-events-none absolute -top-24 -left-24 size-80 rounded-full bg-brand-300/25 blur-3xl"
-    aria-hidden="true"
-  >
-  </div>
-
-  <div
-    class="category-showcase__orb category-showcase__orb--orange pointer-events-none absolute -right-28 bottom-12 size-96 rounded-full bg-accent-300/20 blur-3xl"
-    aria-hidden="true"
-  >
-  </div>
-
-  <div
-    class="category-showcase__paw category-showcase__paw--one pointer-events-none absolute top-20 right-[8%] hidden text-brand-300/35 lg:block"
-    aria-hidden="true"
-  >
-    <PawPrintBold class="size-16 rotate-12" />
-  </div>
-
-  <div
-    class="category-showcase__paw category-showcase__paw--two pointer-events-none absolute bottom-32 left-[4%] hidden text-accent-300/30 lg:block"
-    aria-hidden="true"
-  >
-    <PawPrintBold class="size-12 -rotate-12" />
-  </div>
-
-  <div class="site-container relative z-10">
-    <div class="grid items-end gap-7 lg:grid-cols-1 lg:gap-14">
-      <div data-category-reveal>
-        <Badge variant="brand" size="md">
-          <PawPrintBold slot="icon" aria-hidden="true" />
-
-          {isStoreLive ? 'Shop by lifestyle' : 'What you will find'}
-        </Badge>
-
-        <h2 id="shop-by-lifestyle-title" class="mt-5 text-4xl sm:text-5xl lg:text-6xl">
-          Products for play, care, comfort, and everyday adventures.
-        </h2>
-      </div>
-
-      <div class="lg:pb-1" data-category-reveal style="--category-reveal-delay: 90ms;">
-        <p>
-          {
-            isStoreLive
-              ? 'Explore Maxi Pawz products based on the moments, routines, and experiences you share with your pet.'
-              : 'Maxi Pawz is preparing a varied collection that supports playtime, walks, travel, feeding, hydration, comfort, care, and personal style.'
-          }
-        </p>
-      </div>
-    </div>
-
-    <!-- <div
-      class="category-showcase__rail mt-9 rounded-card border border-sand-dark/45 bg-white-warm/75 p-3 shadow-soft backdrop-blur-md sm:p-4 lg:mt-10"
-      data-category-reveal
-      style="--category-reveal-delay: 150ms;"
-      aria-label="Available lifestyle categories"
+{
+  categoryItems.length > 0 && (
+    <section
+      id="shop-by-lifestyle"
+      class="category-showcase section-spacing relative isolate overflow-hidden"
+      aria-labelledby="shop-by-lifestyle-title"
+      data-category-showcase
     >
-      <ul
-        class="flex flex-wrap justify-center gap-2 sm:gap-3"
-        role="list"
+      <div
+        class="category-showcase__pattern pointer-events-none absolute inset-0"
+        aria-hidden="true"
+      />
+
+      <div
+        class="category-showcase__orb category-showcase__orb--blue pointer-events-none absolute -top-24 -left-24 size-80 rounded-full bg-brand-300/25 blur-3xl"
+        aria-hidden="true"
+      />
+
+      <div
+        class="category-showcase__orb category-showcase__orb--orange pointer-events-none absolute -right-28 bottom-12 size-96 rounded-full bg-accent-300/20 blur-3xl"
+        aria-hidden="true"
+      />
+
+      <div
+        class="category-showcase__paw category-showcase__paw--one pointer-events-none absolute top-20 right-[8%] hidden text-brand-300/35 lg:block"
+        aria-hidden="true"
       >
-        {
-          lifestyleCategories.map((category) => {
+        <PawPrintBold class="size-16 rotate-12" />
+      </div>
+
+      <div
+        class="category-showcase__paw category-showcase__paw--two pointer-events-none absolute bottom-32 left-[4%] hidden text-accent-300/30 lg:block"
+        aria-hidden="true"
+      >
+        <PawPrintBold class="size-12 -rotate-12" />
+      </div>
+
+      <div class="site-container relative z-10">
+        <div class="grid items-end gap-7 lg:grid-cols-1 lg:gap-14">
+          <div data-category-reveal>
+            <Badge variant="brand" size="md">
+              <PawPrintBold slot="icon" aria-hidden="true" />
+
+              {isStoreLive ? 'Shop by lifestyle' : 'What you will find'}
+            </Badge>
+
+            <h2
+              id="shop-by-lifestyle-title"
+              class="mt-5 text-4xl sm:text-5xl lg:text-6xl"
+            >
+              {isStoreLive
+                ? 'Find a category for your pet’s routine.'
+                : 'Products for play, care, comfort, and everyday adventures.'}
+            </h2>
+          </div>
+
+          <div
+            class="lg:pb-1"
+            data-category-reveal
+            style="--category-reveal-delay: 90ms;"
+          >
+            <p>
+              {isStoreLive
+                ? 'Explore Maxi Pawz products based on the moments, routines, and experiences you share with your pet.'
+                : 'Maxi Pawz is preparing a varied collection that supports playtime, walks, travel, feeding, hydration, comfort, care, and personal style.'}
+            </p>
+          </div>
+        </div>
+
+        <div
+          class:list={[
+            'mt-8 grid gap-5 lg:mt-10 lg:gap-6',
+            categoryItems.length === 1 && 'mx-auto max-w-xl',
+            categoryItems.length === 2 && 'mx-auto max-w-4xl sm:grid-cols-2',
+            categoryItems.length >= 3 && 'sm:grid-cols-2 lg:grid-cols-3',
+          ]}
+        >
+          {categoryItems.map((category, index) => {
             const Icon = iconByCategory[category.icon];
 
             return (
-              <li
-                class="category-showcase__chip inline-flex items-center gap-2 rounded-full border border-sand-dark/35 bg-cream-soft/90 px-3 py-2 text-xs font-extrabold text-ink-700 sm:px-4 sm:text-sm"
+              <CategoryCard
+                title={category.title}
+                description={category.description}
+                href={getCategoryHref(category.slug)}
+                linkLabel={categoryLinkLabel}
+                tone={category.tone}
+                backgroundImage={category.backgroundImage}
+                backgroundPosition={category.backgroundPosition}
+                backgroundOverlay={category.backgroundOverlay}
+                index={index}
               >
-                <Icon
-                  class="size-4 text-brand-600"
-                  aria-hidden="true"
-                />
-
-                {category.title}
-              </li>
+                <Icon slot="icon" aria-hidden="true" />
+              </CategoryCard>
             );
-          })
-        }
-      </ul>
-    </div> -->
+          })}
+        </div>
 
-    <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:mt-10 lg:grid-cols-3 lg:gap-6">
-      {
-        lifestyleCategories.map((category, index) => {
-          const Icon = iconByCategory[category.icon];
-
-          return (
-            <CategoryCard
-              title={category.title}
-              description={category.description}
-              href={getCategoryHref(category.slug)}
-              linkLabel={categoryLinkLabel}
-              tone={category.tone}
-              backgroundImage={category.backgroundImage}
-              backgroundPosition={category.backgroundPosition}
-              backgroundOverlay={category.backgroundOverlay}
-              index={index}
-            >
-              <Icon slot="icon" aria-hidden="true" />
-            </CategoryCard>
-          );
-        })
-      }
-    </div>
-
-    <div
-      class="category-showcase__cta mt-10 flex flex-col gap-6 overflow-hidden rounded-card-lg border border-brand-200/70 bg-white-warm/90 p-6 shadow-card backdrop-blur-md sm:p-8 lg:mt-12 lg:flex-row lg:items-center lg:justify-between"
-      data-category-reveal
-      style={`--category-reveal-delay: ${lifestyleCategories.length * 85 + 80}ms;`}
-    >
-      <div class="relative z-10 flex max-w-2xl items-start gap-4">
-        <span
-          class="grid size-12 shrink-0 place-items-center rounded-2xl bg-accent-100 text-accent-700 shadow-orange"
-          aria-hidden="true"
+        <div
+          class="category-showcase__cta mt-10 flex flex-col gap-6 overflow-hidden rounded-card-lg border border-brand-200/70 bg-white-warm/90 p-6 shadow-card backdrop-blur-md sm:p-8 lg:mt-12 lg:flex-row lg:items-center lg:justify-between"
+          data-category-reveal
+          style={`--category-reveal-delay: ${categoryItems.length * 85 + 80}ms;`}
         >
-          <HeartBold class="size-6" />
-        </span>
+          <div class="relative z-10 flex max-w-2xl items-start gap-4">
+            <span
+              class="grid size-12 shrink-0 place-items-center rounded-2xl bg-accent-100 text-accent-700 shadow-orange"
+              aria-hidden="true"
+            >
+              <HeartBold class="size-6" />
+            </span>
 
-        <div>
-          <h3 class="text-2xl sm:text-3xl">
-            {
-              isStoreLive
-                ? 'Find something made for your routine.'
-                : 'Be first to meet the collection.'
-            }
-          </h3>
+            <div>
+              <h3 class="text-2xl sm:text-3xl">
+                {isStoreLive
+                  ? 'Find something made for your routine.'
+                  : 'Be first to meet the collection.'}
+              </h3>
 
-          <p class="mt-2 leading-7 text-ink-600">
-            {
-              isStoreLive
-                ? 'Browse the full Maxi Pawz collection and discover useful products for more of the moments you share together.'
-                : 'Join the Maxi Pawz pack for launch news, collection updates, useful guidance, and occasional subscriber offers.'
-            }
-          </p>
+              <p class="mt-2 leading-7 text-ink-600">
+                {isStoreLive
+                  ? 'Browse the full Maxi Pawz collection and discover useful products for more of the moments you share together.'
+                  : 'Join the Maxi Pawz pack for launch news, collection updates, useful guidance, and occasional subscriber offers.'}
+              </p>
+            </div>
+          </div>
+
+          <div class="relative z-10 shrink-0">
+            {isStoreLive ? (
+              <Button
+                href="/shop#products"
+                variant="primary"
+                size="lg"
+                iconPosition="right"
+                class="w-full sm:w-auto"
+              >
+                <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
+                Shop All Products
+              </Button>
+            ) : (
+              <Button
+                href="/#maxi-pawz-updates"
+                variant="primary"
+                size="lg"
+                iconPosition="right"
+                class="w-full sm:w-auto"
+              >
+                <HeartBold slot="icon" aria-hidden="true" />
+                Join the Pack
+              </Button>
+            )}
+          </div>
         </div>
       </div>
-
-      <div class="relative z-10 shrink-0">
-        {
-          isStoreLive ? (
-            <Button
-              href="/shop"
-              variant="primary"
-              size="lg"
-              iconPosition="right"
-              class="w-full sm:w-auto"
-            >
-              <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
-              Shop All Products
-            </Button>
-          ) : (
-            <Button
-              href="/#join-the-pack"
-              variant="primary"
-              size="lg"
-              iconPosition="right"
-              class="w-full sm:w-auto"
-            >
-              <HeartBold slot="icon" aria-hidden="true" />
-              Join the Pack
-            </Button>
-          )
-        }
-      </div>
-    </div>
-  </div>
-</section>
+    </section>
+  )
+}
 
 <style is:global>
   .category-showcase {
@@ -227,9 +206,19 @@ const categoryCountLabel = `${lifestyleCategories.length} thoughtful categories`
   }
 
   .category-showcase__pattern {
-    background-image: radial-gradient(circle, rgb(0 138 255 / 10%) 1.25px, transparent 1.25px);
+    background-image: radial-gradient(
+      circle,
+      rgb(0 138 255 / 10%) 1.25px,
+      transparent 1.25px
+    );
     background-size: 2rem 2rem;
-    mask-image: linear-gradient(to bottom, transparent, black 16%, black 78%, transparent);
+    mask-image: linear-gradient(
+      to bottom,
+      transparent,
+      black 16%,
+      black 78%,
+      transparent
+    );
     opacity: 0.65;
   }
 
@@ -251,32 +240,6 @@ const categoryCountLabel = `${lifestyleCategories.length} thoughtful categories`
   .category-showcase__paw--two {
     animation-delay: -3.5s;
     animation-direction: reverse;
-  }
-
-  .category-showcase__rail {
-    position: relative;
-  }
-
-  .category-showcase__rail::before {
-    position: absolute;
-    inset: 0.35rem;
-    border: 1px solid rgb(255 255 255 / 68%);
-    border-radius: calc(var(--radius-card) - 0.35rem);
-    content: '';
-    pointer-events: none;
-  }
-
-  .category-showcase__chip {
-    transition:
-      transform 200ms var(--ease-bounce-soft),
-      border-color 200ms var(--ease-friendly),
-      background-color 200ms var(--ease-friendly);
-  }
-
-  .category-showcase__chip:hover {
-    transform: translateY(-2px);
-    border-color: rgb(0 138 255 / 28%);
-    background-color: rgb(238 248 255 / 92%);
   }
 
   .category-showcase__cta {
@@ -351,7 +314,6 @@ const categoryCountLabel = `${lifestyleCategories.length} thoughtful categories`
       animation: none !important;
     }
 
-    .category-showcase__chip,
     .category-motion-ready [data-category-reveal] {
       transform: none !important;
       transition: none !important;
@@ -365,7 +327,9 @@ const categoryCountLabel = `${lifestyleCategories.length} thoughtful categories`
 
 <script>
   const initializeCategoryShowcases = (): void => {
-    const sections = Array.from(document.querySelectorAll<HTMLElement>('[data-category-showcase]'));
+    const sections = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-category-showcase]'),
+    );
 
     for (const section of sections) {
       if (section.dataset.categoryInitialized === 'true') {
@@ -374,7 +338,9 @@ const categoryCountLabel = `${lifestyleCategories.length} thoughtful categories`
 
       section.dataset.categoryInitialized = 'true';
 
-      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const reducedMotion = window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      ).matches;
 
       const revealElements = Array.from(
         section.querySelectorAll<HTMLElement>('[data-category-reveal]'),
@@ -391,7 +357,6 @@ const categoryCountLabel = `${lifestyleCategories.length} thoughtful categories`
               }
 
               entry.target.classList.add('is-category-visible');
-
               observer.unobserve(entry.target);
             }
           },
@@ -412,7 +377,9 @@ const categoryCountLabel = `${lifestyleCategories.length} thoughtful categories`
         }
       }
 
-      const supportsFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+      const supportsFinePointer = window.matchMedia(
+        '(hover: hover) and (pointer: fine)',
+      ).matches;
 
       if (reducedMotion || !supportsFinePointer) {
         continue;
@@ -437,28 +404,29 @@ const categoryCountLabel = `${lifestyleCategories.length} thoughtful categories`
           }
 
           const normalizedX = (pointerX - rect.left) / rect.width - 0.5;
-
           const normalizedY = (pointerY - rect.top) / rect.height - 0.5;
 
           const rotateY = normalizedX * 4.8;
-
           const rotateX = normalizedY * -4.2;
 
           const imageX = normalizedX * -8;
-
           const imageY = normalizedY * -8;
 
           card.style.setProperty('--card-rotate-x', `${rotateX.toFixed(2)}deg`);
-
           card.style.setProperty('--card-rotate-y', `${rotateY.toFixed(2)}deg`);
 
           card.style.setProperty('--card-image-x', `${imageX.toFixed(2)}px`);
-
           card.style.setProperty('--card-image-y', `${imageY.toFixed(2)}px`);
 
-          card.style.setProperty('--card-spotlight-x', `${(normalizedX + 0.5) * 100}%`);
+          card.style.setProperty(
+            '--card-spotlight-x',
+            `${(normalizedX + 0.5) * 100}%`,
+          );
 
-          card.style.setProperty('--card-spotlight-y', `${(normalizedY + 0.5) * 100}%`);
+          card.style.setProperty(
+            '--card-spotlight-y',
+            `${(normalizedY + 0.5) * 100}%`,
+          );
         };
 
         const handlePointerMove = (event: PointerEvent): void => {
@@ -473,20 +441,16 @@ const categoryCountLabel = `${lifestyleCategories.length} thoughtful categories`
         const resetCardMotion = (): void => {
           if (animationFrame !== 0) {
             window.cancelAnimationFrame(animationFrame);
-
             animationFrame = 0;
           }
 
           card.style.setProperty('--card-rotate-x', '0deg');
-
           card.style.setProperty('--card-rotate-y', '0deg');
 
           card.style.setProperty('--card-image-x', '0px');
-
           card.style.setProperty('--card-image-y', '0px');
 
           card.style.setProperty('--card-spotlight-x', '50%');
-
           card.style.setProperty('--card-spotlight-y', '50%');
         };
 
@@ -495,7 +459,6 @@ const categoryCountLabel = `${lifestyleCategories.length} thoughtful categories`
         });
 
         card.addEventListener('pointerleave', resetCardMotion);
-
         card.addEventListener('blur', resetCardMotion, true);
       }
     }

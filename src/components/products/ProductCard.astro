@@ -160,7 +160,9 @@ const showStaticAvailabilityBadge =
       </p>
 
       <div class="mt-5 border-t border-sand/80 pt-5">
-        <p class="text-xs font-extrabold tracking-[0.07em] text-ink-500 uppercase">Demo price</p>
+        <p class="text-xs font-extrabold tracking-[0.07em] text-ink-500 uppercase">
+          {product.isDemo ? 'Demo price' : 'Price'}
+        </p>
 
         <div class="mt-1 flex flex-wrap items-baseline gap-2">
           <p class="text-xl font-black text-ink-900">
