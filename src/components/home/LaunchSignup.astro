@@ -18,6 +18,46 @@ import {
 import BrandLogo from '../brand/BrandLogo.astro';
 import Button from '../ui/Button.astro';
 
+import { isStoreLive } from '../../config/storefront';
+
+const copy = isStoreLive
+  ? {
+      eyebrow: 'Maxi Pawz Updates',
+      title: 'Stay in the loop with Maxi Pawz.',
+      description:
+        'Get new-product news, practical pet guides, and occasional subscriber offers for life with your pet.',
+      firstBenefit: 'New-product updates',
+      secondBenefit: 'Subscriber offers',
+      brandNote: 'A little inspiration for the everyday moments you share with your pet.',
+      formTitle: 'Good things for your inbox.',
+      formDescription:
+        'Choose whether you want Maxi Pawz emails. You can also share an optional pet profile afterward.',
+      consentDescription:
+        'I want new-product news, helpful pet guides, and occasional Maxi Pawz offers by email.',
+      submitLabel: 'Get Maxi Pawz Updates',
+      interestQuestion: 'What would you like to see more of?',
+      interestHelp: 'Optional. Help us choose future additions to the collection.',
+      completeTitle: 'Welcome to the Pack.',
+    }
+  : {
+      eyebrow: 'Founding Pack',
+      title: 'Join the Maxi Pawz Founding Pack.',
+      description:
+        'Be part of Maxi Pawz before the first collection arrives. Get launch news, helpful pet guides, and occasional subscriber offers.',
+      firstBenefit: 'Early launch updates',
+      secondBenefit: 'Help shape what comes next',
+      brandNote: 'The Founding Pack is for the people helping us build Maxi Pawz from the beginning.',
+      formTitle: 'Be here from the beginning.',
+      formDescription:
+        'Choose whether you want launch news, helpful pet guides, and occasional Maxi Pawz offers by email.',
+      consentDescription:
+        'I want launch updates, new-product news, helpful pet guides, and occasional Maxi Pawz offers by email.',
+      submitLabel: 'Join the Founding Pack',
+      interestQuestion: 'What should Maxi Pawz launch first?',
+      interestHelp: 'Optional. This helps us understand what the Founding Pack wants most.',
+      completeTitle: 'Welcome to the Founding Pack.',
+    };
+
 const petTypeLabels = {
   dog: 'Dog',
   cat: 'Cat',
@@ -48,8 +88,13 @@ const launchInterestLabels = {
   class="launch-signup content-visibility-auto section-spacing relative isolate scroll-mt-28 overflow-hidden border-b border-sand/70"
   aria-labelledby="maxi-pawz-updates-title"
   data-launch-signup
+  data-signup-submit-label={copy.submitLabel}
+  data-signup-complete-title={copy.completeTitle}
 >
-  <div class="launch-signup__pattern pointer-events-none absolute inset-0" aria-hidden="true"></div>
+  <div
+    class="launch-signup__pattern pointer-events-none absolute inset-0"
+    aria-hidden="true"
+  ></div>
 
   <div
     class="motion-parallax pointer-events-none absolute -top-32 -left-28"
@@ -60,8 +105,7 @@ const launchInterestLabels = {
     <div
       class="launch-signup__orb launch-signup__orb--blue size-96 rounded-full bg-brand-300/24 blur-3xl"
       data-motion-continuous
-    >
-    </div>
+    ></div>
   </div>
 
   <div
@@ -73,8 +117,7 @@ const launchInterestLabels = {
     <div
       class="launch-signup__orb launch-signup__orb--orange size-104 rounded-full bg-accent-300/22 blur-3xl"
       data-motion-continuous
-    >
-    </div>
+    ></div>
   </div>
 
   <span
@@ -102,15 +145,13 @@ const launchInterestLabels = {
         class="launch-signup__shell-glow pointer-events-none absolute -top-40 -left-36 size-112 rounded-full bg-brand-500/28 blur-3xl"
         data-motion-continuous
         aria-hidden="true"
-      >
-      </div>
+      ></div>
 
       <div
         class="launch-signup__shell-glow launch-signup__shell-glow--reverse pointer-events-none absolute -right-36 -bottom-44 size-120 rounded-full bg-accent-500/22 blur-3xl"
         data-motion-continuous
         aria-hidden="true"
-      >
-      </div>
+      ></div>
 
       <div
         class="launch-signup__grid relative grid min-h-168 overflow-hidden lg:grid-cols-[0.92fr_1.08fr]"
@@ -130,7 +171,10 @@ const launchInterestLabels = {
             data-motion-continuous
           />
 
-          <div class="launch-signup__background-wash absolute inset-0" aria-hidden="true"></div>
+          <div
+            class="launch-signup__background-wash absolute inset-0"
+            aria-hidden="true"
+          ></div>
         </div>
 
         <!-- Brand / conversion copy -->
@@ -142,58 +186,62 @@ const launchInterestLabels = {
           <div
             class="launch-signup__left-pattern pointer-events-none absolute inset-0"
             aria-hidden="true"
-          >
-          </div>
+          ></div>
 
           <div
             class="pointer-events-none absolute -bottom-28 -left-24 size-80 rounded-full bg-accent-500/18 blur-3xl"
             aria-hidden="true"
-          >
-          </div>
+          ></div>
 
           <div class="relative z-10 max-w-xl">
             <p
               class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-ink-950/72 px-4 py-2 text-xs font-black uppercase tracking-[0.15em] text-accent-200 shadow-sm"
             >
               <HeartBold class="size-4" aria-hidden="true" />
-
-              Founding Pack
+              {copy.eyebrow}
             </p>
 
             <h2
               id="maxi-pawz-updates-title"
               class="mt-6 max-w-xl text-3xl text-white sm:text-4xl lg:text-[2.8rem]"
             >
-              Join the Maxi Pawz Founding Pack.
+              {copy.title}
             </h2>
 
             <p class="mt-5 max-w-xl text-base leading-7 text-white/78 sm:text-lg sm:leading-8">
-              Be part of Maxi Pawz before the first collection arrives. Get launch news, helpful pet
-              guides, new-product updates, and occasional subscriber-only offers.
+              {copy.description}
             </p>
 
             <div class="mt-7 grid gap-3 text-sm font-bold text-white/82 sm:grid-cols-2">
               <span class="flex items-center gap-2">
-                <CheckCircleBold class="size-5 shrink-0 text-accent-300" aria-hidden="true" />
-
-                Early launch updates
+                <CheckCircleBold
+                  class="size-5 shrink-0 text-accent-300"
+                  aria-hidden="true"
+                />
+                {copy.firstBenefit}
               </span>
 
               <span class="flex items-center gap-2">
-                <CheckCircleBold class="size-5 shrink-0 text-accent-300" aria-hidden="true" />
-
-                Help shape what comes next
+                <CheckCircleBold
+                  class="size-5 shrink-0 text-accent-300"
+                  aria-hidden="true"
+                />
+                {copy.secondBenefit}
               </span>
 
               <span class="flex items-center gap-2">
-                <CheckCircleBold class="size-5 shrink-0 text-accent-300" aria-hidden="true" />
-
+                <CheckCircleBold
+                  class="size-5 shrink-0 text-accent-300"
+                  aria-hidden="true"
+                />
                 Useful pet guidance
               </span>
 
               <span class="flex items-center gap-2">
-                <CheckCircleBold class="size-5 shrink-0 text-accent-300" aria-hidden="true" />
-
+                <CheckCircleBold
+                  class="size-5 shrink-0 text-accent-300"
+                  aria-hidden="true"
+                />
                 Optional pet profile
               </span>
             </div>
@@ -213,10 +261,12 @@ const launchInterestLabels = {
             </span>
 
             <div>
-              <p class="font-display text-xl text-white sm:text-2xl">Happy pets. Happy life.</p>
+              <p class="font-display text-xl text-white sm:text-2xl">
+                Happy pets. Happy life.
+              </p>
 
               <p class="mt-1 text-sm leading-6 text-white/68">
-                The Founding Pack is for the people helping us build Maxi Pawz from the beginning.
+                {copy.brandNote}
               </p>
             </div>
           </div>
@@ -231,8 +281,7 @@ const launchInterestLabels = {
           <div
             class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,rgba(0,138,255,0.12),transparent_18rem),radial-gradient(circle_at_10%_90%,rgba(255,102,0,0.12),transparent_20rem)]"
             aria-hidden="true"
-          >
-          </div>
+          ></div>
 
           <span
             class="launch-signup__floating-mark pointer-events-none absolute top-5 right-5 z-20 hidden size-20 rotate-6 place-items-center rounded-3xl border border-brand-200 bg-white-warm/96 p-3 shadow-blue sm:grid"
@@ -257,35 +306,33 @@ const launchInterestLabels = {
                 <div
                   class="launch-signup__form-spotlight pointer-events-none absolute inset-0 z-0"
                   aria-hidden="true"
-                >
-                </div>
+                ></div>
 
                 <div
                   class="pointer-events-none absolute -top-20 -right-16 size-56 rounded-full bg-brand-200/25 blur-3xl"
                   aria-hidden="true"
-                >
-                </div>
+                ></div>
 
                 <div
                   class="pointer-events-none absolute -bottom-24 -left-20 size-64 rounded-full bg-accent-200/25 blur-3xl"
                   aria-hidden="true"
-                >
-                </div>
+                ></div>
 
                 <div class="relative z-10">
                   <!-- STEP 1 -->
                   <div data-founding-pack-step="signup">
-                    <div class="flex items-center gap-2 text-xs font-black tracking-[0.14em] text-brand-700 uppercase">
-                      Join the Pack
+                    <div
+                      class="flex items-center gap-2 text-xs font-black tracking-[0.14em] text-brand-700 uppercase"
+                    >
+                      {copy.eyebrow}
                     </div>
 
                     <h3 class="mt-5 pr-0 text-2xl text-ink-900 sm:pr-20 sm:text-3xl">
-                      Be here from the beginning.
+                      {copy.formTitle}
                     </h3>
 
                     <p class="mt-4 leading-7 text-ink-600">
-                      Sign up for the Maxi Pawz Founding Pack to get early launch updates, helpful
-                      pet guides, and occasional subscriber-only offers.
+                      {copy.formDescription}
                     </p>
 
                     <form
@@ -298,7 +345,6 @@ const launchInterestLabels = {
                       <p hidden>
                         <label>
                           Do not fill out this field:
-
                           <input name="bot-field" tabindex="-1" autocomplete="off" />
                         </label>
                       </p>
@@ -306,7 +352,9 @@ const launchInterestLabels = {
                       <div class="grid gap-5 sm:grid-cols-2">
                         <div>
                           <div class="flex items-center justify-between gap-3">
-                            <label for="launch-first-name" class="form-label">First name</label>
+                            <label for="launch-first-name" class="form-label">
+                              First name
+                            </label>
 
                             <span class="text-xs font-bold text-ink-400">Optional</span>
                           </div>
@@ -324,7 +372,9 @@ const launchInterestLabels = {
                         </div>
 
                         <div>
-                          <label for="launch-email" class="form-label">Email address</label>
+                          <label for="launch-email" class="form-label">
+                            Email address
+                          </label>
 
                           <input
                             id="launch-email"
@@ -342,6 +392,13 @@ const launchInterestLabels = {
                           />
                         </div>
                       </div>
+
+                      <p
+                        id="launch-email-help"
+                        class="mt-3 text-xs leading-5 text-ink-500"
+                      >
+                        Choose below whether you want to receive Maxi Pawz emails.
+                      </p>
 
                       <div
                         class="mt-6 rounded-3xl border border-brand-200/70 bg-brand-50/85 p-4 sm:p-5"
@@ -373,13 +430,12 @@ const launchInterestLabels = {
                             </span>
 
                             <span class="mt-1 block text-sm leading-6 text-ink-600">
-                              I want launch updates, new-product news, helpful pet guides, and
-                              occasional Maxi Pawz offers by email.
+                              {copy.consentDescription}
                             </span>
 
                             <span class="mt-2 block text-xs leading-5 text-ink-500">
-                              Uncheck this box if you prefer not to receive marketing emails. You can
-                              unsubscribe at any time.
+                              Uncheck this box if you prefer not to receive marketing emails.
+                              You can unsubscribe at any time.
                             </span>
                           </span>
                         </label>
@@ -394,8 +450,7 @@ const launchInterestLabels = {
                           iconPosition="right"
                         >
                           <ArrowRightBold slot="icon" aria-hidden="true" />
-
-                          <span data-launch-submit-label>Join the Founding Pack</span>
+                          <span data-launch-submit-label>{copy.submitLabel}</span>
                         </Button>
                       </div>
 
@@ -404,8 +459,7 @@ const launchInterestLabels = {
                         role="status"
                         aria-live="polite"
                         data-launch-form-status
-                      >
-                      </p>
+                      ></p>
 
                       <div class="mt-4 flex items-start justify-center gap-2 text-center">
                         <CheckCircleBold
@@ -422,14 +476,15 @@ const launchInterestLabels = {
 
                   <!-- STEP 2 -->
                   <div data-founding-pack-step="profile" hidden>
-                    <div class="flex items-center gap-2 text-xs font-black tracking-[0.14em] text-accent-700 uppercase">
+                    <div
+                      class="flex items-center gap-2 text-xs font-black tracking-[0.14em] text-accent-700 uppercase"
+                    >
                       <span
                         class="grid size-7 place-items-center rounded-full bg-accent-100 text-accent-700"
                         aria-hidden="true"
                       >
                         2
                       </span>
-
                       Optional
                     </div>
 
@@ -444,10 +499,15 @@ const launchInterestLabels = {
                       </span>
 
                       <div>
-                        <p class="font-extrabold text-ink-900">You're in the Founding Pack.</p>
+                        <p class="font-extrabold text-ink-900" data-preference-title>
+                          Your email preference is saved.
+                        </p>
 
-                        <p class="mt-1 text-sm leading-6 text-ink-600">
-                          Your signup has already been saved. Everything below is optional.
+                        <p
+                          class="mt-1 text-sm leading-6 text-ink-600"
+                          data-preference-message
+                        >
+                          Everything below is optional.
                         </p>
                       </div>
                     </div>
@@ -457,8 +517,8 @@ const launchInterestLabels = {
                     </h3>
 
                     <p class="mt-4 leading-7 text-ink-600">
-                      A few details can help us understand what our community actually wants. No
-                      birthday, breed, address, phone number, or other unnecessary information.
+                      Share a few details to help us understand your pet and the products
+                      that interest you.
                     </p>
 
                     <form class="mt-7" data-pet-profile-form>
@@ -478,7 +538,9 @@ const launchInterestLabels = {
 
                       <div class="grid gap-5 sm:grid-cols-2">
                         <div>
-                          <label for="founding-pet-name" class="form-label">Pet name</label>
+                          <label for="founding-pet-name" class="form-label">
+                            Pet name
+                          </label>
 
                           <input
                             id="founding-pet-name"
@@ -493,7 +555,9 @@ const launchInterestLabels = {
                         </div>
 
                         <div>
-                          <label for="founding-pet-type" class="form-label">Pet type</label>
+                          <label for="founding-pet-type" class="form-label">
+                            Pet type
+                          </label>
 
                           <select
                             id="founding-pet-type"
@@ -545,10 +609,10 @@ const launchInterestLabels = {
                       </div>
 
                       <fieldset class="mt-6">
-                        <legend class="form-label">What should Maxi Pawz launch first?</legend>
+                        <legend class="form-label">{copy.interestQuestion}</legend>
 
                         <p class="mt-1 text-xs leading-5 text-ink-500">
-                          Optional. This helps us understand what the Founding Pack wants most.
+                          {copy.interestHelp}
                         </p>
 
                         <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -580,7 +644,6 @@ const launchInterestLabels = {
                           iconPosition="right"
                         >
                           <PawPrintBold slot="icon" aria-hidden="true" />
-
                           <span data-profile-submit-label>Save Pet Profile</span>
                         </Button>
                       </div>
@@ -598,13 +661,16 @@ const launchInterestLabels = {
                         role="status"
                         aria-live="polite"
                         data-profile-status
-                      >
-                      </p>
+                      ></p>
                     </form>
                   </div>
 
                   <!-- COMPLETE -->
-                  <div class="py-4 text-center" data-founding-pack-step="complete" hidden>
+                  <div
+                    class="py-4 text-center"
+                    data-founding-pack-step="complete"
+                    hidden
+                  >
                     <span
                       class="mx-auto grid size-16 place-items-center rounded-full bg-brand-100 text-brand-700 shadow-sm"
                       aria-hidden="true"
@@ -612,17 +678,24 @@ const launchInterestLabels = {
                       <PawPrintBold class="size-8" />
                     </span>
 
-                    <p class="mt-5 text-xs font-black tracking-[0.14em] text-accent-700 uppercase">
-                      Founding Pack Member
+                    <p
+                      class="mt-5 text-xs font-black tracking-[0.14em] text-accent-700 uppercase"
+                    >
+                      Maxi Pawz Updates
                     </p>
 
-                    <h3 class="mt-3 text-3xl text-ink-900">Welcome to the Pack.</h3>
+                    <h3
+                      class="mt-3 text-3xl text-ink-900"
+                      data-complete-title
+                    >
+                      {copy.completeTitle}
+                    </h3>
 
                     <p
                       class="mx-auto mt-4 max-w-md leading-7 text-ink-600"
                       data-complete-message
                     >
-                      You're officially part of the Maxi Pawz Founding Pack.
+                      Your email preference has been saved.
                     </p>
 
                     <div
@@ -635,8 +708,7 @@ const launchInterestLabels = {
                         />
 
                         <p class="text-sm leading-6 text-ink-600">
-                          We'll keep building while you explore the Pet Guides and follow along as
-                          the first Maxi Pawz collection takes shape.
+                          Explore practical pet guides for everyday life with your pet.
                         </p>
                       </div>
                     </div>
@@ -646,7 +718,6 @@ const launchInterestLabels = {
                       class="mt-7 inline-flex items-center gap-2 font-extrabold text-brand-700 transition hover:text-brand-800"
                     >
                       Explore Pet Guides
-
                       <ArrowRightBold class="size-5" aria-hidden="true" />
                     </a>
                   </div>
@@ -675,21 +746,25 @@ const launchInterestLabels = {
       radial-gradient(circle at 18% 25%, rgb(0 138 255 / 8%), transparent 24rem),
       radial-gradient(circle at 85% 72%, rgb(255 102 0 / 8%), transparent 26rem),
       radial-gradient(circle, rgb(53 39 31 / 7%) 1px, transparent 1px);
-
     background-size:
       auto,
       auto,
       2.25rem 2.25rem;
-
-    mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
-
+    mask-image: linear-gradient(
+      to bottom,
+      transparent,
+      black 10%,
+      black 90%,
+      transparent
+    );
     opacity: 0.72;
   }
 
   .launch-signup__shell {
     background:
       radial-gradient(circle at 10% 10%, rgb(0 138 255 / 22%), transparent 23rem),
-      radial-gradient(circle at 34% 100%, rgb(255 102 0 / 17%), transparent 25rem), #211711;
+      radial-gradient(circle at 34% 100%, rgb(255 102 0 / 17%), transparent 25rem),
+      #211711;
   }
 
   .launch-signup__background {
@@ -712,7 +787,11 @@ const launchInterestLabels = {
         rgb(255 253 250 / 8%) 58%,
         rgb(255 253 250 / 18%) 100%
       ),
-      linear-gradient(180deg, rgb(33 23 17 / 10%) 0%, rgb(33 23 17 / 22%) 100%);
+      linear-gradient(
+        180deg,
+        rgb(33 23 17 / 10%) 0%,
+        rgb(33 23 17 / 22%) 100%
+      );
   }
 
   .launch-signup__copy-panel {
@@ -739,7 +818,6 @@ const launchInterestLabels = {
     background-image:
       linear-gradient(rgb(255 255 255 / 3%) 1px, transparent 1px),
       linear-gradient(90deg, rgb(255 255 255 / 3%) 1px, transparent 1px);
-
     background-size: 3rem 3rem;
     mask-image: linear-gradient(to bottom right, black, transparent 76%);
     opacity: 0.65;
@@ -784,7 +862,6 @@ const launchInterestLabels = {
       rgb(255 255 255 / 48%),
       transparent 68%
     );
-
     opacity: 0;
     transition: opacity 220ms ease;
   }
@@ -953,8 +1030,7 @@ const launchInterestLabels = {
     }
 
     .launch-signup__copy-panel {
-      min-height: 34rem;
-
+      min-height: 0;
       background: linear-gradient(
         180deg,
         rgb(33 23 17 / 18%) 0%,
@@ -1010,18 +1086,19 @@ const launchInterestLabels = {
 <script>
   interface NewsletterSignupResponse {
     ok?: boolean;
-
+    marketingConsent?: boolean;
     message?: string;
   }
 
   interface PetProfileResponse {
     ok?: boolean;
-
     message?: string;
   }
 
   const initializeLaunchSignupForms = (): void => {
-    const sections = Array.from(document.querySelectorAll<HTMLElement>('[data-launch-signup]'));
+    const sections = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-launch-signup]'),
+    );
 
     for (const section of sections) {
       if (section.dataset.launchFormInitialized === 'true') {
@@ -1042,9 +1119,11 @@ const launchInterestLabels = {
         '[data-founding-pack-step="complete"]',
       );
 
-      const signupForm = section.querySelector<HTMLFormElement>('[data-launch-form]');
+      const signupForm =
+        section.querySelector<HTMLFormElement>('[data-launch-form]');
 
-      const profileForm = section.querySelector<HTMLFormElement>('[data-pet-profile-form]');
+      const profileForm =
+        section.querySelector<HTMLFormElement>('[data-pet-profile-form]');
 
       const signupSubmitButton =
         signupForm?.querySelector<HTMLButtonElement>('button[type="submit"]');
@@ -1076,6 +1155,21 @@ const launchInterestLabels = {
       const completeMessage =
         section.querySelector<HTMLElement>('[data-complete-message]');
 
+      const completeTitle =
+        section.querySelector<HTMLElement>('[data-complete-title]');
+
+      const preferenceTitle =
+        section.querySelector<HTMLElement>('[data-preference-title]');
+
+      const preferenceMessage =
+        section.querySelector<HTMLElement>('[data-preference-message]');
+
+      const signupButtonLabel =
+        section.dataset.signupSubmitLabel ?? 'Get Maxi Pawz Updates';
+
+      const completionTitle =
+        section.dataset.signupCompleteTitle ?? 'Welcome to the Pack.';
+
       if (
         !signupStep ||
         !profileStep ||
@@ -1088,6 +1182,9 @@ const launchInterestLabels = {
       }
 
       let foundingPackEmail = '';
+      let savedMarketingConsent = false;
+      let signupSubmitting = false;
+      let profileSubmitting = false;
 
       const cleanupFunctions: Array<() => void> = [];
 
@@ -1118,14 +1215,15 @@ const launchInterestLabels = {
             'bg-emerald-50',
             'text-emerald-800',
           );
-
           return;
         }
 
         element.classList.add('border-red-200', 'bg-red-50', 'text-red-800');
       };
 
-      const clearStatus = (element: HTMLElement | null | undefined): void => {
+      const clearStatus = (
+        element: HTMLElement | null | undefined,
+      ): void => {
         if (!element) {
           return;
         }
@@ -1135,6 +1233,7 @@ const launchInterestLabels = {
       };
 
       const setSignupSubmitting = (submitting: boolean): void => {
+        signupSubmitting = submitting;
         signupForm.classList.toggle('is-submitting', submitting);
         signupForm.toggleAttribute('aria-busy', submitting);
 
@@ -1145,14 +1244,15 @@ const launchInterestLabels = {
 
         if (signupSubmitLabel) {
           signupSubmitLabel.textContent = submitting
-            ? 'Joining the Pack…'
+            ? 'Saving…'
             : marketingConsentCheckbox?.checked === false
               ? 'Save My Preference'
-              : 'Join the Founding Pack';
+              : signupButtonLabel;
         }
       };
 
       const setProfileSubmitting = (submitting: boolean): void => {
+        profileSubmitting = submitting;
         profileForm.classList.toggle('is-submitting', submitting);
         profileForm.toggleAttribute('aria-busy', submitting);
 
@@ -1190,6 +1290,30 @@ const launchInterestLabels = {
           heading?.setAttribute('tabindex', '-1');
           heading?.focus({ preventScroll: true });
         });
+      };
+
+      const getSavedPreferenceMessage = (): string =>
+        savedMarketingConsent
+          ? 'Your preference to receive Maxi Pawz marketing emails has been saved.'
+          : 'Your preference not to receive Maxi Pawz marketing emails has been saved.';
+
+      const showCompletion = (petName?: string): void => {
+        if (completeTitle) {
+          completeTitle.textContent = savedMarketingConsent
+            ? completionTitle
+            : 'Your preference is saved.';
+        }
+
+        if (completeMessage) {
+          const profileMessage = petName
+            ? `Thanks for introducing ${petName} to Maxi. Your pet profile has been saved.`
+            : 'You can share your pet’s details another time.';
+
+          completeMessage.textContent =
+            `${getSavedPreferenceMessage()} ${profileMessage}`;
+        }
+
+        showStep('complete');
       };
 
       const updateFieldState = (
@@ -1248,41 +1372,55 @@ const launchInterestLabels = {
       initializeFieldValidation(profileFields);
 
       const syncSignupButtonLabel = (): void => {
-        if (signupForm.classList.contains('is-submitting') || !signupSubmitLabel) {
+        if (
+          signupForm.classList.contains('is-submitting') ||
+          !signupSubmitLabel
+        ) {
           return;
         }
 
         signupSubmitLabel.textContent =
           marketingConsentCheckbox?.checked === false
             ? 'Save My Preference'
-            : 'Join the Founding Pack';
+            : signupButtonLabel;
       };
 
       const handleMarketingConsentChange = (): void => {
         syncSignupButtonLabel();
       };
 
-      const handleSignupSubmit = async (event: SubmitEvent): Promise<void> => {
-        if (!signupForm.checkValidity()) {
+      const handleSignupSubmit = async (
+        event: SubmitEvent,
+      ): Promise<void> => {
+        event.preventDefault();
+
+        if (signupSubmitting) {
           return;
         }
 
-        event.preventDefault();
+        if (!signupForm.checkValidity()) {
+          signupForm.reportValidity();
+          return;
+        }
 
         clearStatus(signupStatus);
-
         setSignupSubmitting(true);
 
         try {
           const formData = new FormData(signupForm);
 
+          const submittedEmail = String(formData.get('email') ?? '')
+            .trim()
+            .toLowerCase();
+
+          const submittedConsent =
+            formData.get('marketing-consent') === 'yes';
+
           const response = await fetch(signupForm.action, {
             method: 'POST',
-
             headers: {
               Accept: 'application/json',
             },
-
             body: formData,
           });
 
@@ -1293,18 +1431,34 @@ const launchInterestLabels = {
           if (!response.ok || body?.ok !== true) {
             throw new Error(
               body?.message ??
-                'We could not save your Founding Pack signup. Please try again.',
+                'We could not save your email preference. Please try again.',
             );
           }
 
-          foundingPackEmail = emailField.value.trim().toLowerCase();
+          foundingPackEmail = submittedEmail;
+
+          savedMarketingConsent =
+            typeof body.marketingConsent === 'boolean'
+              ? body.marketingConsent
+              : submittedConsent;
+
+          if (preferenceTitle) {
+            preferenceTitle.textContent = savedMarketingConsent
+              ? 'Your signup is saved.'
+              : 'Your email preference is saved.';
+          }
+
+          if (preferenceMessage) {
+            preferenceMessage.textContent =
+              `${getSavedPreferenceMessage()} Everything below is optional.`;
+          }
 
           showStep('profile');
         } catch (error) {
           const message =
             error instanceof Error
               ? error.message
-              : 'We could not save your Founding Pack signup. Please try again.';
+              : 'We could not save your email preference. Please try again.';
 
           showStatus(signupStatus, message, 'error');
         } finally {
@@ -1312,17 +1466,21 @@ const launchInterestLabels = {
         }
       };
 
-      const handleProfileSubmit = async (event: SubmitEvent): Promise<void> => {
+      const handleProfileSubmit = async (
+        event: SubmitEvent,
+      ): Promise<void> => {
         event.preventDefault();
+
+        if (profileSubmitting || !foundingPackEmail) {
+          return;
+        }
 
         if (!profileForm.checkValidity()) {
           profileForm.reportValidity();
-
           return;
         }
 
         clearStatus(profileStatus);
-
         setProfileSubmitting(true);
 
         try {
@@ -1348,20 +1506,22 @@ const launchInterestLabels = {
             );
 
           if (!petNameField || !petTypeField) {
-            throw new Error('The pet profile form is unavailable. Please try again.');
+            throw new Error(
+              'The pet profile form is unavailable. Please try again.',
+            );
           }
+
+          const submittedPetName = petNameField.value.trim();
 
           const response = await fetch('/api/founding-pack/profile', {
             method: 'POST',
-
             headers: {
               Accept: 'application/json',
               'Content-Type': 'application/json',
             },
-
             body: JSON.stringify({
               email: foundingPackEmail,
-              petName: petNameField.value,
+              petName: submittedPetName,
               petType: petTypeField.value,
               petPersonality: petPersonalityField?.value || undefined,
               launchInterest: selectedLaunchInterest?.value || undefined,
@@ -1375,17 +1535,12 @@ const launchInterestLabels = {
 
           if (!response.ok || body?.ok !== true) {
             throw new Error(
-              body?.message ?? 'We could not save your pet profile. Please try again.',
+              body?.message ??
+                'We could not save your pet profile. Please try again.',
             );
           }
 
-          if (completeMessage) {
-            completeMessage.textContent =
-              body.message ??
-              `Thanks for introducing ${petNameField.value.trim()} to Maxi. You're officially part of the Founding Pack.`;
-          }
-
-          showStep('complete');
+          showCompletion(submittedPetName);
         } catch (error) {
           const message =
             error instanceof Error
@@ -1399,12 +1554,11 @@ const launchInterestLabels = {
       };
 
       const handleSkipProfile = (): void => {
-        if (completeMessage) {
-          completeMessage.textContent =
-            "You're officially part of the Maxi Pawz Founding Pack. You can tell us more about your pet another time.";
+        if (profileSubmitting || !foundingPackEmail) {
+          return;
         }
 
-        showStep('complete');
+        showCompletion();
       };
 
       const handlePageShow = (): void => {
@@ -1418,11 +1572,8 @@ const launchInterestLabels = {
       );
 
       signupForm.addEventListener('submit', handleSignupSubmit);
-
       profileForm.addEventListener('submit', handleProfileSubmit);
-
       profileSkipButton?.addEventListener('click', handleSkipProfile);
-
       window.addEventListener('pageshow', handlePageShow);
 
       syncSignupButtonLabel();
@@ -1434,11 +1585,8 @@ const launchInterestLabels = {
         );
 
         signupForm.removeEventListener('submit', handleSignupSubmit);
-
         profileForm.removeEventListener('submit', handleProfileSubmit);
-
         profileSkipButton?.removeEventListener('click', handleSkipProfile);
-
         window.removeEventListener('pageshow', handlePageShow);
 
         for (const cleanupField of cleanupFunctions) {

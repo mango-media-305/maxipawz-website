@@ -9,6 +9,9 @@ import { useCart } from './useCart';
 import { clearCart } from '../../stores/cart';
 
 import { formatCartAmount, getCartTotals, resolveCartLines } from '../../utils/cart';
+import { getCartPresentation } from '../../utils/cart-presentation';
+
+const cartPresentation = getCartPresentation();
 
 function CartIcon() {
   return (
@@ -54,16 +57,24 @@ export default function CartPage() {
         <h2 className="mt-6 text-3xl text-ink-900 sm:text-4xl">Your cart is empty.</h2>
 
         <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-ink-600">
-          Add demo products to test quantities, variants, shipping thresholds, automatic sales tax,
-          Stripe Checkout, and persistent cart storage.
+          {cartPresentation.emptyDescription}
         </p>
 
         <a
-          href="/shop#products"
+          href={cartPresentation.primaryAction.href}
           className="mt-7 inline-flex min-h-12 items-center justify-center rounded-full bg-brand-500 px-6 font-extrabold text-white shadow-blue transition hover:-translate-y-0.5 hover:bg-brand-600"
         >
-          Browse Demo Products
+          {cartPresentation.primaryAction.label}
         </a>
+
+        {cartPresentation.secondaryAction && (
+          <a
+            href={cartPresentation.secondaryAction.href}
+            className="mx-auto mt-3 flex min-h-12 w-fit items-center justify-center rounded-full px-5 font-extrabold text-brand-800 transition hover:bg-brand-50"
+          >
+            {cartPresentation.secondaryAction.label}
+          </a>
+        )}
       </div>
     );
   }
@@ -131,7 +142,9 @@ export default function CartPage() {
 
           {totals.savingsAmount > 0 && (
             <div className="flex items-center justify-between gap-4 text-success-700">
-              <dt className="font-bold">Demo savings</dt>
+              <dt className="font-bold">
+                {totals.hasDemoItems ? 'Demo savings' : 'Savings'}
+              </dt>
 
               <dd className="font-black">−{formatCartAmount(totals.savingsAmount)}</dd>
             </div>
@@ -141,15 +154,14 @@ export default function CartPage() {
         {totals.unavailableLineCount > 0 && (
           <p className="mt-5 rounded-2xl border border-accent-200 bg-accent-50 p-3 text-sm font-bold leading-6 text-ink-700">
             {totals.unavailableLineCount}{' '}
-            {totals.unavailableLineCount === 1 ? 'cart line is' : 'cart lines are'} currently
+            {totals.unavailableLineCount === 1 ? 'item is' : 'items are'} currently
             unavailable and excluded from the subtotal.
           </p>
         )}
 
         {totals.hasDemoItems && (
           <p className="mt-5 rounded-2xl border border-ink-700 bg-ink-950 p-4 text-sm font-bold leading-6 text-white/80">
-            These products are fictional testing content. Any enabled payment flow uses Stripe
-            Sandbox and creates test transactions only.
+            This cart contains demo items. Demo items are fictional and will not be shipped.
           </p>
         )}
 
@@ -158,15 +170,14 @@ export default function CartPage() {
         </div>
 
         <a
-          href="/shop#products"
+          href={cartPresentation.continueAction.href}
           className="mt-3 flex min-h-12 w-full items-center justify-center rounded-full border border-brand-300 bg-white-warm px-5 font-extrabold text-brand-800 transition hover:bg-brand-100"
         >
-          Continue Shopping
+          {cartPresentation.continueAction.label}
         </a>
 
         <p className="mt-4 text-center text-xs leading-5 text-ink-500">
-          Shipping is calculated from the validated merchandise subtotal. Sales tax is calculated by
-          Stripe at checkout using the U.S. shipping address.
+          Shipping and any applicable taxes are shown at checkout.
         </p>
       </aside>
     </div>

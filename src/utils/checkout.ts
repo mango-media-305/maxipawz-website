@@ -1,7 +1,4 @@
-import {
-  commerceConfig,
-  isTestCheckoutEnabled,
-} from '../config/commerce';
+import { commerceConfig, isTestCheckoutEnabled } from '../config/commerce';
 
 import type {
   CheckoutCampaignAttribution,
@@ -9,336 +6,129 @@ import type {
   CheckoutSessionRequest,
 } from '../types/checkout';
 
-import type {
-  ResolvedCartLine,
-} from '../types/cart';
+import type { ResolvedCartLine } from '../types/cart';
 
-function getStripePriceId(
-  item: ResolvedCartLine,
-):
-  | string
-  | undefined {
+function getStripePriceId(item: ResolvedCartLine): string | undefined {
   if (item.variant) {
     return item.variant.stripePriceId;
   }
 
-  return item.product
-    ?.stripeDefaultPriceId;
+  return item.product?.stripeDefaultPriceId;
 }
 
-function addReason(
-  reasons: string[],
-
-  reason: string,
-): void {
-  if (
-    !reasons.includes(
-      reason,
-    )
-  ) {
-    reasons.push(
-      reason,
-    );
+function addReason(reasons: string[], reason: string): void {
+  if (!reasons.includes(reason)) {
+    reasons.push(reason);
   }
 }
 
-function normalizeOptionalText(
-  value:
-    | string
-    | undefined,
-):
-  | string
-  | undefined {
-  const normalized =
-    value?.trim();
-
-  return normalized ||
-    undefined;
+function normalizeOptionalText(value: string | undefined): string | undefined {
+  return value?.trim() || undefined;
 }
 
-/**
- * Minimize the browser attribution object before sending
- * it to the checkout endpoint.
- *
- * featured-campaign.ts contains additional browser-only
- * lifecycle fields such as version and expiresAt.
- *
- * Those fields are intentionally not sent to Stripe.
- */
+/** Keep browser-only lifecycle fields out of the checkout request. */
 function buildCheckoutAttribution(
-  attribution:
-    | CheckoutCampaignAttribution
-    | null
-    | undefined,
-):
-  | CheckoutCampaignAttribution
-  | undefined {
-  if (
-    !attribution
-  ) {
+  attribution: CheckoutCampaignAttribution | null | undefined,
+): CheckoutCampaignAttribution | undefined {
+  if (!attribution) {
     return undefined;
   }
 
-  const landingPageSlug =
-    attribution
-      .landingPageSlug
-      ?.trim();
+  const landingPageSlug = attribution.landingPageSlug?.trim();
+  const campaignId = attribution.campaignId?.trim();
+  const productSlug = attribution.productSlug?.trim();
 
-  const campaignId =
-    attribution
-      .campaignId
-      ?.trim();
-
-  const productSlug =
-    attribution
-      .productSlug
-      ?.trim();
-
-  if (
-    !landingPageSlug ||
-    !campaignId ||
-    !productSlug
-  ) {
+  if (!landingPageSlug || !campaignId || !productSlug) {
     return undefined;
   }
 
   return {
     landingPageSlug,
-
     campaignId,
-
     productSlug,
-
-    channel:
-      normalizeOptionalText(
-        attribution.channel,
-      ),
-
-    audience:
-      normalizeOptionalText(
-        attribution.audience,
-      ),
-
-    utmSource:
-      normalizeOptionalText(
-        attribution.utmSource,
-      ),
-
-    utmMedium:
-      normalizeOptionalText(
-        attribution.utmMedium,
-      ),
-
-    utmCampaign:
-      normalizeOptionalText(
-        attribution.utmCampaign,
-      ),
-
-    utmContent:
-      normalizeOptionalText(
-        attribution.utmContent,
-      ),
-
-    utmTerm:
-      normalizeOptionalText(
-        attribution.utmTerm,
-      ),
-
-    referrerHost:
-      normalizeOptionalText(
-        attribution.referrerHost,
-      ),
-
-    ...(typeof attribution.capturedAt ===
-      'number' &&
-      Number.isFinite(
-        attribution.capturedAt,
-      )
-      ? {
-        capturedAt:
-          Math.floor(
-            attribution.capturedAt,
-          ),
-      }
+    channel: normalizeOptionalText(attribution.channel),
+    audience: normalizeOptionalText(attribution.audience),
+    utmSource: normalizeOptionalText(attribution.utmSource),
+    utmMedium: normalizeOptionalText(attribution.utmMedium),
+    utmCampaign: normalizeOptionalText(attribution.utmCampaign),
+    utmContent: normalizeOptionalText(attribution.utmContent),
+    utmTerm: normalizeOptionalText(attribution.utmTerm),
+    referrerHost: normalizeOptionalText(attribution.referrerHost),
+    ...(typeof attribution.capturedAt === 'number' && Number.isFinite(attribution.capturedAt)
+      ? { capturedAt: Math.floor(attribution.capturedAt) }
       : {}),
   };
 }
 
-export function getCheckoutReadiness(
-  items: ResolvedCartLine[],
-): CheckoutReadiness {
-  const reasons:
-    string[] = [];
+export function getCheckoutReadiness(items: ResolvedCartLine[]): CheckoutReadiness {
+  if (items.length === 0) {
+    return {
+      ready: false,
+      reasons: ['Your cart is empty. Add an available product before continuing.'],
+    };
+  }
 
-  const sandboxDemoCheckout =
-    commerceConfig
-      .sandboxCatalogCheckoutEnabled;
+  const reasons: string[] = [];
+  const sandboxDemoCheckout = commerceConfig.sandboxCatalogCheckoutEnabled;
 
-  if (
-    items.length ===
-    0
-  ) {
+  // Preserve the existing checkout gates. Store configuration problems are
+  // presented as store availability, rather than setup tasks for customers.
+  const storeCheckoutAvailable =
+    commerceConfig.storefrontLive &&
+    (commerceConfig.policiesFinalized || sandboxDemoCheckout) &&
+    isTestCheckoutEnabled &&
+    commerceConfig.stripePublishableKey.startsWith('pk_test_');
+
+  if (!storeCheckoutAvailable) {
+    addReason(reasons, 'Online checkout is currently unavailable. Please check back later.');
+  }
+
+  if (items.some((item) => item.product?.isDemo) && !sandboxDemoCheckout) {
     addReason(
       reasons,
-
-      'Your cart is empty.',
+      'Your cart contains demo items that cannot be purchased. Remove them from your cart to continue.',
     );
   }
 
-  if (
-    !commerceConfig.storefrontLive
-  ) {
-    addReason(
-      reasons,
+  for (const item of items) {
+    const productName = item.product?.name ?? 'An item in your cart';
+    const itemLabel = item.variant?.label
+      ? `${productName} (${item.variant.label})`
+      : productName;
 
-      'The storefront must be in live mode.',
-    );
-  }
-
-  if (
-    !commerceConfig.policiesFinalized &&
-    !sandboxDemoCheckout
-  ) {
-    addReason(
-      reasons,
-
-      'Shipping, return, refund, and cancellation policies must be finalized.',
-    );
-  }
-
-  if (
-    !isTestCheckoutEnabled
-  ) {
-    addReason(
-      reasons,
-
-      'Stripe test checkout is currently disabled.',
-    );
-  }
-
-  if (
-    !commerceConfig
-      .stripePublishableKey
-      .startsWith(
-        'pk_test_',
-      )
-  ) {
-    addReason(
-      reasons,
-
-      'The Stripe Sandbox publishable key is not configured.',
-    );
-  }
-
-  const containsDemoItems =
-    items.some(
-      (
-        item,
-      ) =>
-        item.product
-          ?.isDemo,
-    );
-
-  if (
-    containsDemoItems &&
-    !sandboxDemoCheckout
-  ) {
-    addReason(
-      reasons,
-
-      'Demo products require the Stripe Sandbox catalog checkout setting.',
-    );
-  }
-
-  if (
-    items.some(
-      (
-        item,
-      ) =>
-        !item.available,
-    )
-  ) {
-    addReason(
-      reasons,
-
-      'Every cart item must be active, priced, and in stock.',
-    );
-  }
-
-  if (
-    items.some(
-      (
-        item,
-      ) =>
-        item.available &&
-        !getStripePriceId(
-          item,
-        ),
-    )
-  ) {
-    addReason(
-      reasons,
-
-      'Every purchasable product or variant needs a Stripe Price ID.',
-    );
+    if (!item.available) {
+      addReason(
+        reasons,
+        `${itemLabel} is unavailable. Remove it or update your selection in the cart.`,
+      );
+    } else if (!getStripePriceId(item)) {
+      addReason(
+        reasons,
+        `${itemLabel} cannot be checked out right now. Please try again later.`,
+      );
+    }
   }
 
   return {
-    ready:
-      reasons.length ===
-      0,
-
+    ready: reasons.length === 0,
     reasons,
   };
 }
 
 export function buildCheckoutRequest(
-  items:
-    ResolvedCartLine[],
-
-  attribution?:
-    | CheckoutCampaignAttribution
-    | null,
+  items: ResolvedCartLine[],
+  attribution?: CheckoutCampaignAttribution | null,
 ): CheckoutSessionRequest {
-  const checkoutAttribution =
-    buildCheckoutAttribution(
-      attribution,
-    );
+  const checkoutAttribution = buildCheckoutAttribution(attribution);
 
   return {
-    lines:
-      items
-        .filter(
-          (
-            item,
-          ) =>
-            Boolean(
-              item.product,
-            ),
-        )
-        .map(
-          (
-            item,
-          ) => ({
-            productSlug:
-              item.line
-                .productSlug,
-
-            variantId:
-              item.line
-                .variantId,
-
-            quantity:
-              item.line
-                .quantity,
-          }),
-        ),
-
-    ...(checkoutAttribution
-      ? {
-        attribution:
-          checkoutAttribution,
-      }
-      : {}),
+    lines: items
+      .filter((item) => Boolean(item.product))
+      .map((item) => ({
+        productSlug: item.line.productSlug,
+        variantId: item.line.variantId,
+        quantity: item.line.quantity,
+      })),
+    ...(checkoutAttribution ? { attribution: checkoutAttribution } : {}),
   };
 }

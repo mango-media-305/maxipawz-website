@@ -1,49 +1,90 @@
 ---
 import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
 import ConfettiBold from 'phosphor-astro/ConfettiBold.astro';
-import HeartBold from 'phosphor-astro/HeartBold.astro';
-import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
-import ShieldCheckBold from 'phosphor-astro/ShieldCheckBold.astro';
 import ShoppingBagOpenBold from 'phosphor-astro/ShoppingBagOpenBold.astro';
-import SuitcaseRollingBold from 'phosphor-astro/SuitcaseRollingBold.astro';
 
 import Badge from '../ui/Badge.astro';
 import Button from '../ui/Button.astro';
 
 import { isStoreLive } from '../../config/storefront';
 
-import {
-  type LifestyleCategoryIcon,
-} from '../../data/shop';
+interface Props {
+  hasProducts: boolean;
+  hasDemoProducts?: boolean;
+}
 
-const iconByCategory: Record<LifestyleCategoryIcon, typeof PawPrintBold> = {
-  play: ConfettiBold,
-  travel: SuitcaseRollingBold,
-  hydration: HeartBold,
-  comfort: PawPrintBold,
-  care: ShieldCheckBold,
-  accessories: ShoppingBagOpenBold,
-};
+const { hasProducts, hasDemoProducts = false } = Astro.props;
+
+const isEmptyLiveStore = isStoreLive && !hasProducts;
+const isCatalogPreview = hasProducts && (!isStoreLive || hasDemoProducts);
+
+const badgeLabel = !isStoreLive
+  ? 'Our collection is taking shape'
+  : isEmptyLiveStore
+    ? 'Maxi Pawz'
+    : isCatalogPreview
+      ? 'Product preview'
+      : 'Shop Maxi Pawz';
+
+const headingStart = isEmptyLiveStore
+  ? 'No products to show'
+  : isStoreLive
+    ? 'Find something special for'
+    : 'A joyful shop for';
+
+const headingEnd = isEmptyLiveStore
+  ? 'right now.'
+  : isStoreLive
+    ? 'every pet moment.'
+    : 'everyday pet life.';
+
+const description = isEmptyLiveStore
+  ? 'Get product updates, or explore our pet guides for ideas to try with your pet.'
+  : isStoreLive
+    ? 'Explore the collection, discover the details, and find what fits your pet’s everyday routine.'
+    : hasProducts
+      ? 'Preview the collection we are preparing, and sign up to hear when the store opens.'
+      : 'We are preparing our first collection. Explore what is coming and sign up for launch updates.';
+
+const primaryAction = hasProducts
+  ? {
+      href: '#products',
+      label: isCatalogPreview ? 'Preview Products' : 'Browse Products',
+    }
+  : {
+      href: '/#maxi-pawz-updates',
+      label: isStoreLive ? 'Get Product Updates' : 'Get Launch Updates',
+    };
+
+const secondaryAction = isStoreLive
+  ? {
+      href: '/pet-guides',
+      label: 'Read Pet Guides',
+    }
+  : hasProducts
+    ? {
+        href: '/#maxi-pawz-updates',
+        label: 'Get Launch Updates',
+      }
+    : {
+        href: '#shop-categories',
+        label: 'Explore What’s Coming',
+      };
 ---
 
 <section class="relative overflow-hidden" aria-labelledby="shop-hero-title">
   <div
     class="pointer-events-none absolute -top-40 -left-40 size-128 rounded-full bg-brand-300/25 blur-3xl"
     aria-hidden="true"
-  >
-  </div>
+  ></div>
 
   <div
     class="pointer-events-none absolute top-8 -right-48 size-136 rounded-full bg-accent-300/25 blur-3xl"
     aria-hidden="true"
-  >
-  </div>
+  ></div>
 
-  <div
-    class="site-container-wide items-center gap-10 py-12 sm:py-14 lg:gap-14 lg:py-16"
-  >
-    <!-- Hero content -->
-    <div class="relative z-10">
+  <div class="site-container-wide py-8 sm:py-10 lg:py-12">
+    <div class="relative z-10 max-w-4xl">
       <Badge variant={isStoreLive ? 'brand' : 'accent'} size="md">
         {
           isStoreLive ? (
@@ -53,71 +94,41 @@ const iconByCategory: Record<LifestyleCategoryIcon, typeof PawPrintBold> = {
           )
         }
 
-        {isStoreLive ? 'Shop Maxi Pawz' : 'The Maxi Pawz collection is taking shape'}
+        {badgeLabel}
       </Badge>
 
-      <h1 id="shop-hero-title" class="mt-6 text-4xl text-ink-900 sm:text-5xl lg:text-6xl">
-        {
-          isStoreLive ? (
-            <div>
-              <span>Find something special for</span>
-              <span class="text-brand-gradient ml-4">every pet moment.</span>
-            </div>
-          ) : (
-            <div>
-              <span>A joyful shop for </span>
-              <span class="text-brand-gradient">everyday pet life.</span>
-            </div>
-          )
-        }
+      <h1
+        id="shop-hero-title"
+        class="mt-5 text-4xl leading-[1.1] text-ink-900 sm:text-5xl lg:text-6xl"
+      >
+        {headingStart}
+        <span class="mt-1 block text-brand-gradient">{headingEnd}</span>
       </h1>
 
-      <p class="mt-6 text-lg text-ink-600 sm:text-xl">
-        {
-          isStoreLive
-            ? 'Explore thoughtfully organized products for play, walks, travel, feeding, hydration, comfort, grooming, care, and everyday style.'
-            : 'We are building a welcoming destination for playful toys, useful accessories, travel gear, hydration essentials, comfort products, and everyday supplies.'
-        }
+      <p class="mt-5 max-w-2xl text-base leading-7 text-ink-600 sm:text-lg sm:leading-8">
+        {description}
       </p>
 
-      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+      <div class="mt-6 flex flex-col gap-3 sm:flex-row">
         <Button
-          href="#product-grid"
+          href={primaryAction.href}
           variant="primary"
           size="lg"
           iconPosition="right"
           class="w-full sm:w-auto"
         >
           <ArrowRightBold slot="icon" aria-hidden="true" />
-
-          {isStoreLive ? 'Browse Products' : 'Explore What’s Coming'}
+          {primaryAction.label}
         </Button>
 
-        {
-          isStoreLive ? (
-            <Button
-              href="/pet-guides"
-              variant="secondary"
-              size="lg"
-              iconPosition="right"
-              class="w-full sm:w-auto"
-            >
-              <PawPrintBold slot="icon" aria-hidden="true" />
-              Read Pet Guides
-            </Button>
-          ) : (
-            <Button
-              href="/#join-the-pack"
-              variant="secondary"
-              size="lg"
-              iconPosition="right"
-              class="w-full sm:w-auto"
-            >
-              <HeartBold slot="icon" aria-hidden="true" />
-              Join the Pack
-            </Button>
-          )
-        }
+        <Button
+          href={secondaryAction.href}
+          variant="secondary"
+          size="lg"
+          class="w-full sm:w-auto"
+        >
+          {secondaryAction.label}
+        </Button>
       </div>
     </div>
   </div>

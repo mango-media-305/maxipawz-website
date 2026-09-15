@@ -9,6 +9,9 @@ import { useCart, useCartDrawer } from './useCart';
 import { closeCartDrawer } from '../../stores/cart';
 
 import { formatCartAmount, getCartTotals, resolveCartLines } from '../../utils/cart';
+import { getCartPresentation } from '../../utils/cart-presentation';
+
+const cartPresentation = getCartPresentation();
 
 function CartIcon() {
   return (
@@ -177,17 +180,26 @@ export default function CartDrawer() {
               <h3 className="mt-5 text-2xl text-ink-900">Your cart is empty.</h3>
 
               <p className="mt-3 text-sm leading-6 text-ink-600">
-                Explore the demo catalog and add products to test the cart, shipping threshold, and
-                Stripe Sandbox checkout.
+                {cartPresentation.emptyDescription}
               </p>
 
               <a
-                href="/shop#products"
+                href={cartPresentation.primaryAction.href}
                 className="mt-6 inline-flex min-h-11 items-center justify-center rounded-full bg-brand-500 px-5 font-extrabold text-white shadow-blue transition hover:-translate-y-0.5 hover:bg-brand-600"
                 onClick={closeCartDrawer}
               >
-                Browse Products
+                {cartPresentation.primaryAction.label}
               </a>
+
+              {cartPresentation.secondaryAction && (
+                <a
+                  href={cartPresentation.secondaryAction.href}
+                  className="mt-3 flex min-h-11 items-center justify-center rounded-full px-4 text-sm font-extrabold text-brand-800 transition hover:bg-brand-50"
+                  onClick={closeCartDrawer}
+                >
+                  {cartPresentation.secondaryAction.label}
+                </a>
+              )}
             </div>
           ) : (
             <div className="grid gap-3">
@@ -202,8 +214,7 @@ export default function CartDrawer() {
           <footer className="shrink-0 overflow-y-auto border-t border-sand bg-white-warm p-5">
             {totals.hasDemoItems && (
               <p className="mb-4 rounded-2xl border border-accent-200 bg-accent-50 p-3 text-xs font-bold leading-5 text-ink-700">
-                This cart contains fictional demo products. Any enabled checkout uses Stripe Sandbox
-                and creates test transactions only.
+                This cart contains demo items. Demo items are fictional and will not be shipped.
               </p>
             )}
 
@@ -217,12 +228,22 @@ export default function CartDrawer() {
 
             {totals.savingsAmount > 0 && (
               <div className="mt-2 flex items-center justify-between gap-4 text-sm">
-                <span className="font-bold text-success-700">Demo savings</span>
+                <span className="font-bold text-success-700">
+                  {totals.hasDemoItems ? 'Demo savings' : 'Savings'}
+                </span>
 
                 <span className="font-black text-success-700">
                   −{formatCartAmount(totals.savingsAmount)}
                 </span>
               </div>
+            )}
+
+            {totals.unavailableLineCount > 0 && (
+              <p className="mt-4 rounded-2xl border border-accent-200 bg-accent-50 p-3 text-xs font-bold leading-5 text-ink-700">
+                {totals.unavailableLineCount}{' '}
+                {totals.unavailableLineCount === 1 ? 'item is' : 'items are'} currently
+                unavailable and excluded from the subtotal.
+              </p>
             )}
 
             <div className="mt-5">
