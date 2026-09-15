@@ -1,9 +1,4 @@
 ---
-import CheckCircleFill from 'phosphor-astro/CheckCircleFill.astro';
-import HeartBold from 'phosphor-astro/HeartBold.astro';
-import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
-import ShieldCheckBold from 'phosphor-astro/ShieldCheckBold.astro';
-
 import ProductGrid from '@components/products/ProductGrid.astro';
 import PrelaunchShopState from '@components/shop/PrelaunchShopState.astro';
 import ShopCategoryGrid from '@components/shop/ShopCategoryGrid.astro';
@@ -11,30 +6,20 @@ import ShopHero from '@components/shop/ShopHero.astro';
 import BaseLayout from '@layouts/BaseLayout.astro';
 
 import { isStorePrelaunch } from '../../config/storefront';
+import { shopPrinciples } from '../../data/shop';
+import { getStorefrontCatalogProducts } from '../../utils/storefront-catalog';
 
-import { shopPrinciples, type ShopPrincipleIcon } from '../../data/shop';
-
-import { getActiveProducts } from '../../utils/products';
-
-const iconByPrinciple: Record<ShopPrincipleIcon, typeof PawPrintBold> = {
-  purpose: ShieldCheckBold,
-  practical: CheckCircleFill,
-  joy: HeartBold,
-};
-
-const activeProducts = getActiveProducts();
-
-const hasDemoProducts = activeProducts.some((product) => product.isDemo);
+const catalogProducts = getStorefrontCatalogProducts();
+const hasProducts = catalogProducts.length > 0;
+const hasDemoProducts = catalogProducts.some((product) => product.isDemo);
 ---
-
-<!--  -->
 
 <BaseLayout
   title="Shop"
   description="Search and explore Maxi Pawz pet toys, walking accessories, feeding products, comfort items, grooming essentials, collars, and everyday supplies."
   noIndex={isStorePrelaunch || hasDemoProducts}
 >
-  <ShopHero />
+  <ShopHero hasProducts={hasProducts} hasDemoProducts={hasDemoProducts} />
 
   <section
     class="border-y border-sand bg-white-warm/65"
@@ -42,26 +27,25 @@ const hasDemoProducts = activeProducts.some((product) => product.isDemo);
   >
     <div class="site-container grid gap-2 py-2 sm:py-4 md:grid-cols-3 md:gap-4">
       {
-        shopPrinciples.map((principle) => {
-          const Icon = iconByPrinciple[principle.icon];
-
-          return (
-            <article class="flex flex-row justify-center items-center gap-4 rounded-3xl p-4 transition hover:bg-cream sm:p-5">
-              <div>
-                <h2 class="interface-heading text-lg">{principle.title}</h2>
-                <p class="interface-body text-sm">{principle.description}</p>
-              </div>
-            </article>
-          );
-        })
+        shopPrinciples.map((principle) => (
+          <article class="flex flex-row items-center justify-center gap-4 rounded-3xl p-4 transition hover:bg-cream sm:p-5">
+            <div>
+              <h2 class="interface-heading text-lg">{principle.title}</h2>
+              <p class="interface-body text-sm">{principle.description}</p>
+            </div>
+          </article>
+        ))
       }
     </div>
   </section>
 
   {
-    activeProducts.length > 0 && (
+    hasProducts && (
       <div id="product-grid">
-        <ProductGrid products={activeProducts} demoMode={isStorePrelaunch || hasDemoProducts} />
+        <ProductGrid
+          products={catalogProducts}
+          demoMode={isStorePrelaunch || hasDemoProducts}
+        />
       </div>
     )
   }

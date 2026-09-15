@@ -28,6 +28,7 @@
         "npm:eslint@10.7.0",
         "npm:netlify-cli@27",
         "npm:phosphor-astro@^2.1.0",
+        "npm:posthog-js@^1.428.4",
         "npm:preact@10.29.7",
         "npm:prettier-plugin-astro@0.14.1",
         "npm:prettier@3.6.2",

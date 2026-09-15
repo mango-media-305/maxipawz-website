@@ -15,6 +15,7 @@ import FoundingPackPersonalizationPersistence from '@components/home/FoundingPac
 import FoundingPackWelcomeBack from '@components/home/FoundingPackWelcomeBack.astro';
 import HeroSection from '@components/home/HeroSection.astro';
 import HomeMotion from '@components/home/HomeMotion.astro';
+import HomeProductCollection from '@components/home/HomeProductCollection.astro';
 import LaunchSignup from '@components/home/LaunchSignup.astro';
 import PetGuidesPreview from '@components/home/PetGuidesPreview.astro';
 import ShopByLifestyle from '@components/home/ShopByLifestyle.astro';
@@ -241,6 +242,8 @@ const currentActions = [
       </div>
     </section>
 
+    {isStoreLive && <HomeProductCollection />}
+
     {
       !isStoreLive && (
         <section class="section-spacing" aria-labelledby="useful-now-title">
@@ -277,7 +280,7 @@ const currentActions = [
                       style={`--reveal-delay: ${index * 100}ms;`}
                     >
                       <span
-                        class="grid size-12 place-items-center rounded-2xl bg-brand-100 text-brand-700 transition duration-300 group-hover:-rotate-3 group-hover:scale-105 group-focus-visible:-rotate-3 group-focus-visible:scale-105"
+                        class="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-100 text-brand-700 transition duration-300 group-hover:-rotate-3 group-hover:scale-105 group-focus-visible:-rotate-3 group-focus-visible:scale-105"
                         aria-hidden="true"
                       >
                         <Icon class="size-6" />
