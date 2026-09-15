@@ -1,8 +1,19 @@
+import { env } from 'node:process';
+
 import type { CollectionEntry } from 'astro:content';
 
 import { siteConfig } from '../config/site';
 
 type BlogPost = CollectionEntry<'blog'>;
+
+export const BLOG_PUBLICATION_TIME_ZONE = 'America/New_York';
+
+const blogPublicationDateFormatter = new Intl.DateTimeFormat('en-CA', {
+  timeZone: BLOG_PUBLICATION_TIME_ZONE,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+});
 
 export const getBlogPostPath = (post: BlogPost) => `/pet-guides/${post.id}`;
 
@@ -12,8 +23,36 @@ export const getBlogPostUrl = (post: BlogPost, site = siteConfig.url) =>
 export const sortBlogPostsNewestFirst = (posts: BlogPost[]) =>
   [...posts].sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
 
-export const getIndexableBlogPosts = (posts: BlogPost[]) =>
-  posts.filter((post) => post.data.indexable);
+export const getBlogPublicationDateKey = (date = new Date()) => {
+  const parts = blogPublicationDateFormatter.formatToParts(date);
+  const year = parts.find((part) => part.type === 'year')?.value;
+  const month = parts.find((part) => part.type === 'month')?.value;
+  const day = parts.find((part) => part.type === 'day')?.value;
+
+  if (!year || !month || !day) {
+    throw new Error('Unable to resolve the current blog publication date.');
+  }
+
+  return `${year}-${month}-${day}`;
+};
+
+export const getBlogPostPublicationDateKey = (post: BlogPost) =>
+  post.data.publishedAt.toISOString().slice(0, 10);
+
+export const isBlogPostPublished = (post: BlogPost, referenceDate = new Date()) =>
+  getBlogPostPublicationDateKey(post) <= getBlogPublicationDateKey(referenceDate);
+
+export const shouldExposeScheduledBlogPosts = () => env.CONTEXT !== 'production';
+
+export const getIndexableBlogPosts = (posts: BlogPost[], referenceDate = new Date()) => {
+  const indexablePosts = posts.filter((post) => post.data.indexable);
+
+  if (shouldExposeScheduledBlogPosts()) {
+    return indexablePosts;
+  }
+
+  return indexablePosts.filter((post) => isBlogPostPublished(post, referenceDate));
+};
 
 export const getBlogReadingTime = (body: string | undefined) => {
   const words = body?.trim().split(/\s+/).filter(Boolean).length ?? 0;
