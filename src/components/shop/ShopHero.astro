@@ -1,6 +1,5 @@
 ---
 import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
-import CheckCircleFill from 'phosphor-astro/CheckCircleFill.astro';
 import ConfettiBold from 'phosphor-astro/ConfettiBold.astro';
 import HeartBold from 'phosphor-astro/HeartBold.astro';
 import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
@@ -14,8 +13,6 @@ import Button from '../ui/Button.astro';
 import { isStoreLive } from '../../config/storefront';
 
 import {
-  lifestyleCategories,
-  shopHeroHighlights,
   type LifestyleCategoryIcon,
 } from '../../data/shop';
 
@@ -43,10 +40,10 @@ const iconByCategory: Record<LifestyleCategoryIcon, typeof PawPrintBold> = {
   </div>
 
   <div
-    class="site-container-wide grid items-center gap-10 py-12 sm:py-14 lg:grid-cols-[1.02fr_0.98fr] lg:gap-14 lg:py-16"
+    class="site-container-wide items-center gap-10 py-12 sm:py-14 lg:gap-14 lg:py-16"
   >
     <!-- Hero content -->
-    <div class="relative z-10 max-w-2xl">
+    <div class="relative z-10">
       <Badge variant={isStoreLive ? 'brand' : 'accent'} size="md">
         {
           isStoreLive ? (
@@ -59,21 +56,23 @@ const iconByCategory: Record<LifestyleCategoryIcon, typeof PawPrintBold> = {
         {isStoreLive ? 'Shop Maxi Pawz' : 'The Maxi Pawz collection is taking shape'}
       </Badge>
 
-      <h1 id="shop-hero-title" class="mt-6 max-w-2xl text-5xl text-ink-900 sm:text-6xl lg:text-7xl">
+      <h1 id="shop-hero-title" class="mt-6 text-4xl text-ink-900 sm:text-5xl lg:text-6xl">
         {
           isStoreLive ? (
-            <>
-              Find something special for <span class="text-brand-gradient">every pet moment.</span>
-            </>
+            <div>
+              <span>Find something special for</span>
+              <span class="text-brand-gradient ml-4">every pet moment.</span>
+            </div>
           ) : (
-            <>
-              A joyful shop for <span class="text-brand-gradient">everyday pet life.</span>
-            </>
+            <div>
+              <span>A joyful shop for </span>
+              <span class="text-brand-gradient">everyday pet life.</span>
+            </div>
           )
         }
       </h1>
 
-      <p class="mt-6 max-w-xl text-lg leading-8 text-ink-600 sm:text-xl">
+      <p class="mt-6 text-lg text-ink-600 sm:text-xl">
         {
           isStoreLive
             ? 'Explore thoughtfully organized products for play, walks, travel, feeding, hydration, comfort, grooming, care, and everyday style.'
@@ -83,7 +82,7 @@ const iconByCategory: Record<LifestyleCategoryIcon, typeof PawPrintBold> = {
 
       <div class="mt-8 flex flex-col gap-3 sm:flex-row">
         <Button
-          href="#shop-categories"
+          href="#product-grid"
           variant="primary"
           size="lg"
           iconPosition="right"
@@ -91,7 +90,7 @@ const iconByCategory: Record<LifestyleCategoryIcon, typeof PawPrintBold> = {
         >
           <ArrowRightBold slot="icon" aria-hidden="true" />
 
-          {isStoreLive ? 'Browse Categories' : 'Explore What’s Coming'}
+          {isStoreLive ? 'Browse Products' : 'Explore What’s Coming'}
         </Button>
 
         {
@@ -119,84 +118,6 @@ const iconByCategory: Record<LifestyleCategoryIcon, typeof PawPrintBold> = {
             </Button>
           )
         }
-      </div>
-
-      <div class="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold text-ink-600">
-        {
-          shopHeroHighlights.map((highlight) => (
-            <span class="inline-flex items-center gap-2">
-              <CheckCircleFill class="size-5 shrink-0 text-brand-500" aria-hidden="true" />
-
-              {highlight}
-            </span>
-          ))
-        }
-      </div>
-    </div>
-
-    <!-- Category overview -->
-    <div
-      class="relative overflow-hidden rounded-[2.5rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-5 shadow-card sm:p-6"
-    >
-      <div
-        class="pointer-events-none absolute -top-20 -right-20 size-56 rounded-full bg-brand-300/25 blur-3xl"
-        aria-hidden="true"
-      >
-      </div>
-
-      <div
-        class="pointer-events-none absolute -bottom-24 -left-20 size-64 rounded-full bg-accent-300/25 blur-3xl"
-        aria-hidden="true"
-      >
-      </div>
-
-      <div class="relative">
-        <div class="flex items-start gap-4">
-          <span
-            class="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-500 text-white shadow-blue"
-            aria-hidden="true"
-          >
-            <ShoppingBagOpenBold class="size-6" />
-          </span>
-
-          <div>
-            <p class="text-xs font-extrabold tracking-[0.09em] text-brand-700 uppercase">
-              Shop by everyday need
-            </p>
-
-            <h2 class="mt-2 text-2xl text-ink-900 sm:text-3xl">Six ways to explore Maxi Pawz.</h2>
-          </div>
-        </div>
-
-        <div class="mt-6 grid gap-3 sm:grid-cols-2">
-          {
-            lifestyleCategories.map((category) => {
-              const Icon = iconByCategory[category.icon];
-
-              return (
-                <a
-                  href={
-                    isStoreLive
-                      ? `/shop?category=${encodeURIComponent(category.slug)}#products`
-                      : '#shop-categories'
-                  }
-                  class="group flex items-center gap-3 rounded-2xl border border-sand/80 bg-white-warm/85 p-3.5 transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-sm focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-200"
-                >
-                  <span
-                    class="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-100 text-brand-700 transition group-hover:scale-105"
-                    aria-hidden="true"
-                  >
-                    <Icon class="size-5" />
-                  </span>
-
-                  <span class="text-sm font-extrabold leading-5 text-ink-700">
-                    {category.title}
-                  </span>
-                </a>
-              );
-            })
-          }
-        </div>
       </div>
     </div>
   </div>

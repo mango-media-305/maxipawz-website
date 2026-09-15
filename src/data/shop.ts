@@ -149,7 +149,7 @@ export const shopPrinciples: ShopPrinciple[] = [
     title: 'Chosen with purpose',
 
     description:
-      'We consider how a product supports play, comfort, movement, feeding, care, travel, or another real part of pet life.',
+      'We consider how a product supports play, comfort, movement, feeding, travel, or another real part of pet life.',
 
     icon: 'purpose',
   },

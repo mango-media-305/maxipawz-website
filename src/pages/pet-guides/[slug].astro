@@ -4,7 +4,11 @@ import { getCollection, render, type CollectionEntry } from 'astro:content';
 
 import BlogPostLayout from '@layouts/BlogPostLayout.astro';
 
-import { buildBlogStructuredData, getBlogPostPath } from '../../utils/blog';
+import {
+  buildBlogStructuredData,
+  getBlogPostPath,
+  getIndexableBlogPosts,
+} from '../../utils/blog';
 
 type BlogPost = CollectionEntry<'blog'>;
 
@@ -13,7 +17,7 @@ interface Props {
 }
 
 export const getStaticPaths = (async () => {
-  const blogPosts = await getCollection('blog');
+  const blogPosts = getIndexableBlogPosts(await getCollection('blog'));
 
   return blogPosts.map((post) => ({
     params: {
@@ -30,11 +34,11 @@ const rendered = await render(post);
 const { Content, headings } = rendered;
 const structuredData = buildBlogStructuredData({ post });
 
-const allPosts = await getCollection('blog');
-const postById = new Map(allPosts.map((candidate) => [candidate.id, candidate]));
+const visiblePosts = getIndexableBlogPosts(await getCollection('blog'));
+const postById = new Map(visiblePosts.map((candidate) => [candidate.id, candidate]));
 const relatedPosts = post.data.relatedPosts
   .map((id) => postById.get(id))
-  .filter((candidate): candidate is BlogPost => Boolean(candidate) && candidate.data.indexable)
+  .filter((candidate): candidate is BlogPost => Boolean(candidate))
   .map((candidate) => ({
     href: getBlogPostPath(candidate),
     title: candidate.data.title,

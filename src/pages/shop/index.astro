@@ -27,6 +27,8 @@ const activeProducts = getActiveProducts();
 const hasDemoProducts = activeProducts.some((product) => product.isDemo);
 ---
 
+<!--  -->
+
 <BaseLayout
   title="Shop"
   description="Search and explore Maxi Pawz pet toys, walking accessories, feeding products, comfort items, grooming essentials, collars, and everyday supplies."
@@ -38,24 +40,16 @@ const hasDemoProducts = activeProducts.some((product) => product.isDemo);
     class="border-y border-sand bg-white-warm/65"
     aria-label="How Maxi Pawz approaches its collection"
   >
-    <div class="site-container grid gap-2 py-6 sm:py-8 md:grid-cols-3 md:gap-4">
+    <div class="site-container grid gap-2 py-2 sm:py-4 md:grid-cols-3 md:gap-4">
       {
         shopPrinciples.map((principle) => {
           const Icon = iconByPrinciple[principle.icon];
 
           return (
-            <article class="flex gap-4 rounded-3xl p-4 transition hover:bg-cream sm:p-5">
-              <span
-                class="grid size-11 shrink-0 place-items-center rounded-2xl bg-brand-100 text-brand-700 sm:size-12"
-                aria-hidden="true"
-              >
-                <Icon class="size-5 sm:size-6" />
-              </span>
-
-              <div class="min-w-0">
+            <article class="flex flex-row justify-center items-center gap-4 rounded-3xl p-4 transition hover:bg-cream sm:p-5">
+              <div>
                 <h2 class="interface-heading text-lg">{principle.title}</h2>
-
-                <p class="mt-2 text-sm leading-6 text-ink-600">{principle.description}</p>
+                <p class="interface-body text-sm">{principle.description}</p>
               </div>
             </article>
           );
@@ -64,13 +58,14 @@ const hasDemoProducts = activeProducts.some((product) => product.isDemo);
     </div>
   </section>
 
-  <ShopCategoryGrid />
-
   {
     activeProducts.length > 0 && (
-      <ProductGrid products={activeProducts} demoMode={isStorePrelaunch || hasDemoProducts} />
+      <div id="product-grid">
+        <ProductGrid products={activeProducts} demoMode={isStorePrelaunch || hasDemoProducts} />
+      </div>
     )
   }
 
+  <ShopCategoryGrid />
   {isStorePrelaunch && <PrelaunchShopState />}
 </BaseLayout>
