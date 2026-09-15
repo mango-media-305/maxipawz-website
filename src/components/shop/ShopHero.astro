@@ -1,6 +1,5 @@
 ---
 import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
-import CheckCircleFill from 'phosphor-astro/CheckCircleFill.astro';
 import ConfettiBold from 'phosphor-astro/ConfettiBold.astro';
 import HeartBold from 'phosphor-astro/HeartBold.astro';
 import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
@@ -14,8 +13,6 @@ import Button from '../ui/Button.astro';
 import { isStoreLive } from '../../config/storefront';
 
 import {
-  lifestyleCategories,
-  shopHeroHighlights,
   type LifestyleCategoryIcon,
 } from '../../data/shop';
 
@@ -59,23 +56,23 @@ const iconByCategory: Record<LifestyleCategoryIcon, typeof PawPrintBold> = {
         {isStoreLive ? 'Shop Maxi Pawz' : 'The Maxi Pawz collection is taking shape'}
       </Badge>
 
-      <h1 id="shop-hero-title" class="mt-6 text-5xl text-ink-900 sm:text-6xl lg:text-7xl">
+      <h1 id="shop-hero-title" class="mt-6 text-4xl text-ink-900 sm:text-5xl lg:text-6xl">
         {
           isStoreLive ? (
             <div>
-              <span>Find something special for</span> <br />
-              <span class="text-brand-gradient">every pet moment.</span>
+              <span>Find something special for</span>
+              <span class="text-brand-gradient ml-4">every pet moment.</span>
             </div>
           ) : (
             <div>
-              <span>A joyful shop for </span> <br />
+              <span>A joyful shop for </span>
               <span class="text-brand-gradient">everyday pet life.</span>
             </div>
           )
         }
       </h1>
 
-      <p class="mt-6 max-w-xl text-lg leading-8 text-ink-600 sm:text-xl">
+      <p class="mt-6 text-lg text-ink-600 sm:text-xl">
         {
           isStoreLive
             ? 'Explore thoughtfully organized products for play, walks, travel, feeding, hydration, comfort, grooming, care, and everyday style.'
@@ -85,7 +82,7 @@ const iconByCategory: Record<LifestyleCategoryIcon, typeof PawPrintBold> = {
 
       <div class="mt-8 flex flex-col gap-3 sm:flex-row">
         <Button
-          href="#shop-categories"
+          href="#product-grid"
           variant="primary"
           size="lg"
           iconPosition="right"
@@ -93,7 +90,7 @@ const iconByCategory: Record<LifestyleCategoryIcon, typeof PawPrintBold> = {
         >
           <ArrowRightBold slot="icon" aria-hidden="true" />
 
-          {isStoreLive ? 'Browse Categories' : 'Explore What’s Coming'}
+          {isStoreLive ? 'Browse Products' : 'Explore What’s Coming'}
         </Button>
 
         {
@@ -120,18 +117,6 @@ const iconByCategory: Record<LifestyleCategoryIcon, typeof PawPrintBold> = {
               Join the Pack
             </Button>
           )
-        }
-      </div>
-
-      <div class="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold text-ink-600">
-        {
-          shopHeroHighlights.map((highlight) => (
-            <span class="inline-flex items-center gap-2">
-              <CheckCircleFill class="size-5 shrink-0 text-brand-500" aria-hidden="true" />
-
-              {highlight}
-            </span>
-          ))
         }
       </div>
     </div>

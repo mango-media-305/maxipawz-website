@@ -92,19 +92,19 @@ const maxiGuideTips = [
     </div>
 
     <div
-      class="site-container grid items-center gap-10 py-12 sm:py-14 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14 lg:py-16"
+      class="site-container grid items-center gap-10 py-12 sm:py-14 lg:gap-14 lg:py-16"
     >
-      <div class="relative z-10 max-w-2xl">
+      <div class="relative z-10">
         <Badge variant="accent" size="md">
           <SparkleBold slot="icon" aria-hidden="true" />
           Maxi Pawz Pet Guides
         </Badge>
 
-        <h1 class="mt-6 max-w-2xl text-5xl text-ink-900 sm:text-6xl lg:text-7xl">
+        <h1 class="mt-6 text-5xl text-ink-900 sm:text-6xl lg:text-7xl">
           Practical guidance for <span class="text-brand-gradient">happier dog days.</span>
         </h1>
 
-        <p class="mt-6 max-w-xl text-lg leading-8 text-ink-600 sm:text-xl">
+        <p class="mt-6 text-lg leading-8 text-ink-600 sm:text-xl">
           Explore practical articles about toys, walking, travel, hydration, comfort, grooming,
           emergency planning, and everyday products — with Miami and South Florida guidance when
           location genuinely changes the answer.
@@ -149,36 +149,6 @@ const maxiGuideTips = [
           }
         </div>
       </div>
-
-      <div
-        class="relative rounded-card-lg border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-5 shadow-card sm:p-6"
-      >
-        <div
-          class="pointer-events-none absolute -top-16 -right-16 size-40 rounded-full bg-white/70 blur-2xl"
-          aria-hidden="true"
-        >
-        </div>
-
-        <div class="relative grid gap-3">
-          {
-            guidePrinciples.map(({ icon: Icon, title, description }) => (
-              <article class="flex gap-4 rounded-2xl border border-sand/80 bg-white-warm/80 p-4">
-                <span
-                  class="grid size-11 shrink-0 place-items-center rounded-2xl bg-brand-500 text-white shadow-blue"
-                  aria-hidden="true"
-                >
-                  <Icon class="size-5" />
-                </span>
-
-                <div class="min-w-0">
-                  <h2 class="text-lg text-ink-900">{title}</h2>
-                  <p class="mt-1 text-sm leading-6 text-ink-600">{description}</p>
-                </div>
-              </article>
-            ))
-          }
-        </div>
-      </div>
     </div>
   </section>
 
@@ -188,22 +158,6 @@ const maxiGuideTips = [
     aria-labelledby="guide-topics-title"
   >
     <div class="site-container">
-      <div class="mx-auto max-w-4xl text-center">
-        <Badge variant="brand" size="md" class="mx-auto">
-          <PawPrintBold slot="icon" aria-hidden="true" />
-          Browse by Topic
-        </Badge>
-
-        <h2 id="guide-topics-title" class="section-title mx-auto mt-5 text-4xl sm:text-5xl">
-          Pick a guide and dive in.
-        </h2>
-
-        <p class="section-description mx-auto mt-4">
-          Explore visual guides built around real dog routines, practical decisions, and the moments
-          that matter most in everyday life with your pet.
-        </p>
-      </div>
-
       <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 lg:gap-6">
         {
           topicPosts.map((post, index) => {
@@ -359,7 +313,7 @@ const maxiGuideTips = [
               {featuredPost.data.description}
             </p>
 
-            <p class="mt-4 text-sm font-bold uppercase tracking-[0.09em] text-accent-300">
+            <p class="mt-4 text-sm font-bold uppercase text-accent-300">
               {featuredPost.data.category}
             </p>
 

@@ -15,7 +15,6 @@ import { isStorePrelaunch } from '../../config/storefront';
 import { shopPrinciples, type ShopPrincipleIcon } from '../../data/shop';
 
 import { getActiveProducts } from '../../utils/products';
-import Badge from '@components/ui/Badge.astro';
 
 const iconByPrinciple: Record<ShopPrincipleIcon, typeof PawPrintBold> = {
   purpose: ShieldCheckBold,
@@ -59,12 +58,12 @@ const hasDemoProducts = activeProducts.some((product) => product.isDemo);
 
   {
     activeProducts.length > 0 && (
-      <ProductGrid products={activeProducts} demoMode={isStorePrelaunch || hasDemoProducts} />
+      <div id="product-grid">
+        <ProductGrid products={activeProducts} demoMode={isStorePrelaunch || hasDemoProducts} />
+      </div>
     )
   }
-  
+
   <ShopCategoryGrid />
-
-
   {isStorePrelaunch && <PrelaunchShopState />}
 </BaseLayout>
