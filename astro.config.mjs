@@ -1,154 +1,81 @@
 import mdx from '@astrojs/mdx';
 import preact from '@astrojs/preact';
-
 import sitemap from '@astrojs/sitemap';
-
 import tailwindcss from '@tailwindcss/vite';
-
-import {
-  defineConfig,
-} from 'astro/config';
+import { defineConfig } from 'astro/config';
 
 const site =
-  process.env
-    .PUBLIC_SITE_URL
-    ?.trim() ||
-  process.env.URL
-    ?.trim() ||
+  process.env.PUBLIC_SITE_URL?.trim() ||
+  process.env.URL?.trim() ||
   'https://maxipawz.com';
 
 const storefrontMode =
-  process.env
-    .PUBLIC_STOREFRONT_MODE
-    ?.trim() ??
-  'prelaunch';
+  process.env.PUBLIC_STOREFRONT_MODE?.trim() ?? 'prelaunch';
 
-const storeIsLive =
-  storefrontMode ===
-  'live';
+const storeIsLive = storefrontMode === 'live';
 
 /*
- * These routes are functional, administrative,
- * transactional, campaign-specific, or intentionally
- * excluded policy pages.
+ * Functional, administrative, transactional, campaign,
+ * and intentionally excluded policy pages do not belong
+ * in the search sitemap.
  *
- * They remain available when visited directly, but they
- * are not submitted to search engines through the
- * generated sitemap.
+ * Excluding a route here does not remove it from the site.
+ * Its page-level robots policy remains responsible for
+ * controlling whether search engines may index it.
  */
-const alwaysExcludedSitemapPaths =
-  [
-    '/404',
+const alwaysExcludedSitemapPaths = [
+  '/404',
+  '/admin',
+  '/api',
+  '/cart',
+  '/checkout',
+  '/contact/success',
+  '/email',
+  '/featured',
+  '/join',
+  '/privacy-policy',
+  '/terms',
+  '/shipping-policy',
+  '/return-policy',
+  '/accessibility',
+];
 
-    '/admin',
-
-    '/api',
-
-    '/cart',
-
-    '/checkout',
-
-    '/contact/success',
-
-    /*
-     * Featured product campaign pages normally remain
-     * noindex and canonicalize to /shop/<product>.
-     *
-     * If an evergreen featured page is intentionally made
-     * indexable later, revisit this sitemap policy as part
-     * of that launch.
-     */
-    '/featured',
-
-    '/join/success',
-
-    '/privacy-policy',
-
-    '/terms',
-
-    '/shipping-policy',
-
-    '/return-policy',
-
-    '/accessibility',
-  ];
-
-function normalizePathname(
-  pathname,
-) {
-  if (
-    pathname ===
-    '/'
-  ) {
+function normalizePathname(pathname) {
+  if (pathname === '/') {
     return '/';
   }
 
-  return pathname.replace(
-    /\/+$/,
-    '',
-  );
+  return pathname.replace(/\/+$/, '');
 }
 
-function matchesPathOrDescendant(
-  pathname,
-
-  excludedPath,
-) {
+function matchesPathOrDescendant(pathname, excludedPath) {
   return (
-    pathname ===
-    excludedPath ||
-    pathname.startsWith(
-      `${excludedPath}/`,
-    )
+    pathname === excludedPath ||
+    pathname.startsWith(`${excludedPath}/`)
   );
 }
 
-function shouldIncludeInSitemap(
-  page,
-) {
-  const pageURL =
-    new URL(
-      page,
-    );
+function shouldIncludeInSitemap(page) {
+  const pageURL = new URL(page);
+  const pathname = normalizePathname(pageURL.pathname);
 
-  const pathname =
-    normalizePathname(
-      pageURL.pathname,
-    );
+  const isAlwaysExcluded = alwaysExcludedSitemapPaths.some(
+    (excludedPath) =>
+      matchesPathOrDescendant(pathname, excludedPath),
+  );
 
-  const isAlwaysExcluded =
-    alwaysExcludedSitemapPaths.some(
-      (
-        excludedPath,
-      ) =>
-        matchesPathOrDescendant(
-          pathname,
-
-          excludedPath,
-        ),
-    );
-
-  if (
-    isAlwaysExcluded
-  ) {
+  if (isAlwaysExcluded) {
     return false;
   }
 
   /*
-   * During prelaunch, the shop and its fictional/demo
-   * product-detail pages use noindex and should not be
-   * submitted through the sitemap.
-   *
-   * Once PUBLIC_STOREFRONT_MODE becomes "live", the shop
-   * and real product pages become eligible for inclusion.
+   * Preserve the existing prelaunch restriction.
+   * Shop routes remain excluded until the storefront
+   * is intentionally placed in live mode.
    */
   if (
     !storeIsLive &&
-    matchesPathOrDescendant(
-      pathname,
-
-      '/shop',
-    )
+    matchesPathOrDescendant(pathname, '/shop')
   ) {
     return false;
   }
@@ -156,30 +83,19 @@ function shouldIncludeInSitemap(
   return true;
 }
 
-export default defineConfig(
-  {
-    site,
+export default defineConfig({
+  site,
+  output: 'static',
 
-    output:
-      'static',
+  integrations: [
+    mdx(),
+    preact(),
+    sitemap({
+      filter: shouldIncludeInSitemap,
+    }),
+  ],
 
-    integrations: [
-      mdx(),
-
-      preact(),
-
-      sitemap(
-        {
-          filter:
-            shouldIncludeInSitemap,
-        },
-      ),
-    ],
-
-    vite: {
-      plugins: [
-        tailwindcss(),
-      ],
-    },
+  vite: {
+    plugins: [tailwindcss()],
   },
-);
+});
