@@ -6,6 +6,9 @@ import ShoppingCartBold from 'phosphor-astro/ShoppingCartBold.astro';
 import XBold from 'phosphor-astro/XBold.astro';
 
 import BrandLogo from '../brand/BrandLogo.astro';
+import { getLocaleFromPathname } from '../../i18n/languages';
+import { getEnglishPathname, localizeHref, localizedLinkLabel } from '../../i18n/routes';
+import { sharedCopy } from '../../i18n/shared';
 
 interface NavigationItem {
   label: string;
@@ -30,19 +33,13 @@ const {
   note = '',
 } = Astro.props;
 
-function normalizePath(path: string): string {
-  if (path === '/') {
-    return '/';
-  }
-
-  return path.replace(/\/+$/, '') || '/';
-}
-
-const currentPath = normalizePath(initialCurrentPath);
+const locale = getLocaleFromPathname(Astro.url.pathname);
+const copy = sharedCopy[locale];
+const currentPath = getEnglishPathname(initialCurrentPath);
 
 const activeNavigationHref = items
   .filter((item) => {
-    const itemPath = normalizePath(item.href);
+    const itemPath = getEnglishPathname(item.href);
 
     if (itemPath === '/') {
       return currentPath === '/';
@@ -57,7 +54,7 @@ function isCurrentRoute(href: string): boolean {
     return false;
   }
 
-  return normalizePath(href) === normalizePath(activeNavigationHref);
+  return getEnglishPathname(href) === getEnglishPathname(activeNavigationHref);
 }
 ---
 
@@ -65,7 +62,7 @@ function isCurrentRoute(href: string): boolean {
   <button
     type="button"
     class="grid size-10 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-800 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-brand-400 hover:bg-brand-50"
-    aria-label="Open navigation menu"
+    aria-label={copy.openMenu}
     aria-expanded="false"
     aria-controls="mobile-navigation-panel"
     data-mobile-navigation-open
@@ -78,7 +75,7 @@ function isCurrentRoute(href: string): boolean {
     class="fixed inset-0 z-100 overflow-hidden"
     role="dialog"
     aria-modal="true"
-    aria-label="Main navigation"
+    aria-label={copy.mainNavigation}
     aria-hidden="true"
     data-mobile-navigation-panel
     hidden
@@ -87,7 +84,7 @@ function isCurrentRoute(href: string): boolean {
     <button
       type="button"
       class="absolute inset-0 block size-full cursor-default border-0 bg-ink-950/45 p-0 backdrop-blur-sm"
-      aria-label="Close navigation menu"
+      aria-label={copy.closeMenu}
       data-mobile-navigation-backdrop
     >
     </button>
@@ -99,9 +96,9 @@ function isCurrentRoute(href: string): boolean {
       <!-- Drawer header -->
       <div class="flex shrink-0 items-center justify-between gap-4 border-b border-sand px-5 py-4">
         <a
-          href="/"
+          href={localizeHref('/', locale)}
           class="inline-flex min-w-0 items-center rounded-2xl"
-          aria-label="Maxi Pawz Store home"
+          aria-label={localizedLinkLabel(copy.home, '/', locale)}
           data-mobile-navigation-link
         >
           <BrandLogo variant="logo" class="h-12 w-auto max-w-52 object-contain" />
@@ -110,7 +107,7 @@ function isCurrentRoute(href: string): boolean {
         <button
           type="button"
           class="grid size-10 shrink-0 place-items-center rounded-full border border-sand bg-white-warm text-ink-800 transition duration-200 hover:border-accent-300 hover:bg-accent-50"
-          aria-label="Close navigation menu"
+          aria-label={copy.closeMenu}
           data-mobile-navigation-close
         >
           <XBold class="size-4.5" aria-hidden="true" />
@@ -120,7 +117,7 @@ function isCurrentRoute(href: string): boolean {
       <!-- Navigation links -->
       <nav
         class="flex-1 overflow-y-auto overscroll-contain px-4 py-5"
-        aria-label="Mobile navigation"
+        aria-label={copy.mobileNavigation}
       >
         <ul class="grid gap-2">
           {
@@ -161,6 +158,7 @@ function isCurrentRoute(href: string): boolean {
           cartEnabled ? (
             <a
               href="/cart"
+              lang="en"
               class="flex min-h-12 w-full items-center justify-center gap-2.5 rounded-full border border-accent-600 bg-accent-500 px-5 py-3 font-extrabold text-ink-950 shadow-orange transition duration-200 hover:-translate-y-0.5 hover:bg-accent-400"
               aria-label="View shopping cart, 0 items"
               data-mobile-navigation-link
@@ -231,25 +229,25 @@ function isCurrentRoute(href: string): boolean {
       return;
     }
 
-    function getFocusableElements(): HTMLElement[] {
+    const getFocusableElements = (): HTMLElement[] => {
       return Array.from(
         panel.querySelectorAll<HTMLElement>(
           'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
         ),
       ).filter((element) => !element.hasAttribute('hidden'));
-    }
+    };
 
-    function lockDocumentScroll(): void {
+    const lockDocumentScroll = (): void => {
       document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
-    }
+    };
 
-    function unlockDocumentScroll(): void {
+    const unlockDocumentScroll = (): void => {
       document.documentElement.style.removeProperty('overflow');
       document.body.style.removeProperty('overflow');
-    }
+    };
 
-    function openMenu(): void {
+    const openMenu = (): void => {
       panel.hidden = false;
       panel.setAttribute('aria-hidden', 'false');
       openButton.setAttribute('aria-expanded', 'true');
@@ -259,9 +257,9 @@ function isCurrentRoute(href: string): boolean {
       window.requestAnimationFrame(() => {
         closeButton.focus();
       });
-    }
+    };
 
-    function closeMenu(restoreFocus = true): void {
+    const closeMenu = (restoreFocus = true): void => {
       panel.hidden = true;
       panel.setAttribute('aria-hidden', 'true');
       openButton.setAttribute('aria-expanded', 'false');
@@ -271,9 +269,9 @@ function isCurrentRoute(href: string): boolean {
       if (restoreFocus) {
         openButton.focus();
       }
-    }
+    };
 
-    function handleKeydown(event: KeyboardEvent): void {
+    const handleKeydown = (event: KeyboardEvent): void => {
       if (panel.hidden) {
         return;
       }
@@ -305,7 +303,7 @@ function isCurrentRoute(href: string): boolean {
         event.preventDefault();
         firstElement.focus();
       }
-    }
+    };
 
     openButton.addEventListener('click', openMenu);
 

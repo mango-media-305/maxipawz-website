@@ -4,7 +4,6 @@ import PostHog from '@components/posthog.astro';
 import PetGuidesPagination from '@components/pet-guides/PetGuidesPagination.astro';
 
 import '@fontsource-variable/nunito-sans/wght.css';
-
 import '@styles/global.css';
 import '@styles/typography.css';
 import '@styles/performance.css';
@@ -14,42 +13,31 @@ import SiteFooter from '@components/layout/SiteFooter.astro';
 import SiteHeader from '@components/layout/SiteHeader.astro';
 
 import { siteConfig } from '../config/site';
+import { getLocaleFromPathname } from '../i18n/languages';
+import { getEnglishPathname, hasSpanishTranslation, localizeHref, normalizePathname } from '../i18n/routes';
+import { sharedCopy } from '../i18n/shared';
 
 type StructuredData = Record<string, unknown> | Array<Record<string, unknown>>;
-
 type SocialType = 'website' | 'article';
 
 interface SocialImageConfig {
   src: string;
-
   alt: string;
 }
 
 interface Props {
   title: string;
-
   description: string;
-
   image?: string;
-
   imageAlt?: string;
-
   imageType?: string;
-
   imageWidth?: number;
-
   imageHeight?: number;
-
   socialType?: SocialType;
-
   publishedAt?: string;
-
   modifiedAt?: string;
-
   articleSection?: string;
-
   noIndex?: boolean;
-
   hideSiteChrome?: boolean;
 
   /**
@@ -67,109 +55,97 @@ interface Props {
 
 const {
   title,
-
   description,
-
   image,
-
   imageAlt,
-
   imageType,
-
   imageWidth,
-
   imageHeight,
-
   socialType = 'website',
-
   publishedAt,
-
   modifiedAt,
-
   articleSection,
-
   noIndex = false,
-
   hideSiteChrome = false,
-
   canonicalPath,
-
   structuredData,
 } = Astro.props;
 
-const environmentNoIndex = import.meta.env.PUBLIC_ROBOTS_NOINDEX === 'true';
+const locale = getLocaleFromPathname(Astro.url.pathname);
+const copy = sharedCopy[locale];
+const ogLocale = locale === 'es' ? 'es_US' : siteConfig.locale;
 
+const environmentNoIndex = import.meta.env.PUBLIC_ROBOTS_NOINDEX === 'true';
 const shouldNoIndex = noIndex || environmentNoIndex;
 
 const fullTitle = title === siteConfig.name ? title : `${title} | ${siteConfig.name}`;
-
 const pageBaseUrl = Astro.site ?? new URL(siteConfig.url);
-
 const pageURL = new URL(Astro.url.pathname, pageBaseUrl);
-
 const canonicalURL = canonicalPath ? new URL(canonicalPath, pageBaseUrl) : pageURL;
 
-const normalizedPath = Astro.url.pathname === '/' ? '/' : Astro.url.pathname.replace(/\/+$/, '');
+const normalizedPath = getEnglishPathname(Astro.url.pathname);
+
+const hasLanguageAlternates = !shouldNoIndex
+  && normalizePathname(canonicalURL.pathname) === normalizePathname(Astro.url.pathname)
+  && hasSpanishTranslation(normalizedPath);
+
+const englishURL = new URL(localizeHref(Astro.url.pathname, 'en'), pageBaseUrl);
+const spanishURL = new URL(localizeHref(Astro.url.pathname, 'es'), pageBaseUrl);
 
 const socialImageByPath: Record<string, SocialImageConfig> = {
   '/': {
     src: '/images/og/home.webp',
-
     alt: `${siteConfig.name} — thoughtful pet toys, accessories, essentials, and practical pet guides.`,
   },
-
   '/pet-guides': {
     src: '/images/og/pet-guides.webp',
-
     alt: `${siteConfig.shortName} Pet Guides — practical guidance for everyday pet life.`,
   },
-
   '/about': {
     src: '/images/og/about.webp',
-
     alt: `About ${siteConfig.name} — made for pets and built by two friends who love them.`,
   },
-
   '/contact': {
     src: '/images/og/contact.webp',
-
     alt: `Contact ${siteConfig.name} with a question, suggestion, or support request.`,
   },
-
   '/faq': {
     src: '/images/og/faq.webp',
-
     alt: `${siteConfig.shortName} frequently asked questions and helpful answers.`,
   },
-
   '/product-safety': {
     src: '/images/og/product-safety.webp',
-
     alt: `${siteConfig.shortName} guidance for choosing and using pet products responsibly.`,
   },
-
   '/shop': {
     src: '/images/og/shop.webp',
-
     alt: `Explore pet toys, accessories, travel gear, hydration products, and everyday essentials from ${siteConfig.name}.`,
   },
 };
 
+const spanishSocialImageAlt: Record<string, string> = {
+  '/': `${siteConfig.name} — juguetes, accesorios, esenciales y guías prácticas para mascotas.`,
+  '/pet-guides': `Guías de ${siteConfig.shortName} — consejos prácticos para el día a día con tu mascota.`,
+  '/about': `Conoce ${siteConfig.name}, una marca creada por dos amigos que aman a las mascotas.`,
+  '/contact': `Contacta con ${siteConfig.name} para preguntas, sugerencias o ayuda.`,
+  '/faq': `Preguntas frecuentes y respuestas útiles de ${siteConfig.shortName}.`,
+  '/product-safety': `Consejos de ${siteConfig.shortName} para elegir y usar productos para mascotas de forma responsable.`,
+  '/shop': `Descubre juguetes, accesorios y artículos esenciales para mascotas de ${siteConfig.name}.`,
+};
+
 const mappedSocialImage = socialImageByPath[normalizedPath];
 
+const mappedImageAlt = locale === 'es'
+  ? spanishSocialImageAlt[normalizedPath]
+  : mappedSocialImage?.alt;
+
 const resolvedImage = mappedSocialImage?.src ?? image ?? '/images/og/default.webp';
-
-const resolvedImageAlt =
-  mappedSocialImage?.alt ?? imageAlt ?? `${siteConfig.name} — Happy Pets, Happy Life.`;
-
+const resolvedImageAlt = mappedImageAlt ?? imageAlt ?? copy.defaultImageAlt;
 const socialImageURL = new URL(resolvedImage, pageURL).toString();
 
 const isManagedOgImage = resolvedImage.startsWith('/images/og/');
-
 const resolvedImageType = imageType ?? (isManagedOgImage ? 'image/webp' : undefined);
-
 const resolvedImageWidth = imageWidth ?? (isManagedOgImage ? 1200 : undefined);
-
 const resolvedImageHeight = imageHeight ?? (isManagedOgImage ? 630 : undefined);
 
 /**
@@ -188,28 +164,31 @@ const robotsContent = environmentNoIndex
 ---
 
 <!doctype html>
-<html lang={siteConfig.language}>
+<html lang={locale}>
   <head>
     <meta charset="UTF-8" />
-
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-
     <meta name="generator" content={Astro.generator} />
 
-    <title>
-      {fullTitle}
-    </title>
+    <title>{fullTitle}</title>
 
     <meta name="description" content={description} />
-
     <meta name="robots" content={robotsContent} />
-
     <meta name="theme-color" content="#008aff" />
 
     <link rel="canonical" href={canonicalURL} />
 
-    <link rel="sitemap" href="/sitemap-index.xml" />
+    {
+      hasLanguageAlternates && (
+        <>
+          <link rel="alternate" hreflang="en" href={englishURL} />
+          <link rel="alternate" hreflang="es" href={spanishURL} />
+          <link rel="alternate" hreflang="x-default" href={englishURL} />
+        </>
+      )
+    }
 
+    <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <link
@@ -221,13 +200,9 @@ const robotsContent = environmentNoIndex
     />
 
     <meta property="og:type" content={socialType} />
-
     <meta property="og:site_name" content={siteConfig.name} />
-
-    <meta property="og:locale" content={siteConfig.locale} />
-
+    <meta property="og:locale" content={ogLocale} />
     <meta property="og:title" content={fullTitle} />
-
     <meta property="og:description" content={description} />
 
     <!--
@@ -237,11 +212,9 @@ const robotsContent = environmentNoIndex
     <meta property="og:url" content={pageURL} />
 
     <meta property="og:image" content={socialImageURL} />
-
     <meta property="og:image:secure_url" content={socialImageURL} />
 
     {resolvedImageType && <meta property="og:image:type" content={resolvedImageType} />}
-
     {resolvedImageWidth && <meta property="og:image:width" content={String(resolvedImageWidth)} />}
 
     {
@@ -271,23 +244,18 @@ const robotsContent = environmentNoIndex
     }
 
     <meta name="twitter:card" content="summary_large_image" />
-
     <meta name="twitter:title" content={fullTitle} />
-
     <meta name="twitter:description" content={description} />
-
     <meta name="twitter:image" content={socialImageURL} />
-
     <meta name="twitter:image:alt" content={resolvedImageAlt} />
 
     {
       structuredData && (
-        <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+        <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
       )
     }
 
     <Analytics />
-
     <PostHog />
   </head>
 
@@ -296,14 +264,13 @@ const robotsContent = environmentNoIndex
       href="#main-content"
       class="fixed top-3 left-3 z-100 -translate-y-24 rounded-full bg-brand-700 px-5 py-3 font-bold text-white shadow-blue transition focus:translate-y-0"
     >
-      Skip to main content
+      {copy.skip}
     </a>
 
     {
       !hideSiteChrome && (
         <>
           <AnnouncementBar />
-
           <SiteHeader />
         </>
       )
@@ -315,6 +282,6 @@ const robotsContent = environmentNoIndex
 
     {!hideSiteChrome && <SiteFooter />}
 
-    {normalizedPath === '/pet-guides' && <PetGuidesPagination />}
+    {locale === 'en' && normalizedPath === '/pet-guides' && <PetGuidesPagination />}
   </body>
 </html>
