@@ -48,6 +48,15 @@ function normalizePathname(pathname) {
   return pathname.replace(/\/+$/, '');
 }
 
+/* Apply the same sitemap rules to both language versions. */
+function removeLocalePrefix(pathname) {
+  if (pathname === '/es') {
+    return '/';
+  }
+
+  return pathname.startsWith('/es/') ? pathname.slice(3) : pathname;
+}
+
 function matchesPathOrDescendant(pathname, excludedPath) {
   return (
     pathname === excludedPath ||
@@ -57,7 +66,7 @@ function matchesPathOrDescendant(pathname, excludedPath) {
 
 function shouldIncludeInSitemap(page) {
   const pageURL = new URL(page);
-  const pathname = normalizePathname(pageURL.pathname);
+  const pathname = removeLocalePrefix(normalizePathname(pageURL.pathname));
 
   const isAlwaysExcluded = alwaysExcludedSitemapPaths.some(
     (excludedPath) =>
@@ -86,6 +95,14 @@ function shouldIncludeInSitemap(page) {
 export default defineConfig({
   site,
   output: 'static',
+
+  i18n: {
+    defaultLocale: 'en',
+    locales: ['en', 'es'],
+    routing: {
+      prefixDefaultLocale: false,
+    },
+  },
 
   integrations: [
     mdx(),
