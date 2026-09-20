@@ -20,6 +20,8 @@ indexable: true
 heroImage:
   src: "https://images.unsplash.com/photo-1576075861274-77d2f71c675c?auto=format&fit=crop&w=1600&q=82"
   alt: "Golden retriever swimming in a clear blue pool"
+  width: 1600
+  height: 2400
   caption: "A comfortable swimmer still benefits from close supervision, an easy exit, and breaks before fatigue sets in."
   credit:
     name: "Marcia Soligo"
@@ -28,17 +30,21 @@ heroImage:
     name: "Unsplash"
     url: "https://unsplash.com/photos/long-coated-brown-dog-mXve7vNyNao"
 images:
-  - src: "https://images.unsplash.com/photo-1626879616928-68c3712acf6b?auto=format&fit=crop&w=1400&q=82"
-    alt: "Wet black and white dog standing at the edge of ocean surf"
+  - src: "https://images.unsplash.com/photo-1645256804639-2568c2f7181d?auto=format&fit=crop&w=1400&q=82"
+    alt: "Three white dogs standing together at the edge of the ocean surf"
+    width: 1400
+    height: 1134
     caption: "At the beach, water conditions, heat, drinking water, local rules, and your dog’s recall all matter before play begins."
     credit:
       name: "Pawtography Perth"
-      url: "https://unsplash.com/@pawtographyperth"
+      url: "https://unsplash.com/@pawtography_perth"
     source:
       name: "Unsplash"
       url: "https://unsplash.com/photos/three-white-dogs-playing-in-the-water-at-the-beach-7jewwc3UmCw"
-  - src: "https://images.unsplash.com/photo-1631217818228-79a3ab065d6f?auto=format&fit=crop&w=1400&q=82"
-    alt: "Brown dog wearing a life jacket while swimming outdoors"
+  - src: "https://images.unsplash.com/photo-1630359515671-b0a3492e515d?auto=format&fit=crop&w=1400&q=82"
+    alt: "Brown dog wearing a colorful life jacket while swimming outdoors"
+    width: 1400
+    height: 935
     caption: "A properly fitted canine life jacket can add buoyancy and visibility around deeper water and boating activities."
     credit:
       name: "Karsten Winegeart"
@@ -46,8 +52,10 @@ images:
     source:
       name: "Unsplash"
       url: "https://unsplash.com/photos/brown-short-coated-dog-swimming-on-water-during-daytime-6k10GyBHkVE"
-  - src: "https://images.unsplash.com/photo-1657976088874-8c1b9d4b4b1d?auto=format&fit=crop&w=1400&q=82"
-    alt: "Dog swimming through calm freshwater surrounded by trees"
+  - src: "https://images.unsplash.com/photo-1706093909458-b4fbb4b48932?auto=format&fit=crop&w=1400&q=82"
+    alt: "Light-colored dog swimming through green lake water"
+    width: 1400
+    height: 933
     caption: "Natural water deserves an extra check: posted advisories and water-quality conditions can change from one outing to the next."
     credit:
       name: "Gabriel Martin"
@@ -77,7 +85,7 @@ relatedLinks:
     description: "Prepare identification, portable water, equipment, and practical supplies before an outdoor adventure."
     href: "/pet-guides/walk-and-travel"
   - title: "Pet Product Safety"
-    description: "Review general guidance for selecting, inspecting, supervising, and replacing pet products."
+    description: "Review general guidance for selecting, inspecting, supervising, and replacing everyday pet products."
     href: "/product-safety"
 sources:
   - title: "Keep Your Pet Safe From Harmful Algal Blooms in Florida"
@@ -127,7 +135,7 @@ Around a pool:
 
 If your dog becomes tired, help them out instead of asking for one more retrieve.
 
-<BlogImage image={frontmatter.images[0]} />
+<BlogImage {...frontmatter.images[0]} />
 
 ## At a Miami dog beach, check the rules before the waves
 
@@ -145,7 +153,7 @@ Ocean, lake, canal, and pool water are not substitutes for a clean drinking supp
 
 This matters especially during active Florida outings because swimming, running on sand, direct sun, and humidity can all add to the workload. Our broader [feeding and hydration guide](/pet-guides/feeding-and-hydration) covers practical portable-water routines for everyday trips.
 
-<BlogImage image={frontmatter.images[1]} />
+<BlogImage {...frontmatter.images[1]} />
 
 ## Consider a canine life jacket around deeper water
 
@@ -163,7 +171,7 @@ The Department's pet guidance is intentionally conservative: **if you see signs 
 
 You cannot reliably decide that a bloom is harmless just by looking at it. Before a lake or other natural-water outing, check current official water-quality information and posted advisories rather than relying on how the water looked during your last visit.
 
-<BlogImage image={frontmatter.images[2]} />
+<BlogImage {...frontmatter.images[2]} />
 
 ## If your dog contacts a suspected bloom, act promptly
 
