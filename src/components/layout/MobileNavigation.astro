@@ -58,7 +58,7 @@ function isCurrentRoute(href: string): boolean {
 }
 ---
 
-<div class="lg:hidden" data-mobile-navigation>
+<div class="xl:hidden" data-mobile-navigation>
   <button
     type="button"
     class="grid size-10 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-800 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-brand-400 hover:bg-brand-50"
@@ -232,7 +232,7 @@ function isCurrentRoute(href: string): boolean {
     const getFocusableElements = (): HTMLElement[] => {
       return Array.from(
         panel.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([tabindex="-1"]), [tabindex]:not([tabindex="-1"])',
         ),
       ).filter((element) => !element.hasAttribute('hidden'));
     };
@@ -326,7 +326,7 @@ function isCurrentRoute(href: string): boolean {
     window.addEventListener(
       'resize',
       () => {
-        if (window.innerWidth >= 1024 && !panel.hidden) {
+        if (window.innerWidth >= 1280 && !panel.hidden) {
           closeMenu(false);
         }
       },

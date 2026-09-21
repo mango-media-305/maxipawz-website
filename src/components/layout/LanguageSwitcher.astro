@@ -1,0 +1,60 @@
+---
+import { getLocaleFromPathname } from '../../i18n/languages';
+import { hasSpanishTranslation, localizeHref } from '../../i18n/routes';
+
+const locale = getLocaleFromPathname(Astro.url.pathname);
+const targetLocale = locale === 'es' ? 'en' : 'es';
+const available = hasSpanishTranslation(Astro.url.pathname);
+const label = targetLocale === 'es' ? 'Español' : 'English';
+const accessibleLabel =
+    targetLocale === 'es' ? 'Leer esta página en español' : 'Read this page in English';
+---
+
+{
+    available && (
+        <a
+        href={localizeHref(Astro.url.pathname, targetLocale)}
+        lang={targetLocale}
+        hreflang={targetLocale}
+        aria-label={accessibleLabel}
+        class="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full border border-brand-200 bg-white-warm px-3 text-sm font-extrabold text-brand-800 transition hover:border-brand-400 hover:bg-brand-50 focus-visible:outline-offset-4"
+        data-language-choice={targetLocale}
+        >
+        {label}
+        </a>
+    )
+}
+
+<script>
+    import { isLocale, saveLanguagePreference } from '../../i18n/languages';
+
+    const links = document.querySelectorAll<HTMLAnchorElement>('[data-language-choice]');
+
+    const syncLink = (link: HTMLAnchorElement): void => {
+        const destination = new URL(link.href, window.location.origin);
+        destination.search = window.location.search;
+        destination.hash = window.location.hash;
+        link.href = destination.toString();
+    };
+
+    const syncLinks = (): void => {
+        links.forEach(syncLink);
+    };
+
+    syncLinks();
+
+    links.forEach((link) => {
+        link.addEventListener('click', () => {
+        syncLink(link);
+
+        const locale = link.dataset.languageChoice;
+
+        if (isLocale(locale)) {
+            saveLanguagePreference(locale);
+        }
+        });
+    });
+
+    window.addEventListener('hashchange', syncLinks);
+    window.addEventListener('pageshow', syncLinks);
+</script>
