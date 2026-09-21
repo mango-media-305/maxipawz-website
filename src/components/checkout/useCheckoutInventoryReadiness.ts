@@ -6,6 +6,14 @@ import {
     useState,
 } from 'preact/hooks';
 
+import {
+    commerceText,
+} from '../../i18n/commerce';
+
+import type {
+    Locale,
+} from '../../i18n/languages';
+
 import type {
     ResolvedCartLine,
 } from '../../types/cart';
@@ -29,27 +37,33 @@ export type CheckoutInventoryReadinessStatus =
 
 export interface CheckoutInventoryReadiness {
     status:
-    CheckoutInventoryReadinessStatus;
+        CheckoutInventoryReadinessStatus;
 
-    ready: boolean;
+    ready:
+        boolean;
 
     reasons:
-    string[];
+        string[];
 
     revalidate:
-    () => Promise<boolean>;
+        () => Promise<boolean>;
 }
 
 interface UseCheckoutInventoryReadinessOptions {
     lines:
-    ResolvedCartLine[];
+        ResolvedCartLine[];
 
-    enabled: boolean;
+    enabled:
+        boolean;
+
+    locale?:
+        Locale;
 }
 
 export function useCheckoutInventoryReadiness({
     lines,
     enabled,
+    locale = 'en',
 }: UseCheckoutInventoryReadinessOptions):
     CheckoutInventoryReadiness {
     const trackedLines =
@@ -209,12 +223,21 @@ export function useCheckoutInventoryReadiness({
                                             body.ok ===
                                             false
                                         ) {
-                                            return `${getCheckoutInventoryLineLabel(line)} stock could not be verified. Refresh or recheck stock before checkout.`;
+                                            const label =
+                                                getCheckoutInventoryLineLabel(
+                                                    line,
+                                                );
+
+                                            return locale ===
+                                                'es'
+                                                ? `No pudimos verificar el inventario de ${label}. Actualiza la página o vuelve a comprobar el inventario antes de continuar con el pago.`
+                                                : `${label} stock could not be verified. Refresh or recheck stock before checkout.`;
                                         }
 
                                         return getCheckoutInventoryAvailabilityReason(
                                             line,
                                             body.inventory,
+                                            locale,
                                         );
                                     } catch (
                                     error
@@ -228,7 +251,15 @@ export function useCheckoutInventoryReadiness({
                                             throw error;
                                         }
 
-                                        return `${getCheckoutInventoryLineLabel(line)} stock could not be verified. Refresh or recheck stock before checkout.`;
+                                        const label =
+                                            getCheckoutInventoryLineLabel(
+                                                line,
+                                            );
+
+                                        return locale ===
+                                            'es'
+                                            ? `No pudimos verificar el inventario de ${label}. Actualiza la página o vuelve a comprobar el inventario antes de continuar con el pago.`
+                                            : `${label} stock could not be verified. Refresh or recheck stock before checkout.`;
                                     }
                                 },
                             ),
@@ -292,7 +323,11 @@ export function useCheckoutInventoryReadiness({
                     );
 
                     setReasons([
-                        'Live stock could not be verified. Recheck inventory before checkout.',
+                        commerceText(
+                            locale,
+                            'Live stock could not be verified. Recheck inventory before checkout.',
+                            'No pudimos verificar el inventario en tiempo real. Vuelve a comprobarlo antes de continuar con el pago.',
+                        ),
                     ]);
 
                     return false;
@@ -300,6 +335,7 @@ export function useCheckoutInventoryReadiness({
             },
             [
                 enabled,
+                locale,
                 trackedLines,
             ],
         );

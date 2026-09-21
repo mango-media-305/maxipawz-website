@@ -6,6 +6,15 @@ import { removeCartLine, setCartLineQuantity } from '../../stores/cart';
 
 import type { ResolvedCartLine } from '../../types/cart';
 
+import type { Locale } from '../../i18n/languages';
+
+import {
+  commerceText,
+  getLocalizedVariantLabel,
+} from '../../i18n/commerce';
+
+import { localizeHref } from '../../i18n/routes';
+
 import { formatCartAmount, getProductImageSource } from '../../utils/cart';
 
 import {
@@ -16,6 +25,7 @@ import {
 interface Props {
   item: ResolvedCartLine;
   compact?: boolean;
+  locale?: Locale;
 }
 
 function PawIcon() {
@@ -34,7 +44,11 @@ function PawIcon() {
   );
 }
 
-export default function CartItem({ item, compact = false }: Props) {
+export default function CartItem({
+  item,
+  compact = false,
+  locale = 'en',
+}: Props) {
   const {
     line,
     product,
@@ -65,13 +79,23 @@ export default function CartItem({ item, compact = false }: Props) {
   });
 
   const liveAvailable =
-    inventoryLookup.status === 'ready' ? (inventoryLookup.inventory?.available ?? null) : null;
+    inventoryLookup.status === 'ready'
+      ? (inventoryLookup.inventory?.available ?? null)
+      : null;
 
   const imageSource = getProductImageSource(item.image);
 
-  const productName = product?.name ?? 'Unavailable product';
+  const productName =
+    product?.name ??
+    commerceText(
+      locale,
+      'Unavailable product',
+      'Producto no disponible',
+    );
 
-  const productHref = product ? `/shop/${product.slug}` : undefined;
+  const productHref = product
+    ? localizeHref(`/shop/${product.slug}`, locale)
+    : undefined;
 
   const hasSavings = compareAtLineTotalAmount > lineTotalAmount;
 
@@ -87,12 +111,20 @@ export default function CartItem({ item, compact = false }: Props) {
 
   if (!displayedIssue && inventoryTrackingEnabled) {
     if (inventoryLookup.status === 'error') {
-      displayedIssue = 'Live stock could not be verified. Please refresh before checkout.';
+      displayedIssue = commerceText(
+        locale,
+        'Live stock could not be verified. Please refresh before checkout.',
+        'No pudimos verificar el inventario en tiempo real. Actualiza la página antes de continuar con el pago.',
+      );
     } else if (
       inventoryLookup.status === 'ready' &&
       (inventoryLookup.inventory?.status === 'sold-out' || liveAvailable === 0)
     ) {
-      displayedIssue = 'This item is currently sold out.';
+      displayedIssue = commerceText(
+        locale,
+        'This item is currently sold out.',
+        'Este producto está agotado actualmente.',
+      );
     } else if (
       inventoryLookup.status === 'ready' &&
       liveAvailable !== null &&
@@ -100,8 +132,14 @@ export default function CartItem({ item, compact = false }: Props) {
     ) {
       displayedIssue =
         liveAvailable === 1
-          ? 'Only 1 unit is currently available. Reduce the quantity before checkout.'
-          : `Only ${liveAvailable} units are currently available. Reduce the quantity before checkout.`;
+          ? commerceText(
+              locale,
+              'Only 1 unit is currently available. Reduce the quantity before checkout.',
+              'Actualmente solo hay 1 unidad disponible. Reduce la cantidad antes de continuar con el pago.',
+            )
+          : locale === 'es'
+            ? `Actualmente solo hay ${liveAvailable} unidades disponibles. Reduce la cantidad antes de continuar con el pago.`
+            : `Only ${liveAvailable} units are currently available. Reduce the quantity before checkout.`;
     }
   }
 
@@ -111,30 +149,63 @@ export default function CartItem({ item, compact = false }: Props) {
 
   if (inventoryTrackingEnabled) {
     if (inventoryLookup.status === 'loading') {
-      stockMessage = 'Checking live stock…';
+      stockMessage = commerceText(
+        locale,
+        'Checking live stock…',
+        'Verificando inventario…',
+      );
     } else if (inventoryLookup.status === 'error') {
-      stockMessage = 'Stock temporarily unavailable';
+      stockMessage = commerceText(
+        locale,
+        'Stock temporarily unavailable',
+        'Inventario temporalmente no disponible',
+      );
 
       stockMessageClass = 'text-danger-700';
     } else if (inventoryLookup.status === 'ready' && inventoryLookup.inventory) {
       if (inventoryLookup.inventory.status === 'sold-out' || liveAvailable === 0) {
-        stockMessage = 'Sold out';
+        stockMessage = commerceText(
+          locale,
+          'Sold out',
+          'Agotado',
+        );
 
         stockMessageClass = 'text-danger-700';
       } else if (liveAvailable !== null && line.quantity >= liveAvailable) {
         stockMessage =
           liveAvailable === 1
-            ? 'The last available unit is in your cart.'
-            : `All ${liveAvailable} available units are in your cart.`;
+            ? commerceText(
+                locale,
+                'The last available unit is in your cart.',
+                'La última unidad disponible está en tu carrito.',
+              )
+            : locale === 'es'
+              ? `Las ${liveAvailable} unidades disponibles están en tu carrito.`
+              : `All ${liveAvailable} available units are in your cart.`;
 
         stockMessageClass = 'text-accent-800';
-      } else if (inventoryLookup.inventory.status === 'low-stock' && liveAvailable !== null) {
+      } else if (
+        inventoryLookup.inventory.status === 'low-stock' &&
+        liveAvailable !== null
+      ) {
         stockMessage =
-          liveAvailable === 1 ? 'Only 1 left in stock' : `Only ${liveAvailable} left in stock`;
+          liveAvailable === 1
+            ? commerceText(
+                locale,
+                'Only 1 left in stock',
+                'Solo queda 1 unidad',
+              )
+            : locale === 'es'
+              ? `Solo quedan ${liveAvailable} unidades`
+              : `Only ${liveAvailable} left in stock`;
 
         stockMessageClass = 'text-accent-800';
       } else {
-        stockMessage = 'In stock';
+        stockMessage = commerceText(
+          locale,
+          'In stock',
+          'Disponible',
+        );
 
         stockMessageClass = 'text-success-700';
       }
@@ -166,7 +237,11 @@ export default function CartItem({ item, compact = false }: Props) {
           <a
             href={productHref}
             className="aspect-square overflow-hidden rounded-2xl border border-sand bg-cream-soft"
-            aria-label={`View ${productName}`}
+            aria-label={
+              locale === 'es'
+                ? `Ver ${productName}`
+                : `View ${productName}`
+            }
           >
             {imageSource ? (
               <img
@@ -207,12 +282,15 @@ export default function CartItem({ item, compact = false }: Props) {
               )}
 
               {variant && (
-                <p className="mt-1 text-xs font-bold text-ink-500">Option: {variant.label}</p>
+                <p className="mt-1 text-xs font-bold text-ink-500">
+                  {commerceText(locale, 'Option:', 'Opción:')}{' '}
+                  {getLocalizedVariantLabel(variant.label, locale)}
+                </p>
               )}
 
               {product?.isDemo && (
                 <span className="mt-2 inline-flex rounded-full bg-ink-950 px-2.5 py-1 text-[0.6875rem] font-extrabold text-white">
-                  Demo item
+                  {commerceText(locale, 'Demo item', 'Producto de demostración')}
                 </span>
               )}
 
@@ -231,7 +309,7 @@ export default function CartItem({ item, compact = false }: Props) {
               className="shrink-0 rounded-full px-2 py-1 text-xs font-extrabold text-danger-700 transition hover:bg-danger-50"
               onClick={removeItem}
             >
-              Remove
+              {commerceText(locale, 'Remove', 'Eliminar')}
             </button>
           </div>
 
@@ -254,30 +332,42 @@ export default function CartItem({ item, compact = false }: Props) {
               disableIncrease={!canIncrease}
               onDecrease={() => changeQuantity(line.quantity - 1)}
               onIncrease={() => changeQuantity(line.quantity + 1)}
-              label={`Quantity for ${productName}`}
+              locale={locale}
+              label={
+                locale === 'es'
+                  ? `Cantidad de ${productName}`
+                  : `Quantity for ${productName}`
+              }
             />
 
             <div className={compact ? 'text-left' : 'text-left sm:text-right'}>
               {unitPrice ? (
                 <>
                   <p className="text-xs font-bold text-ink-500">
-                    {formatCartAmount(unitPrice.amount, unitPrice.currency)} each
+                    {formatCartAmount(unitPrice.amount, unitPrice.currency, locale)}{' '}
+                    {commerceText(locale, 'each', 'cada uno')}
                   </p>
 
                   <div className="mt-1 flex flex-wrap items-baseline gap-2 sm:justify-end">
                     <p className="font-black text-ink-900">
-                      {formatCartAmount(lineTotalAmount, unitPrice.currency)}
+                      {formatCartAmount(lineTotalAmount, unitPrice.currency, locale)}
                     </p>
 
                     {hasSavings && (
                       <span className="text-xs font-bold text-ink-400 line-through">
-                        {formatCartAmount(compareAtLineTotalAmount, unitPrice.currency)}
+                        {formatCartAmount(
+                          compareAtLineTotalAmount,
+                          unitPrice.currency,
+                          locale,
+                        )}
                       </span>
                     )}
                   </div>
                 </>
               ) : (
-                <p className="text-sm font-extrabold text-ink-500">Price unavailable</p>
+                <p className="text-sm font-extrabold text-ink-500">
+                  {commerceText(locale, 'Price unavailable', 'Precio no disponible')}
+                </p>
               )}
             </div>
           </div>

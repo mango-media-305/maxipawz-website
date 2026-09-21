@@ -1,3 +1,7 @@
+import type { Locale } from '../../i18n/languages';
+
+import { commerceText } from '../../i18n/commerce';
+
 interface Props {
   quantity: number;
 
@@ -8,6 +12,7 @@ interface Props {
   compact?: boolean;
 
   label?: string;
+  locale?: Locale;
 }
 
 function MinusIcon() {
@@ -46,20 +51,33 @@ export default function QuantityControl({
   onIncrease,
   disableIncrease = false,
   compact = false,
-  label = 'Product quantity',
+  label,
+  locale = 'en',
 }: Props) {
   const buttonSize = compact ? 'size-8' : 'size-10';
+
+  const resolvedLabel =
+    label ??
+    commerceText(
+      locale,
+      'Product quantity',
+      'Cantidad del producto',
+    );
 
   return (
     <div
       className="inline-flex items-center rounded-full border border-sand bg-cream-soft p-1"
-      aria-label={label}
+      aria-label={resolvedLabel}
     >
       <button
         type="button"
         className={`grid ${buttonSize} place-items-center rounded-full bg-white-warm text-ink-700 transition hover:bg-brand-50 hover:text-brand-800`}
         onClick={onDecrease}
-        aria-label={quantity === 1 ? 'Remove item' : 'Decrease quantity'}
+        aria-label={
+          quantity === 1
+            ? commerceText(locale, 'Remove item', 'Eliminar producto')
+            : commerceText(locale, 'Decrease quantity', 'Reducir cantidad')
+        }
       >
         <MinusIcon />
       </button>
@@ -78,7 +96,7 @@ export default function QuantityControl({
         className={`grid ${buttonSize} place-items-center rounded-full bg-white-warm text-ink-700 transition hover:bg-brand-50 hover:text-brand-800 disabled:cursor-not-allowed disabled:opacity-40`}
         onClick={onIncrease}
         disabled={disableIncrease || quantity >= 99}
-        aria-label="Increase quantity"
+        aria-label={commerceText(locale, 'Increase quantity', 'Aumentar cantidad')}
       >
         <PlusIcon />
       </button>
