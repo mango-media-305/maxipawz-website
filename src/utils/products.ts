@@ -1,4 +1,6 @@
-import { products } from '../data/products';
+import {
+  products,
+} from '../data/products';
 
 import {
   getLocalizedAvailabilityLabel,
@@ -6,7 +8,13 @@ import {
   getLocalizedPetTypeLabel,
 } from '../i18n/commerce';
 
-import type { Locale } from '../i18n/languages';
+import type {
+  Locale,
+} from '../i18n/languages';
+
+import {
+  getLocalizedProduct,
+} from '../i18n/products';
 
 import {
   productCategorySlugs,
@@ -19,20 +27,41 @@ import {
   type ProductPrice,
 } from '../types/product';
 
-function sortProducts(productList: Product[]): Product[] {
-  return [...productList].sort((first, second) => {
-    const featuredDifference =
-      Number(Boolean(second.featured)) -
-      Number(Boolean(first.featured));
+function sortProducts(
+  productList:
+    Product[],
+): Product[] {
+  return [
+    ...productList,
+  ].sort(
+    (
+      first,
+      second,
+    ) => {
+      const featuredDifference =
+        Number(
+          Boolean(
+            second.featured,
+          ),
+        ) -
+        Number(
+          Boolean(
+            first.featured,
+          ),
+        );
 
-    if (featuredDifference !== 0) {
-      return featuredDifference;
-    }
+      if (
+        featuredDifference !==
+        0
+      ) {
+        return featuredDifference;
+      }
 
-    return first.name.localeCompare(
-      second.name,
-    );
-  });
+      return first.name.localeCompare(
+        second.name,
+      );
+    },
+  );
 }
 
 export function isProductCategorySlug(
@@ -41,7 +70,9 @@ export function isProductCategorySlug(
     null |
     undefined,
 ): value is ProductCategorySlug {
-  if (!value) {
+  if (
+    !value
+  ) {
     return false;
   }
 
@@ -64,34 +95,66 @@ function isProductVisible(
   );
 }
 
-export function getAllProducts():
-  Product[] {
-  return sortProducts(
-    products.filter(
-      isProductVisible,
-    ),
-  );
-}
+function localizeProducts(
+  productList:
+    Product[],
 
-export function getActiveProducts():
-  Product[] {
-  return sortProducts(
-    products.filter(
-      (
+  locale:
+    Locale,
+): Product[] {
+  return productList.map(
+    (
+      product,
+    ) =>
+      getLocalizedProduct(
         product,
-      ) =>
-        product.status ===
-          'active' &&
-        isProductVisible(
-          product,
-        ),
+        locale,
+      ),
+  );
+}
+
+export function getAllProducts(
+  locale:
+    Locale = 'en',
+): Product[] {
+  return sortProducts(
+    localizeProducts(
+      products.filter(
+        isProductVisible,
+      ),
+      locale,
     ),
   );
 }
 
-export function getFeaturedProducts():
-  Product[] {
-  return getActiveProducts().filter(
+export function getActiveProducts(
+  locale:
+    Locale = 'en',
+): Product[] {
+  return sortProducts(
+    localizeProducts(
+      products.filter(
+        (
+          product,
+        ) =>
+          product.status ===
+            'active' &&
+          isProductVisible(
+            product,
+          ),
+      ),
+      locale,
+    ),
+  );
+}
+
+export function getFeaturedProducts(
+  locale:
+    Locale = 'en',
+): Product[] {
+  return getActiveProducts(
+    locale,
+  ).filter(
     (
       product,
     ) =>
@@ -102,8 +165,13 @@ export function getFeaturedProducts():
 export function getProductBySlug(
   slug:
     string,
+
+  locale:
+    Locale = 'en',
 ): Product | undefined {
-  return getActiveProducts().find(
+  return getActiveProducts(
+    locale,
+  ).find(
     (
       product,
     ) =>
@@ -115,8 +183,13 @@ export function getProductBySlug(
 export function getProductsByCategory(
   category:
     ProductCategorySlug,
+
+  locale:
+    Locale = 'en',
 ): Product[] {
-  return getActiveProducts().filter(
+  return getActiveProducts(
+    locale,
+  ).filter(
     (
       product,
     ) =>
@@ -172,9 +245,11 @@ export function formatProductPrice(
     Locale = 'en',
 ): string {
   return new Intl.NumberFormat(
-    locale === 'es'
+    locale ===
+      'es'
       ? 'es-US'
       : 'en-US',
+
     {
       style:
         'currency',
@@ -195,7 +270,9 @@ export function formatProductDimensions(
   locale:
     Locale = 'en',
 ): string | null {
-  if (!dimensions) {
+  if (
+    !dimensions
+  ) {
     return null;
   }
 
@@ -212,8 +289,10 @@ export function formatProductDimensions(
   );
 
   const dimensionUnit =
-    locale === 'es' &&
-    dimensions.unit === 'in'
+    locale ===
+      'es' &&
+    dimensions.unit ===
+      'in'
       ? 'pulg'
       : dimensions.unit;
 

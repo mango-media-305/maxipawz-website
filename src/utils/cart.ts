@@ -11,6 +11,10 @@ import type {
   Locale,
 } from '../i18n/languages';
 
+import {
+  getLocalizedProduct,
+} from '../i18n/products';
+
 import type {
   CartLine,
   CartState,
@@ -33,14 +37,25 @@ import {
 function getProductFromCatalog(
   slug:
     string,
+
+  locale:
+    Locale,
 ): Product | undefined {
-  return products.find(
-    (
-      product,
-    ) =>
-      product.slug ===
-      slug,
-  );
+  const product =
+    products.find(
+      (
+        catalogProduct,
+      ) =>
+        catalogProduct.slug ===
+        slug,
+    );
+
+  return product
+    ? getLocalizedProduct(
+        product,
+        locale,
+      )
+    : undefined;
 }
 
 function getProductVariant(
@@ -50,7 +65,9 @@ function getProductVariant(
   variantId?:
     string,
 ): ProductVariant | undefined {
-  if (!variantId) {
+  if (
+    !variantId
+  ) {
     return undefined;
   }
 
@@ -105,9 +122,12 @@ export function resolveCartLine(
   const product =
     getProductFromCatalog(
       line.productSlug,
+      locale,
     );
 
-  if (!product) {
+  if (
+    !product
+  ) {
     return {
       key,
       line,
@@ -360,6 +380,7 @@ export function getCartTotals(
 
       return totals;
     },
+
     {
       itemCount:
         0,
@@ -399,6 +420,7 @@ export function formatCartAmount(
     getCommerceNumberLocale(
       locale,
     ),
+
     {
       style:
         'currency',
@@ -415,7 +437,9 @@ export function getProductImageSource(
   image?:
     ProductImage,
 ): string | undefined {
-  if (!image) {
+  if (
+    !image
+  ) {
     return undefined;
   }
 
