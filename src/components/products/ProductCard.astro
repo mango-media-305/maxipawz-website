@@ -10,6 +10,10 @@ import {
   getLocaleFromPathname,
 } from '../../i18n/languages';
 
+import {
+  localizeHref,
+} from '../../i18n/routes';
+
 import type {
   Product,
   ProductAvailability,
@@ -134,9 +138,10 @@ const showStaticAvailabilityBadge =
   );
 
 const productHref =
-  locale === 'es'
-    ? `/es/shop/${product.slug}`
-    : `/shop/${product.slug}`;
+  localizeHref(
+    `/shop/${product.slug}`,
+    locale,
+  );
 
 const copy =
   spanish
@@ -352,6 +357,7 @@ const copy =
           <AddToCartButton
             productSlug={product.slug}
             mode="card"
+            locale={locale}
             client:visible
           />
         </div>

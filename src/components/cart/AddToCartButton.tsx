@@ -18,6 +18,18 @@ import {
 } from './useProductInventory';
 
 import {
+    commerceText,
+} from '../../i18n/commerce';
+
+import type {
+    Locale,
+} from '../../i18n/languages';
+
+import {
+    localizeHref,
+} from '../../i18n/routes';
+
+import {
     addCartLine,
     openCartDrawer,
 } from '../../stores/cart';
@@ -34,11 +46,15 @@ import {
 } from '../../utils/product-inventory';
 
 interface Props {
-    productSlug: string;
+    productSlug:
+    string;
 
     mode?:
     | 'card'
     | 'detail';
+
+    locale?:
+    Locale;
 }
 
 function CartIcon() {
@@ -70,12 +86,13 @@ function CartIcon() {
 
 export default function AddToCartButton({
     productSlug,
-    mode =
-    'card',
+    mode = 'card',
+    locale = 'en',
 }: Props) {
     const product =
         getProductBySlug(
             productSlug,
+            locale,
         );
 
     const {
@@ -309,10 +326,19 @@ export default function AddToCartButton({
     ) {
         return (
             <a
-                href={`/shop/${product.slug}`}
+                href={localizeHref(
+                    `/shop/${product.slug}`,
+                    locale,
+                )}
                 className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-brand-300 bg-brand-50 px-4 text-sm font-extrabold text-brand-800 transition hover:-translate-y-0.5 hover:bg-brand-100"
             >
-                Choose Options
+                {
+                    commerceText(
+                        locale,
+                        'Choose Options',
+                        'Elegir opciones',
+                    )
+                }
             </a>
         );
     }
@@ -383,7 +409,11 @@ export default function AddToCartButton({
         needsVariantSelection
     ) {
         stockMessage =
-            'Select an option to check availability.';
+            commerceText(
+                locale,
+                'Select an option to check availability.',
+                'Selecciona una opción para comprobar la disponibilidad.',
+            );
     } else if (
         effectiveAvailability &&
         effectiveAvailability !==
@@ -392,6 +422,7 @@ export default function AddToCartButton({
         stockMessage =
             getAvailabilityLabel(
                 effectiveAvailability,
+                locale,
             );
     } else if (
         inventoryTrackingEnabled
@@ -401,13 +432,21 @@ export default function AddToCartButton({
             'loading'
         ) {
             stockMessage =
-                'Checking live stock…';
+                commerceText(
+                    locale,
+                    'Checking live stock…',
+                    'Verificando inventario…',
+                );
         } else if (
             inventoryLookup.status ===
             'error'
         ) {
             stockMessage =
-                'Stock temporarily unavailable.';
+                commerceText(
+                    locale,
+                    'Stock temporarily unavailable.',
+                    'Inventario temporalmente no disponible.',
+                );
 
             stockMessageClass =
                 'text-danger-700';
@@ -425,7 +464,11 @@ export default function AddToCartButton({
                 0
             ) {
                 stockMessage =
-                    'Sold out';
+                    commerceText(
+                        locale,
+                        'Sold out',
+                        'Agotado',
+                    );
 
                 stockMessageClass =
                     'text-danger-700';
@@ -440,14 +483,25 @@ export default function AddToCartButton({
                 stockMessage =
                     liveAvailable ===
                         1
-                        ? 'Only 1 left in stock'
-                        : `Only ${liveAvailable} left in stock`;
+                        ? commerceText(
+                            locale,
+                            'Only 1 left in stock',
+                            'Solo queda 1 unidad',
+                        )
+                        : locale ===
+                            'es'
+                            ? `Solo quedan ${liveAvailable} unidades`
+                            : `Only ${liveAvailable} left in stock`;
 
                 stockMessageClass =
                     'text-accent-800';
             } else {
                 stockMessage =
-                    'In stock';
+                    commerceText(
+                        locale,
+                        'In stock',
+                        'Disponible',
+                    );
 
                 stockMessageClass =
                     'text-success-700';
@@ -458,7 +512,11 @@ export default function AddToCartButton({
         'in-stock'
     ) {
         stockMessage =
-            'In stock';
+            commerceText(
+                locale,
+                'In stock',
+                'Disponible',
+            );
 
         stockMessageClass =
             'text-success-700';
@@ -466,8 +524,16 @@ export default function AddToCartButton({
 
     const baseButtonLabel =
         product.isDemo
-            ? 'Add Demo Item'
-            : 'Add to Cart';
+            ? commerceText(
+                locale,
+                'Add Demo Item',
+                'Agregar producto de demostración',
+            )
+            : commerceText(
+                locale,
+                'Add to Cart',
+                'Agregar al carrito',
+            );
 
     let buttonLabel =
         baseButtonLabel;
@@ -476,45 +542,71 @@ export default function AddToCartButton({
         needsVariantSelection
     ) {
         buttonLabel =
-            'Select an Option';
+            commerceText(
+                locale,
+                'Select an Option',
+                'Selecciona una opción',
+            );
     } else if (
+        effectiveAvailability &&
         effectiveAvailability !==
         'in-stock'
     ) {
         buttonLabel =
             getAvailabilityLabel(
                 effectiveAvailability,
+                locale,
             );
     } else if (
         !effectivePrice
     ) {
         buttonLabel =
-            'Price Unavailable';
+            commerceText(
+                locale,
+                'Price Unavailable',
+                'Precio no disponible',
+            );
     } else if (
         inventoryTrackingEnabled &&
         inventoryLookup.status ===
         'loading'
     ) {
         buttonLabel =
-            'Checking Stock…';
+            commerceText(
+                locale,
+                'Checking Stock…',
+                'Verificando inventario…',
+            );
     } else if (
         inventoryTrackingEnabled &&
         inventoryLookup.status ===
         'error'
     ) {
         buttonLabel =
-            'Stock Unavailable';
+            commerceText(
+                locale,
+                'Stock Unavailable',
+                'Inventario no disponible',
+            );
     } else if (
         isRuntimeSoldOut
     ) {
         buttonLabel =
-            'Sold Out';
+            commerceText(
+                locale,
+                'Sold Out',
+                'Agotado',
+            );
     } else if (
         maxSelectableQuantity ===
         0
     ) {
         buttonLabel =
-            'Maximum in Cart';
+            commerceText(
+                locale,
+                'Maximum in Cart',
+                'Máximo en el carrito',
+            );
     }
 
     function handleAdd():
@@ -540,26 +632,50 @@ export default function AddToCartButton({
             window as Window & {
                 posthog?: {
                     capture: (
-                        event: string,
-                        properties?: Record<string, string | number | boolean>,
+                        event:
+                            string,
+
+                        properties?:
+                            Record<
+                                string,
+                                string |
+                                number |
+                                boolean
+                            >,
                     ) => void;
                 };
             }
         ).posthog?.capture(
             'cart_item_added',
             {
-                product_slug: productSlug,
-                variant_id: selectedVariant?.id ?? 'default',
+                product_slug:
+                    productSlug,
+
+                variant_id:
+                    selectedVariant
+                        ?.id ??
+                    'default',
+
                 quantity,
-                is_demo_product: Boolean(product?.isDemo),
+
+                is_demo_product:
+                    Boolean(
+                        product.isDemo,
+                    ),
             },
         );
 
         setMessage(
-            quantity ===
-                1
-                ? `${product.name} added to your cart.`
-                : `${quantity} × ${product.name} added to your cart.`,
+            locale ===
+                'es'
+                ? quantity ===
+                    1
+                    ? `${product.name} se agregó a tu carrito.`
+                    : `${quantity} × ${product.name} se agregaron a tu carrito.`
+                : quantity ===
+                    1
+                    ? `${product.name} added to your cart.`
+                    : `${quantity} × ${product.name} added to your cart.`,
         );
 
         if (
@@ -599,12 +715,8 @@ export default function AddToCartButton({
                 <button
                     type="button"
                     className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-brand-600 bg-brand-500 px-4 text-sm font-extrabold text-white shadow-blue transition hover:-translate-y-0.5 hover:bg-brand-600 disabled:cursor-not-allowed disabled:border-sand-dark disabled:bg-sand disabled:text-ink-500 disabled:shadow-none"
-                    disabled={
-                        !canAdd
-                    }
-                    onClick={
-                        handleAdd
-                    }
+                    disabled={!canAdd}
+                    onClick={handleAdd}
                 >
                     <CartIcon />
 
@@ -629,21 +741,24 @@ export default function AddToCartButton({
                         htmlFor={`product-option-${product.slug}`}
                         className="block text-sm font-extrabold text-ink-800"
                     >
-                        Choose an option
+                        {
+                            commerceText(
+                                locale,
+                                'Choose an option',
+                                'Elige una opción',
+                            )
+                        }
                     </label>
 
                     <select
                         id={`product-option-${product.slug}`}
                         className="form-control mt-2"
-                        value={
-                            selectedVariantId
-                        }
+                        value={selectedVariantId}
                         onChange={(
                             event,
                         ) => {
                             setSelectedVariantId(
-                                event
-                                    .currentTarget
+                                event.currentTarget
                                     .value,
                             );
 
@@ -657,7 +772,13 @@ export default function AddToCartButton({
                         }}
                     >
                         <option value="">
-                            Select an option
+                            {
+                                commerceText(
+                                    locale,
+                                    'Select an option',
+                                    'Selecciona una opción',
+                                )
+                            }
                         </option>
 
                         {variants.map(
@@ -680,24 +801,24 @@ export default function AddToCartButton({
 
                                 return (
                                     <option
-                                        key={
-                                            variant.id
-                                        }
-                                        value={
-                                            variant.id
-                                        }
-                                        disabled={
-                                            unavailable
-                                        }
+                                        key={variant.id}
+                                        value={variant.id}
+                                        disabled={unavailable}
                                     >
                                         {variant.label}
 
                                         {price
-                                            ? ` — ${formatProductPrice(price)}`
+                                            ? ` — ${formatProductPrice(
+                                                price,
+                                                locale,
+                                            )}`
                                             : ''}
 
                                         {unavailable
-                                            ? ` — ${getAvailabilityLabel(availability)}`
+                                            ? ` — ${getAvailabilityLabel(
+                                                availability,
+                                                locale,
+                                            )}`
                                             : ''}
                                     </option>
                                 );
@@ -710,32 +831,38 @@ export default function AddToCartButton({
             {selectedVariant
                 ?.price && (
                     <p className="mt-3 text-sm font-bold text-ink-600">
-                        Selected price:{' '}
+                        {
+                            commerceText(
+                                locale,
+                                'Selected price:',
+                                'Precio seleccionado:',
+                            )
+                        }{' '}
 
                         <span className="font-black text-ink-900">
-                            {formatProductPrice(
-                                selectedVariant.price,
-                            )}
+                            {
+                                formatProductPrice(
+                                    selectedVariant.price,
+                                    locale,
+                                )
+                            }
                         </span>
                     </p>
                 )}
 
             {isRuntimeSoldOut ? (
                 <BackInStockForm
-                    productSlug={
-                        product.slug
-                    }
+                    productSlug={product.slug}
                     variantId={
                         selectedVariant
                             ?.id
                     }
-                    productName={
-                        product.name
-                    }
+                    productName={product.name}
                     variantLabel={
                         selectedVariant
                             ?.label
                     }
+                    locale={locale}
                 />
             ) : (
                 <>
@@ -756,11 +883,12 @@ export default function AddToCartButton({
                                 liveAvailable >
                                 0 && (
                                     <p className="mt-1 text-xs font-bold leading-5 text-ink-500">
-                                        You currently have{' '}
                                         {
-                                            existingCartQuantity
-                                        }{' '}
-                                        in your cart.
+                                            locale ===
+                                                'es'
+                                                ? `Actualmente tienes ${existingCartQuantity} en tu carrito.`
+                                                : `You currently have ${existingCartQuantity} in your cart.`
+                                        }
                                     </p>
                                 )}
                         </div>
@@ -768,9 +896,7 @@ export default function AddToCartButton({
 
                     <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
                         <QuantityControl
-                            quantity={
-                                quantity
-                            }
+                            quantity={quantity}
                             disableIncrease={
                                 !canAdd ||
                                 quantity >=
@@ -794,18 +920,20 @@ export default function AddToCartButton({
                                     ),
                                 )
                             }
-                            label={`Quantity for ${product.name}`}
+                            locale={locale}
+                            label={
+                                locale ===
+                                    'es'
+                                    ? `Cantidad de ${product.name}`
+                                    : `Quantity for ${product.name}`
+                            }
                         />
 
                         <button
                             type="button"
                             className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-full border border-brand-600 bg-brand-500 px-5 font-extrabold text-white shadow-blue transition hover:-translate-y-0.5 hover:bg-brand-600 disabled:cursor-not-allowed disabled:border-sand-dark disabled:bg-sand disabled:text-ink-500 disabled:shadow-none"
-                            disabled={
-                                !canAdd
-                            }
-                            onClick={
-                                handleAdd
-                            }
+                            disabled={!canAdd}
+                            onClick={handleAdd}
                         >
                             <CartIcon />
 

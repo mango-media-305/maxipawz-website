@@ -24,8 +24,19 @@ const translatedPaths:
         '/product-safety',
         '/return-policy',
         '/shipping-policy',
+        '/shop',
         '/terms',
     ]);
+
+/*
+ * Product detail pages use the same stable slug in both languages.
+ * Both /shop/[slug] and /es/shop/[slug] are generated from the same
+ * canonical product catalog.
+ */
+const translatedPathPatterns:
+    readonly RegExp[] = [
+        /^\/shop\/[^/]+$/,
+    ];
 
 export function normalizePathname(
     pathname:
@@ -66,10 +77,23 @@ export function hasSpanishTranslation(
     pathname:
         string,
 ): boolean {
-    return translatedPaths.has(
+    const englishPath =
         getEnglishPathname(
             pathname,
-        ),
+        );
+
+    return (
+        translatedPaths.has(
+            englishPath,
+        ) ||
+        translatedPathPatterns.some(
+            (
+                pattern,
+            ) =>
+                pattern.test(
+                    englishPath,
+                ),
+        )
     );
 }
 
