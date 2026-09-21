@@ -1,3 +1,5 @@
+import type { Locale } from '../i18n/languages';
+
 // Transitional homepage presentation adapter.
 //
 // Article content lives exclusively in the Astro `blog` Content Collection under
@@ -9,14 +11,7 @@
 
 export type PetGuideTone = 'brand' | 'accent' | 'sand';
 
-export type PetGuideIcon =
-  | 'choosing'
-  | 'play'
-  | 'travel'
-  | 'hydration'
-  | 'comfort'
-  | 'care'
-  | 'accessories';
+export type PetGuideIcon = 'choosing' | 'play' | 'travel' | 'hydration' | 'comfort' | 'care' | 'accessories';
 
 export interface HomepagePetGuide {
   slug: string;
@@ -75,3 +70,50 @@ export const homepagePetGuides: HomepagePetGuide[] = [
     readingTime: '7 min read',
   },
 ];
+
+type GuideTranslation = Pick<HomepagePetGuide, 'cardTitle' | 'description' | 'eyebrow' | 'readingTime'>;
+
+const spanishHomepageGuides: Record<string, GuideTranslation> = {
+  'dog-hydration-miami-heat': {
+    cardTitle: 'Hidratación de perros en el calor de Miami',
+    description:
+      'Planifica paseos más seguros cuando hace calor con consejos sobre agua fresca, horarios más frescos, descansos a la sombra, pavimento caliente y señales de sobrecalentamiento.',
+    eyebrow: 'Seguridad canina en Miami',
+    readingTime: '7 min de lectura',
+  },
+  'play-and-enrichment': {
+    cardTitle: 'Juego y enriquecimiento',
+    description:
+      'Aprende a elegir juguetes para perros según su forma de jugar, tamaño, actividad, fabricación, supervisión necesaria, rotación de juguetes y señales de desgaste.',
+    eyebrow: 'Juego y enriquecimiento',
+    readingTime: '8 min de lectura',
+  },
+  'walk-and-travel': {
+    cardTitle: 'Paseos y viajes',
+    description:
+      'Prepara los paseos, viajes en auto, excursiones y otras aventuras con consejos sobre equipo, hidratación, identificación, comodidad, calor y organización.',
+    eyebrow: 'Paseos y viajes',
+    readingTime: '8 min de lectura',
+  },
+  'feeding-and-hydration': {
+    cardTitle: 'Alimentación e hidratación',
+    description:
+      'Elige tazones, productos de agua portátiles y accesorios de alimentación según su capacidad, estabilidad, materiales, limpieza, uso en viajes y rutinas diarias.',
+    eyebrow: 'Alimentación e hidratación',
+    readingTime: '7 min de lectura',
+  },
+};
+
+/** Translate preview copy without changing canonical slugs or article URLs. */
+export function getHomepagePetGuides(locale: Locale): HomepagePetGuide[] {
+  return homepagePetGuides.map((guide) => {
+    if (locale !== 'es') return { ...guide };
+
+    const translation = spanishHomepageGuides[guide.slug];
+    if (!translation) {
+      throw new Error(`Missing Spanish homepage guide: ${guide.slug}`);
+    }
+
+    return { ...guide, ...translation };
+  });
+}

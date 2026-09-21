@@ -11,15 +11,19 @@ import ShoppingBagOpenBold from 'phosphor-astro/ShoppingBagOpenBold.astro';
 import SparkleBold from 'phosphor-astro/SparkleBold.astro';
 import SuitcaseRollingBold from 'phosphor-astro/SuitcaseRollingBold.astro';
 
-import Badge from '../ui/Badge.astro';
 import Button from '../ui/Button.astro';
 
 import {
-  homepagePetGuides,
+  getHomepagePetGuides,
   type HomepagePetGuide,
   type PetGuideIcon,
   type PetGuideTone,
 } from '../../data/pet-guides';
+import { getLocaleFromPathname } from '../../i18n/languages';
+import { localizeHref, localizedLinkLabel } from '../../i18n/routes';
+
+const locale = getLocaleFromPathname(Astro.url.pathname);
+const t = (english: string, spanish: string): string => (locale === 'es' ? spanish : english);
 
 const iconByGuide: Record<PetGuideIcon, typeof PawPrintBold> = {
   choosing: CheckCircleBold,
@@ -32,12 +36,9 @@ const iconByGuide: Record<PetGuideIcon, typeof PawPrintBold> = {
 };
 
 const cardToneClasses: Record<PetGuideTone, string> = {
-  brand: [
-    'border-brand-200',
-    'bg-brand-50',
-    'hover:border-brand-300',
-    'focus-visible:border-brand-400',
-  ].join(' '),
+  brand: ['border-brand-200', 'bg-brand-50', 'hover:border-brand-300', 'focus-visible:border-brand-400'].join(
+    ' ',
+  ),
 
   accent: [
     'border-accent-200',
@@ -100,7 +101,7 @@ for (const entry of blogEntries) {
   });
 }
 
-const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
+const guides: HomepageGuideWithImage[] = getHomepagePetGuides(locale).map((guide) => ({
   ...guide,
   image: heroImageBySlug.get(guide.slug),
 }));
@@ -111,12 +112,9 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
   class="pet-guides-preview section-spacing relative isolate scroll-mt-28 overflow-hidden border-b border-sand bg-white-warm/75"
   aria-labelledby="pet-guides-preview-title"
   data-pet-guides-preview
+  data-guide-locale={locale}
 >
-  <div
-    class="pet-guides-preview__pattern pointer-events-none absolute inset-0"
-    aria-hidden="true"
-  >
-  </div>
+  <div class="pet-guides-preview__pattern pointer-events-none absolute inset-0" aria-hidden="true"></div>
 
   <div
     class="pet-guides-preview__parallax pointer-events-none absolute -top-28 -left-24"
@@ -124,10 +122,7 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
     data-guide-parallax-speed="0.035"
     aria-hidden="true"
   >
-    <div
-      class="pet-guides-preview__orb size-88 rounded-full bg-brand-300/22 blur-3xl"
-    >
-    </div>
+    <div class="pet-guides-preview__orb size-88 rounded-full bg-brand-300/22 blur-3xl"></div>
   </div>
 
   <div
@@ -164,21 +159,23 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
           class="section-title mt-5 max-w-3xl text-4xl sm:text-5xl lg:text-6xl"
           data-guide-heading
         >
-          Helpful guidance for everyday life with your friend.
+          {
+            t(
+              'Helpful guidance for everyday life with your friend.',
+              'Consejos útiles para el día a día con tu mascota.',
+            )
+          }
         </h2>
       </div>
 
-      <div
-        class="lg:pb-1"
-        data-guide-reveal
-        style="--guide-reveal-delay: 90ms;"
-      >
-        <p
-          class="section-description max-w-2xl lg:ml-auto"
-          data-guide-description
-        >
-          Explore practical information inspired by our experiences with Maxi—from choosing toys to
-          preparing for walks, travel, feeding, hydration, comfort, and care.
+      <div class="lg:pb-1" data-guide-reveal style="--guide-reveal-delay: 90ms;">
+        <p class="section-description max-w-2xl lg:ml-auto" data-guide-description>
+          {
+            t(
+              'Explore practical information inspired by our experiences with Maxi—from choosing toys to preparing for walks, travel, feeding, hydration, comfort, and care.',
+              'Encuentra consejos prácticos inspirados en nuestras experiencias con Maxi: desde elegir juguetes hasta preparar paseos, viajes, comidas, hidratación, descanso y cuidados.',
+            )
+          }
         </p>
 
         <div class="mt-5 flex flex-wrap items-center gap-3">
@@ -187,11 +184,11 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
           >
             <CheckCircleBold class="size-4" aria-hidden="true" />
 
-            Practical and easy to follow
+            {t('Practical and easy to follow', 'Prácticos y fáciles de seguir')}
           </span>
 
           <span class="text-sm font-bold text-ink-500">
-            Built for real pet routines.
+            {t('Built for real pet routines.', 'Pensados para las rutinas de tu mascota.')}
           </span>
         </div>
       </div>
@@ -214,17 +211,14 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
 
           return (
             <article
-              class={[
-                'guide-preview-card h-full',
-                'lg:first:row-span-3',
-              ].join(' ')}
+              class={['guide-preview-card h-full', 'lg:first:row-span-3'].join(' ')}
               data-guide-card
               data-guide-slug={guide.slug}
               data-guide-reveal={index === 0 ? 'left' : 'right'}
               style={`--guide-reveal-delay: ${150 + index * 80}ms;`}
             >
               <a
-                href={guide.href}
+                href={localizeHref(guide.href, locale)}
                 class:list={[
                   'guide-preview-card__surface group relative isolate flex h-full min-h-60 flex-col overflow-hidden rounded-card border p-5 shadow-sm sm:p-6',
                   'lg:[article:first-child_&]:min-h-128 lg:[article:first-child_&]:rounded-card-lg lg:[article:first-child_&]:p-8',
@@ -234,50 +228,51 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
                 ]}
                 data-guide-interactive
                 data-guide-strength={index === 0 ? '4.2' : '3.1'}
-                aria-label={`Read guide: ${guide.cardTitle}`}
+                aria-label={localizedLinkLabel(
+                  t(`Read guide: ${guide.cardTitle}`, `Leer guía: ${guide.cardTitle}`),
+                  guide.href,
+                  locale,
+                )}
               >
-                {
-                  guide.image && (
-                    <div
-                      class="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-[inherit]"
-                      aria-hidden="true"
-                    >
-                      <img
-                        src={guide.image.src}
-                        alt=""
-                        loading="lazy"
-                        decoding="async"
-                        class={[
-                          'size-full object-cover',
-                          'scale-[1.035] opacity-[0.88]',
-                          'saturate-[0.95] contrast-[0.98]',
-                          'transition-[transform,opacity,filter] duration-700 ease-out',
-                          'group-hover:scale-[1.13] group-hover:opacity-[0.98]',
-                          'group-hover:saturate-100 group-hover:contrast-100',
-                          'group-focus-visible:scale-[1.13] group-focus-visible:opacity-[0.98]',
-                          'group-focus-visible:saturate-100 group-focus-visible:contrast-100',
-                          'motion-reduce:scale-[1.035] motion-reduce:transition-none',
-                          'lg:[article:first-child_&]:scale-[1.03]',
-                          'lg:[article:first-child_&]:opacity-90',
-                          'lg:[article:first-child_.group:hover_&]:scale-[1.12]',
-                          'lg:[article:first-child_.group:hover_&]:opacity-100',
-                        ].join(' ')}
-                      />
+                {guide.image && (
+                  <div
+                    class="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-[inherit]"
+                    aria-hidden="true"
+                  >
+                    <img
+                      src={guide.image.src}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      class={[
+                        'size-full object-cover',
+                        'scale-[1.035] opacity-[0.88]',
+                        'saturate-[0.95] contrast-[0.98]',
+                        'transition-[transform,opacity,filter] duration-700 ease-out',
+                        'group-hover:scale-[1.13] group-hover:opacity-[0.98]',
+                        'group-hover:saturate-100 group-hover:contrast-100',
+                        'group-focus-visible:scale-[1.13] group-focus-visible:opacity-[0.98]',
+                        'group-focus-visible:saturate-100 group-focus-visible:contrast-100',
+                        'motion-reduce:scale-[1.035] motion-reduce:transition-none',
+                        'lg:[article:first-child_&]:scale-[1.03]',
+                        'lg:[article:first-child_&]:opacity-90',
+                        'lg:[article:first-child_.group:hover_&]:scale-[1.12]',
+                        'lg:[article:first-child_.group:hover_&]:opacity-100',
+                      ].join(' ')}
+                    />
 
-                      <div
-                        class={[
-                          'absolute inset-0',
-                          'bg-[linear-gradient(180deg,rgba(255,254,249,0.04)_0%,rgba(255,254,249,0.08)_38%,rgba(255,254,249,0.60)_100%)]',
-                          'transition-[background] duration-500 ease-out',
-                          'group-hover:bg-[linear-gradient(180deg,rgba(255,254,249,0.02)_0%,rgba(255,254,249,0.04)_38%,rgba(255,254,249,0.52)_100%)]',
-                          'group-focus-visible:bg-[linear-gradient(180deg,rgba(255,254,249,0.02)_0%,rgba(255,254,249,0.04)_38%,rgba(255,254,249,0.52)_100%)]',
-                          'motion-reduce:transition-none',
-                        ].join(' ')}
-                      >
-                      </div>
-                    </div>
-                  )
-                }
+                    <div
+                      class={[
+                        'absolute inset-0',
+                        'bg-[linear-gradient(180deg,rgba(255,254,249,0.04)_0%,rgba(255,254,249,0.08)_38%,rgba(255,254,249,0.60)_100%)]',
+                        'transition-[background] duration-500 ease-out',
+                        'group-hover:bg-[linear-gradient(180deg,rgba(255,254,249,0.02)_0%,rgba(255,254,249,0.04)_38%,rgba(255,254,249,0.52)_100%)]',
+                        'group-focus-visible:bg-[linear-gradient(180deg,rgba(255,254,249,0.02)_0%,rgba(255,254,249,0.04)_38%,rgba(255,254,249,0.52)_100%)]',
+                        'motion-reduce:transition-none',
+                      ].join(' ')}
+                    ></div>
+                  </div>
+                )}
 
                 <span
                   class:list={[
@@ -286,14 +281,12 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
                     accentToneClasses[guide.tone],
                   ]}
                   aria-hidden="true"
-                >
-                </span>
+                ></span>
 
                 <div
                   class="guide-preview-card__orb guide-preview-card__orb--one pointer-events-none absolute -top-20 -right-16 z-1 size-56 rounded-full bg-white/45 blur-3xl lg:[article:first-child_&]:-top-24 lg:[article:first-child_&]:-right-20 lg:[article:first-child_&]:size-72"
                   aria-hidden="true"
-                >
-                </div>
+                ></div>
 
                 <div
                   class="guide-preview-card__watermark pointer-events-none absolute -right-5 -bottom-8 z-1 text-white/60 lg:[article:first-child_&]:-right-12 lg:[article:first-child_&]:-bottom-14"
@@ -305,8 +298,7 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
                 <div
                   class="guide-preview-card__spotlight pointer-events-none absolute inset-0 z-2"
                   aria-hidden="true"
-                >
-                </div>
+                ></div>
 
                 <div class="relative z-10 flex h-full flex-col">
                   <div class="flex items-start justify-between gap-4">
@@ -327,7 +319,7 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
                       class="hidden rounded-full border border-white/70 bg-white/88 px-3 py-1.5 text-xs font-black uppercase tracking-[0.13em] text-ink-800 shadow-sm backdrop-blur-md lg:[article:first-child_&]:inline-flex"
                       data-guide-featured-label
                     >
-                      Featured guide
+                      {t('Featured guide', 'Guía destacada')}
                     </span>
                   </div>
 
@@ -349,33 +341,21 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
                         {guide.eyebrow}
                       </span>
 
-                      <span
-                        class="size-1 rounded-full bg-ink-300"
-                        aria-hidden="true"
-                      >
-                      </span>
+                      <span class="size-1 rounded-full bg-ink-300" aria-hidden="true"></span>
 
-                      <span class="text-xs font-extrabold text-ink-600">
-                        {guide.readingTime}
-                      </span>
+                      <span class="text-xs font-extrabold text-ink-600">{guide.readingTime}</span>
                     </div>
 
-                    <h3
-                      class="mt-2 text-2xl text-ink-950 sm:text-[1.7rem] lg:[article:first-child_&]:mt-3 lg:[article:first-child_&]:text-[2.75rem]"
-                    >
+                    <h3 class="mt-2 text-2xl text-ink-950 sm:text-[1.7rem] lg:[article:first-child_&]:mt-3 lg:[article:first-child_&]:text-[2.75rem]">
                       {guide.cardTitle}
                     </h3>
 
-                    <p
-                      class="mt-3 line-clamp-3 text-sm leading-6 text-ink-800 lg:[article:first-child_&]:mt-4 lg:[article:first-child_&]:line-clamp-none lg:[article:first-child_&]:text-lg lg:[article:first-child_&]:leading-8"
-                    >
+                    <p class="mt-3 line-clamp-3 text-sm leading-6 text-ink-800 lg:[article:first-child_&]:mt-4 lg:[article:first-child_&]:line-clamp-none lg:[article:first-child_&]:text-lg lg:[article:first-child_&]:leading-8">
                       {guide.description}
                     </p>
 
-                    <span
-                      class="guide-preview-card__text-link mt-4 inline-flex w-fit items-center gap-2 font-extrabold text-brand-800 lg:[article:first-child_&]:mt-6 lg:[article:first-child_&]:rounded-full lg:[article:first-child_&]:bg-ink-900 lg:[article:first-child_&]:px-5 lg:[article:first-child_&]:py-3 lg:[article:first-child_&]:text-white lg:[article:first-child_&]:shadow-soft"
-                    >
-                      Read guide
+                    <span class="guide-preview-card__text-link mt-4 inline-flex w-fit items-center gap-2 font-extrabold text-brand-800 lg:[article:first-child_&]:mt-6 lg:[article:first-child_&]:rounded-full lg:[article:first-child_&]:bg-ink-900 lg:[article:first-child_&]:px-5 lg:[article:first-child_&]:py-3 lg:[article:first-child_&]:text-white lg:[article:first-child_&]:shadow-soft">
+                      {localizedLinkLabel(t('Read guide', 'Leer guía'), guide.href, locale)}
 
                       <ArrowRightBold
                         class="guide-preview-card__arrow size-4 lg:[article:first-child_&]:size-5"
@@ -396,9 +376,7 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
       data-guide-reveal
       style={`--guide-reveal-delay: ${300 + guides.length * 80}ms;`}
     >
-      <div
-        class="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between"
-      >
+      <div class="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div class="flex max-w-2xl items-start gap-4">
           <span
             class="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-500 text-white shadow-blue"
@@ -409,19 +387,28 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
 
           <div>
             <h3 class="text-2xl text-ink-900 sm:text-3xl">
-              Practical answers for more of your everyday pet questions.
+              {
+                t(
+                  'Practical answers for more of your everyday pet questions.',
+                  'Respuestas prácticas para tus preguntas sobre la vida con mascotas.',
+                )
+              }
             </h3>
 
             <p class="mt-2 leading-7 text-ink-600">
-              Browse the full Maxi Pawz guide library for help with products, play, travel,
-              hydration, comfort, grooming, and accessories.
+              {
+                t(
+                  'Browse the full Maxi Pawz guide library for help with products, play, travel, hydration, comfort, grooming, and accessories.',
+                  'Explora todas las guías de Maxi Pawz sobre productos, juego, viajes, hidratación, descanso, higiene y accesorios.',
+                )
+              }
             </p>
           </div>
         </div>
 
         <div class="shrink-0">
           <Button
-            href="/pet-guides"
+            href={localizeHref('/pet-guides', locale)}
             variant="primary"
             size="lg"
             iconPosition="right"
@@ -429,7 +416,7 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
           >
             <ArrowRightBold slot="icon" aria-hidden="true" />
 
-            Explore All Pet Guides
+            {localizedLinkLabel(t('Explore All Pet Guides', 'Ver todas las guías'), '/pet-guides', locale)}
           </Button>
         </div>
       </div>
@@ -453,21 +440,9 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
       auto,
       2.2rem 2.2rem;
 
-    -webkit-mask-image: linear-gradient(
-      to bottom,
-      transparent,
-      black 12%,
-      black 88%,
-      transparent
-    );
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
 
-    mask-image: linear-gradient(
-      to bottom,
-      transparent,
-      black 12%,
-      black 88%,
-      transparent
-    );
+    mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
 
     opacity: 0.7;
   }
@@ -509,19 +484,8 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
     --guide-card-icon-x: 0px;
     --guide-card-icon-y: 0px;
 
-    transform:
-      perspective(1100px)
-      translate3d(
-        0,
-        var(--guide-card-lift),
-        0
-      )
-      rotateX(
-        var(--guide-card-rotate-x)
-      )
-      rotateY(
-        var(--guide-card-rotate-y)
-      );
+    transform: perspective(1100px) translate3d(0, var(--guide-card-lift), 0)
+      rotateX(var(--guide-card-rotate-x)) rotateY(var(--guide-card-rotate-y));
 
     transform-style: preserve-3d;
 
@@ -542,9 +506,7 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
 
   .guide-preview-card__spotlight {
     background: radial-gradient(
-      circle 15rem at
-        var(--guide-card-spotlight-x)
-        var(--guide-card-spotlight-y),
+      circle 15rem at var(--guide-card-spotlight-x) var(--guide-card-spotlight-y),
       rgb(255 255 255 / 20%),
       transparent 68%
     );
@@ -554,22 +516,13 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
     transition: opacity 220ms ease;
   }
 
-  .guide-preview-card__surface:hover
-    .guide-preview-card__spotlight,
-  .guide-preview-card__surface:focus-visible
-    .guide-preview-card__spotlight {
+  .guide-preview-card__surface:hover .guide-preview-card__spotlight,
+  .guide-preview-card__surface:focus-visible .guide-preview-card__spotlight {
     opacity: 1;
   }
 
   .guide-preview-card__icon {
-    transform:
-      translate3d(
-        var(--guide-card-icon-x),
-        var(--guide-card-icon-y),
-        2rem
-      )
-      rotate(0deg)
-      scale(1);
+    transform: translate3d(var(--guide-card-icon-x), var(--guide-card-icon-y), 2rem) rotate(0deg) scale(1);
 
     transition:
       transform 260ms var(--ease-bounce-soft),
@@ -578,26 +531,14 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
     will-change: transform;
   }
 
-  .guide-preview-card__surface:hover
-    .guide-preview-card__icon,
-  .guide-preview-card__surface:focus-visible
-    .guide-preview-card__icon {
-    transform:
-      translate3d(
-        var(--guide-card-icon-x),
-        var(--guide-card-icon-y),
-        2.4rem
-      )
-      rotate(4deg)
+  .guide-preview-card__surface:hover .guide-preview-card__icon,
+  .guide-preview-card__surface:focus-visible .guide-preview-card__icon {
+    transform: translate3d(var(--guide-card-icon-x), var(--guide-card-icon-y), 2.4rem) rotate(4deg)
       scale(1.06);
   }
 
   .guide-preview-card__watermark {
-    transform: translate3d(
-      var(--guide-card-icon-x),
-      var(--guide-card-icon-y),
-      0
-    );
+    transform: translate3d(var(--guide-card-icon-x), var(--guide-card-icon-y), 0);
 
     transition:
       transform 600ms var(--ease-friendly),
@@ -606,10 +547,8 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
     opacity: 0.25;
   }
 
-  .guide-preview-card__surface:hover
-    .guide-preview-card__watermark,
-  .guide-preview-card__surface:focus-visible
-    .guide-preview-card__watermark {
+  .guide-preview-card__surface:hover .guide-preview-card__watermark,
+  .guide-preview-card__surface:focus-visible .guide-preview-card__watermark {
     opacity: 0.42;
   }
 
@@ -617,17 +556,9 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
     transition: transform 650ms var(--ease-friendly);
   }
 
-  .guide-preview-card__surface:hover
-    .guide-preview-card__orb--one,
-  .guide-preview-card__surface:focus-visible
-    .guide-preview-card__orb--one {
-    transform:
-      translate3d(
-        -0.8rem,
-        0.6rem,
-        0
-      )
-      scale(1.1);
+  .guide-preview-card__surface:hover .guide-preview-card__orb--one,
+  .guide-preview-card__surface:focus-visible .guide-preview-card__orb--one {
+    transform: translate3d(-0.8rem, 0.6rem, 0) scale(1.1);
   }
 
   .guide-preview-card__text-link {
@@ -637,10 +568,8 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
       background-color 200ms var(--ease-friendly);
   }
 
-  .guide-preview-card__surface:hover
-    .guide-preview-card__text-link,
-  .guide-preview-card__surface:focus-visible
-    .guide-preview-card__text-link {
+  .guide-preview-card__surface:hover .guide-preview-card__text-link,
+  .guide-preview-card__surface:focus-visible .guide-preview-card__text-link {
     gap: 0.75rem;
   }
 
@@ -648,10 +577,8 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
     transition: transform 200ms var(--ease-friendly);
   }
 
-  .guide-preview-card__surface:hover
-    .guide-preview-card__arrow,
-  .guide-preview-card__surface:focus-visible
-    .guide-preview-card__arrow {
+  .guide-preview-card__surface:hover .guide-preview-card__arrow,
+  .guide-preview-card__surface:focus-visible .guide-preview-card__arrow {
     transform: translateX(0.22rem);
   }
 
@@ -693,111 +620,51 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
     pointer-events: none;
   }
 
-  .pet-guides-motion-ready
-    [data-guide-reveal] {
+  .pet-guides-motion-ready [data-guide-reveal] {
     opacity: 0;
 
-    transform:
-      translate3d(
-        0,
-        1.65rem,
-        0
-      )
-      scale(0.985);
+    transform: translate3d(0, 1.65rem, 0) scale(0.985);
 
     transition:
-      opacity
-        660ms
-        var(--ease-friendly)
-        var(--guide-reveal-delay, 0ms),
-      transform
-        660ms
-        var(--ease-friendly)
-        var(--guide-reveal-delay, 0ms);
+      opacity 660ms var(--ease-friendly) var(--guide-reveal-delay, 0ms),
+      transform 660ms var(--ease-friendly) var(--guide-reveal-delay, 0ms);
 
-    will-change:
-      opacity,
-      transform;
+    will-change: opacity, transform;
   }
 
-  .pet-guides-motion-ready
-    [data-guide-reveal='left'] {
-    transform:
-      translate3d(
-        -2rem,
-        0,
-        0
-      )
-      scale(0.985);
+  .pet-guides-motion-ready [data-guide-reveal='left'] {
+    transform: translate3d(-2rem, 0, 0) scale(0.985);
   }
 
-  .pet-guides-motion-ready
-    [data-guide-reveal='right'] {
-    transform:
-      translate3d(
-        2rem,
-        0,
-        0
-      )
-      scale(0.985);
+  .pet-guides-motion-ready [data-guide-reveal='right'] {
+    transform: translate3d(2rem, 0, 0) scale(0.985);
   }
 
-  .pet-guides-motion-ready
-    [data-guide-reveal].is-guide-visible {
+  .pet-guides-motion-ready [data-guide-reveal].is-guide-visible {
     opacity: 1;
 
-    transform:
-      translate3d(
-        0,
-        0,
-        0
-      )
-      scale(1);
+    transform: translate3d(0, 0, 0) scale(1);
   }
 
   @keyframes guide-orb-drift {
     0%,
     100% {
-      transform:
-        translate3d(
-          0,
-          0,
-          0
-        )
-        scale(1);
+      transform: translate3d(0, 0, 0) scale(1);
     }
 
     50% {
-      transform:
-        translate3d(
-          1rem,
-          -1rem,
-          0
-        )
-        scale(1.06);
+      transform: translate3d(1rem, -1rem, 0) scale(1.06);
     }
   }
 
   @keyframes guide-paw-float {
     0%,
     100% {
-      transform:
-        translate3d(
-          0,
-          0,
-          0
-        )
-        rotate(-4deg);
+      transform: translate3d(0, 0, 0) rotate(-4deg);
     }
 
     50% {
-      transform:
-        translate3d(
-          0.45rem,
-          -0.75rem,
-          0
-        )
-        rotate(5deg);
+      transform: translate3d(0.45rem, -0.75rem, 0) rotate(5deg);
     }
   }
 
@@ -831,8 +698,7 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
     .guide-preview-card__orb,
     .guide-preview-card__text-link,
     .guide-preview-card__arrow,
-    .pet-guides-motion-ready
-      [data-guide-reveal] {
+    .pet-guides-motion-ready [data-guide-reveal] {
       animation: none !important;
       transition: none !important;
     }
@@ -843,13 +709,11 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
     .guide-preview-card__orb,
     .guide-preview-card__text-link,
     .guide-preview-card__arrow,
-    .pet-guides-motion-ready
-      [data-guide-reveal] {
+    .pet-guides-motion-ready [data-guide-reveal] {
       transform: none !important;
     }
 
-    .pet-guides-motion-ready
-      [data-guide-reveal] {
+    .pet-guides-motion-ready [data-guide-reveal] {
       opacity: 1 !important;
     }
 
@@ -871,828 +735,445 @@ const guides: HomepageGuideWithImage[] = homepagePetGuides.map((guide) => ({
     type FoundingPackPersonalizationProfile,
   } from '../../types/founding-pack-personalization';
 
-  const PERSONALIZATION_SAVED_EVENT =
-    'maxipawz:founding-pet-personalization-saved';
+  const PERSONALIZATION_SAVED_EVENT = 'maxipawz:founding-pet-personalization-saved';
 
-  const PERSONALIZATION_FORGOTTEN_EVENT =
-    'maxipawz:founding-pet-personalization-forgotten';
+  const PERSONALIZATION_FORGOTTEN_EVENT = 'maxipawz:founding-pet-personalization-forgotten';
 
-  const DEFAULT_GUIDE_HEADING =
-    'Helpful guidance for everyday life with your friend.';
+  const DEFAULT_GUIDE_HEADING = 'Helpful guidance for everyday life with your friend.';
 
   const DEFAULT_GUIDE_DESCRIPTION =
     'Explore practical information inspired by our experiences with Maxi—from choosing toys to preparing for walks, travel, feeding, hydration, comfort, and care.';
 
-  const DEFAULT_BADGE_LABEL =
-    'Practical Pet Guides';
+  const DEFAULT_BADGE_LABEL = 'Practical Pet Guides';
 
-  const initializePetGuidePreviews =
-    (): void => {
-      const sections =
-        Array.from(
-          document.querySelectorAll<HTMLElement>(
-            '[data-pet-guides-preview]',
-          ),
-        );
+  const initializePetGuidePreviews = (): void => {
+    const sections = Array.from(document.querySelectorAll<HTMLElement>('[data-pet-guides-preview]'));
 
-      for (const section of sections) {
-        if (
-          section.dataset.petGuidesInitialized ===
-          'true'
-        ) {
-          continue;
+    for (const section of sections) {
+      if (section.dataset.petGuidesInitialized === 'true') {
+        continue;
+      }
+
+      section.dataset.petGuidesInitialized = 'true';
+
+      const guideGrid = section.querySelector<HTMLElement>('[data-guide-grid]');
+
+      const heading = section.querySelector<HTMLElement>('[data-guide-heading]');
+
+      const description = section.querySelector<HTMLElement>('[data-guide-description]');
+
+      const badgeLabel = section.querySelector<HTMLElement>('[data-guide-badge-label]');
+
+      if (!guideGrid) {
+        continue;
+      }
+
+      const isSpanish = section.dataset.guideLocale === 'es';
+      const t = (english: string, spanish: string): string => (isSpanish ? spanish : english);
+      const defaultHeading = heading?.textContent?.trim() || DEFAULT_GUIDE_HEADING;
+      const defaultDescription = description?.textContent?.trim() || DEFAULT_GUIDE_DESCRIPTION;
+      const defaultBadge =
+        badgeLabel?.textContent?.trim() || t(DEFAULT_BADGE_LABEL, 'Guías prácticas para mascotas');
+
+      /*
+       * Capture the server-rendered editorial order once.
+       * We can always return to this exact order when local
+       * personalization disappears.
+       */
+      const editorialCards = Array.from(guideGrid.querySelectorAll<HTMLElement>('[data-guide-card]'));
+
+      const editorialSlugs = editorialCards
+        .map((card) => card.dataset.guideSlug)
+        .filter((slug): slug is string => Boolean(slug));
+
+      const cardsBySlug = new Map<string, HTMLElement>();
+
+      for (const card of editorialCards) {
+        const slug = card.dataset.guideSlug;
+
+        if (slug) {
+          cardsBySlug.set(slug, card);
+        }
+      }
+
+      const updateCardRoles = (): void => {
+        const currentCards = Array.from(guideGrid.querySelectorAll<HTMLElement>('[data-guide-card]'));
+
+        currentCards.forEach((card, index) => {
+          card.dataset.guideReveal = index === 0 ? 'left' : 'right';
+
+          const interactive = card.querySelector<HTMLElement>('[data-guide-interactive]');
+
+          if (interactive) {
+            interactive.dataset.guideStrength = index === 0 ? '4.2' : '3.1';
+          }
+
+          const featuredLabel = card.querySelector<HTMLElement>('[data-guide-featured-label]');
+
+          if (featuredLabel) {
+            featuredLabel.textContent =
+              section.dataset.guidePersonalized === 'true'
+                ? t('Picked for your pet', 'Elegida para tu mascota')
+                : t('Featured guide', 'Guía destacada');
+          }
+        });
+      };
+
+      const restoreEditorialCopy = (): void => {
+        section.dataset.guidePersonalized = 'false';
+
+        if (heading) {
+          heading.textContent = defaultHeading;
         }
 
-        section.dataset.petGuidesInitialized =
-          'true';
-
-        const guideGrid =
-          section.querySelector<HTMLElement>(
-            '[data-guide-grid]',
-          );
-
-        const heading =
-          section.querySelector<HTMLElement>(
-            '[data-guide-heading]',
-          );
-
-        const description =
-          section.querySelector<HTMLElement>(
-            '[data-guide-description]',
-          );
-
-        const badgeLabel =
-          section.querySelector<HTMLElement>(
-            '[data-guide-badge-label]',
-          );
-
-        if (!guideGrid) {
-          continue;
+        if (description) {
+          description.textContent = defaultDescription;
         }
+
+        if (badgeLabel) {
+          badgeLabel.textContent = defaultBadge;
+        }
+      };
+
+      const restoreEditorialOrder = (): void => {
+        for (const slug of editorialSlugs) {
+          const card = cardsBySlug.get(slug);
+
+          if (card) {
+            guideGrid.append(card);
+          }
+        }
+
+        restoreEditorialCopy();
+
+        updateCardRoles();
+      };
+
+      const applyProfile = (profile: FoundingPackPersonalizationProfile): void => {
+        const priorities = getPersonalizedGuidePriorities(profile);
 
         /*
-         * Capture the server-rendered editorial order once.
-         * We can always return to this exact order when local
-         * personalization disappears.
+         * Cat/other profiles intentionally return no
+         * dog-guide priorities. Keep the editorial
+         * presentation unchanged.
          */
-        const editorialCards =
-          Array.from(
-            guideGrid.querySelectorAll<HTMLElement>(
-              '[data-guide-card]',
-            ),
-          );
+        if (priorities.length === 0) {
+          restoreEditorialOrder();
 
-        const editorialSlugs =
-          editorialCards
-            .map(
-              (card) =>
-                card.dataset.guideSlug,
-            )
-            .filter(
-              (slug): slug is string =>
-                Boolean(slug),
-            );
+          return;
+        }
 
-        const cardsBySlug =
-          new Map<string, HTMLElement>();
+        const prioritySlugs = new Set<string>(priorities);
 
-        for (const card of editorialCards) {
-          const slug =
-            card.dataset.guideSlug;
+        const orderedSlugs = [...priorities, ...editorialSlugs.filter((slug) => !prioritySlugs.has(slug))];
 
-          if (slug) {
-            cardsBySlug.set(
-              slug,
-              card,
-            );
+        for (const slug of orderedSlugs) {
+          const card = cardsBySlug.get(slug);
+
+          if (card) {
+            guideGrid.append(card);
           }
         }
 
-        const updateCardRoles =
-          (): void => {
-            const currentCards =
-              Array.from(
-                guideGrid.querySelectorAll<HTMLElement>(
-                  '[data-guide-card]',
-                ),
-              );
+        const messaging = buildFoundingPackPersonalizedMessaging(profile);
 
-            currentCards.forEach(
-              (card, index) => {
-                card.dataset.guideReveal =
-                  index === 0
-                    ? 'left'
-                    : 'right';
+        section.dataset.guidePersonalized = 'true';
 
-                const interactive =
-                  card.querySelector<HTMLElement>(
-                    '[data-guide-interactive]',
-                  );
+        if (badgeLabel) {
+          badgeLabel.textContent = t(`Picked for ${profile.petName}`, `Elegidas para ${profile.petName}`);
+        }
 
-                if (interactive) {
-                  interactive.dataset.guideStrength =
-                    index === 0
-                      ? '4.2'
-                      : '3.1';
-                }
-
-                const featuredLabel =
-                  card.querySelector<HTMLElement>(
-                    '[data-guide-featured-label]',
-                  );
-
-                if (featuredLabel) {
-                  featuredLabel.textContent =
-                    section.dataset
-                      .guidePersonalized ===
-                    'true'
-                      ? 'Picked for your pet'
-                      : 'Featured guide';
-                }
-              },
-            );
-          };
-
-        const restoreEditorialCopy =
-          (): void => {
-            section.dataset.guidePersonalized =
-              'false';
-
-            if (heading) {
-              heading.textContent =
-                DEFAULT_GUIDE_HEADING;
-            }
-
-            if (description) {
-              description.textContent =
-                DEFAULT_GUIDE_DESCRIPTION;
-            }
-
-            if (badgeLabel) {
-              badgeLabel.textContent =
-                DEFAULT_BADGE_LABEL;
-            }
-          };
-
-        const restoreEditorialOrder =
-          (): void => {
-            for (const slug of editorialSlugs) {
-              const card =
-                cardsBySlug.get(slug);
-
-              if (card) {
-                guideGrid.append(card);
-              }
-            }
-
-            restoreEditorialCopy();
-
-            updateCardRoles();
-          };
-
-        const applyProfile =
-          (
-            profile:
-              FoundingPackPersonalizationProfile,
-          ): void => {
-            const priorities =
-              getPersonalizedGuidePriorities(
-                profile,
-              );
-
-            /*
-             * Cat/other profiles intentionally return no
-             * dog-guide priorities. Keep the editorial
-             * presentation unchanged.
-             */
-            if (
-              priorities.length ===
-              0
-            ) {
-              restoreEditorialOrder();
-
-              return;
-            }
-
-            const orderedSlugs = [
-              ...priorities,
-
-              ...editorialSlugs.filter(
-                (slug) =>
-                  !priorities.includes(
-                    slug,
-                  ),
-              ),
-            ];
-
-            for (const slug of orderedSlugs) {
-              const card =
-                cardsBySlug.get(slug);
-
-              if (card) {
-                guideGrid.append(card);
-              }
-            }
-
-            const messaging =
-              buildFoundingPackPersonalizedMessaging(
-                profile,
-              );
-
-            section.dataset.guidePersonalized =
-              'true';
-
-            if (badgeLabel) {
-              badgeLabel.textContent =
-                `Picked for ${profile.petName}`;
-            }
-
-            if (heading) {
-              heading.textContent =
-                messaging.guideHeading;
-            }
-
-            if (description) {
-              description.textContent =
-                messaging.guideDescription;
-            }
-
-            updateCardRoles();
-          };
-
-        const readStoredProfile =
-          (): FoundingPackPersonalizationProfile | null => {
-            try {
-              const serialized =
-                window.localStorage.getItem(
-                  FOUNDING_PACK_PERSONALIZATION_STORAGE_KEY,
-                );
-
-              if (!serialized) {
-                return null;
-              }
-
-              return deserializeFoundingPackPersonalizationProfile(
-                serialized,
-              );
-            } catch (error) {
-              console.warn(
-                'Maxi Pawz pet personalization could not be read for guide recommendations.',
-                error,
-              );
-
-              return null;
-            }
-          };
-
-        const applyStoredProfile =
-          (): void => {
-            const profile =
-              readStoredProfile();
-
-            if (!profile) {
-              restoreEditorialOrder();
-
-              return;
-            }
-
-            applyProfile(profile);
-          };
-
-        const handleSavedProfile =
-          (
-            event:
-              Event,
-          ): void => {
-            const customEvent =
-              event as
-              CustomEvent<FoundingPackPersonalizationProfile>;
-
-            const profile =
-              customEvent.detail;
-
-            if (!profile) {
-              applyStoredProfile();
-
-              return;
-            }
-
-            applyProfile(profile);
-          };
-
-        const handleForgottenProfile =
-          (): void => {
-            restoreEditorialOrder();
-          };
-
-        /*
-         * Apply personalization before reveal observers start.
-         * This minimizes visible reordering during initial load.
-         */
-        applyStoredProfile();
-
-        window.addEventListener(
-          PERSONALIZATION_SAVED_EVENT,
-          handleSavedProfile,
-        );
-
-        window.addEventListener(
-          PERSONALIZATION_FORGOTTEN_EVENT,
-          handleForgottenProfile,
-        );
-
-        const reducedMotion =
-          window.matchMedia(
-            '(prefers-reduced-motion: reduce)',
-          ).matches;
-
-        const revealElements =
-          Array.from(
-            section.querySelectorAll<HTMLElement>(
-              '[data-guide-reveal]',
-            ),
+        if (heading) {
+          heading.textContent = t(
+            messaging.guideHeading,
+            `Algunas guías elegidas pensando en ${profile.petName}.`,
           );
+        }
 
-        let revealObserver:
-          IntersectionObserver |
-          null =
-          null;
-
-        if (
-          !reducedMotion &&
-          'IntersectionObserver' in window
-        ) {
-          section.classList.add(
-            'pet-guides-motion-ready',
+        if (description) {
+          description.textContent = t(
+            messaging.guideDescription,
+            `Según el perfil de ${profile.petName}, mostramos primero algunas guías especialmente relevantes.`,
           );
+        }
 
-          revealObserver =
-            new IntersectionObserver(
-              (
-                entries,
-                observer,
-              ) => {
-                for (const entry of entries) {
-                  if (!entry.isIntersecting) {
-                    continue;
-                  }
+        updateCardRoles();
+      };
 
-                  entry.target.classList.add(
-                    'is-guide-visible',
-                  );
+      const readStoredProfile = (): FoundingPackPersonalizationProfile | null => {
+        try {
+          const serialized = window.localStorage.getItem(FOUNDING_PACK_PERSONALIZATION_STORAGE_KEY);
 
-                  observer.unobserve(
-                    entry.target,
-                  );
-                }
-              },
-              {
-                rootMargin:
-                  '0px 0px -8% 0px',
-
-                threshold:
-                  0.1,
-              },
-            );
-
-          const observer =
-            revealObserver;
-
-          window.requestAnimationFrame(
-            () => {
-              for (
-                const element of
-                revealElements
-              ) {
-                observer.observe(
-                  element,
-                );
-              }
-            },
-          );
-        } else {
-          for (
-            const element of
-            revealElements
-          ) {
-            element.classList.add(
-              'is-guide-visible',
-            );
+          if (!serialized) {
+            return null;
           }
+
+          return deserializeFoundingPackPersonalizationProfile(serialized);
+        } catch (error) {
+          console.warn('Maxi Pawz pet personalization could not be read for guide recommendations.', error);
+
+          return null;
+        }
+      };
+
+      const applyStoredProfile = (): void => {
+        const profile = readStoredProfile();
+
+        if (!profile) {
+          restoreEditorialOrder();
+
+          return;
         }
 
-        const parallaxElements =
-          Array.from(
-            section.querySelectorAll<HTMLElement>(
-              '[data-guide-parallax]',
-            ),
-          );
+        applyProfile(profile);
+      };
 
-        let parallaxFrame =
-          0;
+      const handleSavedProfile = (event: Event): void => {
+        const customEvent = event as CustomEvent<FoundingPackPersonalizationProfile>;
 
-        const updateParallax =
-          (): void => {
-            parallaxFrame =
-              0;
+        const profile = customEvent.detail;
 
-            const sectionRect =
-              section.getBoundingClientRect();
+        if (!profile) {
+          applyStoredProfile();
 
-            const viewportCenter =
-              window.innerHeight /
-              2;
-
-            const sectionCenter =
-              sectionRect.top +
-              sectionRect.height /
-              2;
-
-            const distanceFromCenter =
-              sectionCenter -
-              viewportCenter;
-
-            for (
-              const element of
-              parallaxElements
-            ) {
-              const speed =
-                Number(
-                  element.dataset
-                    .guideParallaxSpeed ??
-                    '0.03',
-                );
-
-              const offset =
-                Math.max(
-                  -44,
-                  Math.min(
-                    44,
-                    -distanceFromCenter *
-                      speed,
-                  ),
-                );
-
-              element.style.setProperty(
-                '--guide-parallax-y',
-                `${offset.toFixed(
-                  2,
-                )}px`,
-              );
-            }
-          };
-
-        const requestParallaxUpdate =
-          (): void => {
-            if (
-              parallaxFrame !==
-              0
-            ) {
-              return;
-            }
-
-            parallaxFrame =
-              window.requestAnimationFrame(
-                updateParallax,
-              );
-          };
-
-        if (
-          !reducedMotion &&
-          parallaxElements.length >
-            0
-        ) {
-          updateParallax();
-
-          window.addEventListener(
-            'scroll',
-            requestParallaxUpdate,
-            {
-              passive:
-                true,
-            },
-          );
-
-          window.addEventListener(
-            'resize',
-            requestParallaxUpdate,
-            {
-              passive:
-                true,
-            },
-          );
+          return;
         }
 
-        const supportsFinePointer =
-          window.matchMedia(
-            '(hover: hover) and (pointer: fine)',
-          ).matches;
+        applyProfile(profile);
+      };
 
-        const cardCleanupFunctions:
-          Array<() => void> =
-          [];
+      const handleForgottenProfile = (): void => {
+        restoreEditorialOrder();
+      };
 
-        if (
-          !reducedMotion &&
-          supportsFinePointer
-        ) {
-          const interactiveCards =
-            Array.from(
-              section.querySelectorAll<HTMLElement>(
-                '[data-guide-interactive]',
-              ),
-            );
+      /*
+       * Apply personalization before reveal observers start.
+       * This minimizes visible reordering during initial load.
+       */
+      applyStoredProfile();
 
-          for (
-            const card of
-            interactiveCards
-          ) {
-            let animationFrame =
-              0;
+      window.addEventListener(PERSONALIZATION_SAVED_EVENT, handleSavedProfile);
 
-            let pointerX =
-              0;
+      window.addEventListener(PERSONALIZATION_FORGOTTEN_EVENT, handleForgottenProfile);
 
-            let pointerY =
-              0;
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-            const renderCardMotion =
-              (): void => {
-                animationFrame =
-                  0;
+      const revealElements = Array.from(section.querySelectorAll<HTMLElement>('[data-guide-reveal]'));
 
-                const rect =
-                  card.getBoundingClientRect();
+      let revealObserver: IntersectionObserver | null = null;
 
-                if (
-                  rect.width ===
-                    0 ||
-                  rect.height ===
-                    0
-                ) {
-                  return;
-                }
+      if (!reducedMotion && 'IntersectionObserver' in window) {
+        section.classList.add('pet-guides-motion-ready');
 
-                const strength =
-                  Number(
-                    card.dataset
-                      .guideStrength ??
-                      '3.2',
-                  );
+        revealObserver = new IntersectionObserver(
+          (entries, observer) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) {
+                continue;
+              }
 
-                const normalizedX =
-                  (pointerX -
-                    rect.left) /
-                    rect.width -
-                  0.5;
+              entry.target.classList.add('is-guide-visible');
 
-                const normalizedY =
-                  (pointerY -
-                    rect.top) /
-                    rect.height -
-                  0.5;
-
-                const rotateY =
-                  normalizedX *
-                  strength;
-
-                const rotateX =
-                  normalizedY *
-                  strength *
-                  -0.88;
-
-                const iconX =
-                  normalizedX *
-                  -8;
-
-                const iconY =
-                  normalizedY *
-                  -8;
-
-                card.style.setProperty(
-                  '--guide-card-rotate-x',
-                  `${rotateX.toFixed(
-                    2,
-                  )}deg`,
-                );
-
-                card.style.setProperty(
-                  '--guide-card-rotate-y',
-                  `${rotateY.toFixed(
-                    2,
-                  )}deg`,
-                );
-
-                card.style.setProperty(
-                  '--guide-card-icon-x',
-                  `${iconX.toFixed(
-                    2,
-                  )}px`,
-                );
-
-                card.style.setProperty(
-                  '--guide-card-icon-y',
-                  `${iconY.toFixed(
-                    2,
-                  )}px`,
-                );
-
-                card.style.setProperty(
-                  '--guide-card-spotlight-x',
-                  `${
-                    (normalizedX +
-                      0.5) *
-                    100
-                  }%`,
-                );
-
-                card.style.setProperty(
-                  '--guide-card-spotlight-y',
-                  `${
-                    (normalizedY +
-                      0.5) *
-                    100
-                  }%`,
-                );
-              };
-
-            const handlePointerMove =
-              (
-                event:
-                  PointerEvent,
-              ): void => {
-                pointerX =
-                  event.clientX;
-
-                pointerY =
-                  event.clientY;
-
-                if (
-                  animationFrame ===
-                  0
-                ) {
-                  animationFrame =
-                    window.requestAnimationFrame(
-                      renderCardMotion,
-                    );
-                }
-              };
-
-            const resetCardMotion =
-              (): void => {
-                if (
-                  animationFrame !==
-                  0
-                ) {
-                  window.cancelAnimationFrame(
-                    animationFrame,
-                  );
-
-                  animationFrame =
-                    0;
-                }
-
-                card.style.setProperty(
-                  '--guide-card-rotate-x',
-                  '0deg',
-                );
-
-                card.style.setProperty(
-                  '--guide-card-rotate-y',
-                  '0deg',
-                );
-
-                card.style.setProperty(
-                  '--guide-card-icon-x',
-                  '0px',
-                );
-
-                card.style.setProperty(
-                  '--guide-card-icon-y',
-                  '0px',
-                );
-
-                card.style.setProperty(
-                  '--guide-card-spotlight-x',
-                  '50%',
-                );
-
-                card.style.setProperty(
-                  '--guide-card-spotlight-y',
-                  '50%',
-                );
-              };
-
-            card.addEventListener(
-              'pointermove',
-              handlePointerMove,
-              {
-                passive:
-                  true,
-              },
-            );
-
-            card.addEventListener(
-              'pointerleave',
-              resetCardMotion,
-            );
-
-            card.addEventListener(
-              'blur',
-              resetCardMotion,
-              true,
-            );
-
-            cardCleanupFunctions.push(
-              () => {
-                card.removeEventListener(
-                  'pointermove',
-                  handlePointerMove,
-                );
-
-                card.removeEventListener(
-                  'pointerleave',
-                  resetCardMotion,
-                );
-
-                card.removeEventListener(
-                  'blur',
-                  resetCardMotion,
-                  true,
-                );
-
-                if (
-                  animationFrame !==
-                  0
-                ) {
-                  window.cancelAnimationFrame(
-                    animationFrame,
-                  );
-                }
-              },
-            );
-          }
-        }
-
-        const cleanup =
-          (): void => {
-            revealObserver?.disconnect();
-
-            window.removeEventListener(
-              PERSONALIZATION_SAVED_EVENT,
-              handleSavedProfile,
-            );
-
-            window.removeEventListener(
-              PERSONALIZATION_FORGOTTEN_EVENT,
-              handleForgottenProfile,
-            );
-
-            window.removeEventListener(
-              'scroll',
-              requestParallaxUpdate,
-            );
-
-            window.removeEventListener(
-              'resize',
-              requestParallaxUpdate,
-            );
-
-            if (
-              parallaxFrame !==
-              0
-            ) {
-              window.cancelAnimationFrame(
-                parallaxFrame,
-              );
+              observer.unobserve(entry.target);
             }
-
-            for (
-              const cleanupCard of
-              cardCleanupFunctions
-            ) {
-              cleanupCard();
-            }
-
-            delete section.dataset
-              .petGuidesInitialized;
-          };
-
-        document.addEventListener(
-          'astro:before-swap',
-          cleanup,
+          },
           {
-            once:
-              true,
+            rootMargin: '0px 0px -8% 0px',
+
+            threshold: 0.1,
           },
         );
+
+        const observer = revealObserver;
+
+        window.requestAnimationFrame(() => {
+          for (const element of revealElements) {
+            observer.observe(element);
+          }
+        });
+      } else {
+        for (const element of revealElements) {
+          element.classList.add('is-guide-visible');
+        }
       }
-    };
+
+      const parallaxElements = Array.from(section.querySelectorAll<HTMLElement>('[data-guide-parallax]'));
+
+      let parallaxFrame = 0;
+
+      const updateParallax = (): void => {
+        parallaxFrame = 0;
+
+        const sectionRect = section.getBoundingClientRect();
+
+        const viewportCenter = window.innerHeight / 2;
+
+        const sectionCenter = sectionRect.top + sectionRect.height / 2;
+
+        const distanceFromCenter = sectionCenter - viewportCenter;
+
+        for (const element of parallaxElements) {
+          const speed = Number(element.dataset.guideParallaxSpeed ?? '0.03');
+
+          const offset = Math.max(-44, Math.min(44, -distanceFromCenter * speed));
+
+          element.style.setProperty('--guide-parallax-y', `${offset.toFixed(2)}px`);
+        }
+      };
+
+      const requestParallaxUpdate = (): void => {
+        if (parallaxFrame !== 0) {
+          return;
+        }
+
+        parallaxFrame = window.requestAnimationFrame(updateParallax);
+      };
+
+      if (!reducedMotion && parallaxElements.length > 0) {
+        updateParallax();
+
+        window.addEventListener('scroll', requestParallaxUpdate, {
+          passive: true,
+        });
+
+        window.addEventListener('resize', requestParallaxUpdate, {
+          passive: true,
+        });
+      }
+
+      const supportsFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+      const cardCleanupFunctions: Array<() => void> = [];
+
+      if (!reducedMotion && supportsFinePointer) {
+        const interactiveCards = Array.from(
+          section.querySelectorAll<HTMLElement>('[data-guide-interactive]'),
+        );
+
+        for (const card of interactiveCards) {
+          let animationFrame = 0;
+
+          let pointerX = 0;
+
+          let pointerY = 0;
+
+          const renderCardMotion = (): void => {
+            animationFrame = 0;
+
+            const rect = card.getBoundingClientRect();
+
+            if (rect.width === 0 || rect.height === 0) {
+              return;
+            }
+
+            const strength = Number(card.dataset.guideStrength ?? '3.2');
+
+            const normalizedX = (pointerX - rect.left) / rect.width - 0.5;
+
+            const normalizedY = (pointerY - rect.top) / rect.height - 0.5;
+
+            const rotateY = normalizedX * strength;
+
+            const rotateX = normalizedY * strength * -0.88;
+
+            const iconX = normalizedX * -8;
+
+            const iconY = normalizedY * -8;
+
+            card.style.setProperty('--guide-card-rotate-x', `${rotateX.toFixed(2)}deg`);
+
+            card.style.setProperty('--guide-card-rotate-y', `${rotateY.toFixed(2)}deg`);
+
+            card.style.setProperty('--guide-card-icon-x', `${iconX.toFixed(2)}px`);
+
+            card.style.setProperty('--guide-card-icon-y', `${iconY.toFixed(2)}px`);
+
+            card.style.setProperty('--guide-card-spotlight-x', `${(normalizedX + 0.5) * 100}%`);
+
+            card.style.setProperty('--guide-card-spotlight-y', `${(normalizedY + 0.5) * 100}%`);
+          };
+
+          const handlePointerMove = (event: PointerEvent): void => {
+            pointerX = event.clientX;
+
+            pointerY = event.clientY;
+
+            if (animationFrame === 0) {
+              animationFrame = window.requestAnimationFrame(renderCardMotion);
+            }
+          };
+
+          const resetCardMotion = (): void => {
+            if (animationFrame !== 0) {
+              window.cancelAnimationFrame(animationFrame);
+
+              animationFrame = 0;
+            }
+
+            card.style.setProperty('--guide-card-rotate-x', '0deg');
+
+            card.style.setProperty('--guide-card-rotate-y', '0deg');
+
+            card.style.setProperty('--guide-card-icon-x', '0px');
+
+            card.style.setProperty('--guide-card-icon-y', '0px');
+
+            card.style.setProperty('--guide-card-spotlight-x', '50%');
+
+            card.style.setProperty('--guide-card-spotlight-y', '50%');
+          };
+
+          card.addEventListener('pointermove', handlePointerMove, {
+            passive: true,
+          });
+
+          card.addEventListener('pointerleave', resetCardMotion);
+
+          card.addEventListener('blur', resetCardMotion, true);
+
+          cardCleanupFunctions.push(() => {
+            card.removeEventListener('pointermove', handlePointerMove);
+
+            card.removeEventListener('pointerleave', resetCardMotion);
+
+            card.removeEventListener('blur', resetCardMotion, true);
+
+            if (animationFrame !== 0) {
+              window.cancelAnimationFrame(animationFrame);
+            }
+          });
+        }
+      }
+
+      const cleanup = (): void => {
+        revealObserver?.disconnect();
+
+        window.removeEventListener(PERSONALIZATION_SAVED_EVENT, handleSavedProfile);
+
+        window.removeEventListener(PERSONALIZATION_FORGOTTEN_EVENT, handleForgottenProfile);
+
+        window.removeEventListener('scroll', requestParallaxUpdate);
+
+        window.removeEventListener('resize', requestParallaxUpdate);
+
+        if (parallaxFrame !== 0) {
+          window.cancelAnimationFrame(parallaxFrame);
+        }
+
+        for (const cleanupCard of cardCleanupFunctions) {
+          cleanupCard();
+        }
+
+        delete section.dataset.petGuidesInitialized;
+      };
+
+      document.addEventListener('astro:before-swap', cleanup, {
+        once: true,
+      });
+    }
+  };
 
   initializePetGuidePreviews();
 
-  document.addEventListener(
-    'astro:page-load',
-    initializePetGuidePreviews,
-  );
+  document.addEventListener('astro:page-load', initializePetGuidePreviews);
 </script>
