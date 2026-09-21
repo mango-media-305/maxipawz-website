@@ -1,0 +1,313 @@
+---
+import maxipawzLogo from '../../assets/brand/maxipawz-horizontal-logo.webp';
+
+import FoundingPackAnalytics from '@components/analytics/FoundingPackAnalytics.astro';
+import FoundingPackPersonalizationAnalytics from '@components/analytics/FoundingPackPersonalizationAnalytics.astro';
+import BrandStorySection from '@components/home/BrandStorySection.astro';
+import FoundingPackPersonalizationPersistence from '@components/home/FoundingPackPersonalizationPersistence.astro';
+import FoundingPackWelcomeBack from '@components/home/FoundingPackWelcomeBack.astro';
+import HeroSection from '@components/home/HeroSection.astro';
+import HomeBenefits from '@components/home/HomeBenefits.astro';
+import HomeExploreSection from '@components/home/HomeExploreSection.astro';
+import HomeMotion from '@components/home/HomeMotion.astro';
+import HomeProductCollection from '@components/home/HomeProductCollection.astro';
+import LaunchSignup from '@components/home/LaunchSignup.astro';
+import PetGuidesPreview from '@components/home/PetGuidesPreview.astro';
+import ShopByLifestyle from '@components/home/ShopByLifestyle.astro';
+import WelcomeDiscountPopup from '@components/home/WelcomeDiscountPopup.astro';
+
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+import { isStoreLive } from '../../config/storefront';
+import { siteConfig } from '../../config/site';
+import { lifestyleCategories } from '../../data/homepage';
+import { getLocaleFromPathname } from '../../i18n/languages';
+
+const locale = getLocaleFromPathname(Astro.url.pathname);
+
+const spanish = locale === 'es';
+
+const pageBaseURL =
+  Astro.site ??
+  new URL(siteConfig.url);
+
+const englishHomeURL =
+  new URL(
+    '/',
+    pageBaseURL,
+  ).toString();
+
+const localizedHomeURL =
+  new URL(
+    Astro.url.pathname,
+    pageBaseURL,
+  ).toString();
+
+const logoURL =
+  new URL(
+    maxipawzLogo.src,
+    pageBaseURL,
+  ).toString();
+
+const socialProfiles =
+  Object.values(
+    siteConfig.social,
+  ).filter(
+    (profile) =>
+      Boolean(profile),
+  );
+
+const pageTitle =
+  spanish
+    ? 'Juguetes y esenciales para mascotas online'
+    : 'Online Pet Toys & Everyday Essentials';
+
+const pageDescription =
+  spanish
+    ? 'Descubre juguetes, accesorios, artículos para paseos y viajes, esenciales de hidratación y guías prácticas para mascotas de Maxi Pawz Store.'
+    : 'Discover thoughtful pet toys, accessories, travel gear, hydration essentials, and practical pet guides from Maxi Pawz Store.';
+
+const pageImageAlt =
+  spanish
+    ? 'Logo de Maxi Pawz Store'
+    : 'Maxi Pawz Store logo';
+
+const organizationDescription =
+  spanish
+    ? 'Una tienda online alegre para mascotas con juguetes, accesorios, artículos para viajes, esenciales de hidratación y productos cotidianos seleccionados con cuidado.'
+    : siteConfig.description;
+
+const organizationSlogan =
+  spanish
+    ? 'Mascotas felices • Vida feliz'
+    : siteConfig.slogan;
+
+const knowsAbout =
+  spanish
+    ? [
+        'Juguetes para mascotas',
+        'Enriquecimiento para mascotas',
+        'Accesorios para perros',
+        'Viajes con mascotas',
+        'Hidratación para mascotas',
+        'Comodidad para mascotas',
+        'Cuidado cotidiano de mascotas',
+      ]
+    : [
+        'Pet toys',
+        'Pet enrichment',
+        'Dog accessories',
+        'Pet travel',
+        'Pet hydration',
+        'Pet comfort',
+        'Everyday pet care',
+      ];
+
+const spanishCategoryLabels:
+  Record<
+    string,
+    string
+  > = {
+  'play-and-enrichment':
+    'Juego y enriquecimiento',
+
+  'walk-and-travel':
+    'Paseos y viajes',
+
+  'feeding-and-hydration':
+    'Alimentación e hidratación',
+
+  'comfort-and-home':
+    'Comodidad y hogar',
+
+  'grooming-and-care':
+    'Higiene y cuidado',
+
+  'collars-and-accessories':
+    'Collares y accesorios',
+};
+
+const onlineStoreData = {
+  '@type':
+    'Organization',
+
+  '@id':
+    `${englishHomeURL}#organization`,
+
+  additionalType:
+    'https://schema.org/OnlineStore',
+
+  name:
+    siteConfig.name,
+
+  alternateName:
+    siteConfig.shortName,
+
+  url:
+    englishHomeURL,
+
+  logo:
+    logoURL,
+
+  description:
+    organizationDescription,
+
+  slogan:
+    organizationSlogan,
+
+  location: {
+    '@type':
+      'VirtualLocation',
+
+    url:
+      englishHomeURL,
+  },
+
+  knowsAbout,
+
+  ...(socialProfiles.length >
+  0
+    ? {
+        sameAs:
+          socialProfiles,
+      }
+    : {}),
+
+  ...(isStoreLive
+    ? {
+        hasOfferCatalog: {
+          '@type':
+            'OfferCatalog',
+
+          name:
+            spanish
+              ? 'Productos para mascotas de Maxi Pawz'
+              : 'Maxi Pawz pet products',
+
+          itemListElement:
+            lifestyleCategories.map(
+              (
+                category,
+              ) => ({
+                '@type':
+                  'OfferCatalog',
+
+                name:
+                  spanish
+                    ? spanishCategoryLabels[
+                        category
+                          .slug
+                      ] ??
+                      category
+                        .title
+                    : category
+                        .title,
+              }),
+            ),
+        },
+      }
+    : {}),
+};
+
+const structuredData = {
+  '@context':
+    'https://schema.org',
+
+  '@graph': [
+    {
+      '@type':
+        'WebSite',
+
+      '@id':
+        `${localizedHomeURL}#website`,
+
+      url:
+        localizedHomeURL,
+
+      name:
+        siteConfig.name,
+
+      alternateName:
+        siteConfig.shortName,
+
+      description:
+        pageDescription,
+
+      inLanguage:
+        spanish
+          ? 'es-US'
+          : 'en-US',
+
+      publisher: {
+        '@id':
+          `${englishHomeURL}#organization`,
+      },
+    },
+
+    onlineStoreData,
+  ],
+};
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  image={maxipawzLogo.src}
+  imageAlt={pageImageAlt}
+  structuredData={structuredData}
+>
+  <div
+    class="home-motion-scope"
+    data-home-motion
+  >
+    <HeroSection />
+
+    <HomeBenefits />
+
+    {
+      isStoreLive &&
+        <HomeProductCollection />
+    }
+
+    {
+      !isStoreLive &&
+        <HomeExploreSection />
+    }
+
+    <div data-reveal>
+      <ShopByLifestyle />
+    </div>
+
+    <div data-reveal>
+      <BrandStorySection />
+    </div>
+
+    <FoundingPackWelcomeBack />
+
+    <div data-reveal>
+      <PetGuidesPreview />
+    </div>
+
+    <!-- Preserve the original signup URL alongside #maxi-pawz-updates. -->
+    <div
+      id="join-the-pack"
+      class="scroll-mt-28"
+      data-reveal
+    >
+      <LaunchSignup />
+    </div>
+
+    <HomeMotion />
+
+    <FoundingPackAnalytics />
+
+    <FoundingPackPersonalizationAnalytics />
+
+    <FoundingPackPersonalizationPersistence />
+  </div>
+
+  {
+    isStoreLive &&
+      <WelcomeDiscountPopup />
+  }
+</BaseLayout>
