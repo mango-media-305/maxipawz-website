@@ -5,25 +5,85 @@ import SparkleBold from 'phosphor-astro/SparkleBold.astro';
 
 import Button from '../ui/Button.astro';
 
+import {
+  getLocaleFromPathname,
+} from '../../i18n/languages';
+
+import {
+  localizeHref,
+  localizedLinkLabel,
+} from '../../i18n/routes';
+
 interface Props {
-  variant?: 'catalog' | 'filtered';
+  variant?:
+    'catalog' |
+    'filtered';
 }
 
-const { variant = 'catalog' } = Astro.props;
+const {
+  variant = 'catalog',
+} =
+  Astro.props;
 
-const isFiltered = variant === 'filtered';
+const locale =
+  getLocaleFromPathname(
+    Astro.url.pathname,
+  );
 
-const title = isFiltered
-  ? 'No products match those filters.'
-  : 'No products are currently published.';
+const spanish =
+  locale === 'es';
 
-const description = isFiltered
-  ? 'Try removing a filter, changing the price range, or using a broader search.'
-  : 'The catalog structure is ready. Products will appear here after inventory information and images are added.';
+const isFiltered =
+  variant === 'filtered';
 
-const actionLabel = isFiltered ? 'Clear All Filters' : 'Explore Pet Guides';
+const title =
+  isFiltered
+    ? spanish
+      ? 'Ningún producto coincide con esos filtros.'
+      : 'No products match those filters.'
+    : spanish
+      ? 'No hay productos publicados actualmente.'
+      : 'No products are currently published.';
 
-const actionHref = isFiltered ? '/shop#products' : '/pet-guides';
+const description =
+  isFiltered
+    ? spanish
+      ? 'Intenta eliminar un filtro, cambiar el rango de precios o utilizar una búsqueda más amplia.'
+      : 'Try removing a filter, changing the price range, or using a broader search.'
+    : spanish
+      ? 'La estructura del catálogo está lista. Los productos aparecerán aquí cuando se agreguen la información de inventario y las imágenes.'
+      : 'The catalog structure is ready. Products will appear here after inventory information and images are added.';
+
+const actionSourceHref =
+  isFiltered
+    ? '#products'
+    : '/pet-guides';
+
+const actionHref =
+  isFiltered
+    ? '#products'
+    : localizeHref(
+        actionSourceHref,
+        locale,
+      );
+
+const baseActionLabel =
+  isFiltered
+    ? spanish
+      ? 'Eliminar todos los filtros'
+      : 'Clear All Filters'
+    : spanish
+      ? 'Explorar guías para mascotas'
+      : 'Explore Pet Guides';
+
+const actionLabel =
+  isFiltered
+    ? baseActionLabel
+    : localizedLinkLabel(
+        baseActionLabel,
+        actionSourceHref,
+        locale,
+      );
 ---
 
 <article
@@ -46,7 +106,15 @@ const actionHref = isFiltered ? '/shop#products' : '/pet-guides';
       class="mx-auto grid size-16 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-600 shadow-soft"
       aria-hidden="true"
     >
-      {isFiltered ? <PawPrintBold class="size-8" /> : <SparkleBold class="size-8" />}
+      {
+        isFiltered
+          ? (
+              <PawPrintBold class="size-8" />
+            )
+          : (
+              <SparkleBold class="size-8" />
+            )
+      }
     </span>
 
     <h2 class="mx-auto mt-6 max-w-2xl text-3xl text-ink-900 sm:text-4xl">
@@ -58,8 +126,16 @@ const actionHref = isFiltered ? '/shop#products' : '/pet-guides';
     </p>
 
     <div class="mt-7">
-      <Button href={actionHref} variant="secondary" size="lg" iconPosition="right">
-        <ArrowRightBold slot="icon" aria-hidden="true" />
+      <Button
+        href={actionHref}
+        variant="secondary"
+        size="lg"
+        iconPosition="right"
+      >
+        <ArrowRightBold
+          slot="icon"
+          aria-hidden="true"
+        />
 
         {actionLabel}
       </Button>

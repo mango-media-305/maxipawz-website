@@ -10,6 +10,10 @@ const translatedPaths:
         '/',
         '/about',
         '/accessibility',
+        '/cart',
+        '/checkout',
+        '/checkout/cancel',
+        '/checkout/success',
         '/contact',
         '/contact/success',
         '/faq',
@@ -20,8 +24,19 @@ const translatedPaths:
         '/product-safety',
         '/return-policy',
         '/shipping-policy',
+        '/shop',
         '/terms',
     ]);
+
+/*
+ * Product detail pages use the same stable slug in both languages.
+ * Both /shop/[slug] and /es/shop/[slug] are generated from the same
+ * canonical product catalog.
+ */
+const translatedPathPatterns:
+    readonly RegExp[] = [
+        /^\/shop\/[^/]+$/,
+    ];
 
 export function normalizePathname(
     pathname:
@@ -62,10 +77,23 @@ export function hasSpanishTranslation(
     pathname:
         string,
 ): boolean {
-    return translatedPaths.has(
+    const englishPath =
         getEnglishPathname(
             pathname,
-        ),
+        );
+
+    return (
+        translatedPaths.has(
+            englishPath,
+        ) ||
+        translatedPathPatterns.some(
+            (
+                pattern,
+            ) =>
+                pattern.test(
+                    englishPath,
+                ),
+        )
     );
 }
 
@@ -134,10 +162,6 @@ export function localizeHref(
         return `${spanishPath}${trailingSlash}${suffix}`;
     }
 
-    /*
-     * Preserve the exact existing English link when
-     * no translation is available.
-     */
     if (
         !pathname.startsWith(
             '/es/',

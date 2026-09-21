@@ -1,4 +1,8 @@
 import type {
+    Locale,
+} from '../i18n/languages';
+
+import type {
     ResolvedCartLine,
 } from '../types/cart';
 
@@ -11,15 +15,20 @@ import {
 } from './product-inventory';
 
 export interface TrackedCheckoutInventoryLine {
-    productSlug: string;
+    productSlug:
+        string;
 
-    productName: string;
+    productName:
+        string;
 
-    variantId?: string;
+    variantId?:
+        string;
 
-    variantLabel?: string;
+    variantLabel?:
+        string;
 
-    quantity: number;
+    quantity:
+        number;
 }
 
 export interface CheckoutInventoryEvaluation {
@@ -122,6 +131,9 @@ export function getCheckoutInventoryAvailabilityReason(
 
     inventory:
         PublicInventorySnapshot,
+
+    locale:
+        Locale = 'en',
 ): string | undefined {
     const label =
         getCheckoutInventoryLineLabel(
@@ -133,7 +145,10 @@ export function getCheckoutInventoryAvailabilityReason(
         inventory.available ===
             null
     ) {
-        return `${label} live stock could not be verified.`;
+        return locale ===
+            'es'
+            ? `No pudimos verificar el inventario en tiempo real de ${label}.`
+            : `${label} live stock could not be verified.`;
     }
 
     if (
@@ -142,7 +157,10 @@ export function getCheckoutInventoryAvailabilityReason(
         inventory.available <=
             0
     ) {
-        return `${label} is currently sold out. Remove it from your cart before checkout.`;
+        return locale ===
+            'es'
+            ? `${label} está agotado actualmente. Elimínalo del carrito antes de continuar con el pago.`
+            : `${label} is currently sold out. Remove it from your cart before checkout.`;
     }
 
     if (
@@ -153,10 +171,16 @@ export function getCheckoutInventoryAvailabilityReason(
             inventory.available ===
             1
         ) {
-            return `Only 1 unit of ${label} is currently available. Reduce the cart quantity before checkout.`;
+            return locale ===
+                'es'
+                ? `Actualmente solo hay 1 unidad disponible de ${label}. Reduce la cantidad en el carrito antes de continuar con el pago.`
+                : `Only 1 unit of ${label} is currently available. Reduce the cart quantity before checkout.`;
         }
 
-        return `Only ${inventory.available} units of ${label} are currently available. Reduce the cart quantity before checkout.`;
+        return locale ===
+            'es'
+            ? `Actualmente solo hay ${inventory.available} unidades disponibles de ${label}. Reduce la cantidad en el carrito antes de continuar con el pago.`
+            : `Only ${inventory.available} units of ${label} are currently available. Reduce the cart quantity before checkout.`;
     }
 
     return undefined;
@@ -165,6 +189,9 @@ export function getCheckoutInventoryAvailabilityReason(
 export function getCheckoutInventoryReadinessReasons(
     evaluations:
         CheckoutInventoryEvaluation[],
+
+    locale:
+        Locale = 'en',
 ): string[] {
     return evaluations
         .map(
@@ -174,6 +201,7 @@ export function getCheckoutInventoryReadinessReasons(
                 getCheckoutInventoryAvailabilityReason(
                     evaluation.line,
                     evaluation.inventory,
+                    locale,
                 ),
         )
         .filter(

@@ -8,7 +8,55 @@ import SparkleBold from 'phosphor-astro/SparkleBold.astro';
 import Badge from '../ui/Badge.astro';
 import Button from '../ui/Button.astro';
 
-import { prelaunchCollectionHighlights } from '../../data/shop';
+import {
+  getPrelaunchCollectionHighlights,
+} from '../../data/shop';
+
+import {
+  getLocaleFromPathname,
+} from '../../i18n/languages';
+
+import {
+  localizeHref,
+  localizedLinkLabel,
+} from '../../i18n/routes';
+
+const locale =
+  getLocaleFromPathname(
+    Astro.url.pathname,
+  );
+
+const spanish =
+  locale === 'es';
+
+const collectionHighlights =
+  getPrelaunchCollectionHighlights(
+    locale,
+  );
+
+const updatesHref =
+  localizeHref(
+    '/#maxi-pawz-updates',
+    locale,
+  );
+
+const guidesSourceHref =
+  '/pet-guides';
+
+const guidesHref =
+  localizeHref(
+    guidesSourceHref,
+    locale,
+  );
+
+const guidesLabel =
+  localizedLinkLabel(
+    spanish
+      ? 'Explorar guías para mascotas'
+      : 'Explore Pet Guides',
+    guidesSourceHref,
+    locale,
+  );
 ---
 
 <section
@@ -32,56 +80,87 @@ import { prelaunchCollectionHighlights } from '../../data/shop';
       >
       </div>
 
-      <!-- Main message -->
       <div class="relative flex flex-col justify-center p-6 sm:p-8 lg:p-10">
-        <Badge variant="accent" size="md">
-          <SparkleBold slot="icon" aria-hidden="true" />
+        <Badge
+          variant="accent"
+          size="md"
+        >
+          <SparkleBold
+            slot="icon"
+            aria-hidden="true"
+          />
 
-          Opening in the Future
+          {
+            spanish
+              ? 'Abriremos más adelante'
+              : 'Opening in the Future'
+          }
         </Badge>
 
-        <h2 id="prelaunch-shop-title" class="mt-6 max-w-xl text-4xl text-white sm:text-5xl">
-          Be here when the Maxi Pawz collection opens.
+        <h2
+          id="prelaunch-shop-title"
+          class="mt-6 max-w-xl text-4xl text-white sm:text-5xl"
+        >
+          {
+            spanish
+              ? 'Acompáñanos cuando abra la colección de Maxi Pawz.'
+              : 'Be here when the Maxi Pawz collection opens.'
+          }
         </h2>
 
         <p class="mt-5 max-w-xl text-base leading-7 text-white/75 sm:text-lg sm:leading-8">
-          We are preparing the product selection, shopping experience, and checkout process
-          carefully before opening the store.
+          {
+            spanish
+              ? 'Estamos preparando cuidadosamente la selección de productos, la experiencia de compra y el proceso de pago antes de abrir la tienda.'
+              : 'We are preparing the product selection, shopping experience, and checkout process carefully before opening the store.'
+          }
         </p>
 
         <p class="mt-4 max-w-xl text-sm leading-6 text-white/60">
-          Get Maxi Pawz updates about launch news, new products, helpful pet guides, and new
-          additions as Maxi Pawz grows.
+          {
+            spanish
+              ? 'Recibe novedades de Maxi Pawz sobre el lanzamiento, nuevos productos, guías útiles para mascotas y nuevas incorporaciones a medida que Maxi Pawz crece.'
+              : 'Get Maxi Pawz updates about launch news, new products, helpful pet guides, and new additions as Maxi Pawz grows.'
+          }
         </p>
 
         <div class="mt-8 flex flex-col gap-3 sm:flex-row">
           <Button
-            href="/#maxi-pawz-updates"
+            href={updatesHref}
             variant="primary"
             size="lg"
             iconPosition="right"
             class="w-full sm:w-auto"
           >
-            <HeartBold slot="icon" aria-hidden="true" />
+            <HeartBold
+              slot="icon"
+              aria-hidden="true"
+            />
 
-            Get Maxi Pawz Updates
+            {
+              spanish
+                ? 'Recibir novedades de Maxi Pawz'
+                : 'Get Maxi Pawz Updates'
+            }
           </Button>
 
           <Button
-            href="/pet-guides"
+            href={guidesHref}
             variant="secondary"
             size="lg"
             iconPosition="right"
             class="w-full sm:w-auto"
           >
-            <ArrowRightBold slot="icon" aria-hidden="true" />
+            <ArrowRightBold
+              slot="icon"
+              aria-hidden="true"
+            />
 
-            Explore Pet Guides
+            {guidesLabel}
           </Button>
         </div>
       </div>
 
-      <!-- Collection preparation -->
       <div
         class="relative border-t border-white/10 bg-white/5 p-6 sm:p-8 lg:border-t-0 lg:border-l lg:p-10"
       >
@@ -95,29 +174,47 @@ import { prelaunchCollectionHighlights } from '../../data/shop';
 
           <div>
             <p class="text-xs font-extrabold tracking-[0.09em] text-accent-300 uppercase">
-              What we are building
+              {
+                spanish
+                  ? 'Lo que estamos construyendo'
+                  : 'What we are building'
+              }
             </p>
 
-            <h3 class="mt-2 text-2xl text-white sm:text-3xl">More than a product grid.</h3>
+            <h3 class="mt-2 text-2xl text-white sm:text-3xl">
+              {
+                spanish
+                  ? 'Mucho más que una cuadrícula de productos.'
+                  : 'More than a product grid.'
+              }
+            </h3>
           </div>
         </div>
 
         <div class="mt-6 grid gap-3">
           {
-            prelaunchCollectionHighlights.map((highlight) => (
-              <article class="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-4">
-                <CheckCircleFill
-                  class="mt-0.5 size-5 shrink-0 text-accent-300"
-                  aria-hidden="true"
-                />
+            collectionHighlights.map(
+              (
+                highlight,
+              ) => (
+                <article class="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <CheckCircleFill
+                    class="mt-0.5 size-5 shrink-0 text-accent-300"
+                    aria-hidden="true"
+                  />
 
-                <div>
-                  <h4 class="text-base text-white">{highlight.title}</h4>
+                  <div>
+                    <h4 class="text-base text-white">
+                      {highlight.title}
+                    </h4>
 
-                  <p class="mt-1 text-sm leading-6 text-white/65">{highlight.description}</p>
-                </div>
-              </article>
-            ))
+                    <p class="mt-1 text-sm leading-6 text-white/65">
+                      {highlight.description}
+                    </p>
+                  </div>
+                </article>
+              ),
+            )
           }
         </div>
       </div>

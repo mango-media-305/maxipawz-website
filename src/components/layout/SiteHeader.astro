@@ -11,6 +11,7 @@ import Button from '../ui/Button.astro';
 import { isStoreLive } from '../../config/storefront';
 
 import { getLocaleFromPathname } from '../../i18n/languages';
+
 import {
   getEnglishPathname,
   localizeHref,
@@ -128,11 +129,6 @@ const cartEnabled =
   class="sticky top-0 z-40 isolate w-full border-b border-sand/60 shadow-[0_8px_28px_-24px_rgba(53,39,31,0.35)]"
   data-site-header
 >
-  <!--
-    An almost-opaque surface replaces the permanent full-width
-    backdrop blur. The header retains the same warm floating appearance
-    without forcing a blur repaint during every scroll frame.
-  -->
   <div
     class="pointer-events-none absolute inset-0 z-0 bg-cream-soft/98"
     aria-hidden="true"
@@ -212,9 +208,7 @@ const cartEnabled =
       }
     </nav>
 
-    <div
-      class="flex shrink-0 items-center gap-1.5 sm:gap-2"
-    >
+    <div class="flex shrink-0 items-center gap-1.5 sm:gap-2">
       {
         cartEnabled && (
           <a
@@ -240,10 +234,11 @@ const cartEnabled =
       {
         cartEnabled && (
           <div
-            lang="en"
+            lang={locale}
             class="contents"
           >
             <CartButton
+              locale={locale}
               client:idle
             />
           </div>
@@ -253,26 +248,20 @@ const cartEnabled =
       {
         !isStoreLive &&
         headerAction && (
-          <div
-            class="hidden xl:block"
-          >
+          <div class="hidden xl:block">
             <Button
               href={headerAction.href}
               variant="primary"
               size="sm"
               iconPosition="right"
-              ariaLabel={
-                headerAction.label
-              }
+              ariaLabel={headerAction.label}
             >
               <ArrowRightBold
                 slot="icon"
                 aria-hidden="true"
               />
 
-              {
-                headerAction.label
-              }
+              {headerAction.label}
             </Button>
           </div>
         )
@@ -284,15 +273,9 @@ const cartEnabled =
         items={mobileNavigation}
         currentPath={currentPath}
         cartEnabled={cartEnabled}
-        actionLabel={
-          headerAction?.label
-        }
-        actionHref={
-          headerAction?.href
-        }
-        note={
-          storefrontState.mobileNote
-        }
+        actionLabel={headerAction?.label}
+        actionHref={headerAction?.href}
+        note={storefrontState.mobileNote}
       />
     </div>
   </div>

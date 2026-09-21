@@ -13,7 +13,19 @@ import ProductImage from './ProductImage.astro';
 import Badge from '../ui/Badge.astro';
 import Button from '../ui/Button.astro';
 
-import type { Product, ProductAvailability } from '../../types/product';
+import {
+  getLocaleFromPathname,
+} from '../../i18n/languages';
+
+import {
+  localizeHref,
+  localizedLinkLabel,
+} from '../../i18n/routes';
+
+import type {
+  Product,
+  ProductAvailability,
+} from '../../types/product';
 
 import {
   formatPetType,
@@ -24,54 +36,304 @@ import {
   getPrimaryProductImage,
 } from '../../utils/products';
 
-import { productHasTrackedInventory } from '../../utils/product-inventory';
+import {
+  productHasTrackedInventory,
+} from '../../utils/product-inventory';
 
 interface Props {
-  product: Product;
+  product:
+    Product;
 }
 
-const { product } = Astro.props;
+const {
+  product,
+} =
+  Astro.props;
 
-const categoryLabel = getCategoryLabel(product.category);
+const locale =
+  getLocaleFromPathname(
+    Astro.url.pathname,
+  );
 
-const primaryImage = getPrimaryProductImage(product);
+const spanish =
+  locale === 'es';
 
-const additionalImages = product.images.slice(1);
+const categoryLabel =
+  getCategoryLabel(
+    product.category,
+    locale,
+  );
 
-const dimensionText = formatProductDimensions(product.dimensions);
+const primaryImage =
+  getPrimaryProductImage(
+    product,
+  );
 
-const isOnSale = Boolean(
-  product.price && product.compareAtPrice && product.compareAtPrice.amount > product.price.amount,
-);
+const additionalImages =
+  product.images.slice(
+    1,
+  );
 
-const availabilityClasses: Record<ProductAvailability, string> = {
-  'coming-soon': 'border-brand-200 bg-brand-50 text-brand-700',
+const dimensionText =
+  formatProductDimensions(
+    product.dimensions,
+    locale,
+  );
 
-  'in-stock': 'border-success-100 bg-success-50 text-success-700',
+const isOnSale =
+  Boolean(
+    product.price &&
+    product.compareAtPrice &&
+    product.compareAtPrice
+      .amount >
+      product.price.amount,
+  );
 
-  'out-of-stock': 'border-sand-dark bg-sand-light text-ink-700',
+const availabilityClasses:
+  Record<
+    ProductAvailability,
+    string
+  > = {
+    'coming-soon':
+      'border-brand-200 bg-brand-50 text-brand-700',
 
-  discontinued: 'border-danger-100 bg-danger-50 text-danger-700',
-};
+    'in-stock':
+      'border-success-100 bg-success-50 text-success-700',
+
+    'out-of-stock':
+      'border-sand-dark bg-sand-light text-ink-700',
+
+    discontinued:
+      'border-danger-100 bg-danger-50 text-danger-700',
+  };
 
 const showStaticAvailabilityBadge =
-  product.availability !== 'in-stock' || !productHasTrackedInventory(product);
+  product.availability !==
+    'in-stock' ||
+  !productHasTrackedInventory(
+    product,
+  );
 
-const hasSpecifications = Boolean(
-  product.materials?.length || dimensionText || product.variants?.length,
-);
+const hasSpecifications =
+  Boolean(
+    product.materials
+      ?.length ||
+    dimensionText ||
+    product.variants
+      ?.length,
+  );
+
+const copy =
+  spanish
+    ? {
+        backTo:
+          'Volver a',
+
+        demoProduct:
+          'Producto de demostración',
+
+        demoPrice:
+          'Precio de demostración',
+
+        price:
+          'Precio',
+
+        comingSoon:
+          'Próximamente',
+
+        intendedPetTypes:
+          'Tipos de mascota',
+
+        highlights:
+          'Características destacadas',
+
+        demoPreview:
+          'Vista previa de producto de demostración',
+
+        demoDescription:
+          'Este es un producto ficticio utilizado para pruebas. No será enviado. Cualquier proceso de pago disponible para productos de demostración es una transacción de prueba.',
+
+        askQuestion:
+          'Hacer una pregunta sobre el producto',
+
+        productSafety:
+          'Seguridad de productos',
+
+        productInformation:
+          'Información del producto',
+
+        informedChoice:
+          'Detalles para ayudarte a elegir con más información.',
+
+        about:
+          'Sobre este producto',
+
+        specifications:
+          'Especificaciones',
+
+        materials:
+          'Materiales',
+
+        dimensions:
+          'Dimensiones',
+
+        options:
+          'Opciones',
+
+        detailsComingSoon:
+          'Detalles próximamente',
+
+        care:
+          'Instrucciones de cuidado',
+
+        safety:
+          'Seguridad y uso previsto',
+
+        continueHeading:
+          'Continúa explorando la colección de Maxi Pawz.',
+
+        continueDescription:
+          'Regresa a la tienda o conoce más sobre cómo elegir productos según el tamaño, la rutina y la actividad de tu mascota.',
+
+        viewAll:
+          'Ver todos los productos',
+
+        selectionGuide:
+          'Guía para elegir productos',
+      }
+    : {
+        backTo:
+          'Back to',
+
+        demoProduct:
+          'Demo product',
+
+        demoPrice:
+          'Demo price',
+
+        price:
+          'Price',
+
+        comingSoon:
+          'Coming soon',
+
+        intendedPetTypes:
+          'Intended pet types',
+
+        highlights:
+          'Product highlights',
+
+        demoPreview:
+          'Demo product preview',
+
+        demoDescription:
+          'This is a fictional product for testing. It will not be shipped. Any checkout offered for demo products is a test transaction.',
+
+        askQuestion:
+          'Ask a Product Question',
+
+        productSafety:
+          'Product Safety',
+
+        productInformation:
+          'Product Information',
+
+        informedChoice:
+          'Details for a more informed choice.',
+
+        about:
+          'About this product',
+
+        specifications:
+          'Specifications',
+
+        materials:
+          'Materials',
+
+        dimensions:
+          'Dimensions',
+
+        options:
+          'Options',
+
+        detailsComingSoon:
+          'Details coming soon',
+
+        care:
+          'Care instructions',
+
+        safety:
+          'Safety and intended use',
+
+        continueHeading:
+          'Continue exploring the Maxi Pawz collection.',
+
+        continueDescription:
+          'Return to the shop or learn more about selecting products for your pet’s size, routine, and activity.',
+
+        viewAll:
+          'View All Products',
+
+        selectionGuide:
+          'Product Selection Guide',
+      };
+
+const categoryHref =
+  localizeHref(
+    `/shop?category=${encodeURIComponent(
+      product.category,
+    )}#products`,
+    locale,
+  );
+
+const contactHref =
+  localizeHref(
+    '/contact#contact-form',
+    locale,
+  );
+
+const safetyHref =
+  localizeHref(
+    '/product-safety',
+    locale,
+  );
+
+const allProductsHref =
+  localizeHref(
+    '/shop#products',
+    locale,
+  );
+
+const selectionGuideSourceHref =
+  '/pet-guides/choosing-the-right-product';
+
+const selectionGuideHref =
+  localizeHref(
+    selectionGuideSourceHref,
+    locale,
+  );
+
+const selectionGuideLabel =
+  localizedLinkLabel(
+    copy.selectionGuide,
+    selectionGuideSourceHref,
+    locale,
+  );
 ---
 
 <article>
   <section class="py-8 sm:py-10 lg:py-12">
     <div class="site-container">
       <a
-        href={`/shop?category=${encodeURIComponent(product.category)}#products`}
+        href={categoryHref}
         class="mb-5 inline-flex items-center gap-2 rounded-full font-extrabold text-brand-700 transition hover:gap-3 hover:text-brand-800"
       >
-        <ArrowLeftBold class="size-4" aria-hidden="true" />
+        <ArrowLeftBold
+          class="size-4"
+          aria-hidden="true"
+        />
 
-        Back to {categoryLabel}
+        {copy.backTo} {categoryLabel}
       </a>
 
       <div
@@ -89,7 +351,9 @@ const hasSpecifications = Boolean(
         >
         </div>
 
-        <div class="relative grid items-start gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:gap-10">
+        <div
+          class="relative grid items-start gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:gap-10"
+        >
           <div>
             <ProductImage
               image={primaryImage}
@@ -99,15 +363,22 @@ const hasSpecifications = Boolean(
             />
 
             {
-              additionalImages.length > 0 && (
+              additionalImages.length >
+                0 && (
                 <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {additionalImages.map((image) => (
-                    <ProductImage
-                      image={image}
-                      variant="thumbnail"
-                      class="aspect-square rounded-2xl border border-sand bg-white-warm shadow-sm"
-                    />
-                  ))}
+                  {
+                    additionalImages.map(
+                      (
+                        image,
+                      ) => (
+                        <ProductImage
+                          image={image}
+                          variant="thumbnail"
+                          class="aspect-square rounded-2xl border border-sand bg-white-warm shadow-sm"
+                        />
+                      ),
+                    )
+                  }
                 </div>
               )
             }
@@ -117,8 +388,14 @@ const hasSpecifications = Boolean(
             class="rounded-card-lg border border-sand bg-white-warm/90 p-5 shadow-sm sm:p-6 lg:p-8"
           >
             <div class="flex flex-wrap gap-2">
-              <Badge variant="brand" size="sm">
-                <PawPrintBold slot="icon" aria-hidden="true" />
+              <Badge
+                variant="brand"
+                size="sm"
+              >
+                <PawPrintBold
+                  slot="icon"
+                  aria-hidden="true"
+                />
 
                 {categoryLabel}
               </Badge>
@@ -129,18 +406,27 @@ const hasSpecifications = Boolean(
                     class:list={[
                       'inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-extrabold',
 
-                      availabilityClasses[product.availability],
+                      availabilityClasses[
+                        product.availability
+                      ],
                     ]}
                   >
-                    {getAvailabilityLabel(product.availability)}
+                    {
+                      getAvailabilityLabel(
+                        product.availability,
+                        locale,
+                      )
+                    }
                   </span>
                 )
               }
 
               {
                 product.isDemo && (
-                  <span class="inline-flex items-center rounded-full border border-ink-700 bg-ink-950 px-3 py-1.5 text-xs font-extrabold text-white">
-                    Demo product
+                  <span
+                    class="inline-flex items-center rounded-full border border-ink-700 bg-ink-950 px-3 py-1.5 text-xs font-extrabold text-white"
+                  >
+                    {copy.demoProduct}
                   </span>
                 )
               }
@@ -155,19 +441,40 @@ const hasSpecifications = Boolean(
             </p>
 
             <div class="mt-6 rounded-2xl border border-sand bg-cream-soft/80 p-4">
-              <p class="text-xs font-extrabold tracking-[0.08em] text-ink-500 uppercase">
-                {product.isDemo ? 'Demo price' : 'Price'}
+              <p
+                class="text-xs font-extrabold tracking-[0.08em] text-ink-500 uppercase"
+              >
+                {
+                  product.isDemo
+                    ? copy.demoPrice
+                    : copy.price
+                }
               </p>
 
               <div class="mt-2 flex flex-wrap items-baseline gap-3">
                 <p class="text-3xl font-black text-ink-900">
-                  {product.price ? formatProductPrice(product.price) : 'Coming soon'}
+                  {
+                    product.price
+                      ? formatProductPrice(
+                          product.price,
+                          locale,
+                        )
+                      : copy.comingSoon
+                  }
                 </p>
 
                 {
-                  isOnSale && product.compareAtPrice && (
-                    <p class="text-lg font-bold text-ink-400 line-through">
-                      {formatProductPrice(product.compareAtPrice)}
+                  isOnSale &&
+                  product.compareAtPrice && (
+                    <p
+                      class="text-lg font-bold text-ink-400 line-through"
+                    >
+                      {
+                        formatProductPrice(
+                          product.compareAtPrice,
+                          locale,
+                        )
+                      }
                     </p>
                   )
                 }
@@ -175,49 +482,87 @@ const hasSpecifications = Boolean(
             </div>
 
             {
-              product.petTypes.length > 0 && (
+              product.petTypes.length >
+                0 && (
                 <div class="mt-6">
-                  <p class="text-sm font-extrabold text-ink-800">Intended pet types</p>
+                  <p class="text-sm font-extrabold text-ink-800">
+                    {copy.intendedPetTypes}
+                  </p>
 
                   <div class="mt-3 flex flex-wrap gap-2">
-                    {product.petTypes.map((petType) => (
-                      <span class="rounded-full border border-brand-200 bg-brand-50 px-3 py-1.5 text-sm font-bold text-brand-700">
-                        {formatPetType(petType)}
-                      </span>
-                    ))}
+                    {
+                      product.petTypes.map(
+                        (
+                          petType,
+                        ) => (
+                          <span
+                            class="rounded-full border border-brand-200 bg-brand-50 px-3 py-1.5 text-sm font-bold text-brand-700"
+                          >
+                            {
+                              formatPetType(
+                                petType,
+                                locale,
+                              )
+                            }
+                          </span>
+                        ),
+                      )
+                    }
                   </div>
                 </div>
               )
             }
 
             {
-              product.tags.length > 0 && (
+              product.tags.length >
+                0 && (
                 <div class="mt-6">
-                  <p class="text-sm font-extrabold text-ink-800">Product highlights</p>
+                  <p class="text-sm font-extrabold text-ink-800">
+                    {copy.highlights}
+                  </p>
 
                   <div class="mt-3 flex flex-wrap gap-2">
-                    {product.tags.map((tag) => (
-                      <span class="rounded-full border border-sand bg-cream-soft px-3 py-1.5 text-sm font-bold text-ink-600">
-                        {tag}
-                      </span>
-                    ))}
+                    {
+                      product.tags.map(
+                        (
+                          tag,
+                        ) => (
+                          <span
+                            class="rounded-full border border-sand bg-cream-soft px-3 py-1.5 text-sm font-bold text-ink-600"
+                          >
+                            {tag}
+                          </span>
+                        ),
+                      )
+                    }
                   </div>
                 </div>
               )
             }
 
-            <AddToCartButton productSlug={product.slug} mode="detail" client:load />
+            <AddToCartButton
+              productSlug={product.slug}
+              mode="detail"
+              locale={locale}
+              client:load
+            />
 
             {
               product.isDemo && (
-                <div class="mt-5 rounded-2xl border border-accent-200 bg-accent-50 p-4">
-                  <ShoppingBagOpenBold class="size-6 text-accent-600" aria-hidden="true" />
+                <div
+                  class="mt-5 rounded-2xl border border-accent-200 bg-accent-50 p-4"
+                >
+                  <ShoppingBagOpenBold
+                    class="size-6 text-accent-600"
+                    aria-hidden="true"
+                  />
 
-                  <h2 class="mt-3 text-lg text-ink-900">Demo product preview</h2>
+                  <h2 class="mt-3 text-lg text-ink-900">
+                    {copy.demoPreview}
+                  </h2>
 
                   <p class="mt-2 text-sm leading-6 text-ink-600">
-                    This is a fictional product for testing. It will not be shipped. Any checkout
-                    offered for demo products is a test transaction.
+                    {copy.demoDescription}
                   </p>
                 </div>
               )
@@ -225,27 +570,33 @@ const hasSpecifications = Boolean(
 
             <div class="mt-5 flex flex-col gap-3 sm:flex-row">
               <Button
-                href="/contact#contact-form"
+                href={contactHref}
                 variant="secondary"
                 size="lg"
                 iconPosition="right"
                 class="w-full sm:w-auto"
               >
-                <HeartBold slot="icon" aria-hidden="true" />
+                <HeartBold
+                  slot="icon"
+                  aria-hidden="true"
+                />
 
-                Ask a Product Question
+                {copy.askQuestion}
               </Button>
 
               <Button
-                href="/product-safety"
+                href={safetyHref}
                 variant="secondary"
                 size="lg"
                 iconPosition="right"
                 class="w-full sm:w-auto"
               >
-                <ShieldCheckBold slot="icon" aria-hidden="true" />
+                <ShieldCheckBold
+                  slot="icon"
+                  aria-hidden="true"
+                />
 
-                Product Safety
+                {copy.productSafety}
               </Button>
             </div>
           </div>
@@ -254,7 +605,10 @@ const hasSpecifications = Boolean(
     </div>
   </section>
 
-  <section class="pb-12 sm:pb-16 lg:pb-20" aria-labelledby="product-information-title">
+  <section
+    class="pb-12 sm:pb-16 lg:pb-20"
+    aria-labelledby="product-information-title"
+  >
     <div class="site-container">
       <div
         class="rounded-[2.75rem] border border-sand bg-white-warm/75 p-4 shadow-card sm:p-6 lg:p-8"
@@ -262,17 +616,24 @@ const hasSpecifications = Boolean(
         <div
           class="rounded-card-lg border border-sand/80 bg-cream-soft/80 px-5 py-6 text-center sm:px-8 sm:py-8"
         >
-          <Badge variant="accent" size="md" class="mx-auto">
-            <PawPrintBold slot="icon" aria-hidden="true" />
+          <Badge
+            variant="accent"
+            size="md"
+            class="mx-auto"
+          >
+            <PawPrintBold
+              slot="icon"
+              aria-hidden="true"
+            />
 
-            Product Information
+            {copy.productInformation}
           </Badge>
 
           <h2
             id="product-information-title"
             class="mx-auto mt-5 max-w-3xl text-3xl text-ink-900 sm:text-4xl"
           >
-            Details for a more informed choice.
+            {copy.informedChoice}
           </h2>
         </div>
 
@@ -281,10 +642,27 @@ const hasSpecifications = Boolean(
             class="rounded-card-lg border border-brand-200 bg-brand-50/70 p-5 sm:p-6"
             aria-labelledby="product-description-title"
           >
-            <h2 id="product-description-title" class="text-2xl text-ink-900">About this product</h2>
+            <h2
+              id="product-description-title"
+              class="text-2xl text-ink-900"
+            >
+              {copy.about}
+            </h2>
 
-            <div class="mt-4 space-y-4 text-sm leading-7 text-ink-600 sm:text-base">
-              {product.description.map((paragraph) => <p>{paragraph}</p>)}
+            <div
+              class="mt-4 space-y-4 text-sm leading-7 text-ink-600 sm:text-base"
+            >
+              {
+                product.description.map(
+                  (
+                    paragraph,
+                  ) => (
+                    <p>
+                      {paragraph}
+                    </p>
+                  ),
+                )
+              }
             </div>
           </section>
 
@@ -294,112 +672,202 @@ const hasSpecifications = Boolean(
                 class="rounded-card-lg border border-accent-200 bg-accent-50/70 p-5 sm:p-6"
                 aria-labelledby="product-specifications-title"
               >
-                <h2 id="product-specifications-title" class="text-2xl text-ink-900">
-                  Specifications
+                <h2
+                  id="product-specifications-title"
+                  class="text-2xl text-ink-900"
+                >
+                  {copy.specifications}
                 </h2>
 
                 <dl class="mt-5 grid gap-4">
-                  {product.materials && product.materials.length > 0 && (
-                    <div class="rounded-2xl border border-sand/80 bg-white-warm p-4">
-                      <dt class="text-xs font-extrabold tracking-[0.08em] text-ink-500 uppercase">
-                        Materials
-                      </dt>
+                  {
+                    product.materials &&
+                    product.materials.length >
+                      0 && (
+                      <div
+                        class="rounded-2xl border border-sand/80 bg-white-warm p-4"
+                      >
+                        <dt
+                          class="text-xs font-extrabold tracking-[0.08em] text-ink-500 uppercase"
+                        >
+                          {copy.materials}
+                        </dt>
 
-                      <dd class="mt-2 text-sm font-bold leading-6 text-ink-700">
-                        {product.materials.join(', ')}
-                      </dd>
-                    </div>
-                  )}
+                        <dd
+                          class="mt-2 text-sm font-bold leading-6 text-ink-700"
+                        >
+                          {
+                            product.materials.join(
+                              ', ',
+                            )
+                          }
+                        </dd>
+                      </div>
+                    )
+                  }
 
-                  {dimensionText && (
-                    <div class="rounded-2xl border border-sand/80 bg-white-warm p-4">
-                      <dt class="text-xs font-extrabold tracking-[0.08em] text-ink-500 uppercase">
-                        Dimensions
-                      </dt>
+                  {
+                    dimensionText && (
+                      <div
+                        class="rounded-2xl border border-sand/80 bg-white-warm p-4"
+                      >
+                        <dt
+                          class="text-xs font-extrabold tracking-[0.08em] text-ink-500 uppercase"
+                        >
+                          {copy.dimensions}
+                        </dt>
 
-                      <dd class="mt-2 text-sm font-bold leading-6 text-ink-700">{dimensionText}</dd>
-                    </div>
-                  )}
+                        <dd
+                          class="mt-2 text-sm font-bold leading-6 text-ink-700"
+                        >
+                          {dimensionText}
+                        </dd>
+                      </div>
+                    )
+                  }
 
-                  {product.variants && product.variants.length > 0 && (
-                    <div class="rounded-2xl border border-sand/80 bg-white-warm p-4">
-                      <dt class="text-xs font-extrabold tracking-[0.08em] text-ink-500 uppercase">
-                        Options
-                      </dt>
+                  {
+                    product.variants &&
+                    product.variants.length >
+                      0 && (
+                      <div
+                        class="rounded-2xl border border-sand/80 bg-white-warm p-4"
+                      >
+                        <dt
+                          class="text-xs font-extrabold tracking-[0.08em] text-ink-500 uppercase"
+                        >
+                          {copy.options}
+                        </dt>
 
-                      <dd class="mt-3">
-                        <ul class="grid gap-2">
-                          {product.variants.map((variant) => (
-                            <li class="flex items-center justify-between gap-3 rounded-xl bg-cream-soft px-3 py-2 text-sm font-bold text-ink-700">
-                              <span>{variant.label}</span>
+                        <dd class="mt-3">
+                          <ul class="grid gap-2">
+                            {
+                              product.variants.map(
+                                (
+                                  variant,
+                                ) => (
+                                  <li
+                                    class="flex items-center justify-between gap-3 rounded-xl bg-cream-soft px-3 py-2 text-sm font-bold text-ink-700"
+                                  >
+                                    <span>
+                                      {variant.label}
+                                    </span>
 
-                              <span class="text-ink-500">
-                                {variant.price
-                                  ? formatProductPrice(variant.price)
-                                  : variant.availability
-                                    ? getAvailabilityLabel(variant.availability)
-                                    : 'Details coming soon'}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      </dd>
-                    </div>
-                  )}
+                                    <span class="text-ink-500">
+                                      {
+                                        variant.price
+                                          ? formatProductPrice(
+                                              variant.price,
+                                              locale,
+                                            )
+                                          : variant.availability
+                                            ? getAvailabilityLabel(
+                                                variant.availability,
+                                                locale,
+                                              )
+                                            : copy.detailsComingSoon
+                                      }
+                                    </span>
+                                  </li>
+                                ),
+                              )
+                            }
+                          </ul>
+                        </dd>
+                      </div>
+                    )
+                  }
                 </dl>
               </section>
             )
           }
 
           {
-            product.careInstructions && product.careInstructions.length > 0 && (
+            product.careInstructions &&
+            product.careInstructions.length >
+              0 && (
               <section
                 class="rounded-card-lg border border-sand-dark/70 bg-cream-soft p-5 sm:p-6"
                 aria-labelledby="product-care-title"
               >
-                <h2 id="product-care-title" class="text-2xl text-ink-900">
-                  Care instructions
+                <h2
+                  id="product-care-title"
+                  class="text-2xl text-ink-900"
+                >
+                  {copy.care}
                 </h2>
 
                 <ul class="mt-5 grid gap-3">
-                  {product.careInstructions.map((instruction) => (
-                    <li class="flex items-start gap-3 rounded-2xl border border-sand/80 bg-white-warm p-3.5">
-                      <CheckCircleFill
-                        class="mt-0.5 size-5 shrink-0 text-brand-500"
-                        aria-hidden="true"
-                      />
+                  {
+                    product.careInstructions.map(
+                      (
+                        instruction,
+                      ) => (
+                        <li
+                          class="flex items-start gap-3 rounded-2xl border border-sand/80 bg-white-warm p-3.5"
+                        >
+                          <CheckCircleFill
+                            class="mt-0.5 size-5 shrink-0 text-brand-500"
+                            aria-hidden="true"
+                          />
 
-                      <span class="text-sm font-bold leading-6 text-ink-700">{instruction}</span>
-                    </li>
-                  ))}
+                          <span
+                            class="text-sm font-bold leading-6 text-ink-700"
+                          >
+                            {instruction}
+                          </span>
+                        </li>
+                      ),
+                    )
+                  }
                 </ul>
               </section>
             )
           }
 
           {
-            product.safetyNotes && product.safetyNotes.length > 0 && (
+            product.safetyNotes &&
+            product.safetyNotes.length >
+              0 && (
               <section
                 class="rounded-card-lg border border-accent-200 bg-accent-50 p-5 sm:p-6"
                 aria-labelledby="product-safety-title"
               >
-                <ShieldCheckBold class="size-7 text-accent-600" aria-hidden="true" />
+                <ShieldCheckBold
+                  class="size-7 text-accent-600"
+                  aria-hidden="true"
+                />
 
-                <h2 id="product-safety-title" class="mt-4 text-2xl text-ink-900">
-                  Safety and intended use
+                <h2
+                  id="product-safety-title"
+                  class="mt-4 text-2xl text-ink-900"
+                >
+                  {copy.safety}
                 </h2>
 
                 <ul class="mt-5 grid gap-3">
-                  {product.safetyNotes.map((note) => (
-                    <li class="flex items-start gap-3 rounded-2xl border border-accent-200 bg-white-warm p-3.5">
-                      <PawPrintBold
-                        class="mt-0.5 size-5 shrink-0 text-accent-600"
-                        aria-hidden="true"
-                      />
+                  {
+                    product.safetyNotes.map(
+                      (
+                        note,
+                      ) => (
+                        <li
+                          class="flex items-start gap-3 rounded-2xl border border-accent-200 bg-white-warm p-3.5"
+                        >
+                          <PawPrintBold
+                            class="mt-0.5 size-5 shrink-0 text-accent-600"
+                            aria-hidden="true"
+                          />
 
-                      <span class="text-sm font-bold leading-6 text-ink-700">{note}</span>
-                    </li>
-                  ))}
+                          <span
+                            class="text-sm font-bold leading-6 text-ink-700"
+                          >
+                            {note}
+                          </span>
+                        </li>
+                      ),
+                    )
+                  }
                 </ul>
               </section>
             )
@@ -420,41 +888,48 @@ const hasSpecifications = Boolean(
         >
         </div>
 
-        <div class="relative grid items-center gap-8 lg:grid-cols-[1fr_auto]">
+        <div
+          class="relative grid items-center gap-8 lg:grid-cols-[1fr_auto]"
+        >
           <div class="max-w-2xl">
             <h2 class="text-3xl text-white sm:text-4xl">
-              Continue exploring the Maxi Pawz collection.
+              {copy.continueHeading}
             </h2>
 
             <p class="mt-4 text-base leading-7 text-white/70">
-              Return to the shop or learn more about selecting products for your pet’s size,
-              routine, and activity.
+              {copy.continueDescription}
             </p>
           </div>
 
           <div class="flex flex-col gap-3 sm:flex-row lg:flex-col">
             <Button
-              href="/shop#products"
+              href={allProductsHref}
               variant="primary"
               size="lg"
               iconPosition="right"
               class="w-full sm:w-auto"
             >
-              <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
+              <ShoppingBagOpenBold
+                slot="icon"
+                aria-hidden="true"
+              />
 
-              View All Products
+              {copy.viewAll}
             </Button>
 
             <Button
-              href="/pet-guides/choosing-the-right-product"
+              href={selectionGuideHref}
               variant="secondary"
               size="lg"
               iconPosition="right"
               class="w-full sm:w-auto"
             >
-              <ArrowRightBold slot="icon" aria-hidden="true" />
+              <ArrowRightBold
+                slot="icon"
+                aria-hidden="true"
+              />
 
-              Product Selection Guide
+              {selectionGuideLabel}
             </Button>
           </div>
         </div>

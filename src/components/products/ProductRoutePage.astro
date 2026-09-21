@@ -1,0 +1,36 @@
+---
+import DemoCatalogNotice from '@components/products/DemoCatalogNotice.astro';
+import ProductDetails from '@components/products/ProductDetails.astro';
+
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+import { isStoreLive } from '../../config/storefront';
+
+import type { Product } from '../../types/product';
+
+interface Props {
+  product: Product;
+}
+
+const { product } = Astro.props;
+
+const pageTitle = product.seoTitle ?? product.name;
+
+const pageDescription = product.seoDescription ?? product.shortDescription;
+
+const shouldNoIndex = !isStoreLive || Boolean(product.isDemo);
+---
+
+<BaseLayout title={pageTitle} description={pageDescription} noIndex={shouldNoIndex}>
+  {
+    product.isDemo && (
+      <section class="pt-8 sm:pt-10">
+        <div class="site-container">
+          <DemoCatalogNotice compact={true} />
+        </div>
+      </section>
+    )
+  }
+
+  <ProductDetails product={product} />
+</BaseLayout>

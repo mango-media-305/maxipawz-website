@@ -1,0 +1,71 @@
+---
+import CheckoutStatus from '@components/checkout/CheckoutStatus.astro';
+import OrderStatus from '@components/checkout/OrderStatus';
+
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+import { getLocaleFromPathname } from '../../i18n/languages';
+
+interface Props {
+  status:
+    | 'success'
+    | 'cancel';
+}
+
+const {
+  status,
+} =
+  Astro.props;
+
+const locale =
+  getLocaleFromPathname(
+    Astro.url.pathname,
+  );
+
+const spanish =
+  locale === 'es';
+
+const success =
+  status === 'success';
+
+const title =
+  success
+    ? spanish
+      ? 'Confirmación de pago'
+      : 'Payment Confirmation'
+    : spanish
+      ? 'Pago cancelado'
+      : 'Checkout Cancelled';
+
+const description =
+  success
+    ? spanish
+      ? 'Verifica el estado del pago de una sesión de Stripe Checkout de Maxi Pawz.'
+      : 'Verify the payment status of a Maxi Pawz Stripe Checkout Session.'
+    : spanish
+      ? 'Regresa al carrito de Maxi Pawz después de cancelar el proceso de pago de Stripe.'
+      : 'Return to the Maxi Pawz cart after cancelling Stripe Checkout.';
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  noIndex={true}
+>
+  {
+    success && (
+      <OrderStatus
+        locale={locale}
+        client:load
+      />
+    )
+  }
+
+  {
+    !success && (
+      <CheckoutStatus
+        status="cancel"
+      />
+    )
+  }
+</BaseLayout>
