@@ -15,6 +15,7 @@ import Button from '../ui/Button.astro';
 
 import {
   getHomepagePetGuides,
+  getHomepagePetGuides,
   type HomepagePetGuide,
   type PetGuideIcon,
   type PetGuideTone,
@@ -73,6 +74,58 @@ const accentToneClasses: Record<PetGuideTone, string> = {
   sand: 'from-sand-dark via-ink-500 to-brand-400',
 };
 
+const locale = getLocaleFromPathname(Astro.url.pathname);
+
+const t = (english: string, spanish: string): string =>
+  locale === 'es' ? spanish : english;
+
+const copy = {
+  heading: t(
+    'Helpful guidance for everyday life with your friend.',
+    'Consejos útiles para el día a día con tu mascota.',
+  ),
+  description: t(
+    'Explore practical information inspired by our experiences with Maxi—from choosing toys to preparing for walks, travel, feeding, hydration, comfort, and care.',
+    'Explora información práctica inspirada en nuestras experiencias con Maxi: desde elegir juguetes hasta prepararte para paseos, viajes, alimentación, hidratación, comodidad y cuidado.',
+  ),
+  practical: t(
+    'Practical and easy to follow',
+    'Prácticos y fáciles de seguir',
+  ),
+  routines: t(
+    'Built for real pet routines.',
+    'Pensados para rutinas reales con mascotas.',
+  ),
+  featured: t(
+    'Featured guide',
+    'Guía destacada',
+  ),
+  personalizedFeatured: t(
+    'Picked for your pet',
+    'Elegida para tu mascota',
+  ),
+  readGuide: t(
+    'Read guide',
+    'Leer guía',
+  ),
+  ctaHeading: t(
+    'Practical answers for more of your everyday pet questions.',
+    'Respuestas prácticas para más preguntas del día a día con tu mascota.',
+  ),
+  ctaDescription: t(
+    'Browse the full Maxi Pawz guide library for help with products, play, travel, hydration, comfort, grooming, and accessories.',
+    'Explora toda la biblioteca de guías de Maxi Pawz para encontrar ayuda sobre productos, juego, viajes, hidratación, comodidad, cuidado y accesorios.',
+  ),
+  exploreAll: t(
+    'Explore All Pet Guides',
+    'Explorar todas las guías',
+  ),
+  badgeLabel: t(
+    'Practical Pet Guides',
+    'Guías prácticas para mascotas',
+  ),
+};
+
 interface GuideHeroImage {
   src: string;
   alt: string;
@@ -112,7 +165,6 @@ const guides: HomepageGuideWithImage[] = getHomepagePetGuides(locale).map((guide
   class="pet-guides-preview section-spacing relative isolate scroll-mt-28 overflow-hidden border-b border-sand bg-white-warm/75"
   aria-labelledby="pet-guides-preview-title"
   data-pet-guides-preview
-  data-guide-locale={locale}
 >
   <div class="pet-guides-preview__pattern pointer-events-none absolute inset-0" aria-hidden="true"></div>
 
@@ -159,23 +211,21 @@ const guides: HomepageGuideWithImage[] = getHomepagePetGuides(locale).map((guide
           class="section-title mt-5 max-w-3xl text-4xl sm:text-5xl lg:text-6xl"
           data-guide-heading
         >
-          {
-            t(
-              'Helpful guidance for everyday life with your friend.',
-              'Consejos útiles para el día a día con tu mascota.',
-            )
-          }
+          Helpful guidance for everyday life with your friend.
         </h2>
       </div>
 
-      <div class="lg:pb-1" data-guide-reveal style="--guide-reveal-delay: 90ms;">
-        <p class="section-description max-w-2xl lg:ml-auto" data-guide-description>
-          {
-            t(
-              'Explore practical information inspired by our experiences with Maxi—from choosing toys to preparing for walks, travel, feeding, hydration, comfort, and care.',
-              'Encuentra consejos prácticos inspirados en nuestras experiencias con Maxi: desde elegir juguetes hasta preparar paseos, viajes, comidas, hidratación, descanso y cuidados.',
-            )
-          }
+      <div
+        class="lg:pb-1"
+        data-guide-reveal
+        style="--guide-reveal-delay: 90ms;"
+      >
+        <p
+          class="section-description max-w-2xl lg:ml-auto"
+          data-guide-description
+        >
+          Explore practical information inspired by our experiences with Maxi—from choosing toys to
+          preparing for walks, travel, feeding, hydration, comfort, and care.
         </p>
 
         <div class="mt-5 flex flex-wrap items-center gap-3">
@@ -184,11 +234,11 @@ const guides: HomepageGuideWithImage[] = getHomepagePetGuides(locale).map((guide
           >
             <CheckCircleBold class="size-4" aria-hidden="true" />
 
-            {t('Practical and easy to follow', 'Prácticos y fáciles de seguir')}
+            Practical and easy to follow
           </span>
 
           <span class="text-sm font-bold text-ink-500">
-            {t('Built for real pet routines.', 'Pensados para las rutinas de tu mascota.')}
+            Built for real pet routines.
           </span>
         </div>
       </div>
@@ -228,11 +278,7 @@ const guides: HomepageGuideWithImage[] = getHomepagePetGuides(locale).map((guide
                 ]}
                 data-guide-interactive
                 data-guide-strength={index === 0 ? '4.2' : '3.1'}
-                aria-label={localizedLinkLabel(
-                  t(`Read guide: ${guide.cardTitle}`, `Leer guía: ${guide.cardTitle}`),
-                  guide.href,
-                  locale,
-                )}
+                aria-label={`Read guide: ${guide.cardTitle}`}
               >
                 {guide.image && (
                   <div
@@ -319,7 +365,7 @@ const guides: HomepageGuideWithImage[] = getHomepagePetGuides(locale).map((guide
                       class="hidden rounded-full border border-white/70 bg-white/88 px-3 py-1.5 text-xs font-black uppercase tracking-[0.13em] text-ink-800 shadow-sm backdrop-blur-md lg:[article:first-child_&]:inline-flex"
                       data-guide-featured-label
                     >
-                      {t('Featured guide', 'Guía destacada')}
+                      Featured guide
                     </span>
                   </div>
 
@@ -354,8 +400,10 @@ const guides: HomepageGuideWithImage[] = getHomepagePetGuides(locale).map((guide
                       {guide.description}
                     </p>
 
-                    <span class="guide-preview-card__text-link mt-4 inline-flex w-fit items-center gap-2 font-extrabold text-brand-800 lg:[article:first-child_&]:mt-6 lg:[article:first-child_&]:rounded-full lg:[article:first-child_&]:bg-ink-900 lg:[article:first-child_&]:px-5 lg:[article:first-child_&]:py-3 lg:[article:first-child_&]:text-white lg:[article:first-child_&]:shadow-soft">
-                      {localizedLinkLabel(t('Read guide', 'Leer guía'), guide.href, locale)}
+                    <span
+                      class="guide-preview-card__text-link mt-4 inline-flex w-fit items-center gap-2 font-extrabold text-brand-800 lg:[article:first-child_&]:mt-6 lg:[article:first-child_&]:rounded-full lg:[article:first-child_&]:bg-ink-900 lg:[article:first-child_&]:px-5 lg:[article:first-child_&]:py-3 lg:[article:first-child_&]:text-white lg:[article:first-child_&]:shadow-soft"
+                    >
+                      Read guide
 
                       <ArrowRightBold
                         class="guide-preview-card__arrow size-4 lg:[article:first-child_&]:size-5"
@@ -387,21 +435,12 @@ const guides: HomepageGuideWithImage[] = getHomepagePetGuides(locale).map((guide
 
           <div>
             <h3 class="text-2xl text-ink-900 sm:text-3xl">
-              {
-                t(
-                  'Practical answers for more of your everyday pet questions.',
-                  'Respuestas prácticas para tus preguntas sobre la vida con mascotas.',
-                )
-              }
+              Practical answers for more of your everyday pet questions.
             </h3>
 
             <p class="mt-2 leading-7 text-ink-600">
-              {
-                t(
-                  'Browse the full Maxi Pawz guide library for help with products, play, travel, hydration, comfort, grooming, and accessories.',
-                  'Explora todas las guías de Maxi Pawz sobre productos, juego, viajes, hidratación, descanso, higiene y accesorios.',
-                )
-              }
+              Browse the full Maxi Pawz guide library for help with products, play, travel,
+              hydration, comfort, grooming, and accessories.
             </p>
           </div>
         </div>
@@ -416,7 +455,7 @@ const guides: HomepageGuideWithImage[] = getHomepagePetGuides(locale).map((guide
           >
             <ArrowRightBold slot="icon" aria-hidden="true" />
 
-            {localizedLinkLabel(t('Explore All Pet Guides', 'Ver todas las guías'), '/pet-guides', locale)}
+            Explore All Pet Guides
           </Button>
         </div>
       </div>
@@ -764,9 +803,9 @@ const guides: HomepageGuideWithImage[] = getHomepagePetGuides(locale).map((guide
 
       const badgeLabel = section.querySelector<HTMLElement>('[data-guide-badge-label]');
 
-      if (!guideGrid) {
-        continue;
-      }
+        if (!guideGrid) {
+          continue;
+        }
 
       const isSpanish = section.dataset.guideLocale === 'es';
       const t = (english: string, spanish: string): string => (isSpanish ? spanish : english);
@@ -810,30 +849,36 @@ const guides: HomepageGuideWithImage[] = getHomepagePetGuides(locale).map((guide
 
           const featuredLabel = card.querySelector<HTMLElement>('[data-guide-featured-label]');
 
-          if (featuredLabel) {
-            featuredLabel.textContent =
-              section.dataset.guidePersonalized === 'true'
-                ? t('Picked for your pet', 'Elegida para tu mascota')
-                : t('Featured guide', 'Guía destacada');
-          }
-        });
-      };
+                if (featuredLabel) {
+                  featuredLabel.textContent =
+                    section.dataset
+                      .guidePersonalized ===
+                    'true'
+                      ? 'Picked for your pet'
+                      : 'Featured guide';
+                }
+              },
+            );
+          };
 
       const restoreEditorialCopy = (): void => {
         section.dataset.guidePersonalized = 'false';
 
-        if (heading) {
-          heading.textContent = defaultHeading;
-        }
+            if (heading) {
+              heading.textContent =
+                DEFAULT_GUIDE_HEADING;
+            }
 
-        if (description) {
-          description.textContent = defaultDescription;
-        }
+            if (description) {
+              description.textContent =
+                DEFAULT_GUIDE_DESCRIPTION;
+            }
 
-        if (badgeLabel) {
-          badgeLabel.textContent = defaultBadge;
-        }
-      };
+            if (badgeLabel) {
+              badgeLabel.textContent =
+                DEFAULT_BADGE_LABEL;
+            }
+          };
 
       const restoreEditorialOrder = (): void => {
         for (const slug of editorialSlugs) {
@@ -863,9 +908,16 @@ const guides: HomepageGuideWithImage[] = getHomepagePetGuides(locale).map((guide
           return;
         }
 
-        const prioritySlugs = new Set<string>(priorities);
+            const orderedSlugs = [
+              ...priorities,
 
-        const orderedSlugs = [...priorities, ...editorialSlugs.filter((slug) => !prioritySlugs.has(slug))];
+              ...editorialSlugs.filter(
+                (slug) =>
+                  !priorities.includes(
+                    slug,
+                  ),
+              ),
+            ];
 
         for (const slug of orderedSlugs) {
           const card = cardsBySlug.get(slug);
@@ -879,23 +931,20 @@ const guides: HomepageGuideWithImage[] = getHomepagePetGuides(locale).map((guide
 
         section.dataset.guidePersonalized = 'true';
 
-        if (badgeLabel) {
-          badgeLabel.textContent = t(`Picked for ${profile.petName}`, `Elegidas para ${profile.petName}`);
-        }
+            if (badgeLabel) {
+              badgeLabel.textContent =
+                `Picked for ${profile.petName}`;
+            }
 
-        if (heading) {
-          heading.textContent = t(
-            messaging.guideHeading,
-            `Algunas guías elegidas pensando en ${profile.petName}.`,
-          );
-        }
+            if (heading) {
+              heading.textContent =
+                messaging.guideHeading;
+            }
 
-        if (description) {
-          description.textContent = t(
-            messaging.guideDescription,
-            `Según el perfil de ${profile.petName}, mostramos primero algunas guías especialmente relevantes.`,
-          );
-        }
+            if (description) {
+              description.textContent =
+                messaging.guideDescription;
+            }
 
         updateCardRoles();
       };

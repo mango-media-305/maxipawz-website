@@ -71,49 +71,53 @@ export const homepagePetGuides: HomepagePetGuide[] = [
   },
 ];
 
-type GuideTranslation = Pick<HomepagePetGuide, 'cardTitle' | 'description' | 'eyebrow' | 'readingTime'>;
-
-const spanishHomepageGuides: Record<string, GuideTranslation> = {
-  'dog-hydration-miami-heat': {
-    cardTitle: 'Hidratación de perros en el calor de Miami',
+const homepagePetGuidesEs: HomepagePetGuide[] = [
+  {
+    slug: 'dog-hydration-miami-heat',
+    href: '/pet-guides/dog-hydration-miami-heat',
+    cardTitle: 'Hidratación para perros en el calor de Miami',
     description:
-      'Planifica paseos más seguros cuando hace calor con consejos sobre agua fresca, horarios más frescos, descansos a la sombra, pavimento caliente y señales de sobrecalentamiento.',
+      'Planifica paseos más seguros en días calurosos con consejos prácticos sobre agua fresca, horarios más frescos, descansos a la sombra, pavimento caliente y señales de sobrecalentamiento.',
     eyebrow: 'Seguridad canina en Miami',
+    icon: 'hydration',
+    tone: 'brand',
     readingTime: '7 min de lectura',
   },
-  'play-and-enrichment': {
+  {
+    slug: 'play-and-enrichment',
+    href: '/pet-guides/play-and-enrichment',
     cardTitle: 'Juego y enriquecimiento',
     description:
-      'Aprende a elegir juguetes para perros según su forma de jugar, tamaño, actividad, fabricación, supervisión necesaria, rotación de juguetes y señales de desgaste.',
+      'Aprende a elegir juguetes para perros según su estilo de juego, tamaño, nivel de actividad, construcción, necesidades de supervisión, rotación de juguetes y señales de que es hora de reemplazarlos.',
     eyebrow: 'Juego y enriquecimiento',
+    icon: 'play',
+    tone: 'accent',
     readingTime: '8 min de lectura',
   },
-  'walk-and-travel': {
+  {
+    slug: 'walk-and-travel',
+    href: '/pet-guides/walk-and-travel',
     cardTitle: 'Paseos y viajes',
     description:
-      'Prepara los paseos, viajes en auto, excursiones y otras aventuras con consejos sobre equipo, hidratación, identificación, comodidad, calor y organización.',
+      'Prepárate para paseos, viajes en auto, excursiones de un día y aventuras más largas con consejos prácticos sobre equipo, hidratación, identificación, comodidad, calor y organización.',
     eyebrow: 'Paseos y viajes',
+    icon: 'travel',
+    tone: 'brand',
     readingTime: '8 min de lectura',
   },
-  'feeding-and-hydration': {
+  {
+    slug: 'feeding-and-hydration',
+    href: '/pet-guides/feeding-and-hydration',
     cardTitle: 'Alimentación e hidratación',
     description:
-      'Elige tazones, productos de agua portátiles y accesorios de alimentación según su capacidad, estabilidad, materiales, limpieza, uso en viajes y rutinas diarias.',
+      'Elige recipientes para comida, productos portátiles de agua y accesorios de alimentación según su capacidad, estabilidad, materiales, limpieza, necesidades de viaje y rutinas diarias.',
     eyebrow: 'Alimentación e hidratación',
+    icon: 'hydration',
+    tone: 'sand',
     readingTime: '7 min de lectura',
   },
-};
+];
 
-/** Translate preview copy without changing canonical slugs or article URLs. */
 export function getHomepagePetGuides(locale: Locale): HomepagePetGuide[] {
-  return homepagePetGuides.map((guide) => {
-    if (locale !== 'es') return { ...guide };
-
-    const translation = spanishHomepageGuides[guide.slug];
-    if (!translation) {
-      throw new Error(`Missing Spanish homepage guide: ${guide.slug}`);
-    }
-
-    return { ...guide, ...translation };
-  });
+  return locale === 'es' ? homepagePetGuidesEs : homepagePetGuides;
 }
