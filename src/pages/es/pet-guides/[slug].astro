@@ -1,0 +1,33 @@
+---
+import type { GetStaticPaths } from 'astro';
+
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+import BlogPostRoutePage from '@components/blog/BlogPostRoutePage.astro';
+
+import { getBlogPostSlug, getIndexableBlogPostsForLocale } from '../../../utils/blog';
+
+type BlogPost = CollectionEntry<'blog'>;
+
+interface Props {
+  post: BlogPost;
+}
+
+export const getStaticPaths = (async () => {
+  const posts = getIndexableBlogPostsForLocale(await getCollection('blog'), 'es');
+
+  return posts.map((post) => ({
+    params: {
+      slug: getBlogPostSlug(post),
+    },
+
+    props: {
+      post,
+    },
+  }));
+}) satisfies GetStaticPaths;
+
+const { post } = Astro.props as Props;
+---
+
+<BlogPostRoutePage post={post} />

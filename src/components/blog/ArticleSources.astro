@@ -1,4 +1,8 @@
 ---
+import {
+  getLocaleFromPathname,
+} from '../../i18n/languages';
+
 interface Source {
   title: string;
   publisher: string;
@@ -7,48 +11,131 @@ interface Source {
 }
 
 interface Props {
-  sources: Source[];
+  sources:
+    Source[];
 }
 
-const { sources } = Astro.props;
+const {
+  sources,
+} =
+  Astro.props;
 
-const formatDate = (value: Date | string) =>
-  new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    timeZone: 'UTC',
-  }).format(value instanceof Date ? value : new Date(value));
+const locale =
+  getLocaleFromPathname(
+    Astro.url.pathname,
+  );
+
+const spanish =
+  locale === 'es';
+
+const dateFormatter =
+  new Intl.DateTimeFormat(
+    spanish
+      ? 'es-US'
+      : 'en-US',
+    {
+      month:
+        'short',
+
+      day:
+        'numeric',
+
+      year:
+        'numeric',
+
+      timeZone:
+        'UTC',
+    },
+  );
+
+const formatDate =
+  (
+    value:
+      Date |
+      string,
+  ): string =>
+    dateFormatter.format(
+      value instanceof
+        Date
+        ? value
+        : new Date(
+            value,
+          ),
+    );
+
+const title =
+  spanish
+    ? 'Fuentes y lecturas adicionales'
+    : 'Sources & further reading';
+
+const description =
+  spanish
+    ? 'Estas referencias se utilizaron para respaldar o ampliar la información de este artículo. Las recomendaciones externas pueden cambiar con el tiempo, así que consulta la fuente enlazada para obtener los detalles más recientes.'
+    : 'These references were used to support or expand the information in this article. External guidance can change over time, so check the linked source for the latest details.';
+
+const accessedLabel =
+  spanish
+    ? 'consultado'
+    : 'accessed';
 ---
 
-{sources.length > 0 && (
-  <section class="mt-12 border-t border-sand pt-8" aria-labelledby="article-sources-title">
-    <h2 id="article-sources-title" class="text-2xl text-ink-900 sm:text-3xl">
-      Sources & further reading
-    </h2>
+{
+  sources.length >
+    0 && (
+    <section
+      class="mt-12 border-t border-sand pt-8"
+      aria-labelledby="article-sources-title"
+    >
+      <h2
+        id="article-sources-title"
+        class="text-2xl text-ink-900 sm:text-3xl"
+      >
+        {title}
+      </h2>
 
-    <p class="mt-3 max-w-3xl text-sm leading-6 text-ink-600">
-      These references were used to support or expand the information in this article. External
-      guidance can change over time, so check the linked source for the latest details.
-    </p>
+      <p class="mt-3 max-w-3xl text-sm leading-6 text-ink-600">
+        {description}
+      </p>
 
-    <ol class="mt-6 grid gap-3">
-      {sources.map((source, index) => (
-        <li class="rounded-2xl border border-sand bg-cream-soft p-4 text-sm leading-6 text-ink-600">
-          <span class="font-extrabold text-ink-800">{index + 1}. {source.publisher}.</span>{' '}
-          <a
-            href={source.url}
-            target="_blank"
-            rel="noopener noreferrer external"
-            class="font-bold text-brand-700 underline decoration-brand-300 underline-offset-2 hover:text-brand-800"
-          >
-            {source.title}
-          </a>
-          {source.accessedAt && (
-            <span class="text-ink-500"> — accessed {formatDate(source.accessedAt)}</span>
-          )}
-        </li>
-      ))}
-    </ol>
-  </section>
-)}
+      <ol class="mt-6 grid gap-3">
+        {
+          sources.map(
+            (
+              source,
+              index,
+            ) => (
+              <li class="rounded-2xl border border-sand bg-cream-soft p-4 text-sm leading-6 text-ink-600">
+                <span class="font-extrabold text-ink-800">
+                  {index + 1}. {source.publisher}.
+                </span>{' '}
+
+                <a
+                  href={source.url}
+                  target="_blank"
+                  rel="noopener noreferrer external"
+                  class="font-bold text-brand-700 underline decoration-brand-300 underline-offset-2 hover:text-brand-800"
+                >
+                  {source.title}
+                </a>
+
+                {
+                  source.accessedAt && (
+                    <span class="text-ink-500">
+                      {' '}
+                      — {accessedLabel}{' '}
+                      {
+                        formatDate(
+                          source.accessedAt,
+                        )
+                      }
+                    </span>
+                  )
+                }
+              </li>
+            ),
+          )
+        }
+      </ol>
+    </section>
+  )
+}
