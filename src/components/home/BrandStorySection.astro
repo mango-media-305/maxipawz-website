@@ -17,6 +17,19 @@ import Button from '../ui/Button.astro';
 import { isStoreLive } from '../../config/storefront';
 import { brandStory } from '../../data/homepage';
 
+import { getLocaleFromPathname } from '../../i18n/languages';
+import { localizeHref, localizedLinkLabel } from '../../i18n/routes';
+
+const locale = getLocaleFromPathname(Astro.url.pathname);
+const t = (english: string, spanish: string): string =>
+  locale === 'es' ? spanish : english;
+
+const story = locale === 'es' ? {
+  introduction: 'Maxi es nuestro perro, nuestro compañero de cada día y la inspiración detrás de la mascota de Maxi Pawz y de todo lo que representa esta tienda.',
+  experience: 'Criar a Maxi desde cachorro nos permitió aprender de primera mano a elegir juguetes, collares, accesorios de paseo, botellas de agua portátiles, productos para su descanso y otros esenciales. Con el tiempo, descubrimos qué productos lo entusiasman, cuáles facilitan las rutinas diarias y cuáles realmente merecen un lugar en un hogar con perro.',
+  community: 'Maxi inspiró el comienzo y nuestros amigos ayudaron a que la idea creciera. Su apoyo, sus opiniones, su creatividad y su confianza en el proyecto nos ayudaron a construir Maxi Pawz desde cero.',
+} : brandStory;
+
 const backgroundSlides = [
   {
     src: storyBackgroundOne,
@@ -116,12 +129,12 @@ const backgroundSlides = [
     >
       <div>
         <p class="mt-4 max-w-xl text-sm font-extrabold tracking-[0.18em] text-white/55 uppercase">
-          Meet Maxi · Discover our story
+          {t("Meet Maxi · Discover our story", "Conoce a Maxi · Descubre nuestra historia")}
         </p>
       </div>
 
       <p class="max-w-xl text-sm leading-6 text-white/60 sm:text-right">
-        A pet store shaped by real experience, everyday routines, and the dog who inspired it all.
+        {t("A pet store shaped by real experience, everyday routines, and the dog who inspired it all.", "Una tienda para mascotas inspirada en experiencias reales, rutinas cotidianas y el perro con el que empezó todo.")}
       </p>
     </div>
 
@@ -159,15 +172,15 @@ const backgroundSlides = [
       <div class="brand-story-copy w-full">
         <div data-reveal="right" style="--reveal-delay: 120ms;">
           <h2 id="brand-story-title" class="section-title text-4xl text-white sm:text-5xl">
-            The dog behind the name—and the{' '}
+            {t('The dog behind the name—and the', 'El perro que inspiró nuestro nombre y el')}{' '}
 
-            <span class="brand-story-accent-text text-accent-300"> heart behind our store. </span>
+            <span class="brand-story-accent-text text-accent-300"> {t('heart behind our store.', 'corazón de nuestra tienda.')} </span>
           </h2>
 
           <p
             class="mt-6 border-l-4 border-accent-400 pl-5 text-lg leading-8 font-bold text-white/92 sm:text-xl"
           >
-            {brandStory.introduction}
+            {story.introduction}
           </p>
         </div>
 
@@ -177,11 +190,11 @@ const backgroundSlides = [
           style="--reveal-delay: 180ms;"
         >
           <p>
-            {brandStory.experience}
+            {story.experience}
           </p>
 
           <p>
-            {brandStory.community}
+            {story.community}
           </p>
         </div>
 
@@ -194,19 +207,18 @@ const backgroundSlides = [
             <div class="flex items-start gap-3">
               <div>
                 <p class="font-display text-lg text-white sm:text-xl">
-                  More than a mascot. This is where the story starts.
+                  {t("More than a mascot. This is where the story starts.", "Más que una mascota. Aquí comienza la historia.")}
                 </p>
 
                 <p class="mt-2 text-sm leading-6 text-white/65">
-                  Learn how Maxi, two friends, and a shared love for pets became the foundation of
-                  Maxi Pawz.
+                  {t("Learn how Maxi, two friends, and a shared love for pets became the foundation of Maxi Pawz.", "Descubre cómo Maxi, dos amigos y el amor por las mascotas dieron origen a Maxi Pawz.")}
                 </p>
               </div>
             </div>
 
             <div class="mt-5 flex flex-col gap-3 sm:flex-row">
               <Button
-                href="/about"
+                href={localizeHref('/about', locale)}
                 variant="primary"
                 size="lg"
                 iconPosition="right"
@@ -214,31 +226,31 @@ const backgroundSlides = [
               >
                 <ArrowRightBold slot="icon" aria-hidden="true" />
 
-                Meet Maxi & Our Story
+                {localizedLinkLabel(t('Meet Maxi & Our Story', 'Conoce a Maxi y nuestra historia'), '/about', locale)}
               </Button>
 
               {
                 isStoreLive ? (
                   <Button
-                    href="/shop"
+                    href={localizeHref('/shop', locale)}
                     variant="secondary"
                     size="lg"
                     iconPosition="right"
                     class="w-full sm:w-auto"
                   >
                     <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
-                    Explore the Shop
+                    {localizedLinkLabel(t('Explore the Shop', 'Explorar la tienda'), '/shop', locale)}
                   </Button>
                 ) : (
                   <Button
-                    href="/#join-the-pack"
+                    href={localizeHref('/#join-the-pack', locale)}
                     variant="secondary"
                     size="lg"
                     iconPosition="right"
                     class="w-full sm:w-auto"
                   >
                     <HeartBold slot="icon" aria-hidden="true" />
-                    Join the Pack
+                    {localizedLinkLabel(t('Join the Pack', 'Unirme a la comunidad'), '/#join-the-pack', locale)}
                   </Button>
                 )
               }
