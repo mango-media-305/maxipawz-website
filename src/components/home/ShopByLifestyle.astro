@@ -16,7 +16,51 @@ import { isStoreLive } from '../../config/storefront';
 import { lifestyleCategories, type LifestyleCategoryIcon } from '../../data/homepage';
 import { getLifestyleCategoryItems } from '../../utils/storefront-categories';
 
-const categoryItems = getLifestyleCategoryItems(lifestyleCategories);
+import { getLocaleFromPathname } from '../../i18n/languages';
+import { localizeHref, localizedLinkLabel } from '../../i18n/routes';
+
+const locale = getLocaleFromPathname(Astro.url.pathname);
+const t = (english: string, spanish: string): string =>
+  locale === 'es' ? spanish : english;
+
+const spanishCategories: Record<string, { title: string; description: string }> = {
+  'play-and-enrichment': {
+    title: 'Juego y enriquecimiento',
+    description: 'Juguetes, rompecabezas, productos interactivos y actividades que ayudan a mantener a las mascotas activas, curiosas y entretenidas.',
+  },
+  'walk-and-travel': {
+    title: 'Paseos y viajes',
+    description: 'Esenciales portátiles, accesorios de paseo, artículos de viaje y productos prácticos para disfrutar de aventuras cómodas juntos.',
+  },
+  'feeding-and-hydration': {
+    title: 'Alimentación e hidratación',
+    description: 'Botellas de agua, tazones, accesorios de alimentación y productos útiles para las comidas, los premios y la hidratación dentro y fuera de casa.',
+  },
+  'comfort-and-home': {
+    title: 'Descanso y hogar',
+    description: 'Productos acogedores, relajantes y prácticos para hacer más cómodos el descanso y la vida diaria en casa.',
+  },
+  'grooming-and-care': {
+    title: 'Higiene y cuidado',
+    description: 'Productos útiles y esenciales de higiene que ayudan a simplificar las rutinas de cuidado de tu mascota y hacerlas más agradables.',
+  },
+  'collars-and-accessories': {
+    title: 'Collares y accesorios',
+    description: 'Collares, accesorios para llevar puestos, productos de identificación y detalles que dan un toque personal al estilo diario de tu mascota.',
+  },
+};
+
+const categoryItems = getLifestyleCategoryItems(lifestyleCategories).map((category) => {
+  if (locale !== 'es') return category;
+
+  const translated = spanishCategories[category.slug];
+
+  if (!translated) {
+    throw new Error(`Missing Spanish homepage category: ${category.slug}`);
+  }
+
+  return { ...category, ...translated };
+});
 
 const iconByCategory: Record<LifestyleCategoryIcon, typeof PawPrintBold> = {
   play: ConfettiBold,
@@ -35,7 +79,7 @@ function getCategoryHref(slug: string): string {
   return `/shop?category=${encodeURIComponent(slug)}#products`;
 }
 
-const categoryLinkLabel = isStoreLive ? 'Explore category' : 'Get launch updates';
+const categoryLinkLabel = isStoreLive ? t('Explore category', 'Explorar categoría') : t('Get launch updates', 'Recibir novedades del lanzamiento');
 ---
 
 {
@@ -81,7 +125,7 @@ const categoryLinkLabel = isStoreLive ? 'Explore category' : 'Get launch updates
             <Badge variant="brand" size="md">
               <PawPrintBold slot="icon" aria-hidden="true" />
 
-              {isStoreLive ? 'Shop by lifestyle' : 'What you will find'}
+              {isStoreLive ? t('Shop by lifestyle', 'Compra según su estilo de vida') : t('What you will find', 'Lo que encontrarás')}
             </Badge>
 
             <h2
@@ -89,8 +133,8 @@ const categoryLinkLabel = isStoreLive ? 'Explore category' : 'Get launch updates
               class="mt-5 text-4xl sm:text-5xl lg:text-6xl"
             >
               {isStoreLive
-                ? 'Find a category for your pet’s routine.'
-                : 'Products for play, care, comfort, and everyday adventures.'}
+                ? t('Find a category for your pet’s routine.', 'Encuentra una categoría para la rutina de tu mascota.')
+                : t('Products for play, care, comfort, and everyday adventures.', 'Productos para jugar, cuidarse, descansar y vivir aventuras cada día.')}
             </h2>
           </div>
 
@@ -101,8 +145,8 @@ const categoryLinkLabel = isStoreLive ? 'Explore category' : 'Get launch updates
           >
             <p>
               {isStoreLive
-                ? 'Explore Maxi Pawz products based on the moments, routines, and experiences you share with your pet.'
-                : 'Maxi Pawz is preparing a varied collection that supports playtime, walks, travel, feeding, hydration, comfort, care, and personal style.'}
+                ? t('Explore Maxi Pawz products based on the moments, routines, and experiences you share with your pet.', 'Explora los productos de Maxi Pawz según los momentos, rutinas y experiencias que compartes con tu mascota.')
+                : t('Maxi Pawz is preparing a varied collection that supports playtime, walks, travel, feeding, hydration, comfort, care, and personal style.', 'Maxi Pawz está preparando una colección variada para acompañar el juego, los paseos, los viajes, la alimentación, la hidratación, el descanso, el cuidado y el estilo de tu mascota.')}
             </p>
           </div>
         </div>
@@ -122,8 +166,9 @@ const categoryLinkLabel = isStoreLive ? 'Explore category' : 'Get launch updates
               <CategoryCard
                 title={category.title}
                 description={category.description}
-                href={getCategoryHref(category.slug)}
-                linkLabel={categoryLinkLabel}
+                href={localizeHref(getCategoryHref(category.slug), locale)}
+                linkLabel={localizedLinkLabel(categoryLinkLabel, getCategoryHref(category.slug), locale)}
+                eyebrow={t('Pet lifestyle', 'Vida con mascotas')}
                 tone={category.tone}
                 backgroundImage={category.backgroundImage}
                 backgroundPosition={category.backgroundPosition}
@@ -152,14 +197,14 @@ const categoryLinkLabel = isStoreLive ? 'Explore category' : 'Get launch updates
             <div>
               <h3 class="text-2xl sm:text-3xl">
                 {isStoreLive
-                  ? 'Find something made for your routine.'
-                  : 'Be first to meet the collection.'}
+                  ? t('Find something made for your routine.', 'Encuentra algo pensado para su rutina.')
+                  : t('Be first to meet the collection.', 'Sé de los primeros en conocer la colección.')}
               </h3>
 
               <p class="mt-2 leading-7 text-ink-600">
                 {isStoreLive
-                  ? 'Browse the full Maxi Pawz collection and discover useful products for more of the moments you share together.'
-                  : 'Join the Maxi Pawz pack for launch news, collection updates, useful guidance, and occasional subscriber offers.'}
+                  ? t('Browse the full Maxi Pawz collection and discover useful products for more of the moments you share together.', 'Explora toda la colección de Maxi Pawz y descubre productos útiles para los momentos que comparten juntos.')
+                  : t('Join the Maxi Pawz pack for launch news, collection updates, useful guidance, and occasional subscriber offers.', 'Únete a la comunidad de Maxi Pawz para recibir noticias del lanzamiento, novedades de la colección, consejos útiles y ofertas ocasionales para suscriptores.')}
               </p>
             </div>
           </div>
@@ -167,25 +212,25 @@ const categoryLinkLabel = isStoreLive ? 'Explore category' : 'Get launch updates
           <div class="relative z-10 shrink-0">
             {isStoreLive ? (
               <Button
-                href="/shop#products"
+                href={localizeHref('/shop#products', locale)}
                 variant="primary"
                 size="lg"
                 iconPosition="right"
                 class="w-full sm:w-auto"
               >
                 <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
-                Shop All Products
+                {localizedLinkLabel(t('Shop All Products', 'Ver todos los productos'), '/shop#products', locale)}
               </Button>
             ) : (
               <Button
-                href="/#maxi-pawz-updates"
+                href={localizeHref('/#maxi-pawz-updates', locale)}
                 variant="primary"
                 size="lg"
                 iconPosition="right"
                 class="w-full sm:w-auto"
               >
                 <HeartBold slot="icon" aria-hidden="true" />
-                Join the Pack
+                {localizedLinkLabel(t('Join the Pack', 'Unirme a la comunidad'), '/#maxi-pawz-updates', locale)}
               </Button>
             )}
           </div>
