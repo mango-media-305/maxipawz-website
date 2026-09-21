@@ -13,6 +13,7 @@ const translatedPaths:
         '/contact',
         '/contact/success',
         '/faq',
+        '/privacy-policy',
         '/product-safety',
         '/return-policy',
         '/shipping-policy',
