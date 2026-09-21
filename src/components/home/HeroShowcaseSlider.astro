@@ -22,64 +22,112 @@ import {
   getPrimaryProductImage,
 } from '../../utils/products';
 
+import { getLocaleFromPathname } from '../../i18n/languages';
+import { localizeHref, localizedLinkLabel } from '../../i18n/routes';
+
+const locale = getLocaleFromPathname(Astro.url.pathname);
+
+const t = (english: string, spanish: string): string =>
+  locale === 'es' ? spanish : english;
+
 interface Props {
   storeLive: boolean;
 }
 
 const { storeLive } = Astro.props;
 const requestedPreview = import.meta.env.HOME_COLLECTION_PREVIEW;
+
 const previewMode =
   import.meta.env.DEV &&
-  (requestedPreview === 'single' || requestedPreview === 'grid' || requestedPreview === 'empty')
+  (requestedPreview === 'single' ||
+    requestedPreview === 'grid' ||
+    requestedPreview === 'empty')
     ? requestedPreview
     : undefined;
 
 const catalog = getStorefrontCatalogProducts();
-const showcaseProducts = storeLive && isStoreLive && previewMode !== 'empty'
-  ? catalog
-      .filter((product) => previewMode ? product.isDemo : !product.isDemo)
-      .slice(0, previewMode === 'single' ? 1 : 4)
-  : [];
+
+const showcaseProducts =
+  storeLive && isStoreLive && previewMode !== 'empty'
+    ? catalog
+        .filter((product) => (previewMode ? product.isDemo : !product.isDemo))
+        .slice(0, previewMode === 'single' ? 1 : 4)
+    : [];
 
 const showProducts = showcaseProducts.length > 0;
 
 const editorialSlides = [
   {
     image: maxiHeroImage,
-    alt: 'Maxi, the dog who inspired Maxi Pawz Store',
-    eyebrow: 'Meet Maxi',
-    title: 'The happy face behind the Maxi Pawz name.',
-    description:
+    alt: t(
+      'Maxi, the dog who inspired Maxi Pawz Store',
+      'Maxi, el perro que inspiró Maxi Pawz Store',
+    ),
+    eyebrow: t('Meet Maxi', 'Conoce a Maxi'),
+    title: t(
+      'The happy face behind the Maxi Pawz name.',
+      'La alegría que dio nombre a Maxi Pawz.',
+    ),
+    description: t(
       'Real experiences with Maxi inspired a store focused on joy, usefulness, comfort, and stronger everyday moments with pets.',
+      'Las experiencias reales con Maxi inspiraron una tienda centrada en la alegría, la utilidad, la comodidad y los momentos que compartimos con nuestras mascotas.',
+    ),
     href: '/about',
-    linkLabel: 'Meet Maxi',
+    linkLabel: t('Meet Maxi', 'Conoce a Maxi'),
     accentClass: 'text-accent-200',
     icon: HeartBold,
   },
   {
     image: maxiPlayImage,
-    alt: 'Dog enjoying a playful enrichment activity',
-    eyebrow: isStoreLive ? 'Stay in the loop' : 'Play & enrichment',
+    alt: t(
+      'Dog enjoying a playful enrichment activity',
+      'Perro disfrutando de una actividad de juego y enriquecimiento',
+    ),
+    eyebrow: isStoreLive
+      ? t('Stay in the loop', 'Mantente al día')
+      : t('Play & enrichment', 'Juego y enriquecimiento'),
     title: isStoreLive
-      ? 'Good things for life with your pet.'
-      : 'Products that make playtime count.',
+      ? t(
+          'Good things for life with your pet.',
+          'Buenas ideas para la vida con tu mascota.',
+        )
+      : t(
+          'Products that make playtime count.',
+          'Productos para disfrutar cada juego.',
+        ),
     description: isStoreLive
-      ? 'Get Maxi Pawz product news, practical pet guides, and occasional subscriber offers.'
-      : 'Explore the everyday pet moments and product categories shaping the first Maxi Pawz collection.',
+      ? t(
+          'Get Maxi Pawz product news, practical pet guides, and occasional subscriber offers.',
+          'Recibe novedades de productos de Maxi Pawz, guías prácticas y ofertas ocasionales para suscriptores.',
+        )
+      : t(
+          'Explore the everyday pet moments and product categories shaping the first Maxi Pawz collection.',
+          'Descubre las rutinas y categorías de productos que dan forma a la primera colección de Maxi Pawz.',
+        ),
     href: isStoreLive ? '/#maxi-pawz-updates' : '/#shop-by-lifestyle',
-    linkLabel: isStoreLive ? 'Get Product Updates' : 'Explore What Is Coming',
+    linkLabel: isStoreLive
+      ? t('Get Product Updates', 'Recibir novedades de productos')
+      : t('Explore What Is Coming', 'Descubrir lo que viene'),
     accentClass: 'text-accent-200',
     icon: SparkleBold,
   },
   {
     image: maxiGuideImage,
-    alt: 'Dog prepared for a walk and outdoor adventure',
-    eyebrow: 'Practical guidance',
-    title: 'Helpful ideas for everyday pet life.',
-    description:
+    alt: t(
+      'Dog prepared for a walk and outdoor adventure',
+      'Perro preparado para un paseo y una aventura al aire libre',
+    ),
+    eyebrow: t('Practical guidance', 'Consejos prácticos'),
+    title: t(
+      'Helpful ideas for everyday pet life.',
+      'Ideas útiles para el día a día con tu mascota.',
+    ),
+    description: t(
       'Discover friendly guidance for choosing products, supporting everyday routines, and making thoughtful decisions for your pet.',
+      'Encuentra consejos para elegir productos, acompañar las rutinas diarias y tomar decisiones informadas para tu mascota.',
+    ),
     href: '/pet-guides',
-    linkLabel: 'Explore Pet Guides',
+    linkLabel: t('Explore Pet Guides', 'Explorar guías para mascotas'),
     accentClass: 'text-brand-200',
     icon: PawPrintBold,
   },
@@ -88,14 +136,22 @@ const editorialSlides = [
 const slideNames = showProducts
   ? showcaseProducts.map((product) => product.name)
   : editorialSlides.map((slide) => slide.title);
+
 const slideCount = slideNames.length;
-const sliderLabel = showProducts ? 'Explore the Maxi Pawz collection' : 'Explore Maxi Pawz';
+
+const sliderLabel = showProducts
+  ? t('Explore the Maxi Pawz collection', 'Explora la colección de Maxi Pawz')
+  : t('Explore Maxi Pawz', 'Explora Maxi Pawz');
 ---
 
 <section
   class="hero-showcase relative"
   aria-label={sliderLabel}
-  aria-roledescription={slideCount > 1 ? 'carousel' : undefined}
+  aria-roledescription={slideCount > 1 ? t('carousel', 'carrusel') : undefined}
+  data-slide-status-template={t(
+    'Slide {current} of {total}: {name}',
+    'Diapositiva {current} de {total}: {name}',
+  )}
   data-hero-showcase
 >
   <div
@@ -104,18 +160,32 @@ const sliderLabel = showProducts ? 'Explore the Maxi Pawz collection' : 'Explore
     aria-hidden="true"
   >
     <span class="grid size-7 place-items-center rounded-full bg-accent-100 text-accent-700">
-      {showProducts ? <ShoppingBagOpenBold class="size-4" /> : <PawPrintBold class="size-4" />}
+      {
+        showProducts
+          ? <ShoppingBagOpenBold class="size-4" />
+          : <PawPrintBold class="size-4" />
+      }
     </span>
-    {showProducts ? 'Explore the collection' : 'Happy pets • happy life'}
+
+    {
+      showProducts
+        ? t('Explore the collection', 'Explora la colección')
+        : t('Happy pets • happy life', 'Mascotas felices • vida feliz')
+    }
   </div>
 
-  <div class="hero-showcase__viewport relative overflow-hidden rounded-card-lg" data-hero-slider-viewport>
+  <div
+    class="hero-showcase__viewport relative overflow-hidden rounded-card-lg"
+    data-hero-slider-viewport
+  >
     {
       showProducts
         ? showcaseProducts.map((product, index) => {
             const image = getPrimaryProductImage(product);
+
             const onSale = Boolean(
-              product.price && product.compareAtPrice &&
+              product.price &&
+              product.compareAtPrice &&
               product.compareAtPrice.amount > product.price.amount,
             );
 
@@ -126,8 +196,8 @@ const sliderLabel = showProducts ? 'Explore the Maxi Pawz collection' : 'Explore
                   index === 0 && 'is-active',
                 ]}
                 role="group"
-                aria-roledescription="slide"
-                aria-label={`${index + 1} of ${slideCount}: ${product.name}`}
+                aria-roledescription={t('slide', 'diapositiva')}
+                aria-label={`${index + 1} ${t('of', 'de')} ${slideCount}: ${product.name}`}
                 aria-hidden={index !== 0}
                 inert={index !== 0}
                 data-hero-slide
@@ -151,16 +221,37 @@ const sliderLabel = showProducts ? 'Explore the Maxi Pawz collection' : 'Explore
 
                 <div class="absolute inset-x-0 top-0 flex flex-wrap items-start justify-end gap-3 p-5 sm:p-6">
                   <span class="rounded-full border border-white/20 bg-white/92 px-3 py-2 text-xs font-extrabold text-ink-700">
-                    {getAvailabilityLabel(product.availability)}
+                    {locale === 'es'
+                      ? {
+                          'coming-soon': 'Próximamente',
+                          'in-stock': 'Disponible',
+                          'out-of-stock': 'Agotado',
+                          discontinued: 'Descontinuado',
+                        }[product.availability]
+                      : getAvailabilityLabel(product.availability)}
                   </span>
                 </div>
 
                 <div class="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8">
                   <p class="text-sm font-extrabold tracking-[0.08em] text-accent-200 uppercase">
-                    {product.isDemo ? 'Demo product preview' : getCategoryLabel(product.category)}
+                    {product.isDemo
+                      ? t('Demo product preview', 'Vista previa de producto de muestra')
+                      : getCategoryLabel(product.category)}
                   </p>
-                  <h2 class="mt-2 max-w-xl text-3xl text-white sm:text-4xl">{product.name}</h2>
-                  <p class="mt-3 max-w-xl leading-7 text-white/82">{product.shortDescription}</p>
+
+                  <h2
+                    class="mt-2 max-w-xl text-3xl text-white sm:text-4xl"
+                    lang={locale === 'es' ? 'en' : undefined}
+                  >
+                    {product.name}
+                  </h2>
+
+                  <p
+                    class="mt-3 max-w-xl leading-7 text-white/82"
+                    lang={locale === 'es' ? 'en' : undefined}
+                  >
+                    {product.shortDescription}
+                  </p>
 
                   <div class="mt-5 flex flex-wrap items-center justify-between gap-4">
                     <div class="flex flex-wrap items-baseline gap-2">
@@ -169,22 +260,28 @@ const sliderLabel = showProducts ? 'Explore the Maxi Pawz collection' : 'Explore
                           {formatProductPrice(product.price)}
                         </span>
                       ) : (
-                        <span class="font-extrabold text-white">Price coming soon</span>
+                        <span class="font-extrabold text-white">
+                          {t('Price coming soon', 'Precio próximamente')}
+                        </span>
                       )}
 
                       {onSale && product.compareAtPrice && (
                         <span class="text-sm font-bold text-white/58 line-through">
-                          <span class="sr-only">Previous price: </span>
+                          <span class="sr-only">
+                            {t('Previous price: ', 'Precio anterior: ')}
+                          </span>
                           {formatProductPrice(product.compareAtPrice)}
                         </span>
                       )}
                     </div>
 
                     <a
-                      href={`/shop/${product.slug}`}
+                      href={localizeHref(`/shop/${product.slug}`, locale)}
                       class="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/25 bg-white px-5 text-sm font-extrabold text-ink-900 shadow-sm transition hover:-translate-y-0.5 hover:bg-cream-soft focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-300"
                     >
-                      {product.isDemo ? 'View demo product' : 'View product'}
+                      {product.isDemo
+                        ? t('View demo product', 'Ver producto de muestra')
+                        : t('View product', 'Ver producto')}
                       <ArrowRightBold class="size-4" aria-hidden="true" />
                     </a>
                   </div>
@@ -202,8 +299,8 @@ const sliderLabel = showProducts ? 'Explore the Maxi Pawz collection' : 'Explore
                   index === 0 && 'is-active',
                 ]}
                 role="group"
-                aria-roledescription="slide"
-                aria-label={`${index + 1} of ${slideCount}: ${slide.title}`}
+                aria-roledescription={t('slide', 'diapositiva')}
+                aria-label={`${index + 1} ${t('of', 'de')} ${slideCount}: ${slide.title}`}
                 aria-hidden={index !== 0}
                 inert={index !== 0}
                 data-hero-slide
@@ -226,22 +323,29 @@ const sliderLabel = showProducts ? 'Explore the Maxi Pawz collection' : 'Explore
                 />
 
                 <div class="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8">
-                  <span class:list={[
-                    'inline-flex items-center gap-2 text-sm font-extrabold tracking-[0.06em] uppercase',
-                    slide.accentClass,
-                  ]}>
+                  <span
+                    class:list={[
+                      'inline-flex items-center gap-2 text-sm font-extrabold tracking-[0.06em] uppercase',
+                      slide.accentClass,
+                    ]}
+                  >
                     <Icon class="size-5" aria-hidden="true" />
                     {slide.eyebrow}
                   </span>
 
-                  <h2 class="mt-3 max-w-xl text-3xl text-white sm:text-4xl">{slide.title}</h2>
-                  <p class="mt-3 max-w-xl leading-7 text-white/82">{slide.description}</p>
+                  <h2 class="mt-3 max-w-xl text-3xl text-white sm:text-4xl">
+                    {slide.title}
+                  </h2>
+
+                  <p class="mt-3 max-w-xl leading-7 text-white/82">
+                    {slide.description}
+                  </p>
 
                   <a
-                    href={slide.href}
+                    href={localizeHref(slide.href, locale)}
                     class="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/25 bg-white/12 px-5 text-sm font-extrabold text-white transition hover:-translate-y-0.5 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-300"
                   >
-                    {slide.linkLabel}
+                    {localizedLinkLabel(slide.linkLabel, slide.href, locale)}
                     <ArrowRightBold class="size-4" aria-hidden="true" />
                   </a>
                 </div>
@@ -253,8 +357,15 @@ const sliderLabel = showProducts ? 'Explore the Maxi Pawz collection' : 'Explore
 
   {
     slideCount > 1 && (
-      <div class="mt-4 flex flex-wrap items-center justify-between gap-3" data-hero-slider-controls>
-        <div class="flex items-center" role="group" aria-label="Choose a slide">
+      <div
+        class="mt-4 flex flex-wrap items-center justify-between gap-3"
+        data-hero-slider-controls
+      >
+        <div
+          class="flex items-center"
+          role="group"
+          aria-label={t('Choose a slide', 'Elige una diapositiva')}
+        >
           {slideNames.map((name, index) => (
             <button
               type="button"
@@ -262,32 +373,41 @@ const sliderLabel = showProducts ? 'Explore the Maxi Pawz collection' : 'Explore
                 'hero-showcase__dot grid size-11 shrink-0 place-items-center rounded-full focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-300/45',
                 index === 0 && 'is-active',
               ]}
-              aria-label={`Show ${name}`}
+              aria-label={`${t('Show', 'Mostrar')} ${name}`}
               aria-current={index === 0 ? 'true' : undefined}
               data-hero-slider-dot
               data-slide-index={index}
             >
-              <span class="hero-showcase__dot-mark block h-2.5 w-2.5 rounded-full bg-ink-300 transition-all" aria-hidden="true" />
+              <span
+                class="hero-showcase__dot-mark block h-2.5 w-2.5 rounded-full bg-ink-300 transition-all"
+                aria-hidden="true"
+              />
             </button>
           ))}
         </div>
 
         <div class="flex items-center gap-2">
-          <span class="mr-1 text-sm font-bold tabular-nums text-ink-600" aria-hidden="true" data-hero-slider-count>
+          <span
+            class="mr-1 text-sm font-bold tabular-nums text-ink-600"
+            aria-hidden="true"
+            data-hero-slider-count
+          >
             1 / {slideCount}
           </span>
+
           <button
             type="button"
             class="grid size-11 place-items-center rounded-full border border-sand-dark bg-white-warm text-ink-700 shadow-sm transition hover:border-brand-300 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-300/45"
-            aria-label="Show previous slide"
+            aria-label={t('Show previous slide', 'Mostrar diapositiva anterior')}
             data-hero-slider-previous
           >
             <ArrowLeftBold class="size-5" aria-hidden="true" />
           </button>
+
           <button
             type="button"
             class="grid size-11 place-items-center rounded-full border border-brand-600 bg-brand-500 text-white shadow-blue transition hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-300/45"
-            aria-label="Show next slide"
+            aria-label={t('Show next slide', 'Mostrar diapositiva siguiente')}
             data-hero-slider-next
           >
             <ArrowRightBold class="size-5" aria-hidden="true" />
@@ -297,7 +417,13 @@ const sliderLabel = showProducts ? 'Explore the Maxi Pawz collection' : 'Explore
     )
   }
 
-  <p class="sr-only" aria-live="polite" aria-atomic="true" data-hero-slider-status></p>
+  <p
+    class="sr-only"
+    aria-live="polite"
+    aria-atomic="true"
+    data-hero-slider-status
+  >
+  </p>
 </section>
 
 <style>
@@ -350,22 +476,52 @@ const sliderLabel = showProducts ? 'Explore the Maxi Pawz collection' : 'Explore
       if (slider.dataset.heroShowcaseInitialized === 'true') continue;
       slider.dataset.heroShowcaseInitialized = 'true';
 
-      const slides = Array.from(slider.querySelectorAll<HTMLElement>('[data-hero-slide]'));
-      const dots = Array.from(slider.querySelectorAll<HTMLButtonElement>('[data-hero-slider-dot]'));
-      const previousButton = slider.querySelector<HTMLButtonElement>('[data-hero-slider-previous]');
-      const nextButton = slider.querySelector<HTMLButtonElement>('[data-hero-slider-next]');
-      const controls = slider.querySelector<HTMLElement>('[data-hero-slider-controls]');
-      const viewport = slider.querySelector<HTMLElement>('[data-hero-slider-viewport]');
+      const slides = Array.from(
+        slider.querySelectorAll<HTMLElement>('[data-hero-slide]'),
+      );
+
+      const dots = Array.from(
+        slider.querySelectorAll<HTMLButtonElement>('[data-hero-slider-dot]'),
+      );
+
+      const previousButton = slider.querySelector<HTMLButtonElement>(
+        '[data-hero-slider-previous]',
+      );
+
+      const nextButton = slider.querySelector<HTMLButtonElement>(
+        '[data-hero-slider-next]',
+      );
+
+      const controls = slider.querySelector<HTMLElement>(
+        '[data-hero-slider-controls]',
+      );
+
+      const viewport = slider.querySelector<HTMLElement>(
+        '[data-hero-slider-viewport]',
+      );
+
       const count = slider.querySelector<HTMLElement>('[data-hero-slider-count]');
       const status = slider.querySelector<HTMLElement>('[data-hero-slider-status]');
+
+      const statusTemplate =
+        slider.dataset.slideStatusTemplate ?? 'Slide {current} of {total}: {name}';
+
       const listeners = new AbortController();
       const options = { signal: listeners.signal };
-      let activeIndex = Math.max(0, slides.findIndex((slide) => slide.classList.contains('is-active')));
+
+      let activeIndex = Math.max(
+        0,
+        slides.findIndex((slide) => slide.classList.contains('is-active')),
+      );
+
       let pointerStart: { id: number; x: number; y: number } | null = null;
 
       const showSlide = (requestedIndex: number): void => {
         if (slides.length < 2 || !Number.isInteger(requestedIndex)) return;
-        const nextIndex = ((requestedIndex % slides.length) + slides.length) % slides.length;
+
+        const nextIndex =
+          ((requestedIndex % slides.length) + slides.length) % slides.length;
+
         if (nextIndex === activeIndex) return;
 
         // Keep keyboard focus out of a slide that is about to become inert.
@@ -374,64 +530,136 @@ const sliderLabel = showProducts ? 'Explore the Maxi Pawz collection' : 'Explore
         }
 
         activeIndex = nextIndex;
+
         slides.forEach((slide, index) => {
           const active = index === activeIndex;
           slide.classList.toggle('is-active', active);
           slide.setAttribute('aria-hidden', String(!active));
           slide.toggleAttribute('inert', !active);
         });
+
         dots.forEach((dot, index) => {
           const active = index === activeIndex;
           dot.classList.toggle('is-active', active);
+
           if (active) dot.setAttribute('aria-current', 'true');
           else dot.removeAttribute('aria-current');
         });
-        if (count) count.textContent = `${activeIndex + 1} / ${slides.length}`;
-        if (status) status.textContent = `Slide ${activeIndex + 1} of ${slides.length}: ${slides[activeIndex].dataset.slideName ?? ''}`;
+
+        if (count) {
+          count.textContent = `${activeIndex + 1} / ${slides.length}`;
+        }
+
+        if (status) {
+          status.textContent = statusTemplate
+            .replace('{current}', String(activeIndex + 1))
+            .replace('{total}', String(slides.length))
+            .replace('{name}', () => slides[activeIndex]?.dataset.slideName ?? '');
+        }
       };
 
-      previousButton?.addEventListener('click', () => showSlide(activeIndex - 1), options);
-      nextButton?.addEventListener('click', () => showSlide(activeIndex + 1), options);
+      previousButton?.addEventListener(
+        'click',
+        () => showSlide(activeIndex - 1),
+        options,
+      );
+
+      nextButton?.addEventListener(
+        'click',
+        () => showSlide(activeIndex + 1),
+        options,
+      );
+
       dots.forEach((dot) => {
-        dot.addEventListener('click', () => showSlide(Number(dot.dataset.slideIndex)), options);
+        dot.addEventListener(
+          'click',
+          () => showSlide(Number(dot.dataset.slideIndex)),
+          options,
+        );
       });
 
-      controls?.addEventListener('keydown', (event) => {
-        if (event.altKey || event.ctrlKey || event.metaKey) return;
-        const destination = event.key === 'ArrowLeft' ? activeIndex - 1
-          : event.key === 'ArrowRight' ? activeIndex + 1
-          : event.key === 'Home' ? 0
-          : event.key === 'End' ? slides.length - 1
-          : undefined;
-        if (destination === undefined) return;
-        event.preventDefault();
-        showSlide(destination);
-      }, options);
+      controls?.addEventListener(
+        'keydown',
+        (event) => {
+          if (event.altKey || event.ctrlKey || event.metaKey) return;
 
-      viewport?.addEventListener('pointerdown', (event) => {
-        if (event.pointerType !== 'touch' || !event.isPrimary) return;
-        if (event.target instanceof Element && event.target.closest('a, button, input, select, textarea')) return;
-        pointerStart = { id: event.pointerId, x: event.clientX, y: event.clientY };
-      }, { ...options, passive: true });
+          const destination =
+            event.key === 'ArrowLeft'
+              ? activeIndex - 1
+              : event.key === 'ArrowRight'
+                ? activeIndex + 1
+                : event.key === 'Home'
+                  ? 0
+                  : event.key === 'End'
+                    ? slides.length - 1
+                    : undefined;
 
-      viewport?.addEventListener('pointerup', (event) => {
-        if (!pointerStart || pointerStart.id !== event.pointerId) return;
-        const distanceX = event.clientX - pointerStart.x;
-        const distanceY = event.clientY - pointerStart.y;
+          if (destination === undefined) return;
+
+          event.preventDefault();
+          showSlide(destination);
+        },
+        options,
+      );
+
+      viewport?.addEventListener(
+        'pointerdown',
+        (event) => {
+          if (event.pointerType !== 'touch' || !event.isPrimary) return;
+
+          if (
+            event.target instanceof Element &&
+            event.target.closest('a, button, input, select, textarea')
+          ) {
+            return;
+          }
+
+          pointerStart = {
+            id: event.pointerId,
+            x: event.clientX,
+            y: event.clientY,
+          };
+        },
+        { ...options, passive: true },
+      );
+
+      viewport?.addEventListener(
+        'pointerup',
+        (event) => {
+          if (!pointerStart || pointerStart.id !== event.pointerId) return;
+
+          const distanceX = event.clientX - pointerStart.x;
+          const distanceY = event.clientY - pointerStart.y;
+          pointerStart = null;
+
+          if (
+            Math.abs(distanceX) < 48 ||
+            Math.abs(distanceX) <= Math.abs(distanceY)
+          ) {
+            return;
+          }
+
+          showSlide(activeIndex + (distanceX > 0 ? -1 : 1));
+        },
+        { ...options, passive: true },
+      );
+
+      const clearPointer = (): void => {
         pointerStart = null;
-        if (Math.abs(distanceX) < 48 || Math.abs(distanceX) <= Math.abs(distanceY)) return;
-        showSlide(activeIndex + (distanceX > 0 ? -1 : 1));
-      }, { ...options, passive: true });
+      };
 
-      const clearPointer = (): void => { pointerStart = null; };
       viewport?.addEventListener('pointercancel', clearPointer, options);
       viewport?.addEventListener('pointerleave', clearPointer, options);
 
-      document.addEventListener('astro:before-swap', () => {
-        listeners.abort();
-        pointerStart = null;
-        delete slider.dataset.heroShowcaseInitialized;
-      }, { once: true });
+      document.addEventListener(
+        'astro:before-swap',
+        () => {
+          listeners.abort();
+          pointerStart = null;
+          delete slider.dataset.heroShowcaseInitialized;
+        },
+        { once: true },
+      );
     }
   };
 
