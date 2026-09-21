@@ -24,6 +24,7 @@ const translatedPaths:
         '/join/problem',
         '/join/success',
         '/join/thanks',
+        '/pet-guides',
         '/privacy-policy',
         '/product-safety',
         '/return-policy',

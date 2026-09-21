@@ -10,7 +10,9 @@ const translatedPetGuideSlugs:
     new Set<string>([
         'choosing-the-right-product',
         'dog-hydration-miami-heat',
+        'feeding-and-hydration',
         'play-and-enrichment',
+        'walk-and-travel',
     ]);
 
 export function hasTranslatedPetGuideSlug(
