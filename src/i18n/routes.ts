@@ -10,6 +10,7 @@ const translatedPaths:
         '/',
         '/about',
         '/accessibility',
+        '/cart',
         '/contact',
         '/contact/success',
         '/faq',
@@ -134,10 +135,6 @@ export function localizeHref(
         return `${spanishPath}${trailingSlash}${suffix}`;
     }
 
-    /*
-     * Preserve the exact existing English link when
-     * no translation is available.
-     */
     if (
         !pathname.startsWith(
             '/es/',

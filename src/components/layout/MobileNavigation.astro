@@ -6,8 +6,15 @@ import ShoppingCartBold from 'phosphor-astro/ShoppingCartBold.astro';
 import XBold from 'phosphor-astro/XBold.astro';
 
 import BrandLogo from '../brand/BrandLogo.astro';
+
 import { getLocaleFromPathname } from '../../i18n/languages';
-import { getEnglishPathname, localizeHref, localizedLinkLabel } from '../../i18n/routes';
+
+import {
+  getEnglishPathname,
+  localizeHref,
+  localizedLinkLabel,
+} from '../../i18n/routes';
+
 import { sharedCopy } from '../../i18n/shared';
 
 interface NavigationItem {
@@ -33,32 +40,97 @@ const {
   note = '',
 } = Astro.props;
 
-const locale = getLocaleFromPathname(Astro.url.pathname);
-const copy = sharedCopy[locale];
-const currentPath = getEnglishPathname(initialCurrentPath);
+const locale =
+  getLocaleFromPathname(
+    Astro.url.pathname,
+  );
 
-const activeNavigationHref = items
-  .filter((item) => {
-    const itemPath = getEnglishPathname(item.href);
+const copy =
+  sharedCopy[
+    locale
+  ];
 
-    if (itemPath === '/') {
-      return currentPath === '/';
-    }
+const currentPath =
+  getEnglishPathname(
+    initialCurrentPath,
+  );
 
-    return currentPath === itemPath || currentPath.startsWith(`${itemPath}/`);
-  })
-  .sort((firstItem, secondItem) => secondItem.href.length - firstItem.href.length)[0]?.href;
+const activeNavigationHref =
+  items
+    .filter(
+      (
+        item,
+      ) => {
+        const itemPath =
+          getEnglishPathname(
+            item.href,
+          );
 
-function isCurrentRoute(href: string): boolean {
-  if (!activeNavigationHref) {
+        if (
+          itemPath ===
+          '/'
+        ) {
+          return (
+            currentPath ===
+            '/'
+          );
+        }
+
+        return (
+          currentPath ===
+            itemPath ||
+          currentPath.startsWith(
+            `${itemPath}/`,
+          )
+        );
+      },
+    )
+    .sort(
+      (
+        firstItem,
+        secondItem,
+      ) =>
+        secondItem.href.length -
+        firstItem.href.length,
+    )[0]?.href;
+
+function isCurrentRoute(
+  href:
+    string,
+): boolean {
+  if (
+    !activeNavigationHref
+  ) {
     return false;
   }
 
-  return getEnglishPathname(href) === getEnglishPathname(activeNavigationHref);
+  return (
+    getEnglishPathname(
+      href,
+    ) ===
+    getEnglishPathname(
+      activeNavigationHref,
+    )
+  );
 }
+
+const cartHref =
+  localizeHref(
+    '/cart',
+    locale,
+  );
+
+const initialCartAriaLabel =
+  locale ===
+    'es'
+    ? 'Ver carrito de compras, 0 productos'
+    : 'View shopping cart, 0 items';
 ---
 
-<div class="xl:hidden" data-mobile-navigation>
+<div
+  class="xl:hidden"
+  data-mobile-navigation
+>
   <button
     type="button"
     class="grid size-10 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-800 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-brand-400 hover:bg-brand-50"
@@ -67,7 +139,10 @@ function isCurrentRoute(href: string): boolean {
     aria-controls="mobile-navigation-panel"
     data-mobile-navigation-open
   >
-    <ListBold class="size-4.5" aria-hidden="true" />
+    <ListBold
+      class="size-4.5"
+      aria-hidden="true"
+    />
   </button>
 
   <div
@@ -80,7 +155,6 @@ function isCurrentRoute(href: string): boolean {
     data-mobile-navigation-panel
     hidden
   >
-    <!-- Backdrop -->
     <button
       type="button"
       class="absolute inset-0 block size-full cursor-default border-0 bg-ink-950/45 p-0 backdrop-blur-sm"
@@ -89,19 +163,24 @@ function isCurrentRoute(href: string): boolean {
     >
     </button>
 
-    <!-- Drawer -->
     <aside
       class="absolute inset-y-0 right-0 flex h-full w-[min(92vw,24rem)] flex-col overflow-hidden border-l border-brand-100 bg-cream-soft shadow-2xl"
     >
-      <!-- Drawer header -->
       <div class="flex shrink-0 items-center justify-between gap-4 border-b border-sand px-5 py-4">
         <a
           href={localizeHref('/', locale)}
           class="inline-flex min-w-0 items-center rounded-2xl"
-          aria-label={localizedLinkLabel(copy.home, '/', locale)}
+          aria-label={localizedLinkLabel(
+            copy.home,
+            '/',
+            locale,
+          )}
           data-mobile-navigation-link
         >
-          <BrandLogo variant="logo" class="h-12 w-auto max-w-52 object-contain" />
+          <BrandLogo
+            variant="logo"
+            class="h-12 w-auto max-w-52 object-contain"
+          />
         </a>
 
         <button
@@ -110,229 +189,416 @@ function isCurrentRoute(href: string): boolean {
           aria-label={copy.closeMenu}
           data-mobile-navigation-close
         >
-          <XBold class="size-4.5" aria-hidden="true" />
+          <XBold
+            class="size-4.5"
+            aria-hidden="true"
+          />
         </button>
       </div>
 
-      <!-- Navigation links -->
       <nav
         class="flex-1 overflow-y-auto overscroll-contain px-4 py-5"
         aria-label={copy.mobileNavigation}
       >
         <ul class="grid gap-2">
           {
-            items.map((item) => {
-              const isCurrent = isCurrentRoute(item.href);
+            items.map(
+              (
+                item,
+              ) => {
+                const isCurrent =
+                  isCurrentRoute(
+                    item.href,
+                  );
 
-              return (
-                <li>
-                  <a
-                    href={item.href}
-                    class:list={[
-                      'flex min-h-13 w-full items-center justify-between gap-4 rounded-2xl px-4 py-3 font-extrabold transition duration-200',
-                      isCurrent
-                        ? 'bg-brand-500 text-white shadow-blue'
-                        : 'border border-transparent text-ink-800 hover:border-brand-100 hover:bg-brand-50 hover:text-brand-800',
-                    ]}
-                    aria-current={isCurrent ? 'page' : undefined}
-                    data-mobile-navigation-link
-                  >
-                    <span>{item.label}</span>
+                return (
+                  <li>
+                    <a
+                      href={item.href}
+                      class:list={[
+                        'flex min-h-13 w-full items-center justify-between gap-4 rounded-2xl px-4 py-3 font-extrabold transition duration-200',
 
-                    {isCurrent ? (
-                      <PawPrintBold class="size-5 shrink-0" aria-hidden="true" />
-                    ) : (
-                      <ArrowRightBold class="size-5 shrink-0" aria-hidden="true" />
-                    )}
-                  </a>
-                </li>
-              );
-            })
+                        isCurrent
+                          ? 'bg-brand-500 text-white shadow-blue'
+                          : 'border border-transparent text-ink-800 hover:border-brand-100 hover:bg-brand-50 hover:text-brand-800',
+                      ]}
+                      aria-current={
+                        isCurrent
+                          ? 'page'
+                          : undefined
+                      }
+                      data-mobile-navigation-link
+                    >
+                      <span>
+                        {item.label}
+                      </span>
+
+                      {
+                        isCurrent
+                          ? (
+                              <PawPrintBold
+                                class="size-5 shrink-0"
+                                aria-hidden="true"
+                              />
+                            )
+                          : (
+                              <ArrowRightBold
+                                class="size-5 shrink-0"
+                                aria-hidden="true"
+                              />
+                            )
+                      }
+                    </a>
+                  </li>
+                );
+              },
+            )
           }
         </ul>
       </nav>
 
-      <!-- Conditional drawer action -->
       <div class="shrink-0 border-t border-sand bg-cream-soft p-5">
         {
-          cartEnabled ? (
-            <a
-              href="/cart"
-              lang="en"
-              class="flex min-h-12 w-full items-center justify-center gap-2.5 rounded-full border border-accent-600 bg-accent-500 px-5 py-3 font-extrabold text-ink-950 shadow-orange transition duration-200 hover:-translate-y-0.5 hover:bg-accent-400"
-              aria-label="View shopping cart, 0 items"
-              data-mobile-navigation-link
-              data-cart-link
-            >
-              <ShoppingCartBold class="size-5" aria-hidden="true" />
+          cartEnabled
+            ? (
+                <a
+                  href={cartHref}
+                  lang={locale}
+                  class="flex min-h-12 w-full items-center justify-center gap-2.5 rounded-full border border-accent-600 bg-accent-500 px-5 py-3 font-extrabold text-ink-950 shadow-orange transition duration-200 hover:-translate-y-0.5 hover:bg-accent-400"
+                  aria-label={initialCartAriaLabel}
+                  data-mobile-navigation-link
+                  data-cart-link
+                >
+                  <ShoppingCartBold
+                    class="size-5"
+                    aria-hidden="true"
+                  />
 
-              <span>View cart</span>
+                  <span>
+                    {copy.viewCart}
+                  </span>
 
-              <span
-                class="grid min-w-7 place-items-center rounded-full bg-white/75 px-2 py-1 text-xs leading-none font-black"
-                aria-hidden="true"
-                data-cart-count
-              >
-                0
-              </span>
-            </a>
-          ) : (
-            actionLabel &&
-            actionHref && (
-              <a
-                href={actionHref}
-                class="flex min-h-12 w-full items-center justify-center gap-2.5 rounded-full border border-accent-600 bg-accent-500 px-5 py-3 font-extrabold text-ink-950 shadow-orange transition duration-200 hover:-translate-y-0.5 hover:bg-accent-400"
-                aria-label={actionLabel}
-                data-mobile-navigation-link
-              >
-                <span>{actionLabel}</span>
+                  <span
+                    class="grid min-w-7 place-items-center rounded-full bg-white/75 px-2 py-1 text-xs leading-none font-black"
+                    aria-hidden="true"
+                    data-cart-count
+                  >
+                    0
+                  </span>
+                </a>
+              )
+            : (
+                actionLabel &&
+                actionHref && (
+                  <a
+                    href={actionHref}
+                    class="flex min-h-12 w-full items-center justify-center gap-2.5 rounded-full border border-accent-600 bg-accent-500 px-5 py-3 font-extrabold text-ink-950 shadow-orange transition duration-200 hover:-translate-y-0.5 hover:bg-accent-400"
+                    aria-label={actionLabel}
+                    data-mobile-navigation-link
+                  >
+                    <span>
+                      {actionLabel}
+                    </span>
 
-                <ArrowRightBold class="size-5" aria-hidden="true" />
-              </a>
-            )
-          )
+                    <ArrowRightBold
+                      class="size-5"
+                      aria-hidden="true"
+                    />
+                  </a>
+                )
+              )
         }
 
-        {note && <p class="mt-4 text-center text-xs leading-5 text-ink-500">{note}</p>}
+        {
+          note && (
+            <p class="mt-4 text-center text-xs leading-5 text-ink-500">
+              {note}
+            </p>
+          )
+        }
       </div>
     </aside>
   </div>
 </div>
 
 <script>
-  const navigationElements = document.querySelectorAll<HTMLElement>('[data-mobile-navigation]');
-
-  navigationElements.forEach((navigation) => {
-    if (navigation.dataset.mobileNavigationReady === 'true') {
-      return;
-    }
-
-    navigation.dataset.mobileNavigationReady = 'true';
-
-    const openButton = navigation.querySelector<HTMLButtonElement>('[data-mobile-navigation-open]');
-
-    const closeButton = navigation.querySelector<HTMLButtonElement>(
-      '[data-mobile-navigation-close]',
+  const navigationElements =
+    document.querySelectorAll<HTMLElement>(
+      '[data-mobile-navigation]',
     );
 
-    const backdropButton = navigation.querySelector<HTMLButtonElement>(
-      '[data-mobile-navigation-backdrop]',
-    );
-
-    const panel = navigation.querySelector<HTMLElement>('[data-mobile-navigation-panel]');
-
-    const navigationLinks = navigation.querySelectorAll<HTMLAnchorElement>(
-      '[data-mobile-navigation-link]',
-    );
-
-    if (!openButton || !closeButton || !backdropButton || !panel) {
-      return;
-    }
-
-    const getFocusableElements = (): HTMLElement[] => {
-      return Array.from(
-        panel.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([tabindex="-1"]), [tabindex]:not([tabindex="-1"])',
-        ),
-      ).filter((element) => !element.hasAttribute('hidden'));
-    };
-
-    const lockDocumentScroll = (): void => {
-      document.documentElement.style.overflow = 'hidden';
-      document.body.style.overflow = 'hidden';
-    };
-
-    const unlockDocumentScroll = (): void => {
-      document.documentElement.style.removeProperty('overflow');
-      document.body.style.removeProperty('overflow');
-    };
-
-    const openMenu = (): void => {
-      panel.hidden = false;
-      panel.setAttribute('aria-hidden', 'false');
-      openButton.setAttribute('aria-expanded', 'true');
-
-      lockDocumentScroll();
-
-      window.requestAnimationFrame(() => {
-        closeButton.focus();
-      });
-    };
-
-    const closeMenu = (restoreFocus = true): void => {
-      panel.hidden = true;
-      panel.setAttribute('aria-hidden', 'true');
-      openButton.setAttribute('aria-expanded', 'false');
-
-      unlockDocumentScroll();
-
-      if (restoreFocus) {
-        openButton.focus();
-      }
-    };
-
-    const handleKeydown = (event: KeyboardEvent): void => {
-      if (panel.hidden) {
+  navigationElements.forEach(
+    (
+      navigation,
+    ) => {
+      if (
+        navigation.dataset
+          .mobileNavigationReady ===
+        'true'
+      ) {
         return;
       }
 
-      if (event.key === 'Escape') {
-        closeMenu();
+      navigation.dataset
+        .mobileNavigationReady =
+        'true';
+
+      const openButton =
+        navigation.querySelector<HTMLButtonElement>(
+          '[data-mobile-navigation-open]',
+        );
+
+      const closeButton =
+        navigation.querySelector<HTMLButtonElement>(
+          '[data-mobile-navigation-close]',
+        );
+
+      const backdropButton =
+        navigation.querySelector<HTMLButtonElement>(
+          '[data-mobile-navigation-backdrop]',
+        );
+
+      const panel =
+        navigation.querySelector<HTMLElement>(
+          '[data-mobile-navigation-panel]',
+        );
+
+      const navigationLinks =
+        navigation.querySelectorAll<HTMLAnchorElement>(
+          '[data-mobile-navigation-link]',
+        );
+
+      if (
+        !openButton ||
+        !closeButton ||
+        !backdropButton ||
+        !panel
+      ) {
         return;
       }
 
-      if (event.key !== 'Tab') {
-        return;
-      }
+      const getFocusableElements =
+        (): HTMLElement[] => {
+          return Array.from(
+            panel.querySelectorAll<HTMLElement>(
+              'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([tabindex="-1"]), [tabindex]:not([tabindex="-1"])',
+            ),
+          ).filter(
+            (
+              element,
+            ) =>
+              !element.hasAttribute(
+                'hidden',
+              ),
+          );
+        };
 
-      const focusableElements = getFocusableElements();
-      const firstElement = focusableElements[0];
-      const lastElement = focusableElements.at(-1);
+      const lockDocumentScroll =
+        (): void => {
+          document.documentElement
+            .style
+            .overflow =
+            'hidden';
 
-      if (!firstElement || !lastElement) {
-        return;
-      }
+          document.body
+            .style
+            .overflow =
+            'hidden';
+        };
 
-      if (event.shiftKey && document.activeElement === firstElement) {
-        event.preventDefault();
-        lastElement.focus();
-        return;
-      }
+      const unlockDocumentScroll =
+        (): void => {
+          document.documentElement
+            .style
+            .removeProperty(
+              'overflow',
+            );
 
-      if (!event.shiftKey && document.activeElement === lastElement) {
-        event.preventDefault();
-        firstElement.focus();
-      }
-    };
+          document.body
+            .style
+            .removeProperty(
+              'overflow',
+            );
+        };
 
-    openButton.addEventListener('click', openMenu);
+      const openMenu =
+        (): void => {
+          panel.hidden =
+            false;
 
-    closeButton.addEventListener('click', () => {
-      closeMenu();
-    });
+          panel.setAttribute(
+            'aria-hidden',
+            'false',
+          );
 
-    backdropButton.addEventListener('click', () => {
-      closeMenu();
-    });
+          openButton.setAttribute(
+            'aria-expanded',
+            'true',
+          );
 
-    navigationLinks.forEach((link) => {
-      link.addEventListener('click', () => {
-        closeMenu(false);
-      });
-    });
+          lockDocumentScroll();
 
-    document.addEventListener('keydown', handleKeydown);
+          window.requestAnimationFrame(
+            () => {
+              closeButton.focus();
+            },
+          );
+        };
 
-    window.addEventListener(
-      'resize',
-      () => {
-        if (window.innerWidth >= 1280 && !panel.hidden) {
-          closeMenu(false);
-        }
-      },
-      {
-        passive: true,
-      },
-    );
-  });
+      const closeMenu =
+        (
+          restoreFocus =
+            true,
+        ): void => {
+          panel.hidden =
+            true;
+
+          panel.setAttribute(
+            'aria-hidden',
+            'true',
+          );
+
+          openButton.setAttribute(
+            'aria-expanded',
+            'false',
+          );
+
+          unlockDocumentScroll();
+
+          if (
+            restoreFocus
+          ) {
+            openButton.focus();
+          }
+        };
+
+      const handleKeydown =
+        (
+          event:
+            KeyboardEvent,
+        ): void => {
+          if (
+            panel.hidden
+          ) {
+            return;
+          }
+
+          if (
+            event.key ===
+            'Escape'
+          ) {
+            closeMenu();
+
+            return;
+          }
+
+          if (
+            event.key !==
+            'Tab'
+          ) {
+            return;
+          }
+
+          const focusableElements =
+            getFocusableElements();
+
+          const firstElement =
+            focusableElements[
+              0
+            ];
+
+          const lastElement =
+            focusableElements.at(
+              -1,
+            );
+
+          if (
+            !firstElement ||
+            !lastElement
+          ) {
+            return;
+          }
+
+          if (
+            event.shiftKey &&
+            document.activeElement ===
+              firstElement
+          ) {
+            event.preventDefault();
+
+            lastElement.focus();
+
+            return;
+          }
+
+          if (
+            !event.shiftKey &&
+            document.activeElement ===
+              lastElement
+          ) {
+            event.preventDefault();
+
+            firstElement.focus();
+          }
+        };
+
+      openButton.addEventListener(
+        'click',
+        openMenu,
+      );
+
+      closeButton.addEventListener(
+        'click',
+        () => {
+          closeMenu();
+        },
+      );
+
+      backdropButton.addEventListener(
+        'click',
+        () => {
+          closeMenu();
+        },
+      );
+
+      navigationLinks.forEach(
+        (
+          link,
+        ) => {
+          link.addEventListener(
+            'click',
+            () => {
+              closeMenu(
+                false,
+              );
+            },
+          );
+        },
+      );
+
+      document.addEventListener(
+        'keydown',
+        handleKeydown,
+      );
+
+      window.addEventListener(
+        'resize',
+        () => {
+          if (
+            window.innerWidth >=
+              1280 &&
+            !panel.hidden
+          ) {
+            closeMenu(
+              false,
+            );
+          }
+        },
+        {
+          passive:
+            true,
+        },
+      );
+    },
+  );
 </script>

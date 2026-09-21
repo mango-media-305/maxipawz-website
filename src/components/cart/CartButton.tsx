@@ -1,14 +1,55 @@
-import type { ComponentType } from 'preact';
+import type {
+  ComponentType,
+} from 'preact';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'preact/hooks';
 
-import { useCart, useCartDrawer } from './useCart';
+import {
+  useCart,
+  useCartDrawer,
+} from './useCart';
 
-import { closeCartDrawer, openCartDrawer } from '../../stores/cart';
+import {
+  closeCartDrawer,
+  openCartDrawer,
+} from '../../stores/cart';
 
-type LoadedCartDrawer = ComponentType<Record<string, never>>;
+import {
+  commerceText,
+} from '../../i18n/commerce';
 
-type CartDrawerModule = typeof import('./CartDrawer');
+import type {
+  Locale,
+} from '../../i18n/languages';
+
+import {
+  localizeHref,
+} from '../../i18n/routes';
+
+interface CartDrawerProps {
+  locale?:
+    Locale;
+}
+
+type LoadedCartDrawer =
+  ComponentType<CartDrawerProps>;
+
+type CartDrawerModule =
+  typeof import('./CartDrawer');
+
+interface CartDrawerFallbackProps {
+  loadFailed:
+    boolean;
+
+  locale:
+    Locale;
+}
 
 function CartIcon() {
   return (
@@ -22,9 +63,17 @@ function CartIcon() {
     >
       <path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L20 8H7" />
 
-      <circle cx="10" cy="20" r="1.5" />
+      <circle
+        cx="10"
+        cy="20"
+        r="1.5"
+      />
 
-      <circle cx="18" cy="20" r="1.5" />
+      <circle
+        cx="18"
+        cy="20"
+        r="1.5"
+      />
     </svg>
   );
 }
@@ -44,17 +93,26 @@ function CloseIcon() {
   );
 }
 
-interface CartDrawerFallbackProps {
-  loadFailed: boolean;
-}
+function CartDrawerFallback({
+  loadFailed,
+  locale,
+}: CartDrawerFallbackProps) {
+  const closeLabel =
+    commerceText(
+      locale,
+      'Close shopping cart',
+      'Cerrar carrito de compras',
+    );
 
-function CartDrawerFallback({ loadFailed }: CartDrawerFallbackProps) {
   return (
-    <div className="fixed inset-0 z-120" role="presentation">
+    <div
+      className="fixed inset-0 z-120"
+      role="presentation"
+    >
       <button
         type="button"
         className="absolute inset-0 size-full cursor-default border-0 bg-ink-950/50 p-0"
-        aria-label="Close shopping cart"
+        aria-label={closeLabel}
         onClick={closeCartDrawer}
       />
 
@@ -72,11 +130,30 @@ function CartDrawerFallback({ loadFailed }: CartDrawerFallbackProps) {
 
             <div>
               <p className="text-xs font-extrabold tracking-[0.08em] text-brand-700 uppercase">
-                Maxi Pawz Cart
+                {commerceText(
+                  locale,
+                  'Maxi Pawz Cart',
+                  'Carrito de Maxi Pawz',
+                )}
               </p>
 
-              <h2 id="cart-loading-title" className="mt-1 text-xl text-ink-900">
-                {loadFailed ? 'Cart unavailable' : 'Opening your cart…'}
+              <h2
+                id="cart-loading-title"
+                className="mt-1 text-xl text-ink-900"
+              >
+                {
+                  loadFailed
+                    ? commerceText(
+                        locale,
+                        'Cart unavailable',
+                        'Carrito no disponible',
+                      )
+                    : commerceText(
+                        locale,
+                        'Opening your cart…',
+                        'Abriendo tu carrito…',
+                      )
+                }
               </h2>
             </div>
           </div>
@@ -84,7 +161,7 @@ function CartDrawerFallback({ loadFailed }: CartDrawerFallbackProps) {
           <button
             type="button"
             className="grid size-10 place-items-center rounded-full border border-sand bg-cream-soft text-ink-700 transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800"
-            aria-label="Close shopping cart"
+            aria-label={closeLabel}
             onClick={closeCartDrawer}
           >
             <CloseIcon />
@@ -97,34 +174,75 @@ function CartDrawerFallback({ loadFailed }: CartDrawerFallbackProps) {
               <CartIcon />
             </span>
 
-            {loadFailed ? (
-              <>
-                <h3 className="mt-5 text-2xl text-ink-900">We could not open the cart drawer.</h3>
+            {
+              loadFailed
+                ? (
+                    <>
+                      <h3 className="mt-5 text-2xl text-ink-900">
+                        {
+                          commerceText(
+                            locale,
+                            'We could not open the cart drawer.',
+                            'No pudimos abrir el panel del carrito.',
+                          )
+                        }
+                      </h3>
 
-                <p className="mt-3 text-sm leading-6 text-ink-600">
-                  You can still open the full cart page and continue from there.
-                </p>
+                      <p className="mt-3 text-sm leading-6 text-ink-600">
+                        {
+                          commerceText(
+                            locale,
+                            'You can still open the full cart page and continue from there.',
+                            'Puedes abrir la página completa del carrito y continuar desde allí.',
+                          )
+                        }
+                      </p>
 
-                <a
-                  href="/cart"
-                  className="mt-6 inline-flex min-h-11 items-center justify-center rounded-full bg-brand-500 px-5 font-extrabold text-white shadow-blue transition hover:-translate-y-0.5 hover:bg-brand-600"
-                >
-                  Open Full Cart
-                </a>
-              </>
-            ) : (
-              <>
-                <h3 className="mt-5 text-2xl text-ink-900">Preparing your cart.</h3>
+                      <a
+                        href={localizeHref(
+                          '/cart',
+                          locale,
+                        )}
+                        className="mt-6 inline-flex min-h-11 items-center justify-center rounded-full bg-brand-500 px-5 font-extrabold text-white shadow-blue transition hover:-translate-y-0.5 hover:bg-brand-600"
+                      >
+                        {
+                          commerceText(
+                            locale,
+                            'Open Full Cart',
+                            'Abrir carrito completo',
+                          )
+                        }
+                      </a>
+                    </>
+                  )
+                : (
+                    <>
+                      <h3 className="mt-5 text-2xl text-ink-900">
+                        {
+                          commerceText(
+                            locale,
+                            'Preparing your cart.',
+                            'Preparando tu carrito.',
+                          )
+                        }
+                      </h3>
 
-                <p
-                  className="mt-3 text-sm font-bold leading-6 text-ink-600"
-                  role="status"
-                  aria-live="polite"
-                >
-                  Loading your saved items and checkout options.
-                </p>
-              </>
-            )}
+                      <p
+                        className="mt-3 text-sm font-bold leading-6 text-ink-600"
+                        role="status"
+                        aria-live="polite"
+                      >
+                        {
+                          commerceText(
+                            locale,
+                            'Loading your saved items and checkout options.',
+                            'Cargando tus productos guardados y las opciones de pago.',
+                          )
+                        }
+                      </p>
+                    </>
+                  )
+            }
           </div>
         </div>
       </aside>
@@ -132,120 +250,270 @@ function CartDrawerFallback({ loadFailed }: CartDrawerFallbackProps) {
   );
 }
 
-export default function CartButton() {
-  const { state } = useCart();
+interface Props {
+  locale?:
+    Locale;
+}
 
-  const drawerOpen = useCartDrawer();
+export default function CartButton({
+  locale = 'en',
+}: Props) {
+  const {
+    state,
+  } =
+    useCart();
 
-  const [DrawerComponent, setDrawerComponent] = useState<LoadedCartDrawer | null>(null);
+  const drawerOpen =
+    useCartDrawer();
 
-  const [drawerLoadFailed, setDrawerLoadFailed] = useState(false);
+  const [
+    DrawerComponent,
+    setDrawerComponent,
+  ] =
+    useState<
+      LoadedCartDrawer |
+      null
+    >(
+      null,
+    );
 
-  const drawerRequest = useRef<Promise<CartDrawerModule> | null>(null);
+  const [
+    drawerLoadFailed,
+    setDrawerLoadFailed,
+  ] =
+    useState(
+      false,
+    );
 
-  /*
-   * The header only needs the number of cart units.
-   *
-   * It no longer resolves product records or imports the full
-   * product catalog merely to display this count.
-   */
-  const itemCount = useMemo(
-    () => state.lines.reduce((total, line) => total + line.quantity, 0),
-    [state.lines],
+  const drawerRequest =
+    useRef<
+      Promise<CartDrawerModule> |
+      null
+    >(
+      null,
+    );
+
+  const itemCount =
+    useMemo(
+      () =>
+        state.lines.reduce(
+          (
+            total,
+            line,
+          ) =>
+            total +
+            line.quantity,
+          0,
+        ),
+      [
+        state.lines,
+      ],
+    );
+
+  const prepareDrawer =
+    useCallback(
+      (): void => {
+        if (
+          DrawerComponent ||
+          drawerRequest.current ||
+          drawerLoadFailed
+        ) {
+          return;
+        }
+
+        const request =
+          import('./CartDrawer');
+
+        drawerRequest.current =
+          request;
+
+        void request
+          .then(
+            (
+              module,
+            ) => {
+              setDrawerComponent(
+                () =>
+                  module.default,
+              );
+            },
+          )
+          .catch(
+            () => {
+              drawerRequest.current =
+                null;
+
+              setDrawerLoadFailed(
+                true,
+              );
+            },
+          );
+      },
+      [
+        DrawerComponent,
+        drawerLoadFailed,
+      ],
+    );
+
+  useEffect(
+    () => {
+      if (
+        drawerOpen
+      ) {
+        prepareDrawer();
+      }
+    },
+    [
+      drawerOpen,
+      prepareDrawer,
+    ],
   );
 
-  const prepareDrawer = useCallback((): void => {
-    if (DrawerComponent || drawerRequest.current || drawerLoadFailed) {
-      return;
-    }
+  useEffect(
+    () => {
+      if (
+        !drawerOpen ||
+        DrawerComponent
+      ) {
+        return;
+      }
 
-    const request = import('./CartDrawer');
+      const previousOverflow =
+        document.body.style
+          .overflow;
 
-    drawerRequest.current = request;
+      document.body.style
+        .overflow =
+        'hidden';
 
-    void request
-      .then((module) => {
-        setDrawerComponent(() => module.default);
-      })
-      .catch(() => {
-        drawerRequest.current = null;
+      return () => {
+        document.body.style
+          .overflow =
+          previousOverflow;
+      };
+    },
+    [
+      drawerOpen,
+      DrawerComponent,
+    ],
+  );
 
-        setDrawerLoadFailed(true);
-      });
-  }, [DrawerComponent, drawerLoadFailed]);
+  const itemCountLabel =
+    itemCount ===
+    1
+      ? commerceText(
+          locale,
+          'item',
+          'producto',
+        )
+      : commerceText(
+          locale,
+          'items',
+          'productos',
+        );
 
-  /*
-   * Opening the cart triggers the drawer chunk if it has not already
-   * been prefetched by pointer hover or keyboard focus.
-   */
-  useEffect(() => {
-    if (drawerOpen) {
+  const viewCartLabel =
+    locale ===
+    'es'
+      ? `Ver carrito de compras, ${itemCount} ${itemCountLabel}`
+      : `View shopping cart, ${itemCount} ${itemCountLabel}`;
+
+  useEffect(
+    () => {
+      document
+        .querySelectorAll<HTMLElement>(
+          '[data-cart-count]',
+        )
+        .forEach(
+          (
+            element,
+          ) => {
+            element.textContent =
+              String(
+                itemCount,
+              );
+          },
+        );
+
+      document
+        .querySelectorAll<HTMLElement>(
+          '[data-cart-link]',
+        )
+        .forEach(
+          (
+            element,
+          ) => {
+            element.setAttribute(
+              'aria-label',
+              viewCartLabel,
+            );
+          },
+        );
+    },
+    [
+      itemCount,
+      viewCartLabel,
+    ],
+  );
+
+  const handleOpenCart =
+    (): void => {
       prepareDrawer();
-    }
-  }, [drawerOpen, prepareDrawer]);
 
-  /*
-   * Lock page scrolling while the lightweight loading fallback is
-   * visible. CartDrawer takes over this responsibility after loading.
-   */
-  useEffect(() => {
-    if (!drawerOpen || DrawerComponent) {
-      return;
-    }
-
-    const previousOverflow = document.body.style.overflow;
-
-    document.body.style.overflow = 'hidden';
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
+      openCartDrawer();
     };
-  }, [drawerOpen, DrawerComponent]);
-
-  useEffect(() => {
-    document.querySelectorAll<HTMLElement>('[data-cart-count]').forEach((element) => {
-      element.textContent = String(itemCount);
-    });
-
-    document.querySelectorAll<HTMLElement>('[data-cart-link]').forEach((element) => {
-      element.setAttribute(
-        'aria-label',
-
-        `View shopping cart, ${itemCount} ${itemCount === 1 ? 'item' : 'items'}`,
-      );
-    });
-  }, [itemCount]);
-
-  const handleOpenCart = (): void => {
-    prepareDrawer();
-    openCartDrawer();
-  };
 
   return (
     <>
       <button
         type="button"
         className="relative flex min-h-10 items-center gap-1.5 rounded-full border border-accent-300 bg-accent-50 px-2.5 py-1.5 text-sm font-extrabold text-accent-800 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-accent-500 hover:bg-accent-100 sm:px-3"
-        aria-label={`Open shopping cart, ${itemCount} ${itemCount === 1 ? 'item' : 'items'}`}
+        aria-label={
+          locale ===
+          'es'
+            ? `Abrir carrito de compras, ${itemCount} ${itemCountLabel}`
+            : `Open shopping cart, ${itemCount} ${itemCountLabel}`
+        }
         onPointerEnter={prepareDrawer}
         onFocus={prepareDrawer}
         onClick={handleOpenCart}
       >
         <CartIcon />
 
-        <span className="hidden xl:inline">Cart</span>
+        <span className="hidden xl:inline">
+          {
+            commerceText(
+              locale,
+              'Cart',
+              'Carrito',
+            )
+          }
+        </span>
 
         <span className="grid min-w-5 place-items-center rounded-full bg-accent-500 px-1.5 py-0.5 text-[0.6875rem] leading-none font-black text-ink-950">
           {itemCount}
         </span>
       </button>
 
-      {drawerOpen &&
-        (DrawerComponent ? (
-          <DrawerComponent />
-        ) : (
-          <CartDrawerFallback loadFailed={drawerLoadFailed} />
-        ))}
+      {
+        drawerOpen &&
+        (
+          DrawerComponent
+            ? (
+                <DrawerComponent
+                  locale={locale}
+                />
+              )
+            : (
+                <CartDrawerFallback
+                  loadFailed={
+                    drawerLoadFailed
+                  }
+                  locale={locale}
+                />
+              )
+        )
+      }
     </>
   );
 }
