@@ -19,67 +19,196 @@ import BrandLogo from '../brand/BrandLogo.astro';
 import Button from '../ui/Button.astro';
 
 import { isStoreLive } from '../../config/storefront';
+import { getLocaleFromPathname } from '../../i18n/languages';
+import {
+  localizeHref,
+  localizedLinkLabel,
+} from '../../i18n/routes';
+
+const locale = getLocaleFromPathname(Astro.url.pathname);
+
+const t = (english: string, spanish: string): string =>
+  locale === 'es' ? spanish : english;
 
 const copy = isStoreLive
   ? {
-      eyebrow: 'Maxi Pawz Updates',
-      title: 'Stay in the loop with Maxi Pawz.',
-      description:
+      eyebrow: t('Maxi Pawz Updates', 'Novedades de Maxi Pawz'),
+      title: t('Stay in the loop with Maxi Pawz.', 'Mantente al día con Maxi Pawz.'),
+      description: t(
         'Get new-product news, practical pet guides, and occasional subscriber offers for life with your pet.',
-      firstBenefit: 'New-product updates',
-      secondBenefit: 'Subscriber offers',
-      brandNote: 'A little inspiration for the everyday moments you share with your pet.',
-      formTitle: 'Good things for your inbox.',
-      formDescription:
+        'Recibe noticias sobre nuevos productos, guías prácticas para mascotas y ofertas ocasionales para suscriptores, pensadas para la vida con tu mascota.',
+      ),
+      firstBenefit: t('New-product updates', 'Novedades de productos'),
+      secondBenefit: t('Subscriber offers', 'Ofertas para suscriptores'),
+      brandNote: t(
+        'A little inspiration for the everyday moments you share with your pet.',
+        'Un poco de inspiración para los momentos cotidianos que compartes con tu mascota.',
+      ),
+      formTitle: t('Good things for your inbox.', 'Buenas noticias para tu bandeja de entrada.'),
+      formDescription: t(
         'Choose whether you want Maxi Pawz emails. You can also share an optional pet profile afterward.',
-      consentDescription:
+        'Elige si deseas recibir correos de Maxi Pawz. Después también puedes compartir un perfil opcional de tu mascota.',
+      ),
+      consentDescription: t(
         'I want new-product news, helpful pet guides, and occasional Maxi Pawz offers by email.',
-      submitLabel: 'Get Maxi Pawz Updates',
-      interestQuestion: 'What would you like to see more of?',
-      interestHelp: 'Optional. Help us choose future additions to the collection.',
-      completeTitle: 'Welcome to the Pack.',
+        'Quiero recibir por correo novedades de productos, guías útiles para mascotas y ofertas ocasionales de Maxi Pawz.',
+      ),
+      submitLabel: t('Get Maxi Pawz Updates', 'Recibir novedades de Maxi Pawz'),
+      interestQuestion: t('What would you like to see more of?', '¿Qué te gustaría ver más?'),
+      interestHelp: t(
+        'Optional. Help us choose future additions to the collection.',
+        'Opcional. Ayúdanos a elegir futuras incorporaciones a la colección.',
+      ),
+      completeTitle: t('Welcome to the Pack.', 'Te damos la bienvenida al Pack.'),
     }
   : {
       eyebrow: 'Founding Pack',
-      title: 'Join the Maxi Pawz Founding Pack.',
-      description:
+      title: t('Join the Maxi Pawz Founding Pack.', 'Únete al Founding Pack de Maxi Pawz.'),
+      description: t(
         'Be part of Maxi Pawz before the first collection arrives. Get launch news, helpful pet guides, and occasional subscriber offers.',
-      firstBenefit: 'Early launch updates',
-      secondBenefit: 'Help shape what comes next',
-      brandNote: 'The Founding Pack is for the people helping us build Maxi Pawz from the beginning.',
-      formTitle: 'Be here from the beginning.',
-      formDescription:
+        'Forma parte de Maxi Pawz antes de que llegue la primera colección. Recibe noticias del lanzamiento, guías útiles para mascotas y ofertas ocasionales para suscriptores.',
+      ),
+      firstBenefit: t('Early launch updates', 'Novedades anticipadas del lanzamiento'),
+      secondBenefit: t('Help shape what comes next', 'Ayuda a decidir qué viene después'),
+      brandNote: t(
+        'The Founding Pack is for the people helping us build Maxi Pawz from the beginning.',
+        'El Founding Pack es para quienes nos ayudan a construir Maxi Pawz desde el principio.',
+      ),
+      formTitle: t('Be here from the beginning.', 'Acompáñanos desde el principio.'),
+      formDescription: t(
         'Choose whether you want launch news, helpful pet guides, and occasional Maxi Pawz offers by email.',
-      consentDescription:
+        'Elige si deseas recibir noticias del lanzamiento, guías útiles para mascotas y ofertas ocasionales de Maxi Pawz por correo electrónico.',
+      ),
+      consentDescription: t(
         'I want launch updates, new-product news, helpful pet guides, and occasional Maxi Pawz offers by email.',
-      submitLabel: 'Join the Founding Pack',
-      interestQuestion: 'What should Maxi Pawz launch first?',
-      interestHelp: 'Optional. This helps us understand what the Founding Pack wants most.',
-      completeTitle: 'Welcome to the Founding Pack.',
+        'Quiero recibir por correo novedades del lanzamiento y de productos, guías útiles para mascotas y ofertas ocasionales de Maxi Pawz.',
+      ),
+      submitLabel: t('Join the Founding Pack', 'Unirme al Founding Pack'),
+      interestQuestion: t('What should Maxi Pawz launch first?', '¿Qué debería lanzar primero Maxi Pawz?'),
+      interestHelp: t(
+        'Optional. This helps us understand what the Founding Pack wants most.',
+        'Opcional. Esto nos ayuda a entender qué quiere más el Founding Pack.',
+      ),
+      completeTitle: t('Welcome to the Founding Pack.', 'Te damos la bienvenida al Founding Pack.'),
     };
 
+const uiCopy = {
+  usefulGuidance: t('Useful pet guidance', 'Consejos útiles para mascotas'),
+  optionalPetProfile: t('Optional pet profile', 'Perfil de mascota opcional'),
+  firstName: t('First name', 'Nombre'),
+  optional: t('Optional', 'Opcional'),
+  firstNamePlaceholder: t('Your first name', 'Tu nombre'),
+  emailAddress: t('Email address', 'Correo electrónico'),
+  emailHelp: t(
+    'Choose below whether you want to receive Maxi Pawz emails.',
+    'Elige abajo si deseas recibir correos de Maxi Pawz.',
+  ),
+  consentYes: t('Yes, send me Maxi Pawz emails.', 'Sí, envíame correos de Maxi Pawz.'),
+  consentHelp: t(
+    'Uncheck this box if you prefer not to receive marketing emails. You can unsubscribe at any time.',
+    'Desmarca esta casilla si prefieres no recibir correos de marketing. Puedes cancelar la suscripción en cualquier momento.',
+  ),
+  petProfileLater: t(
+    'Your pet profile comes later and is completely optional.',
+    'El perfil de tu mascota viene después y es completamente opcional.',
+  ),
+  preferenceSaved: t(
+    'Your email preference is saved.',
+    'Tu preferencia de correo electrónico está guardada.',
+  ),
+  everythingBelowOptional: t('Everything below is optional.', 'Todo lo que aparece a continuación es opcional.'),
+  profileTitle: t('Tell Maxi about your best friend.', 'Cuéntale a Maxi sobre tu mejor amigo.'),
+  profileDescription: t(
+    'Share a few details to help us understand your pet and the products that interest you.',
+    'Comparte algunos detalles para ayudarnos a conocer a tu mascota y los productos que te interesan.',
+  ),
+  petName: t('Pet name', 'Nombre de la mascota'),
+  petType: t('Pet type', 'Tipo de mascota'),
+  chooseOne: t('Choose one', 'Elige una opción'),
+  playPersonality: t('Play personality', 'Personalidad de juego'),
+  noPreference: t('No preference', 'Sin preferencia'),
+  personalityHelp: t(
+    'Just for fun — choose whichever description feels closest.',
+    'Solo por diversión: elige la descripción que más se parezca.',
+  ),
+  savePetProfile: t('Save Pet Profile', 'Guardar perfil de mascota'),
+  skipForNow: t('Skip for now', 'Omitir por ahora'),
+  completeEyebrow: t('Maxi Pawz Updates', 'Novedades de Maxi Pawz'),
+  defaultCompleteMessage: t(
+    'Your email preference has been saved.',
+    'Tu preferencia de correo electrónico se ha guardado.',
+  ),
+  guidePrompt: t(
+    'Explore practical pet guides for everyday life with your pet.',
+    'Explora guías prácticas para el día a día con tu mascota.',
+  ),
+  explorePetGuides: t('Explore Pet Guides', 'Explorar guías para mascotas'),
+  hiddenBotLabel: t('Do not fill out this field:', 'No completes este campo:'),
+  hiddenProfileBotLabel: t('Leave this field empty', 'Deja este campo vacío'),
+};
+
+const clientCopy = {
+  saving: t('Saving…', 'Guardando…'),
+  savePreference: t('Save My Preference', 'Guardar mi preferencia'),
+  savingPetProfile: t('Saving Pet Profile…', 'Guardando perfil de mascota…'),
+  savePetProfile: uiCopy.savePetProfile,
+  preferenceSubscribed: t(
+    'Your preference to receive Maxi Pawz marketing emails has been saved.',
+    'Se guardó tu preferencia de recibir correos de marketing de Maxi Pawz.',
+  ),
+  preferenceUnsubscribed: t(
+    'Your preference not to receive Maxi Pawz marketing emails has been saved.',
+    'Se guardó tu preferencia de no recibir correos de marketing de Maxi Pawz.',
+  ),
+  preferenceSavedTitle: t('Your preference is saved.', 'Tu preferencia está guardada.'),
+  profileSavedPrefix: t('Thanks for introducing ', 'Gracias por presentarnos a '),
+  profileSavedSuffix: t(
+    ' to Maxi. Your pet profile has been saved.',
+    '. El perfil de tu mascota se ha guardado.',
+  ),
+  shareLater: t(
+    'You can share your pet’s details another time.',
+    'Puedes compartir los detalles de tu mascota en otro momento.',
+  ),
+  signupSavedTitle: t('Your signup is saved.', 'Tu registro está guardado.'),
+  emailPreferenceSavedTitle: uiCopy.preferenceSaved,
+  everythingBelowOptional: uiCopy.everythingBelowOptional,
+  emailError: t(
+    'We could not save your email preference. Please try again.',
+    'No pudimos guardar tu preferencia de correo electrónico. Inténtalo de nuevo.',
+  ),
+  profileFormError: t(
+    'The pet profile form is unavailable. Please try again.',
+    'El formulario del perfil de mascota no está disponible. Inténtalo de nuevo.',
+  ),
+  profileError: t(
+    'We could not save your pet profile. Please try again.',
+    'No pudimos guardar el perfil de tu mascota. Inténtalo de nuevo.',
+  ),
+};
+
 const petTypeLabels = {
-  dog: 'Dog',
-  cat: 'Cat',
-  other: 'Other pet',
+  dog: t('Dog', 'Perro'),
+  cat: t('Cat', 'Gato'),
+  other: t('Other pet', 'Otra mascota'),
 } as const;
 
 const petPersonalityLabels = {
-  'fetch-fanatic': 'Fetch Fanatic',
-  'power-chewer': 'Power Chewer',
-  'puzzle-master': 'Puzzle Master',
-  'professional-napper': 'Professional Napper',
-  'adventure-buddy': 'Adventure Buddy',
-  'something-else': 'Something Else',
+  'fetch-fanatic': t('Fetch Fanatic', 'Fanático de traer la pelota'),
+  'power-chewer': t('Power Chewer', 'Masticador incansable'),
+  'puzzle-master': t('Puzzle Master', 'Maestro de los rompecabezas'),
+  'professional-napper': t('Professional Napper', 'Dormilón profesional'),
+  'adventure-buddy': t('Adventure Buddy', 'Compañero de aventuras'),
+  'something-else': t('Something Else', 'Algo diferente'),
 } as const;
 
 const launchInterestLabels = {
-  toys: 'Toys',
-  treats: 'Treats',
-  walking: 'Walking',
-  travel: 'Travel',
-  feeding: 'Feeding',
-  accessories: 'Accessories',
+  toys: t('Toys', 'Juguetes'),
+  treats: t('Treats', 'Premios'),
+  walking: t('Walking', 'Paseos'),
+  travel: t('Travel', 'Viajes'),
+  feeding: t('Feeding', 'Alimentación'),
+  accessories: t('Accessories', 'Accesorios'),
 } as const;
 ---
 
@@ -88,8 +217,10 @@ const launchInterestLabels = {
   class="launch-signup content-visibility-auto section-spacing relative isolate scroll-mt-28 overflow-hidden border-b border-sand/70"
   aria-labelledby="maxi-pawz-updates-title"
   data-launch-signup
+  data-signup-locale={locale}
   data-signup-submit-label={copy.submitLabel}
   data-signup-complete-title={copy.completeTitle}
+  data-signup-client-copy={JSON.stringify(clientCopy)}
 >
   <div
     class="launch-signup__pattern pointer-events-none absolute inset-0"
@@ -234,7 +365,7 @@ const launchInterestLabels = {
                   class="size-5 shrink-0 text-accent-300"
                   aria-hidden="true"
                 />
-                Useful pet guidance
+                {uiCopy.usefulGuidance}
               </span>
 
               <span class="flex items-center gap-2">
@@ -242,7 +373,7 @@ const launchInterestLabels = {
                   class="size-5 shrink-0 text-accent-300"
                   aria-hidden="true"
                 />
-                Optional pet profile
+                {uiCopy.optionalPetProfile}
               </span>
             </div>
           </div>
@@ -344,7 +475,7 @@ const launchInterestLabels = {
                     >
                       <p hidden>
                         <label>
-                          Do not fill out this field:
+                          {uiCopy.hiddenBotLabel}
                           <input name="bot-field" tabindex="-1" autocomplete="off" />
                         </label>
                       </p>
@@ -353,10 +484,10 @@ const launchInterestLabels = {
                         <div>
                           <div class="flex items-center justify-between gap-3">
                             <label for="launch-first-name" class="form-label">
-                              First name
+                              {uiCopy.firstName}
                             </label>
 
-                            <span class="text-xs font-bold text-ink-400">Optional</span>
+                            <span class="text-xs font-bold text-ink-400">{uiCopy.optional}</span>
                           </div>
 
                           <input
@@ -365,7 +496,7 @@ const launchInterestLabels = {
                             type="text"
                             autocomplete="given-name"
                             class="launch-signup__input form-control"
-                            placeholder="Your first name"
+                            placeholder={uiCopy.firstNamePlaceholder}
                             maxlength="80"
                             data-launch-field
                           />
@@ -373,7 +504,7 @@ const launchInterestLabels = {
 
                         <div>
                           <label for="launch-email" class="form-label">
-                            Email address
+                            {uiCopy.emailAddress}
                           </label>
 
                           <input
@@ -397,7 +528,7 @@ const launchInterestLabels = {
                         id="launch-email-help"
                         class="mt-3 text-xs leading-5 text-ink-500"
                       >
-                        Choose below whether you want to receive Maxi Pawz emails.
+                        {uiCopy.emailHelp}
                       </p>
 
                       <div
@@ -419,13 +550,13 @@ const launchInterestLabels = {
                           <span class="min-w-0">
                             <span class="flex flex-wrap items-center gap-x-2 gap-y-1">
                               <span class="font-extrabold leading-6 text-ink-800">
-                                Yes, send me Maxi Pawz emails.
+                                {uiCopy.consentYes}
                               </span>
 
                               <span
                                 class="rounded-full border border-brand-200 bg-white-warm px-2 py-0.5 text-[0.7rem] font-extrabold tracking-wider text-brand-700 uppercase"
                               >
-                                Optional
+                                {uiCopy.optional}
                               </span>
                             </span>
 
@@ -434,8 +565,7 @@ const launchInterestLabels = {
                             </span>
 
                             <span class="mt-2 block text-xs leading-5 text-ink-500">
-                              Uncheck this box if you prefer not to receive marketing emails.
-                              You can unsubscribe at any time.
+                              {uiCopy.consentHelp}
                             </span>
                           </span>
                         </label>
@@ -468,7 +598,7 @@ const launchInterestLabels = {
                         />
 
                         <p class="max-w-md text-xs leading-5 text-ink-500">
-                          Your pet profile comes later and is completely optional.
+                          {uiCopy.petProfileLater}
                         </p>
                       </div>
                     </form>
@@ -485,7 +615,7 @@ const launchInterestLabels = {
                       >
                         2
                       </span>
-                      Optional
+                      {uiCopy.optional}
                     </div>
 
                     <div
@@ -500,31 +630,30 @@ const launchInterestLabels = {
 
                       <div>
                         <p class="font-extrabold text-ink-900" data-preference-title>
-                          Your email preference is saved.
+                          {uiCopy.preferenceSaved}
                         </p>
 
                         <p
                           class="mt-1 text-sm leading-6 text-ink-600"
                           data-preference-message
                         >
-                          Everything below is optional.
+                          {uiCopy.everythingBelowOptional}
                         </p>
                       </div>
                     </div>
 
                     <h3 class="mt-6 pr-0 text-2xl text-ink-900 sm:pr-16 sm:text-3xl">
-                      Tell Maxi about your best friend.
+                      {uiCopy.profileTitle}
                     </h3>
 
                     <p class="mt-4 leading-7 text-ink-600">
-                      Share a few details to help us understand your pet and the products
-                      that interest you.
+                      {uiCopy.profileDescription}
                     </p>
 
                     <form class="mt-7" data-pet-profile-form>
                       <div class="hidden" aria-hidden="true">
                         <label>
-                          Leave this field empty
+                          {uiCopy.hiddenProfileBotLabel}
 
                           <input
                             name="website"
@@ -539,7 +668,7 @@ const launchInterestLabels = {
                       <div class="grid gap-5 sm:grid-cols-2">
                         <div>
                           <label for="founding-pet-name" class="form-label">
-                            Pet name
+                            {uiCopy.petName}
                           </label>
 
                           <input
@@ -556,7 +685,7 @@ const launchInterestLabels = {
 
                         <div>
                           <label for="founding-pet-type" class="form-label">
-                            Pet type
+                            {uiCopy.petType}
                           </label>
 
                           <select
@@ -566,7 +695,7 @@ const launchInterestLabels = {
                             required
                             data-profile-field
                           >
-                            <option value="">Choose one</option>
+                            <option value="">{uiCopy.chooseOne}</option>
 
                             {
                               FOUNDING_PACK_PET_TYPES.map((petType) => (
@@ -580,10 +709,10 @@ const launchInterestLabels = {
                       <div class="mt-5">
                         <div class="flex items-center justify-between gap-3">
                           <label for="founding-pet-personality" class="form-label">
-                            Play personality
+                            {uiCopy.playPersonality}
                           </label>
 
-                          <span class="text-xs font-bold text-ink-400">Optional</span>
+                          <span class="text-xs font-bold text-ink-400">{uiCopy.optional}</span>
                         </div>
 
                         <select
@@ -592,7 +721,7 @@ const launchInterestLabels = {
                           class="launch-signup__input form-control"
                           data-profile-field
                         >
-                          <option value="">No preference</option>
+                          <option value="">{uiCopy.noPreference}</option>
 
                           {
                             FOUNDING_PACK_PET_PERSONALITIES.map((personality) => (
@@ -604,7 +733,7 @@ const launchInterestLabels = {
                         </select>
 
                         <p class="mt-2 text-xs leading-5 text-ink-500">
-                          Just for fun — choose whichever description feels closest.
+                          {uiCopy.personalityHelp}
                         </p>
                       </div>
 
@@ -644,7 +773,7 @@ const launchInterestLabels = {
                           iconPosition="right"
                         >
                           <PawPrintBold slot="icon" aria-hidden="true" />
-                          <span data-profile-submit-label>Save Pet Profile</span>
+                          <span data-profile-submit-label>{uiCopy.savePetProfile}</span>
                         </Button>
                       </div>
 
@@ -653,7 +782,7 @@ const launchInterestLabels = {
                         class="mt-3 w-full rounded-2xl px-4 py-3 text-sm font-extrabold text-ink-500 transition hover:bg-cream hover:text-ink-800 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-brand-300/45"
                         data-profile-skip
                       >
-                        Skip for now
+                        {uiCopy.skipForNow}
                       </button>
 
                       <p
@@ -681,7 +810,7 @@ const launchInterestLabels = {
                     <p
                       class="mt-5 text-xs font-black tracking-[0.14em] text-accent-700 uppercase"
                     >
-                      Maxi Pawz Updates
+                      {uiCopy.completeEyebrow}
                     </p>
 
                     <h3
@@ -695,7 +824,7 @@ const launchInterestLabels = {
                       class="mx-auto mt-4 max-w-md leading-7 text-ink-600"
                       data-complete-message
                     >
-                      Your email preference has been saved.
+                      {uiCopy.defaultCompleteMessage}
                     </p>
 
                     <div
@@ -708,16 +837,16 @@ const launchInterestLabels = {
                         />
 
                         <p class="text-sm leading-6 text-ink-600">
-                          Explore practical pet guides for everyday life with your pet.
+                          {uiCopy.guidePrompt}
                         </p>
                       </div>
                     </div>
 
                     <a
-                      href="/pet-guides"
+                      href={localizeHref('/pet-guides', locale)}
                       class="mt-7 inline-flex items-center gap-2 font-extrabold text-brand-700 transition hover:text-brand-800"
                     >
-                      Explore Pet Guides
+                      {localizedLinkLabel(uiCopy.explorePetGuides, '/pet-guides', locale)}
                       <ArrowRightBold class="size-5" aria-hidden="true" />
                     </a>
                   </div>
@@ -1095,6 +1224,46 @@ const launchInterestLabels = {
     message?: string;
   }
 
+  interface LaunchSignupClientCopy {
+    saving: string;
+    savePreference: string;
+    savingPetProfile: string;
+    savePetProfile: string;
+    preferenceSubscribed: string;
+    preferenceUnsubscribed: string;
+    preferenceSavedTitle: string;
+    profileSavedPrefix: string;
+    profileSavedSuffix: string;
+    shareLater: string;
+    signupSavedTitle: string;
+    emailPreferenceSavedTitle: string;
+    everythingBelowOptional: string;
+    emailError: string;
+    profileFormError: string;
+    profileError: string;
+  }
+
+  const DEFAULT_CLIENT_COPY: LaunchSignupClientCopy = {
+    saving: 'Saving…',
+    savePreference: 'Save My Preference',
+    savingPetProfile: 'Saving Pet Profile…',
+    savePetProfile: 'Save Pet Profile',
+    preferenceSubscribed:
+      'Your preference to receive Maxi Pawz marketing emails has been saved.',
+    preferenceUnsubscribed:
+      'Your preference not to receive Maxi Pawz marketing emails has been saved.',
+    preferenceSavedTitle: 'Your preference is saved.',
+    profileSavedPrefix: 'Thanks for introducing ',
+    profileSavedSuffix: ' to Maxi. Your pet profile has been saved.',
+    shareLater: 'You can share your pet’s details another time.',
+    signupSavedTitle: 'Your signup is saved.',
+    emailPreferenceSavedTitle: 'Your email preference is saved.',
+    everythingBelowOptional: 'Everything below is optional.',
+    emailError: 'We could not save your email preference. Please try again.',
+    profileFormError: 'The pet profile form is unavailable. Please try again.',
+    profileError: 'We could not save your pet profile. Please try again.',
+  };
+
   const initializeLaunchSignupForms = (): void => {
     const sections = Array.from(
       document.querySelectorAll<HTMLElement>('[data-launch-signup]'),
@@ -1106,6 +1275,34 @@ const launchInterestLabels = {
       }
 
       section.dataset.launchFormInitialized = 'true';
+
+      const isSpanish =
+        section.dataset.signupLocale === 'es';
+
+      const clientCopy: LaunchSignupClientCopy = (() => {
+        const serialized = section.dataset.signupClientCopy;
+
+        if (!serialized) {
+          return DEFAULT_CLIENT_COPY;
+        }
+
+        try {
+          return {
+            ...DEFAULT_CLIENT_COPY,
+            ...(JSON.parse(serialized) as Partial<LaunchSignupClientCopy>),
+          };
+        } catch {
+          return DEFAULT_CLIENT_COPY;
+        }
+      })();
+
+      const getResponseErrorMessage = (
+        serverMessage: string | undefined,
+        fallback: string,
+      ): string =>
+        isSpanish
+          ? fallback
+          : serverMessage ?? fallback;
 
       const signupStep = section.querySelector<HTMLElement>(
         '[data-founding-pack-step="signup"]',
@@ -1244,9 +1441,9 @@ const launchInterestLabels = {
 
         if (signupSubmitLabel) {
           signupSubmitLabel.textContent = submitting
-            ? 'Saving…'
+            ? clientCopy.saving
             : marketingConsentCheckbox?.checked === false
-              ? 'Save My Preference'
+              ? clientCopy.savePreference
               : signupButtonLabel;
         }
       };
@@ -1263,8 +1460,8 @@ const launchInterestLabels = {
 
         if (profileSubmitLabel) {
           profileSubmitLabel.textContent = submitting
-            ? 'Saving Pet Profile…'
-            : 'Save Pet Profile';
+            ? clientCopy.savingPetProfile
+            : clientCopy.savePetProfile;
         }
 
         if (profileSkipButton) {
@@ -1294,20 +1491,20 @@ const launchInterestLabels = {
 
       const getSavedPreferenceMessage = (): string =>
         savedMarketingConsent
-          ? 'Your preference to receive Maxi Pawz marketing emails has been saved.'
-          : 'Your preference not to receive Maxi Pawz marketing emails has been saved.';
+          ? clientCopy.preferenceSubscribed
+          : clientCopy.preferenceUnsubscribed;
 
       const showCompletion = (petName?: string): void => {
         if (completeTitle) {
           completeTitle.textContent = savedMarketingConsent
             ? completionTitle
-            : 'Your preference is saved.';
+            : clientCopy.preferenceSavedTitle;
         }
 
         if (completeMessage) {
           const profileMessage = petName
-            ? `Thanks for introducing ${petName} to Maxi. Your pet profile has been saved.`
-            : 'You can share your pet’s details another time.';
+            ? `${clientCopy.profileSavedPrefix}${petName}${clientCopy.profileSavedSuffix}`
+            : clientCopy.shareLater;
 
           completeMessage.textContent =
             `${getSavedPreferenceMessage()} ${profileMessage}`;
@@ -1381,7 +1578,7 @@ const launchInterestLabels = {
 
         signupSubmitLabel.textContent =
           marketingConsentCheckbox?.checked === false
-            ? 'Save My Preference'
+            ? clientCopy.savePreference
             : signupButtonLabel;
       };
 
@@ -1430,8 +1627,10 @@ const launchInterestLabels = {
 
           if (!response.ok || body?.ok !== true) {
             throw new Error(
-              body?.message ??
-                'We could not save your email preference. Please try again.',
+              getResponseErrorMessage(
+                body?.message,
+                clientCopy.emailError,
+              ),
             );
           }
 
@@ -1444,13 +1643,13 @@ const launchInterestLabels = {
 
           if (preferenceTitle) {
             preferenceTitle.textContent = savedMarketingConsent
-              ? 'Your signup is saved.'
-              : 'Your email preference is saved.';
+              ? clientCopy.signupSavedTitle
+              : clientCopy.emailPreferenceSavedTitle;
           }
 
           if (preferenceMessage) {
             preferenceMessage.textContent =
-              `${getSavedPreferenceMessage()} Everything below is optional.`;
+              `${getSavedPreferenceMessage()} ${clientCopy.everythingBelowOptional}`;
           }
 
           showStep('profile');
@@ -1458,7 +1657,7 @@ const launchInterestLabels = {
           const message =
             error instanceof Error
               ? error.message
-              : 'We could not save your email preference. Please try again.';
+              : clientCopy.emailError;
 
           showStatus(signupStatus, message, 'error');
         } finally {
@@ -1507,7 +1706,7 @@ const launchInterestLabels = {
 
           if (!petNameField || !petTypeField) {
             throw new Error(
-              'The pet profile form is unavailable. Please try again.',
+              clientCopy.profileFormError,
             );
           }
 
@@ -1535,8 +1734,10 @@ const launchInterestLabels = {
 
           if (!response.ok || body?.ok !== true) {
             throw new Error(
-              body?.message ??
-                'We could not save your pet profile. Please try again.',
+              getResponseErrorMessage(
+                body?.message,
+                clientCopy.profileError,
+              ),
             );
           }
 
@@ -1545,7 +1746,7 @@ const launchInterestLabels = {
           const message =
             error instanceof Error
               ? error.message
-              : 'We could not save your pet profile. Please try again.';
+              : clientCopy.profileError;
 
           showStatus(profileStatus, message, 'error');
         } finally {
