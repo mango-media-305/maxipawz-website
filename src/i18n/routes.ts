@@ -3,9 +3,8 @@ import type { Locale } from './languages';
 /*
  * Register an English pathname only after its complete Spanish page exists.
  * Use no trailing slash except for the homepage. Spanish keeps the same slug.
- * No Spanish pages have been published yet.
  */
-const translatedPaths: ReadonlySet<string> = new Set<string>([]);
+const translatedPaths: ReadonlySet<string> = new Set<string>(['/about', '/faq']);
 
 export function normalizePathname(pathname: string): string {
     return pathname.replace(/\/+$/, '') || '/';
