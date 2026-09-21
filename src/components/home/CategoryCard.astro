@@ -15,6 +15,7 @@ interface Props {
   description: string;
   href: string;
   linkLabel: string;
+  eyebrow?: string;
   tone?: LifestyleCategoryTone;
   backgroundImage?: ImageMetadata;
   backgroundPosition?: CategoryBackgroundPosition;
@@ -28,6 +29,7 @@ const {
   description,
   href,
   linkLabel,
+  eyebrow = 'Pet lifestyle',
   tone = 'brand',
   backgroundImage,
   backgroundPosition = 'center',
@@ -75,14 +77,6 @@ const accentBarClasses: Record<LifestyleCategoryTone, string> = {
   sand: 'from-sand-dark via-ink-500 to-brand-400',
 };
 
-const numberClasses: Record<LifestyleCategoryTone, string> = {
-  brand: 'border-brand-200 bg-brand-50/90 text-brand-800',
-
-  accent: 'border-accent-200 bg-accent-50/90 text-accent-800',
-
-  sand: 'border-sand-dark/55 bg-cream/90 text-ink-700',
-};
-
 const eyebrowClasses: Record<LifestyleCategoryTone, string> = {
   brand: 'text-brand-700',
   accent: 'text-accent-700',
@@ -124,8 +118,6 @@ const overlayInteractionClasses: Record<CategoryBackgroundOverlay, string> = {
 };
 
 const usesDarkOverlay = Boolean(backgroundImage) && backgroundOverlay === 'dark';
-
-const cardNumber = String(index + 1).padStart(2, '0');
 
 const revealDelay = 220 + index * 85;
 ---
@@ -223,7 +215,7 @@ const revealDelay = 220 + index * 85;
             usesDarkOverlay ? 'text-white/70' : eyebrowClasses[tone],
           ]}
         >
-          Pet lifestyle
+          {eyebrow}
         </span>
 
         <h3
