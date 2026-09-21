@@ -3,7 +3,77 @@ import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
 import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
 
 import BrandLogo from '../brand/BrandLogo.astro';
+
 import { isStoreLive } from '../../config/storefront';
+import { getLocaleFromPathname } from '../../i18n/languages';
+import {
+  localizeHref,
+  localizedLinkLabel,
+} from '../../i18n/routes';
+
+const locale = getLocaleFromPathname(Astro.url.pathname);
+
+const t = (english: string, spanish: string): string =>
+  locale === 'es' ? spanish : english;
+
+const copy = {
+  eyebrow: t(
+    'Your Maxi Pawz Pet',
+    'Tu mascota en Maxi Pawz',
+  ),
+
+  welcomeBack: t(
+    'Welcome back.',
+    'Qué bueno verte de nuevo.',
+  ),
+
+  profileSummary: t(
+    'Your pet profile',
+    'Perfil de tu mascota',
+  ),
+
+  explorePetGuides: t(
+    'Explore pet guides',
+    'Explorar guías para mascotas',
+  ),
+
+  forgetPet: t(
+    'Forget this pet on this device',
+    'Olvidar esta mascota en este dispositivo',
+  ),
+
+  browserNote: t(
+    'This browser remembers your pet for future visits. Forgetting your pet here does not delete the profile you shared with Maxi Pawz or change your email preferences.',
+    'Este navegador recuerda a tu mascota para futuras visitas. Olvidarla aquí no elimina el perfil que compartiste con Maxi Pawz ni cambia tus preferencias de correo electrónico.',
+  ),
+
+  forgetError: t(
+    'This browser could not remove the saved pet. Please try again.',
+    'Este navegador no pudo eliminar la mascota guardada. Inténtalo de nuevo.',
+  ),
+};
+
+const defaultGuideHref = localizeHref(
+  '/pet-guides',
+  locale,
+);
+
+const defaultGuideLabel = localizedLinkLabel(
+  copy.explorePetGuides,
+  '/pet-guides',
+  locale,
+);
+
+/*
+ * English preserves the existing absolute homepage anchor.
+ *
+ * The future Spanish homepage should stay on its own page
+ * when jumping to the localized Pet Guides preview.
+ */
+const matchingGuideHref =
+  locale === 'es'
+    ? '#pet-guides-preview'
+    : '/#pet-guides-preview';
 ---
 
 <section
@@ -11,6 +81,11 @@ import { isStoreLive } from '../../config/storefront';
   aria-labelledby="founding-pet-welcome-title"
   data-founding-pet-welcome
   data-store-live={String(isStoreLive)}
+  data-welcome-locale={locale}
+  data-guide-default-href={defaultGuideHref}
+  data-guide-default-label={defaultGuideLabel}
+  data-guide-matching-href={matchingGuideHref}
+  data-forget-error={copy.forgetError}
 >
   <div class="site-container">
     <div class="rounded-3xl border border-brand-200 bg-white-warm p-5 shadow-card sm:p-7">
@@ -19,13 +94,22 @@ import { isStoreLive } from '../../config/storefront';
           class="hidden size-24 shrink-0 place-items-center overflow-hidden rounded-full border-4 border-white bg-cream-soft shadow-blue sm:grid"
           aria-hidden="true"
         >
-          <BrandLogo variant="mascot" class="size-full object-contain p-2" />
+          <BrandLogo
+            variant="mascot"
+            class="size-full object-contain p-2"
+          />
         </div>
 
         <div class="min-w-0 flex-1">
-          <p class="inline-flex items-center gap-2 text-xs font-black tracking-[0.12em] text-brand-700 uppercase">
-            <PawPrintBold class="size-4" aria-hidden="true" />
-            Your Maxi Pawz Pet
+          <p
+            class="inline-flex items-center gap-2 text-xs font-black tracking-[0.12em] text-brand-700 uppercase"
+          >
+            <PawPrintBold
+              class="size-4"
+              aria-hidden="true"
+            />
+
+            {copy.eyebrow}
           </p>
 
           <h2
@@ -33,11 +117,14 @@ import { isStoreLive } from '../../config/storefront';
             class="mt-2 text-2xl wrap-break-word text-ink-900 sm:text-3xl"
             data-founding-pet-greeting
           >
-            Welcome back.
+            {copy.welcomeBack}
           </h2>
 
-          <p class="mt-2 text-sm font-extrabold text-accent-800" data-founding-pet-summary>
-            Your pet profile
+          <p
+            class="mt-2 text-sm font-extrabold text-accent-800"
+            data-founding-pet-summary
+          >
+            {copy.profileSummary}
           </p>
 
           <p
@@ -47,16 +134,25 @@ import { isStoreLive } from '../../config/storefront';
           >
           </p>
 
-          <div class="mt-5 flex flex-col items-start gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+          <div
+            class="mt-5 flex flex-col items-start gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4"
+          >
             <a
-              href="/pet-guides"
+              href={defaultGuideHref}
               class="inline-flex min-h-12 max-w-full items-center gap-2 rounded-full bg-brand-500 px-5 py-3 font-extrabold text-white shadow-blue transition hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-300/45"
               data-founding-pet-guide-link
             >
-              <span class="min-w-0 wrap-break-word" data-founding-pet-guide-link-label>
-                Explore pet guides
+              <span
+                class="min-w-0 wrap-break-word"
+                data-founding-pet-guide-link-label
+              >
+                {defaultGuideLabel}
               </span>
-              <ArrowRightBold class="size-5 shrink-0" aria-hidden="true" />
+
+              <ArrowRightBold
+                class="size-5 shrink-0"
+                aria-hidden="true"
+              />
             </a>
 
             <button
@@ -64,13 +160,12 @@ import { isStoreLive } from '../../config/storefront';
               class="min-h-11 rounded-lg px-2 py-2 text-left text-sm font-bold text-ink-600 underline underline-offset-4 transition hover:text-brand-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-300/35"
               data-founding-pet-forget
             >
-              Forget this pet on this device
+              {copy.forgetPet}
             </button>
           </div>
 
           <p class="mt-3 max-w-3xl text-xs leading-5 text-ink-500">
-            This browser remembers your pet for future visits. Forgetting your pet here does not
-            delete the profile you shared with Maxi Pawz or change your email preferences.
+            {copy.browserNote}
           </p>
 
           <p
@@ -94,17 +189,28 @@ import { isStoreLive } from '../../config/storefront';
     parseFoundingPackPersonalizationProfile,
   } from '../../lib/founding-pack-personalization';
 
-  import type { FoundingPackLaunchInterest } from '../../types/founding-pack';
+  import type {
+    FoundingPackLaunchInterest,
+    FoundingPackPetPersonality,
+    FoundingPackPetType,
+  } from '../../types/founding-pack';
 
   import {
     FOUNDING_PACK_PERSONALIZATION_STORAGE_KEY,
     type FoundingPackPersonalizationProfile,
   } from '../../types/founding-pack-personalization';
 
-  const PERSONALIZATION_SAVED_EVENT = 'maxipawz:founding-pet-personalization-saved';
-  const PERSONALIZATION_FORGOTTEN_EVENT = 'maxipawz:founding-pet-personalization-forgotten';
+  const PERSONALIZATION_SAVED_EVENT =
+    'maxipawz:founding-pet-personalization-saved';
 
-  const INTEREST_LABELS: Record<FoundingPackLaunchInterest, string> = {
+  const PERSONALIZATION_FORGOTTEN_EVENT =
+    'maxipawz:founding-pet-personalization-forgotten';
+
+  const INTEREST_LABELS:
+    Record<
+      FoundingPackLaunchInterest,
+      string
+    > = {
     toys: 'toys',
     treats: 'treats',
     walking: 'walking gear',
@@ -113,131 +219,434 @@ import { isStoreLive } from '../../config/storefront';
     accessories: 'everyday accessories',
   };
 
-  const initializeFoundingPackWelcomeBack = (): void => {
-    const sections = document.querySelectorAll<HTMLElement>('[data-founding-pet-welcome]');
-
-    for (const section of sections) {
-      if (section.dataset.foundingPetWelcomeInitialized === 'true') {
-        continue;
-      }
-
-      section.dataset.foundingPetWelcomeInitialized = 'true';
-
-      const storeLive = section.dataset.storeLive === 'true';
-      const greeting = section.querySelector<HTMLElement>('[data-founding-pet-greeting]');
-      const summary = section.querySelector<HTMLElement>('[data-founding-pet-summary]');
-      const launchMessage = section.querySelector<HTMLElement>('[data-founding-pet-launch-message]');
-      const guideLink = section.querySelector<HTMLAnchorElement>('[data-founding-pet-guide-link]');
-      const guideLinkLabel = section.querySelector<HTMLElement>('[data-founding-pet-guide-link-label]');
-      const forgetButton = section.querySelector<HTMLButtonElement>('[data-founding-pet-forget]');
-      const status = section.querySelector<HTMLElement>('[data-founding-pet-status]');
-
-      const renderProfile = (profile: FoundingPackPersonalizationProfile): void => {
-        const messaging = buildFoundingPackPersonalizedMessaging(profile);
-        const interestMessage = storeLive
-          ? profile.launchInterest
-            ? `Your saved interest for ${profile.petName}: ${INTEREST_LABELS[profile.launchInterest]}.`
-            : undefined
-          : messaging.launchMessage;
-
-        const guideSlugs = new Set(
-          Array.from(document.querySelectorAll<HTMLElement>('[data-pet-guides-preview] [data-guide-card]'))
-            .map((card) => card.dataset.guideSlug),
-        );
-        const hasMatchingGuides = getPersonalizedGuidePriorities(profile)
-          .some((slug) => guideSlugs.has(slug));
-
-        if (greeting) greeting.textContent = messaging.greeting;
-        if (summary) summary.textContent = messaging.profileSummary;
-
-        if (launchMessage) {
-          launchMessage.textContent = interestMessage ?? '';
-          launchMessage.hidden = !interestMessage;
-        }
-
-        if (guideLink) {
-          guideLink.href = hasMatchingGuides ? '/#pet-guides-preview' : '/pet-guides';
-        }
-
-        if (guideLinkLabel) {
-          guideLinkLabel.textContent = hasMatchingGuides
-            ? `Explore guides for ${profile.petName}`
-            : 'Explore pet guides';
-        }
-
-        if (status) status.textContent = '';
-        section.classList.remove('hidden');
-      };
-
-      const readStoredProfile = (): FoundingPackPersonalizationProfile | null => {
-        try {
-          const serialized = window.localStorage.getItem(FOUNDING_PACK_PERSONALIZATION_STORAGE_KEY);
-          return serialized ? deserializeFoundingPackPersonalizationProfile(serialized) : null;
-        } catch {
-          return null;
-        }
-      };
-
-      const renderStoredProfile = (): void => {
-        const profile = readStoredProfile();
-
-        if (profile) {
-          renderProfile(profile);
-        } else {
-          section.classList.add('hidden');
-        }
-      };
-
-      const handleSavedProfile = (event: Event): void => {
-        const profile = parseFoundingPackPersonalizationProfile(
-          (event as CustomEvent<unknown>).detail,
-        );
-
-        if (profile) {
-          renderProfile(profile);
-        } else {
-          renderStoredProfile();
-        }
-      };
-
-      const handleForget = (): void => {
-        try {
-          window.localStorage.removeItem(FOUNDING_PACK_PERSONALIZATION_STORAGE_KEY);
-        } catch {
-          if (status) {
-            status.textContent = 'This browser could not remove the saved pet. Please try again.';
-          }
-          return;
-        }
-
-        const shouldMoveFocus = section.contains(document.activeElement);
-        section.classList.add('hidden');
-        window.dispatchEvent(new CustomEvent(PERSONALIZATION_FORGOTTEN_EVENT));
-
-        if (shouldMoveFocus) {
-          const guideHeading = document.querySelector<HTMLElement>('#pet-guides-preview-title');
-
-          if (guideHeading) {
-            guideHeading.setAttribute('tabindex', '-1');
-            guideHeading.focus();
-          }
-        }
-      };
-
-      forgetButton?.addEventListener('click', handleForget);
-      window.addEventListener(PERSONALIZATION_SAVED_EVENT, handleSavedProfile);
-      renderStoredProfile();
-
-      const cleanup = (): void => {
-        forgetButton?.removeEventListener('click', handleForget);
-        window.removeEventListener(PERSONALIZATION_SAVED_EVENT, handleSavedProfile);
-        delete section.dataset.foundingPetWelcomeInitialized;
-      };
-
-      document.addEventListener('astro:before-swap', cleanup, { once: true });
-    }
+  const SPANISH_INTEREST_LABELS:
+    Record<
+      FoundingPackLaunchInterest,
+      string
+    > = {
+    toys: 'juguetes',
+    treats: 'premios',
+    walking: 'equipo para pasear',
+    travel: 'artículos esenciales de viaje',
+    feeding: 'artículos esenciales para la alimentación',
+    accessories: 'accesorios para el día a día',
   };
 
+  const SPANISH_PET_TYPE_LABELS:
+    Record<
+      FoundingPackPetType,
+      string
+    > = {
+    dog: 'Perro',
+    cat: 'Gato',
+    other: 'Mascota',
+  };
+
+  const SPANISH_PERSONALITY_LABELS:
+    Record<
+      FoundingPackPetPersonality,
+      string
+    > = {
+    'fetch-fanatic':
+      'Fanático de traer la pelota',
+
+    'power-chewer':
+      'Masticador incansable',
+
+    'puzzle-master':
+      'Maestro de los rompecabezas',
+
+    'professional-napper':
+      'Dormilón profesional',
+
+    'adventure-buddy':
+      'Compañero de aventuras',
+
+    'something-else':
+      'Único en su estilo',
+  };
+
+  const buildSpanishProfileSummary =
+    (
+      profile:
+        FoundingPackPersonalizationProfile,
+    ): string => {
+      const petTypeLabel =
+        SPANISH_PET_TYPE_LABELS[
+          profile.petType
+        ];
+
+      const personalityLabel =
+        profile.petPersonality
+          ? SPANISH_PERSONALITY_LABELS[
+              profile.petPersonality
+            ]
+          : undefined;
+
+      return personalityLabel
+        ? `${petTypeLabel} · ${personalityLabel}`
+        : petTypeLabel;
+    };
+
+  const buildSpanishLaunchMessage =
+    (
+      profile:
+        FoundingPackPersonalizationProfile,
+    ): string | undefined => {
+      if (!profile.launchInterest) {
+        return undefined;
+      }
+
+      switch (
+        profile.launchInterest
+      ) {
+        case 'toys':
+          return `Los juguetes están en lo más alto de la lista de deseos de ${profile.petName} para Maxi Pawz. Lo tendremos presente mientras toma forma la primera colección.`;
+
+        case 'treats':
+          return `Nos contaste que los premios son importantes para ${profile.petName}. Lo tendremos presente a medida que Maxi Pawz crece.`;
+
+        case 'walking':
+          return `El perfil de ${profile.petName} nos dice que los paseos son importantes. Tendremos en cuenta el equipo para pasear y las aventuras diarias mientras construimos la colección.`;
+
+        case 'travel':
+          return `El perfil de ${profile.petName} nos dice que los viajes son importantes. Tendremos presentes las aventuras fuera de casa a medida que Maxi Pawz crece.`;
+
+        case 'feeding':
+          return `El perfil de ${profile.petName} nos dice que los artículos esenciales para la alimentación son importantes. Tendremos presentes las rutinas diarias de comida mientras damos forma a la colección.`;
+
+        case 'accessories':
+          return `El perfil de ${profile.petName} nos dice que los accesorios son importantes. Tendremos en cuenta los artículos prácticos para el día a día a medida que Maxi Pawz crece.`;
+      }
+    };
+
+  const initializeFoundingPackWelcomeBack =
+    (): void => {
+      const sections =
+        document.querySelectorAll<HTMLElement>(
+          '[data-founding-pet-welcome]',
+        );
+
+      for (const section of sections) {
+        if (
+          section.dataset
+            .foundingPetWelcomeInitialized ===
+          'true'
+        ) {
+          continue;
+        }
+
+        section.dataset
+          .foundingPetWelcomeInitialized =
+          'true';
+
+        const isSpanish =
+          section.dataset.welcomeLocale ===
+          'es';
+
+        const storeLive =
+          section.dataset.storeLive ===
+          'true';
+
+        const defaultGuideHref =
+          section.dataset
+            .guideDefaultHref ??
+          '/pet-guides';
+
+        const defaultGuideLabel =
+          section.dataset
+            .guideDefaultLabel ??
+          'Explore pet guides';
+
+        const matchingGuideHref =
+          section.dataset
+            .guideMatchingHref ??
+          '/#pet-guides-preview';
+
+        const forgetError =
+          section.dataset.forgetError ??
+          'This browser could not remove the saved pet. Please try again.';
+
+        const greeting =
+          section.querySelector<HTMLElement>(
+            '[data-founding-pet-greeting]',
+          );
+
+        const summary =
+          section.querySelector<HTMLElement>(
+            '[data-founding-pet-summary]',
+          );
+
+        const launchMessage =
+          section.querySelector<HTMLElement>(
+            '[data-founding-pet-launch-message]',
+          );
+
+        const guideLink =
+          section.querySelector<HTMLAnchorElement>(
+            '[data-founding-pet-guide-link]',
+          );
+
+        const guideLinkLabel =
+          section.querySelector<HTMLElement>(
+            '[data-founding-pet-guide-link-label]',
+          );
+
+        const forgetButton =
+          section.querySelector<HTMLButtonElement>(
+            '[data-founding-pet-forget]',
+          );
+
+        const status =
+          section.querySelector<HTMLElement>(
+            '[data-founding-pet-status]',
+          );
+
+        const renderProfile =
+          (
+            profile:
+              FoundingPackPersonalizationProfile,
+          ): void => {
+            const messaging =
+              buildFoundingPackPersonalizedMessaging(
+                profile,
+              );
+
+            const interestMessage =
+              storeLive
+                ? profile.launchInterest
+                  ? isSpanish
+                    ? `Tu interés guardado para ${profile.petName}: ${SPANISH_INTEREST_LABELS[profile.launchInterest]}.`
+                    : `Your saved interest for ${profile.petName}: ${INTEREST_LABELS[profile.launchInterest]}.`
+                  : undefined
+                : isSpanish
+                  ? buildSpanishLaunchMessage(
+                      profile,
+                    )
+                  : messaging.launchMessage;
+
+            const guideSlugs =
+              new Set(
+                Array.from(
+                  document.querySelectorAll<HTMLElement>(
+                    '[data-pet-guides-preview] [data-guide-card]',
+                  ),
+                ).map(
+                  (card) =>
+                    card.dataset
+                      .guideSlug,
+                ),
+              );
+
+            const hasMatchingGuides =
+              getPersonalizedGuidePriorities(
+                profile,
+              ).some(
+                (slug) =>
+                  guideSlugs.has(
+                    slug,
+                  ),
+              );
+
+            if (greeting) {
+              greeting.textContent =
+                isSpanish
+                  ? `¡Qué bueno verte de nuevo, ${profile.petName}! 🐾`
+                  : messaging.greeting;
+            }
+
+            if (summary) {
+              summary.textContent =
+                isSpanish
+                  ? buildSpanishProfileSummary(
+                      profile,
+                    )
+                  : messaging.profileSummary;
+            }
+
+            if (launchMessage) {
+              launchMessage.textContent =
+                interestMessage ??
+                '';
+
+              launchMessage.hidden =
+                !interestMessage;
+            }
+
+            if (guideLink) {
+              guideLink.href =
+                hasMatchingGuides
+                  ? matchingGuideHref
+                  : defaultGuideHref;
+            }
+
+            if (guideLinkLabel) {
+              guideLinkLabel.textContent =
+                hasMatchingGuides
+                  ? isSpanish
+                    ? `Explorar guías para ${profile.petName}`
+                    : `Explore guides for ${profile.petName}`
+                  : defaultGuideLabel;
+            }
+
+            if (status) {
+              status.textContent =
+                '';
+            }
+
+            section.classList.remove(
+              'hidden',
+            );
+          };
+
+        const readStoredProfile =
+          ():
+            FoundingPackPersonalizationProfile |
+            null => {
+            try {
+              const serialized =
+                window.localStorage.getItem(
+                  FOUNDING_PACK_PERSONALIZATION_STORAGE_KEY,
+                );
+
+              return serialized
+                ? deserializeFoundingPackPersonalizationProfile(
+                    serialized,
+                  )
+                : null;
+            } catch {
+              return null;
+            }
+          };
+
+        const renderStoredProfile =
+          (): void => {
+            const profile =
+              readStoredProfile();
+
+            if (profile) {
+              renderProfile(
+                profile,
+              );
+            } else {
+              section.classList.add(
+                'hidden',
+              );
+            }
+          };
+
+        const handleSavedProfile =
+          (
+            event:
+              Event,
+          ): void => {
+            const profile =
+              parseFoundingPackPersonalizationProfile(
+                (
+                  event as
+                    CustomEvent<unknown>
+                ).detail,
+              );
+
+            if (profile) {
+              renderProfile(
+                profile,
+              );
+            } else {
+              renderStoredProfile();
+            }
+          };
+
+        const handleForget =
+          (): void => {
+            try {
+              window.localStorage.removeItem(
+                FOUNDING_PACK_PERSONALIZATION_STORAGE_KEY,
+              );
+            } catch {
+              if (status) {
+                status.textContent =
+                  forgetError;
+              }
+
+              return;
+            }
+
+            const shouldMoveFocus =
+              section.contains(
+                document.activeElement,
+              );
+
+            section.classList.add(
+              'hidden',
+            );
+
+            window.dispatchEvent(
+              new CustomEvent(
+                PERSONALIZATION_FORGOTTEN_EVENT,
+              ),
+            );
+
+            if (shouldMoveFocus) {
+              const guideHeading =
+                document.querySelector<HTMLElement>(
+                  '#pet-guides-preview-title',
+                );
+
+              if (guideHeading) {
+                guideHeading.setAttribute(
+                  'tabindex',
+                  '-1',
+                );
+
+                guideHeading.focus();
+              }
+            }
+          };
+
+        forgetButton?.addEventListener(
+          'click',
+          handleForget,
+        );
+
+        window.addEventListener(
+          PERSONALIZATION_SAVED_EVENT,
+          handleSavedProfile,
+        );
+
+        renderStoredProfile();
+
+        const cleanup =
+          (): void => {
+            forgetButton?.removeEventListener(
+              'click',
+              handleForget,
+            );
+
+            window.removeEventListener(
+              PERSONALIZATION_SAVED_EVENT,
+              handleSavedProfile,
+            );
+
+            delete section.dataset
+              .foundingPetWelcomeInitialized;
+          };
+
+        document.addEventListener(
+          'astro:before-swap',
+          cleanup,
+          {
+            once:
+              true,
+          },
+        );
+      }
+    };
+
   initializeFoundingPackWelcomeBack();
-  document.addEventListener('astro:page-load', initializeFoundingPackWelcomeBack);
+
+  document.addEventListener(
+    'astro:page-load',
+    initializeFoundingPackWelcomeBack,
+  );
 </script>
