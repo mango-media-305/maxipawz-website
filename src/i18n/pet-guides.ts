@@ -7,7 +7,11 @@
  */
 const translatedPetGuideSlugs:
     ReadonlySet<string> =
-    new Set<string>([]);
+    new Set<string>([
+        'choosing-the-right-product',
+        'dog-hydration-miami-heat',
+        'play-and-enrichment',
+    ]);
 
 export function hasTranslatedPetGuideSlug(
     slug:
