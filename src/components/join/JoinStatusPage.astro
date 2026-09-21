@@ -202,7 +202,12 @@ const headingId = `join-${status}-title`;
     aria-labelledby={headingId}
   >
     <div
-      class="pointer-events-none absolute -top-40 -left-40 size-128 rounded-full bg-brand-300/25 blur-3xl"
+      class:list={[
+        'pointer-events-none absolute -top-40 -left-40 size-128 rounded-full blur-3xl',
+        isProblem
+          ? 'bg-brand-300/20'
+          : 'bg-brand-300/25',
+      ]}
       aria-hidden="true"
     >
     </div>
@@ -217,7 +222,9 @@ const headingId = `join-${status}-title`;
       <div
         class:list={[
           'mx-auto max-w-3xl overflow-hidden rounded-[2.5rem] bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 text-center shadow-card sm:p-8 lg:p-12',
-          isProblem ? 'border border-accent-200' : 'border border-brand-200',
+          isProblem
+            ? 'border border-accent-200'
+            : 'border border-brand-200',
         ]}
       >
         <span
@@ -229,16 +236,26 @@ const headingId = `join-${status}-title`;
           ]}
           aria-hidden="true"
         >
-          {isProblem ? <WarningCircleBold class="size-10" /> : <CheckCircleFill class="size-10" />}
+          {
+            isProblem
+              ? (
+                  <WarningCircleBold class="size-10" />
+                )
+              : (
+                  <CheckCircleFill class="size-10" />
+                )
+          }
         </span>
 
         <Badge variant="brand" size="md" class="mx-auto mt-7">
           {
-            isProblem ? (
-              <PawPrintBold slot="icon" aria-hidden="true" />
-            ) : (
-              <HeartBold slot="icon" aria-hidden="true" />
-            )
+            isProblem
+              ? (
+                  <PawPrintBold slot="icon" aria-hidden="true" />
+                )
+              : (
+                  <HeartBold slot="icon" aria-hidden="true" />
+                )
           }
 
           {copy.badge}
@@ -251,14 +268,18 @@ const headingId = `join-${status}-title`;
           {copy.heading}
         </h1>
 
-        <p class="mx-auto mt-5 max-w-xl text-base leading-7 text-ink-600 sm:text-lg sm:leading-8">
+        <p
+          class="mx-auto mt-5 max-w-xl text-base leading-7 text-ink-600 sm:text-lg sm:leading-8"
+        >
           {copy.message}
         </p>
 
         <div
           class:list={[
             'mx-auto mt-8 max-w-xl rounded-3xl bg-white-warm p-5',
-            isProblem ? 'border border-sand' : 'border border-brand-200',
+            isProblem
+              ? 'border border-sand'
+              : 'border border-brand-200',
           ]}
         >
           <p class="font-extrabold text-ink-900">
