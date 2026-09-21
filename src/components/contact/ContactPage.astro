@@ -1,0 +1,37 @@
+---
+import ContactForm from '@components/contact/ContactForm.astro';
+import ContactHero from '@components/contact/ContactHero.astro';
+import ContactOptions from '@components/contact/ContactOptions.astro';
+
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+import { businessConfig } from '../../config/business';
+import { getLocaleFromPathname } from '../../i18n/languages';
+
+const locale =
+  getLocaleFromPathname(
+    Astro.url.pathname,
+  );
+
+const spanish =
+  locale === 'es';
+---
+
+<BaseLayout
+  title={
+    spanish
+      ? 'Contacto'
+      : 'Contact'
+  }
+  description={
+    spanish
+      ? `Contacta con ${businessConfig.shortName} para preguntas generales, consultas sobre productos, ideas de colaboración, comentarios sobre el sitio web y solicitudes de ayuda.`
+      : `Contact ${businessConfig.shortName} with general questions, product questions, partnership ideas, website feedback, order-support requests, and return-related questions.`
+  }
+>
+  <ContactHero />
+
+  <ContactOptions />
+
+  <ContactForm />
+</BaseLayout>

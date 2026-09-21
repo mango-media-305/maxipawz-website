@@ -9,6 +9,8 @@ const translatedPaths:
     new Set<string>([
         '/',
         '/about',
+        '/contact',
+        '/contact/success',
         '/faq',
     ]);
 
