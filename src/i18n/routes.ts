@@ -15,6 +15,7 @@ const translatedPaths:
         '/faq',
         '/product-safety',
         '/return-policy',
+        '/shipping-policy',
     ]);
 
 export function normalizePathname(
