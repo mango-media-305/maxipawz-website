@@ -1,0 +1,301 @@
+---
+import AnalyticsEvent from '@components/analytics/AnalyticsEvent.astro';
+
+import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
+import CheckCircleFill from 'phosphor-astro/CheckCircleFill.astro';
+import HeartBold from 'phosphor-astro/HeartBold.astro';
+import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
+import WarningCircleBold from 'phosphor-astro/WarningCircleBold.astro';
+
+import Badge from '@components/ui/Badge.astro';
+import Button from '@components/ui/Button.astro';
+
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+import { getLocaleFromPathname } from '../../i18n/languages';
+
+import { localizeHref, localizedLinkLabel } from '../../i18n/routes';
+
+type JoinStatus = 'success' | 'thanks' | 'problem';
+
+interface Props {
+  status: JoinStatus;
+}
+
+const { status } = Astro.props;
+
+const locale = getLocaleFromPathname(Astro.url.pathname);
+
+const spanish = locale === 'es';
+
+const copy = {
+  success: spanish
+    ? {
+        title: 'Registro completado',
+
+        description:
+          'Tu registro en Maxi Pawz y tu preferencia de correo electrónico se guardaron correctamente.',
+
+        badge: 'Novedades de Maxi Pawz',
+
+        heading: 'Te registraste para recibir novedades de Maxi Pawz.',
+
+        message:
+          'Tu información y tu preferencia de correo electrónico se guardaron correctamente. Te mantendremos al día con noticias de Maxi Pawz, nuevos productos, guías útiles para mascotas y ofertas ocasionales.',
+
+        noteTitle: 'Tú tienes el control.',
+
+        note: 'Todos los correos de marketing de Maxi Pawz incluirán una opción para cancelar la suscripción cuando lo desees.',
+
+        primaryLabel: 'Explorar guías para mascotas',
+
+        secondaryLabel: 'Volver al inicio',
+      }
+    : {
+        title: "You're Signed Up",
+
+        description: 'Your Maxi Pawz signup and email preference were saved successfully.',
+
+        badge: 'Maxi Pawz Updates',
+
+        heading: "You're signed up for Maxi Pawz Updates.",
+
+        message:
+          "Your information and email preference were saved successfully. We'll keep you updated with Maxi Pawz news, new products, helpful pet guides, and occasional offers.",
+
+        noteTitle: "You're in control.",
+
+        note: 'Every Maxi Pawz marketing email will include an option to unsubscribe whenever you choose.',
+
+        primaryLabel: 'Explore Pet Guides',
+
+        secondaryLabel: 'Return Home',
+      },
+
+  thanks: spanish
+    ? {
+        title: 'Gracias por acompañarnos',
+
+        description: 'Tu interés en Maxi Pawz se registró correctamente.',
+
+        badge: 'Gracias por tu interés',
+
+        heading: 'Gracias por conocer Maxi Pawz.',
+
+        message:
+          'Tu información se guardó correctamente. Elegiste no recibir correos de marketing de Maxi Pawz y respetaremos esa preferencia.',
+
+        noteTitle: '¿Cambias de opinión más adelante?',
+
+        note: 'Puedes regresar al formulario de Novedades de Maxi Pawz en cualquier momento y enviarlo nuevamente seleccionando la opción para recibir correos electrónicos.',
+
+        primaryLabel: 'Explorar guías para mascotas',
+
+        secondaryLabel: 'Volver al inicio',
+      }
+    : {
+        title: 'Thanks for Joining Us',
+
+        description: 'Your interest in Maxi Pawz was recorded successfully.',
+
+        badge: 'Thanks for Your Interest',
+
+        heading: 'Thanks for checking out Maxi Pawz.',
+
+        message:
+          "Your information was saved successfully. You chose not to receive Maxi Pawz marketing emails, and we'll respect that preference.",
+
+        noteTitle: 'Changed your mind later?',
+
+        note: 'You can return to the Maxi Pawz Updates form at any time and submit it again with email updates selected.',
+
+        primaryLabel: 'Explore Pet Guides',
+
+        secondaryLabel: 'Return Home',
+      },
+
+  problem: spanish
+    ? {
+        title: 'Registro temporalmente no disponible',
+
+        description: 'No pudimos completar tu registro en Maxi Pawz.',
+
+        badge: 'Ya casi terminamos',
+
+        heading: 'No pudimos completar tu registro.',
+
+        message:
+          'Es posible que exista un problema temporal de conexión con nuestro sistema de correo electrónico. Intenta nuevamente el formulario de Novedades de Maxi Pawz dentro de un momento.',
+
+        noteTitle: 'Tu preferencia es importante.',
+
+        note: 'Si tu información llegó a nuestro sistema antes de que ocurriera el problema de conexión, conservaremos la preferencia de correo electrónico que enviaste más recientemente.',
+
+        primaryLabel: 'Intentar de nuevo',
+
+        secondaryLabel: 'Volver al inicio',
+      }
+    : {
+        title: 'Signup Temporarily Unavailable',
+
+        description: 'The Maxi Pawz signup could not be completed.',
+
+        badge: 'Almost There',
+
+        heading: "We couldn't finish your signup.",
+
+        message:
+          'We may be having a temporary connection problem with our email system. Please try the Maxi Pawz Updates form again in a moment.',
+
+        noteTitle: 'Your preference matters.',
+
+        note: 'If your information reached our system before the connection problem occurred, we keep your most recently submitted email preference on record.',
+
+        primaryLabel: 'Try Again',
+
+        secondaryLabel: 'Return Home',
+      },
+}[status];
+
+const isProblem = status === 'problem';
+
+const primarySourceHref = isProblem ? '/#maxi-pawz-updates' : '/pet-guides';
+
+const primaryHref = localizeHref(primarySourceHref, locale);
+
+const primaryLabel = localizedLinkLabel(copy.primaryLabel, primarySourceHref, locale);
+
+const homeHref = localizeHref('/', locale);
+
+const headingId = `join-${status}-title`;
+---
+
+<BaseLayout title={copy.title} description={copy.description} noIndex={true}>
+  {
+    status === 'success' && (
+      <AnalyticsEvent
+        name="generate_lead"
+        clarityName="newsletterSignup"
+        parameters={{
+          lead_source: 'launch_list',
+          email_marketing_opt_in: true,
+        }}
+      />
+    )
+  }
+
+  {
+    status === 'thanks' && (
+      <AnalyticsEvent
+        name="generate_lead"
+        clarityName="launchLeadNoMarketing"
+        parameters={{
+          lead_source: 'launch_list',
+          email_marketing_opt_in: false,
+        }}
+      />
+    )
+  }
+
+  <section
+    class="relative flex min-h-[70vh] items-center overflow-hidden py-16 sm:py-20"
+    aria-labelledby={headingId}
+  >
+    <div
+      class="pointer-events-none absolute -top-40 -left-40 size-128 rounded-full bg-brand-300/25 blur-3xl"
+      aria-hidden="true"
+    >
+    </div>
+
+    <div
+      class="pointer-events-none absolute -right-40 -bottom-40 size-136 rounded-full bg-accent-300/25 blur-3xl"
+      aria-hidden="true"
+    >
+    </div>
+
+    <div class="site-container relative">
+      <div
+        class:list={[
+          'mx-auto max-w-3xl overflow-hidden rounded-[2.5rem] bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 text-center shadow-card sm:p-8 lg:p-12',
+          isProblem ? 'border border-accent-200' : 'border border-brand-200',
+        ]}
+      >
+        <span
+          class:list={[
+            'mx-auto grid size-20 place-items-center rounded-full shadow-soft',
+            isProblem
+              ? 'border border-accent-200 bg-accent-50 text-accent-700'
+              : 'bg-success-100 text-success-700',
+          ]}
+          aria-hidden="true"
+        >
+          {isProblem ? <WarningCircleBold class="size-10" /> : <CheckCircleFill class="size-10" />}
+        </span>
+
+        <Badge variant="brand" size="md" class="mx-auto mt-7">
+          {
+            isProblem ? (
+              <PawPrintBold slot="icon" aria-hidden="true" />
+            ) : (
+              <HeartBold slot="icon" aria-hidden="true" />
+            )
+          }
+
+          {copy.badge}
+        </Badge>
+
+        <h1
+          id={headingId}
+          class="mx-auto mt-6 max-w-2xl text-4xl text-ink-900 sm:text-5xl lg:text-6xl"
+        >
+          {copy.heading}
+        </h1>
+
+        <p class="mx-auto mt-5 max-w-xl text-base leading-7 text-ink-600 sm:text-lg sm:leading-8">
+          {copy.message}
+        </p>
+
+        <div
+          class:list={[
+            'mx-auto mt-8 max-w-xl rounded-3xl bg-white-warm p-5',
+            isProblem ? 'border border-sand' : 'border border-brand-200',
+          ]}
+        >
+          <p class="font-extrabold text-ink-900">
+            {copy.noteTitle}
+          </p>
+
+          <p class="mt-2 text-sm leading-6 text-ink-600">
+            {copy.note}
+          </p>
+        </div>
+
+        <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <Button
+            href={primaryHref}
+            variant="primary"
+            size="lg"
+            iconPosition="right"
+            class="w-full sm:w-auto"
+          >
+            <PawPrintBold slot="icon" aria-hidden="true" />
+
+            {primaryLabel}
+          </Button>
+
+          <Button
+            href={homeHref}
+            variant="secondary"
+            size="lg"
+            iconPosition="right"
+            class="w-full sm:w-auto"
+          >
+            <ArrowRightBold slot="icon" aria-hidden="true" />
+
+            {copy.secondaryLabel}
+          </Button>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
