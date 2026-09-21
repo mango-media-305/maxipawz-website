@@ -8,90 +8,208 @@ import Button from '../ui/Button.astro';
 
 import { isStoreLive } from '../../config/storefront';
 
+import {
+  getLocaleFromPathname,
+} from '../../i18n/languages';
+
+import {
+  localizeHref,
+  localizedLinkLabel,
+} from '../../i18n/routes';
+
 interface Props {
-  hasProducts: boolean;
-  hasDemoProducts?: boolean;
+  hasProducts:
+    boolean;
+
+  hasDemoProducts?:
+    boolean;
 }
 
-const { hasProducts, hasDemoProducts = false } = Astro.props;
+const {
+  hasProducts,
+  hasDemoProducts = false,
+} =
+  Astro.props;
 
-const isEmptyLiveStore = isStoreLive && !hasProducts;
-const isCatalogPreview = hasProducts && (!isStoreLive || hasDemoProducts);
+const locale =
+  getLocaleFromPathname(
+    Astro.url.pathname,
+  );
 
-const badgeLabel = !isStoreLive
-  ? 'Our collection is taking shape'
-  : isEmptyLiveStore
-    ? 'Maxi Pawz'
-    : isCatalogPreview
-      ? 'Product preview'
-      : 'Shop Maxi Pawz';
+const spanish =
+  locale === 'es';
 
-const headingStart = isEmptyLiveStore
-  ? 'No products to show'
-  : isStoreLive
-    ? 'Find something special for'
-    : 'A joyful shop for';
+const isEmptyLiveStore =
+  isStoreLive &&
+  !hasProducts;
 
-const headingEnd = isEmptyLiveStore
-  ? 'right now.'
-  : isStoreLive
-    ? 'every pet moment.'
-    : 'everyday pet life.';
+const isCatalogPreview =
+  hasProducts &&
+  (
+    !isStoreLive ||
+    hasDemoProducts
+  );
 
-const description = isEmptyLiveStore
-  ? 'Get product updates, or explore our pet guides for ideas to try with your pet.'
-  : isStoreLive
-    ? 'Explore the collection, discover the details, and find what fits your pet’s everyday routine.'
+const badgeLabel =
+  !isStoreLive
+    ? spanish
+      ? 'Nuestra colección está tomando forma'
+      : 'Our collection is taking shape'
+    : isEmptyLiveStore
+      ? 'Maxi Pawz'
+      : isCatalogPreview
+        ? spanish
+          ? 'Vista previa de productos'
+          : 'Product preview'
+        : spanish
+          ? 'Compra en Maxi Pawz'
+          : 'Shop Maxi Pawz';
+
+const headingStart =
+  isEmptyLiveStore
+    ? spanish
+      ? 'No hay productos disponibles'
+      : 'No products to show'
+    : isStoreLive
+      ? spanish
+        ? 'Encuentra algo especial para'
+        : 'Find something special for'
+      : spanish
+        ? 'Una tienda alegre para'
+        : 'A joyful shop for';
+
+const headingEnd =
+  isEmptyLiveStore
+    ? spanish
+      ? 'en este momento.'
+      : 'right now.'
+    : isStoreLive
+      ? spanish
+        ? 'cada momento con tu mascota.'
+        : 'every pet moment.'
+      : spanish
+        ? 'la vida cotidiana con mascotas.'
+        : 'everyday pet life.';
+
+const description =
+  isEmptyLiveStore
+    ? spanish
+      ? 'Recibe novedades de productos o explora nuestras guías para encontrar nuevas ideas para disfrutar con tu mascota.'
+      : 'Get product updates, or explore our pet guides for ideas to try with your pet.'
+    : isStoreLive
+      ? spanish
+        ? 'Explora la colección, descubre los detalles y encuentra lo que mejor se adapta a la rutina cotidiana de tu mascota.'
+        : 'Explore the collection, discover the details, and find what fits your pet’s everyday routine.'
+      : hasProducts
+        ? spanish
+          ? 'Explora una vista previa de la colección que estamos preparando y regístrate para saber cuándo abre la tienda.'
+          : 'Preview the collection we are preparing, and sign up to hear when the store opens.'
+        : spanish
+          ? 'Estamos preparando nuestra primera colección. Descubre lo que viene y regístrate para recibir novedades del lanzamiento.'
+          : 'We are preparing our first collection. Explore what is coming and sign up for launch updates.';
+
+const primarySourceHref =
+  hasProducts
+    ? '#products'
+    : '/#maxi-pawz-updates';
+
+const primaryLabel =
+  hasProducts
+    ? isCatalogPreview
+      ? spanish
+        ? 'Ver productos'
+        : 'Preview Products'
+      : spanish
+        ? 'Explorar productos'
+        : 'Browse Products'
+    : isStoreLive
+      ? spanish
+        ? 'Recibir novedades de productos'
+        : 'Get Product Updates'
+      : spanish
+        ? 'Recibir novedades del lanzamiento'
+        : 'Get Launch Updates';
+
+const secondarySourceHref =
+  isStoreLive
+    ? '/pet-guides'
     : hasProducts
-      ? 'Preview the collection we are preparing, and sign up to hear when the store opens.'
-      : 'We are preparing our first collection. Explore what is coming and sign up for launch updates.';
+      ? '/#maxi-pawz-updates'
+      : '#shop-categories';
 
-const primaryAction = hasProducts
-  ? {
-      href: '#products',
-      label: isCatalogPreview ? 'Preview Products' : 'Browse Products',
-    }
-  : {
-      href: '/#maxi-pawz-updates',
-      label: isStoreLive ? 'Get Product Updates' : 'Get Launch Updates',
-    };
+const secondaryBaseLabel =
+  isStoreLive
+    ? spanish
+      ? 'Leer guías para mascotas'
+      : 'Read Pet Guides'
+    : hasProducts
+      ? spanish
+        ? 'Recibir novedades del lanzamiento'
+        : 'Get Launch Updates'
+      : spanish
+        ? 'Explorar lo que viene'
+        : 'Explore What’s Coming';
 
-const secondaryAction = isStoreLive
-  ? {
-      href: '/pet-guides',
-      label: 'Read Pet Guides',
-    }
-  : hasProducts
-    ? {
-        href: '/#maxi-pawz-updates',
-        label: 'Get Launch Updates',
-      }
-    : {
-        href: '#shop-categories',
-        label: 'Explore What’s Coming',
-      };
+const primaryHref =
+  localizeHref(
+    primarySourceHref,
+    locale,
+  );
+
+const secondaryHref =
+  localizeHref(
+    secondarySourceHref,
+    locale,
+  );
+
+const secondaryLabel =
+  localizedLinkLabel(
+    secondaryBaseLabel,
+    secondarySourceHref,
+    locale,
+  );
 ---
 
-<section class="relative overflow-hidden" aria-labelledby="shop-hero-title">
+<section
+  class="relative overflow-hidden"
+  aria-labelledby="shop-hero-title"
+>
   <div
     class="pointer-events-none absolute -top-40 -left-40 size-128 rounded-full bg-brand-300/25 blur-3xl"
     aria-hidden="true"
-  ></div>
+  >
+  </div>
 
   <div
     class="pointer-events-none absolute top-8 -right-48 size-136 rounded-full bg-accent-300/25 blur-3xl"
     aria-hidden="true"
-  ></div>
+  >
+  </div>
 
   <div class="site-container-wide py-8 sm:py-10 lg:py-12">
     <div class="relative z-10 max-w-4xl">
-      <Badge variant={isStoreLive ? 'brand' : 'accent'} size="md">
+      <Badge
+        variant={
+          isStoreLive
+            ? 'brand'
+            : 'accent'
+        }
+        size="md"
+      >
         {
-          isStoreLive ? (
-            <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
-          ) : (
-            <ConfettiBold slot="icon" aria-hidden="true" />
-          )
+          isStoreLive
+            ? (
+                <ShoppingBagOpenBold
+                  slot="icon"
+                  aria-hidden="true"
+                />
+              )
+            : (
+                <ConfettiBold
+                  slot="icon"
+                  aria-hidden="true"
+                />
+              )
         }
 
         {badgeLabel}
@@ -102,7 +220,10 @@ const secondaryAction = isStoreLive
         class="mt-5 text-4xl leading-[1.1] text-ink-900 sm:text-5xl lg:text-6xl"
       >
         {headingStart}
-        <span class="mt-1 block text-brand-gradient">{headingEnd}</span>
+
+        <span class="mt-1 block text-brand-gradient">
+          {headingEnd}
+        </span>
       </h1>
 
       <p class="mt-5 max-w-2xl text-base leading-7 text-ink-600 sm:text-lg sm:leading-8">
@@ -111,23 +232,27 @@ const secondaryAction = isStoreLive
 
       <div class="mt-6 flex flex-col gap-3 sm:flex-row">
         <Button
-          href={primaryAction.href}
+          href={primaryHref}
           variant="primary"
           size="lg"
           iconPosition="right"
           class="w-full sm:w-auto"
         >
-          <ArrowRightBold slot="icon" aria-hidden="true" />
-          {primaryAction.label}
+          <ArrowRightBold
+            slot="icon"
+            aria-hidden="true"
+          />
+
+          {primaryLabel}
         </Button>
 
         <Button
-          href={secondaryAction.href}
+          href={secondaryHref}
           variant="secondary"
           size="lg"
           class="w-full sm:w-auto"
         >
-          {secondaryAction.label}
+          {secondaryLabel}
         </Button>
       </div>
     </div>

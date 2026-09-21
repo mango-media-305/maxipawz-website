@@ -1,0 +1,70 @@
+---
+import ProductGrid from '@components/products/ProductGrid.astro';
+import PrelaunchShopState from '@components/shop/PrelaunchShopState.astro';
+import ShopCategoryGrid from '@components/shop/ShopCategoryGrid.astro';
+import ShopHero from '@components/shop/ShopHero.astro';
+
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+import { isStorePrelaunch } from '../../config/storefront';
+
+import { getShopPrinciples } from '../../data/shop';
+
+import { getLocaleFromPathname } from '../../i18n/languages';
+
+import { getStorefrontCatalogProducts } from '../../utils/storefront-catalog';
+
+const locale = getLocaleFromPathname(Astro.url.pathname);
+
+const spanish = locale === 'es';
+
+const catalogProducts = getStorefrontCatalogProducts(locale);
+
+const hasProducts = catalogProducts.length > 0;
+
+const hasDemoProducts = catalogProducts.some((product) => product.isDemo);
+
+const principles = getShopPrinciples(locale);
+
+const title = spanish ? 'Tienda' : 'Shop';
+
+const description = spanish
+  ? 'Busca y explora juguetes, accesorios para paseos, productos de alimentación, artículos de comodidad, productos de aseo, collares y artículos cotidianos para mascotas de Maxi Pawz.'
+  : 'Search and explore Maxi Pawz pet toys, walking accessories, feeding products, comfort items, grooming essentials, collars, and everyday supplies.';
+
+const principlesLabel = spanish
+  ? 'Cómo Maxi Pawz desarrolla su colección'
+  : 'How Maxi Pawz approaches its collection';
+---
+
+<BaseLayout title={title} description={description} noIndex={isStorePrelaunch || hasDemoProducts}>
+  <ShopHero hasProducts={hasProducts} hasDemoProducts={hasDemoProducts} />
+
+  <section class="border-y border-sand bg-white-warm/65" aria-label={principlesLabel}>
+    <div class="site-container grid gap-2 py-2 sm:py-4 md:grid-cols-3 md:gap-4">
+      {
+        principles.map((principle) => (
+          <article class="flex flex-row items-center justify-center gap-4 rounded-3xl p-4 transition hover:bg-cream sm:p-5">
+            <div>
+              <h2 class="interface-heading text-lg">{principle.title}</h2>
+
+              <p class="interface-body text-sm">{principle.description}</p>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  {
+    hasProducts && (
+      <div id="product-grid">
+        <ProductGrid products={catalogProducts} demoMode={isStorePrelaunch || hasDemoProducts} />
+      </div>
+    )
+  }
+
+  <ShopCategoryGrid />
+
+  {isStorePrelaunch && <PrelaunchShopState />}
+</BaseLayout>
