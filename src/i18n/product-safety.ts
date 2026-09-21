@@ -51,7 +51,7 @@ const spanishSections: SafetySection[] = [
             'Revisa para qué animal, actividad, edad y tipo de uso está diseñado.',
             'Ten en cuenta la fuerza al morder, el estilo de juego y el nivel de actividad.',
             'Evita artículos demasiado pequeños o difíciles de usar con comodidad.',
-            'Vuelve a revisar el ajuste después del crecimiento, cambios de peso, grooming o cambios importantes en el grosor del pelaje.',
+            'Vuelve a revisar el ajuste después del crecimiento, cambios de peso, aseo o cambios importantes en el grosor del pelaje.',
         ],
 
         note:
@@ -117,7 +117,7 @@ const spanishSections: SafetySection[] = [
 
         points: [
             'Observa de cerca el primer uso.',
-            'Supervisa juguetes con relleno, squeakers, cuerdas, accesorios o piezas desmontables.',
+            'Supervisa juguetes con relleno, dispositivos sonoros, cuerdas, accesorios o piezas desmontables.',
             'Guarda fuera de alcance los productos que requieren supervisión cuando termine la actividad.',
             'No asumas que el uso de un producto conocido siempre permanecerá igual.',
             'Separa a las mascotas cuando la competencia por un producto pueda generar conflictos.',
@@ -170,7 +170,7 @@ const spanishSections: SafetySection[] = [
             'Deja secar completamente los productos mojados antes de guardarlos.',
             'Lava y seca los recipientes de comida y utensilios de alimentación después de usarlos.',
             'Lava los recipientes de agua regularmente y mantén limpios los productos utilizados para beber.',
-            'Guarda productos, treats, alimentos, embalajes y piezas pequeñas sueltas en lugares seguros.',
+            'Guarda productos, premios, alimentos, embalajes y piezas pequeñas sueltas en lugares seguros.',
         ],
     },
 ];
@@ -189,7 +189,7 @@ const spanishProductSpecificChecklists: ProductSafetyChecklist[] = [
 
         items: [
             'Elige un tamaño adecuado para la boca y el cuerpo de la mascota.',
-            'Supervisa juguetes con relleno, squeakers, cuerdas o piezas desmontables.',
+            'Supervisa juguetes con relleno, dispositivos sonoros, cuerdas o piezas desmontables.',
             'Retira juguetes con roturas, perforaciones, piezas sueltas o material expuesto.',
             'Guarda los productos interactivos cuando termine la actividad supervisada.',
         ],
@@ -209,7 +209,7 @@ const spanishProductSpecificChecklists: ProductSafetyChecklist[] = [
         items: [
             'Mide a la mascota y sigue la guía de tallas específica del producto.',
             'Revisa hebillas, broches, anillas, costuras y puntos de ajuste.',
-            'Vuelve a comprobar el ajuste después del crecimiento, grooming o cambios de peso.',
+            'Vuelve a comprobar el ajuste después del crecimiento, aseo o cambios de peso.',
             'Reemplaza equipos con correas, herrajes o cierres debilitados.',
         ],
     },
@@ -239,7 +239,7 @@ const spanishProductSpecificChecklists: ProductSafetyChecklist[] = [
         title: 'Viajes, comodidad y cuidado',
 
         description:
-            'Introduce transportadoras, camas, productos de viaje, herramientas de grooming y artículos de cuidado antes de depender de ellos durante una actividad prolongada.',
+            'Introduce transportadoras, camas, productos de viaje, herramientas de aseo y artículos de cuidado antes de depender de ellos durante una actividad prolongada.',
 
         icon: 'care',
         tone: 'brand',
@@ -247,7 +247,7 @@ const spanishProductSpecificChecklists: ProductSafetyChecklist[] = [
         items: [
             'Confirma que los productos de viaje y descanso ofrezcan espacio y ventilación adecuados.',
             'Revisa cremalleras, correas, asas, cierres, costuras y puntos de unión.',
-            'Mantén breves las sesiones de grooming mientras introduces herramientas nuevas.',
+            'Mantén breves las sesiones de aseo mientras introduces herramientas nuevas.',
             'Detén el uso si un artículo provoca dolor, lesiones, malestar continuo o limita el movimiento.',
         ],
     },
