@@ -12,6 +12,7 @@ const translatedPaths:
         '/contact',
         '/contact/success',
         '/faq',
+        '/product-safety',
     ]);
 
 export function normalizePathname(

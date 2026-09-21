@@ -1,0 +1,840 @@
+---
+import ArrowRightBold from 'phosphor-astro/ArrowRightBold.astro';
+import CheckCircleFill from 'phosphor-astro/CheckCircleFill.astro';
+import ConfettiBold from 'phosphor-astro/ConfettiBold.astro';
+import HeartBold from 'phosphor-astro/HeartBold.astro';
+import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
+import ShieldCheckBold from 'phosphor-astro/ShieldCheckBold.astro';
+import ShoppingBagOpenBold from 'phosphor-astro/ShoppingBagOpenBold.astro';
+import SparkleBold from 'phosphor-astro/SparkleBold.astro';
+import SuitcaseRollingBold from 'phosphor-astro/SuitcaseRollingBold.astro';
+
+import SafetyCard from '@components/safety/SafetyCard.astro';
+import SafetyChecklist from '@components/safety/SafetyChecklist.astro';
+import Badge from '@components/ui/Badge.astro';
+import Button from '@components/ui/Button.astro';
+
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+import type {
+  ProductChecklistIcon,
+  SafetySectionIcon,
+} from '../../data/product-safety';
+
+import {
+  getProductSafetyContent,
+} from '../../i18n/product-safety';
+
+import {
+  getLocaleFromPathname,
+} from '../../i18n/languages';
+
+import {
+  localizeHref,
+  localizedLinkLabel,
+} from '../../i18n/routes';
+
+const locale =
+  getLocaleFromPathname(
+    Astro.url.pathname,
+  );
+
+const spanish =
+  locale === 'es';
+
+const {
+  heroPoints,
+  beforeUseChecklist,
+  sections,
+  productSpecificChecklists,
+  professionalGuidancePoints,
+} =
+  getProductSafetyContent(
+    locale,
+  );
+
+const iconBySection:
+  Record<
+    SafetySectionIcon,
+    typeof PawPrintBold
+  > = {
+  fit: PawPrintBold,
+  instructions: ShieldCheckBold,
+  introduction: HeartBold,
+  supervision: SparkleBold,
+  inspection: CheckCircleFill,
+  storage: ShoppingBagOpenBold,
+};
+
+const iconByChecklist:
+  Record<
+    ProductChecklistIcon,
+    typeof PawPrintBold
+  > = {
+  play: ConfettiBold,
+  walk: SuitcaseRollingBold,
+  feeding: HeartBold,
+  care: ShieldCheckBold,
+};
+
+const copy =
+  spanish
+    ? {
+        title:
+          'Seguridad de productos para mascotas',
+
+        description:
+          'Explora consejos prácticos para elegir, introducir, supervisar, inspeccionar, limpiar y mantener productos para mascotas.',
+
+        heroBadge:
+          'Seguridad de productos para mascotas',
+
+        heroStart:
+          'Cuidado responsable antes, durante y',
+
+        heroHighlight:
+          ' después de cada uso.',
+
+        heroDescription:
+          'Usa esta guía para considerar el ajuste, el uso previsto, la supervisión, la inspección, la limpieza y el reemplazo de productos como parte de la rutina diaria de tu mascota.',
+
+        exploreGuide:
+          'Explorar la guía',
+
+        choosingProduct:
+          'Cómo elegir un producto',
+
+        beforeUseTitle:
+          'Antes de cada uso',
+
+        beforeUseDescription:
+          'Una revisión visual y manual rápida puede ayudarte a decidir si un producto continúa siendo apropiado para la próxima actividad.',
+
+        everydayBadge:
+          'Guía de seguridad cotidiana',
+
+        everydayTitle:
+          'Crea una rutina sencilla alrededor de cada producto.',
+
+        everydayDescription:
+          'Comienza con las necesidades de cada mascota, sigue la información del producto, observa el uso real y continúa revisando el artículo durante toda su vida útil.',
+
+        safetyTopics:
+          'Temas de seguridad',
+
+        safetyTopicsAria:
+          'Temas de seguridad de productos',
+
+        categoryChecks:
+          'Revisiones por categoría',
+
+        generalInfo:
+          'Solo información general',
+
+        generalInfoDescription:
+          'La información del producto y esta guía no sustituyen un diagnóstico veterinario, tratamiento, atención de emergencia o recomendaciones específicas para tu mascota.',
+
+        productChecksBadge:
+          'Revisiones específicas por producto',
+
+        productChecksTitle:
+          'Cada tipo de producto requiere revisiones diferentes.',
+
+        productChecksDescription:
+          'Usa estos recordatorios junto con las instrucciones, advertencias, información de tallas e indicaciones de cuidado específicas de cada producto.',
+
+        knowWhenToStop:
+          'Reconoce cuándo detener el uso',
+
+        professionalTitle:
+          'Algunas situaciones requieren atención profesional.',
+
+        professionalDescription:
+          'Deja de usar el producto y busca ayuda adecuada cuando exista una lesión, ingestión, dificultad para respirar, envenenamiento, malestar significativo u otra situación que exceda la orientación general sobre productos.',
+
+        keepLearning:
+          'Sigue aprendiendo',
+
+        finalTitle:
+          'Tomar mejores decisiones comienza por comprender a tu mascota.',
+
+        finalDescription:
+          'Continúa con nuestra guía para elegir productos o contacta a Maxi Pawz si tienes una pregunta general sobre un producto.',
+
+        readProductGuide:
+          'Leer la guía de productos',
+
+        askQuestion:
+          'Hacer una pregunta',
+      }
+    : {
+        title:
+          'Pet Product Safety',
+
+        description:
+          'Explore practical guidance for choosing, introducing, supervising, inspecting, cleaning, and maintaining pet products.',
+
+        heroBadge:
+          'Pet Product Safety',
+
+        heroStart:
+          'Thoughtful care before, during, and',
+
+        heroHighlight:
+          ' after every use.',
+
+        heroDescription:
+          'Use this guide to think through product fit, intended use, supervision, inspection, cleaning, and replacement as part of your pet’s everyday routine.',
+
+        exploreGuide:
+          'Explore the Guide',
+
+        choosingProduct:
+          'Choosing a Product',
+
+        beforeUseTitle:
+          'Before each use',
+
+        beforeUseDescription:
+          'A quick visual and hands-on check can help you decide whether a product remains appropriate for the next activity.',
+
+        everydayBadge:
+          'Everyday Safety Guide',
+
+        everydayTitle:
+          'Build a simple routine around every product.',
+
+        everydayDescription:
+          'Start with the individual pet, follow the product information, observe real use, and continue checking the item throughout its useful life.',
+
+        safetyTopics:
+          'Safety Topics',
+
+        safetyTopicsAria:
+          'Product safety topics',
+
+        categoryChecks:
+          'Checks by category',
+
+        generalInfo:
+          'General information only',
+
+        generalInfoDescription:
+          'Product information and this guide do not replace veterinary diagnosis, treatment, emergency care, or advice specific to your pet.',
+
+        productChecksBadge:
+          'Product-Specific Checks',
+
+        productChecksTitle:
+          'Different products require different checks.',
+
+        productChecksDescription:
+          'Use these reminders alongside the individual product’s instructions, warnings, sizing information, and care directions.',
+
+        knowWhenToStop:
+          'Know When to Stop',
+
+        professionalTitle:
+          'Some concerns need professional attention.',
+
+        professionalDescription:
+          'Stop using the product and seek appropriate help when the situation involves injury, ingestion, breathing, poisoning, significant distress, or another concern beyond general product guidance.',
+
+        keepLearning:
+          'Keep Learning',
+
+        finalTitle:
+          'Better choices begin with understanding your pet.',
+
+        finalDescription:
+          'Continue with our product-selection guide or contact Maxi Pawz with a general product question.',
+
+        readProductGuide:
+          'Read the Product Guide',
+
+        askQuestion:
+          'Ask a Question',
+      };
+
+const productGuideHref =
+  localizeHref(
+    '/pet-guides/choosing-the-right-product',
+    locale,
+  );
+
+const choosingProductLabel =
+  localizedLinkLabel(
+    copy.choosingProduct,
+    '/pet-guides/choosing-the-right-product',
+    locale,
+  );
+
+const readProductGuideLabel =
+  localizedLinkLabel(
+    copy.readProductGuide,
+    '/pet-guides/choosing-the-right-product',
+    locale,
+  );
+
+const contactHref =
+  localizeHref(
+    '/contact#contact-form',
+    locale,
+  );
+---
+
+<BaseLayout
+  title={copy.title}
+  description={copy.description}
+>
+  <section
+    class="py-8 sm:py-10 lg:py-12"
+    aria-labelledby="product-safety-hero-title"
+  >
+    <div class="site-container">
+      <div
+        class="relative overflow-hidden rounded-[2.75rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 shadow-card sm:p-8 lg:p-10"
+      >
+        <div
+          class="pointer-events-none absolute -top-32 -left-28 size-80 rounded-full bg-brand-300/25 blur-3xl"
+          aria-hidden="true"
+        >
+        </div>
+
+        <div
+          class="pointer-events-none absolute -right-28 -bottom-36 size-96 rounded-full bg-accent-300/25 blur-3xl"
+          aria-hidden="true"
+        >
+        </div>
+
+        <div
+          class="relative grid items-center gap-9 lg:grid-cols-[1.08fr_0.92fr] lg:gap-12"
+        >
+          <div class="max-w-2xl">
+            <Badge
+              variant="accent"
+              size="md"
+            >
+              <ShieldCheckBold
+                slot="icon"
+                aria-hidden="true"
+              />
+
+              {copy.heroBadge}
+            </Badge>
+
+            <h1
+              id="product-safety-hero-title"
+              class="mt-6 text-4xl text-ink-900 sm:text-5xl lg:text-6xl"
+            >
+              {copy.heroStart}
+
+              <span
+                class="text-brand-gradient"
+              >
+                {copy.heroHighlight}
+              </span>
+            </h1>
+
+            <p
+              class="mt-6 max-w-xl text-lg leading-8 text-ink-600"
+            >
+              {
+                copy.heroDescription
+              }
+            </p>
+
+            <div
+              class="mt-8 flex flex-col gap-3 sm:flex-row"
+            >
+              <Button
+                href="#safety-guide"
+                variant="primary"
+                size="lg"
+                iconPosition="right"
+                class="w-full sm:w-auto"
+              >
+                <ArrowRightBold
+                  slot="icon"
+                  aria-hidden="true"
+                />
+
+                {copy.exploreGuide}
+              </Button>
+
+              <Button
+                href={productGuideHref}
+                variant="secondary"
+                size="lg"
+                iconPosition="right"
+                class="w-full sm:w-auto"
+              >
+                <PawPrintBold
+                  slot="icon"
+                  aria-hidden="true"
+                />
+
+                {
+                  choosingProductLabel
+                }
+              </Button>
+            </div>
+
+            <div
+              class="mt-8 grid gap-3 sm:grid-cols-3"
+            >
+              {
+                heroPoints.map(
+                  (point) => (
+                    <div
+                      class="flex items-start gap-2 rounded-2xl border border-sand/80 bg-white-warm/75 p-3"
+                    >
+                      <CheckCircleFill
+                        class="mt-0.5 size-5 shrink-0 text-brand-500"
+                        aria-hidden="true"
+                      />
+
+                      <span
+                        class="text-sm font-bold leading-5 text-ink-700"
+                      >
+                        {point}
+                      </span>
+                    </div>
+                  ),
+                )
+              }
+            </div>
+          </div>
+
+          <SafetyChecklist
+            title={
+              copy.beforeUseTitle
+            }
+            description={
+              copy.beforeUseDescription
+            }
+            items={
+              beforeUseChecklist
+            }
+            tone="brand"
+          >
+            <ShieldCheckBold
+              slot="icon"
+              aria-hidden="true"
+              class="size-5"
+            />
+          </SafetyChecklist>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section
+    id="safety-guide"
+    class="scroll-mt-24 pb-12 sm:pb-16 lg:pb-20"
+    aria-labelledby="safety-guide-title"
+  >
+    <div class="site-container">
+      <div
+        class="rounded-[2.75rem] border border-sand bg-white-warm/75 p-4 shadow-card sm:p-6 lg:p-8"
+      >
+        <div
+          class="rounded-4xl border border-sand/80 bg-cream-soft/80 px-5 py-6 text-center sm:px-8 sm:py-8"
+        >
+          <Badge
+            variant="brand"
+            size="md"
+            class="mx-auto"
+          >
+            <PawPrintBold
+              slot="icon"
+              aria-hidden="true"
+            />
+
+            {
+              copy.everydayBadge
+            }
+          </Badge>
+
+          <h2
+            id="safety-guide-title"
+            class="mx-auto mt-5 max-w-3xl text-3xl text-ink-900 sm:text-4xl"
+          >
+            {
+              copy.everydayTitle
+            }
+          </h2>
+
+          <p
+            class="mx-auto mt-3 max-w-2xl text-base leading-7 text-ink-600"
+          >
+            {
+              copy.everydayDescription
+            }
+          </p>
+        </div>
+
+        <div
+          class="mt-6 grid items-start gap-6 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-8"
+        >
+          <aside
+            class="lg:sticky lg:top-28"
+          >
+            <div
+              class="rounded-4xl border border-brand-200 bg-brand-50/80 p-4"
+            >
+              <p
+                class="px-2 text-xs font-extrabold tracking-[0.09em] text-brand-700 uppercase"
+              >
+                {copy.safetyTopics}
+              </p>
+
+              <nav
+                class="mt-3 grid gap-2"
+                aria-label={
+                  copy.safetyTopicsAria
+                }
+              >
+                {
+                  sections.map(
+                    (section) => {
+                      const Icon =
+                        iconBySection[
+                          section.icon
+                        ];
+
+                      return (
+                        <a
+                          href={`#${section.id}`}
+                          class="group flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-extrabold leading-5 text-ink-700 transition duration-200 hover:bg-white-warm hover:text-brand-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-200"
+                        >
+                          <span
+                            class="grid size-9 shrink-0 place-items-center rounded-xl bg-white-warm text-brand-700 shadow-sm"
+                            aria-hidden="true"
+                          >
+                            <Icon
+                              class="size-4"
+                            />
+                          </span>
+
+                          <span>
+                            {
+                              section.title
+                            }
+                          </span>
+                        </a>
+                      );
+                    },
+                  )
+                }
+
+                <a
+                  href="#category-checks"
+                  class="group flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-extrabold leading-5 text-ink-700 transition duration-200 hover:bg-white-warm hover:text-brand-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-200"
+                >
+                  <span
+                    class="grid size-9 shrink-0 place-items-center rounded-xl bg-white-warm text-brand-700 shadow-sm"
+                    aria-hidden="true"
+                  >
+                    <ShoppingBagOpenBold
+                      class="size-4"
+                    />
+                  </span>
+
+                  <span>
+                    {
+                      copy.categoryChecks
+                    }
+                  </span>
+                </a>
+              </nav>
+            </div>
+
+            <div
+              class="mt-4 rounded-4xl border border-accent-200 bg-accent-50 p-4"
+            >
+              <ShieldCheckBold
+                class="size-6 text-accent-600"
+                aria-hidden="true"
+              />
+
+              <h3
+                class="mt-3 text-base text-ink-900"
+              >
+                {copy.generalInfo}
+              </h3>
+
+              <p
+                class="mt-2 text-sm leading-6 text-ink-600"
+              >
+                {
+                  copy.generalInfoDescription
+                }
+              </p>
+            </div>
+          </aside>
+
+          <div
+            class="grid min-w-0 gap-5 sm:grid-cols-2"
+          >
+            {
+              sections.map(
+                (section) => {
+                  const Icon =
+                    iconBySection[
+                      section.icon
+                    ];
+
+                  return (
+                    <SafetyCard
+                      section={section}
+                    >
+                      <Icon
+                        slot="icon"
+                        aria-hidden="true"
+                      />
+                    </SafetyCard>
+                  );
+                },
+              )
+            }
+          </div>
+        </div>
+
+        <section
+          id="category-checks"
+          class="mt-8 scroll-mt-28 rounded-4xl border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-5 sm:p-6 lg:p-8"
+          aria-labelledby="category-checks-title"
+        >
+          <div
+            class="max-w-3xl"
+          >
+            <Badge
+              variant="accent"
+              size="md"
+            >
+              <ShoppingBagOpenBold
+                slot="icon"
+                aria-hidden="true"
+              />
+
+              {
+                copy.productChecksBadge
+              }
+            </Badge>
+
+            <h2
+              id="category-checks-title"
+              class="mt-5 text-3xl text-ink-900 sm:text-4xl"
+            >
+              {
+                copy.productChecksTitle
+              }
+            </h2>
+
+            <p
+              class="mt-3 text-base leading-7 text-ink-600"
+            >
+              {
+                copy.productChecksDescription
+              }
+            </p>
+          </div>
+
+          <div
+            class="mt-7 grid gap-5 md:grid-cols-2"
+          >
+            {
+              productSpecificChecklists.map(
+                (checklist) => {
+                  const Icon =
+                    iconByChecklist[
+                      checklist.icon
+                    ];
+
+                  return (
+                    <SafetyChecklist
+                      id={checklist.id}
+                      title={
+                        checklist.title
+                      }
+                      description={
+                        checklist.description
+                      }
+                      items={
+                        checklist.items
+                      }
+                      tone={
+                        checklist.tone
+                      }
+                      compact={true}
+                    >
+                      <Icon
+                        slot="icon"
+                        aria-hidden="true"
+                        class="size-5"
+                      />
+                    </SafetyChecklist>
+                  );
+                },
+              )
+            }
+          </div>
+        </section>
+
+        <section
+          class="mt-6 rounded-4xl bg-ink-950 p-5 text-white shadow-card sm:p-6 lg:p-8"
+          aria-labelledby="professional-guidance-title"
+        >
+          <div
+            class="grid items-start gap-7 lg:grid-cols-[0.78fr_1.22fr] lg:gap-10"
+          >
+            <div>
+              <Badge
+                variant="accent"
+                size="md"
+              >
+                <HeartBold
+                  slot="icon"
+                  aria-hidden="true"
+                />
+
+                {
+                  copy.knowWhenToStop
+                }
+              </Badge>
+
+              <h2
+                id="professional-guidance-title"
+                class="mt-5 text-3xl text-white sm:text-4xl"
+              >
+                {
+                  copy.professionalTitle
+                }
+              </h2>
+
+              <p
+                class="mt-4 text-base leading-7 text-white/70"
+              >
+                {
+                  copy.professionalDescription
+                }
+              </p>
+            </div>
+
+            <div
+              class="grid gap-3"
+            >
+              {
+                professionalGuidancePoints.map(
+                  (point) => (
+                    <div
+                      class="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-4"
+                    >
+                      <CheckCircleFill
+                        class="mt-0.5 size-5 shrink-0 text-accent-300"
+                        aria-hidden="true"
+                      />
+
+                      <p
+                        class="text-sm font-bold leading-6 text-white/75"
+                      >
+                        {point}
+                      </p>
+                    </div>
+                  ),
+                )
+              }
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="pb-16 sm:pb-20 lg:pb-24"
+  >
+    <div class="site-container">
+      <div
+        class="relative overflow-hidden rounded-[2.5rem] border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-6 shadow-card sm:p-8 lg:p-10"
+      >
+        <div
+          class="pointer-events-none absolute -top-24 -right-20 size-64 rounded-full bg-brand-300/25 blur-3xl"
+          aria-hidden="true"
+        >
+        </div>
+
+        <div
+          class="relative grid items-center gap-8 lg:grid-cols-[1fr_auto]"
+        >
+          <div
+            class="max-w-2xl"
+          >
+            <Badge
+              variant="brand"
+              size="md"
+            >
+              <PawPrintBold
+                slot="icon"
+                aria-hidden="true"
+              />
+
+              {copy.keepLearning}
+            </Badge>
+
+            <h2
+              class="mt-5 text-3xl text-ink-900 sm:text-4xl"
+            >
+              {copy.finalTitle}
+            </h2>
+
+            <p
+              class="mt-4 text-base leading-7 text-ink-600"
+            >
+              {
+                copy.finalDescription
+              }
+            </p>
+          </div>
+
+          <div
+            class="flex flex-col gap-3 sm:flex-row lg:flex-col"
+          >
+            <Button
+              href={productGuideHref}
+              variant="primary"
+              size="lg"
+              iconPosition="right"
+              class="w-full sm:w-auto"
+            >
+              <ArrowRightBold
+                slot="icon"
+                aria-hidden="true"
+              />
+
+              {
+                readProductGuideLabel
+              }
+            </Button>
+
+            <Button
+              href={contactHref}
+              variant="secondary"
+              size="lg"
+              iconPosition="right"
+              class="w-full sm:w-auto"
+            >
+              <HeartBold
+                slot="icon"
+                aria-hidden="true"
+              />
+
+              {copy.askQuestion}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
