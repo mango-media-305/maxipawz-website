@@ -1,5 +1,9 @@
 import type { Locale } from './languages';
 
+import {
+    hasTranslatedPetGuideSlug,
+} from './pet-guides';
+
 /*
  * Register an English pathname only after its complete Spanish page exists.
  * Use no trailing slash except for the homepage. Spanish keeps the same slug.
@@ -20,6 +24,7 @@ const translatedPaths:
         '/join/problem',
         '/join/success',
         '/join/thanks',
+        '/pet-guides',
         '/privacy-policy',
         '/product-safety',
         '/return-policy',
@@ -37,6 +42,32 @@ const translatedPathPatterns:
     readonly RegExp[] = [
         /^\/shop\/[^/]+$/,
     ];
+
+function isTranslatedPetGuidePath(
+    pathname:
+        string,
+): boolean {
+    const match =
+        pathname.match(
+            /^\/pet-guides\/([^/]+)$/,
+        );
+
+    if (
+        !match
+    ) {
+        return false;
+    }
+
+    const slug =
+        match[1];
+
+    return Boolean(
+        slug &&
+        hasTranslatedPetGuideSlug(
+            slug,
+        ),
+    );
+}
 
 export function normalizePathname(
     pathname:
@@ -93,6 +124,9 @@ export function hasSpanishTranslation(
                 pattern.test(
                     englishPath,
                 ),
+        ) ||
+        isTranslatedPetGuidePath(
+            englishPath,
         )
     );
 }

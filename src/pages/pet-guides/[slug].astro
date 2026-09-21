@@ -1,73 +1,62 @@
 ---
-import type { GetStaticPaths } from 'astro';
-import { getCollection, render, type CollectionEntry } from 'astro:content';
-
-import BlogPostLayout from '@layouts/BlogPostLayout.astro';
+import type {
+  GetStaticPaths,
+} from 'astro';
 
 import {
-  buildBlogStructuredData,
-  getBlogPostPath,
-  getIndexableBlogPosts,
+  getCollection,
+  type CollectionEntry,
+} from 'astro:content';
+
+import BlogPostRoutePage from '@components/blog/BlogPostRoutePage.astro';
+
+import {
+  getBlogPostSlug,
+  getIndexableBlogPostsForLocale,
 } from '../../utils/blog';
 
-type BlogPost = CollectionEntry<'blog'>;
+type BlogPost =
+  CollectionEntry<'blog'>;
 
 interface Props {
-  post: BlogPost;
+  post:
+    BlogPost;
 }
 
-export const getStaticPaths = (async () => {
-  const blogPosts = getIndexableBlogPosts(await getCollection('blog'));
+export const getStaticPaths =
+  (async () => {
+    const posts =
+      getIndexableBlogPostsForLocale(
+        await getCollection(
+          'blog',
+        ),
+        'en',
+      );
 
-  return blogPosts.map((post) => ({
-    params: {
-      slug: post.id,
-    },
-    props: {
-      post,
-    },
-  }));
-}) satisfies GetStaticPaths;
+    return posts.map(
+      (
+        post,
+      ) => ({
+        params: {
+          slug:
+            getBlogPostSlug(
+              post,
+            ),
+        },
 
-const { post } = Astro.props as Props;
-const rendered = await render(post);
-const { Content, headings } = rendered;
-const structuredData = buildBlogStructuredData({ post });
+        props: {
+          post,
+        },
+      }),
+    );
+  }) satisfies GetStaticPaths;
 
-const visiblePosts = getIndexableBlogPosts(await getCollection('blog'));
-const postById = new Map(visiblePosts.map((candidate) => [candidate.id, candidate]));
-const relatedPosts = post.data.relatedPosts
-  .map((id) => postById.get(id))
-  .filter((candidate): candidate is BlogPost => Boolean(candidate))
-  .map((candidate) => ({
-    href: getBlogPostPath(candidate),
-    title: candidate.data.title,
-    description: candidate.data.description,
-    category: candidate.data.category,
-    image: {
-      src: candidate.data.heroImage.src,
-      alt: candidate.data.heroImage.alt,
-    },
-  }));
+const {
+  post,
+} =
+  Astro.props as Props;
 ---
 
-<BlogPostLayout
-  title={post.data.title}
-  description={post.data.description}
-  seoTitle={post.data.seoTitle}
-  seoDescription={post.data.seoDescription}
-  category={post.data.category}
-  publishedAt={post.data.publishedAt}
-  updatedAt={post.data.updatedAt}
-  author={post.data.author}
-  heroImage={post.data.heroImage}
-  ogImage={post.data.ogImage}
-  ogImageAlt={post.data.ogImageAlt}
-  headings={headings}
-  sources={post.data.sources}
-  relatedPosts={relatedPosts}
-  noIndex={!post.data.indexable}
-  structuredData={structuredData}
->
-  <Content />
-</BlogPostLayout>
+<BlogPostRoutePage
+  post={post}
+/>
