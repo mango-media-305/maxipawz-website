@@ -11,7 +11,14 @@ import type { Locale } from '../i18n/languages';
 
 export type PetGuideTone = 'brand' | 'accent' | 'sand';
 
-export type PetGuideIcon = 'choosing' | 'play' | 'travel' | 'hydration' | 'comfort' | 'care' | 'accessories';
+export type PetGuideIcon =
+  | 'choosing'
+  | 'play'
+  | 'travel'
+  | 'hydration'
+  | 'comfort'
+  | 'care'
+  | 'accessories';
 
 export interface HomepagePetGuide {
   slug: string;
