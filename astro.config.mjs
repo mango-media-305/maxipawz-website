@@ -109,6 +109,13 @@ export default defineConfig({
     preact(),
     sitemap({
       filter: shouldIncludeInSitemap,
+      i18n: {
+        defaultLocale: 'en',
+        locales: {
+          en: 'en',
+          es: 'es',
+        },
+      },
     }),
   ],
 
