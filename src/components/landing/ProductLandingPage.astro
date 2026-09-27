@@ -14,7 +14,12 @@ import AddToCartButton from '../cart/AddToCartButton';
 
 import Button from '../ui/Button.astro';
 
-import type { Product, ProductImage as ProductImageData, ProductPrice } from '../../types/product';
+import type {
+  Product,
+  ProductImage as ProductImageData,
+  ProductPrice,
+  RemoteProductImage,
+} from '../../types/product';
 
 import type { ResolvedProductLandingPage } from '../../utils/product-landing-pages';
 
@@ -63,8 +68,12 @@ function getStartingPrice(productValue: Product): ProductPrice | undefined {
   return prices.reduce((lowest, current) => (current.amount < lowest.amount ? current : lowest));
 }
 
+function isRemoteProductImage(image: ProductImageData): image is RemoteProductImage {
+  return typeof image.src === 'string';
+}
+
 function toHeroImage(image: ProductImageData): LandingHeroImage {
-  if (typeof image.src === 'string') {
+  if (isRemoteProductImage(image)) {
     return {
       src: image.src,
 
