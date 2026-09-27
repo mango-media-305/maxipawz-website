@@ -23,6 +23,7 @@ function readPost(directory: string, slug: string): string {
   const path = existsSync(mdx) ? mdx : md;
 
   assert.ok(existsSync(path), `Missing post: ${path}`);
+
   return readFileSync(path, 'utf8');
 }
 
