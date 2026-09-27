@@ -41,7 +41,27 @@ const blog = defineCollection({
     base: './src/data/blog',
     pattern: '**/[^_]*.{md,mdx}',
   }),
+
   schema: z.object({
+    locale: z
+      .enum([
+        'en',
+        'es',
+      ])
+      .default('en'),
+
+    /*
+     * Spanish translations live under src/data/blog/es/.
+     * translationKey connects the translated entry to the
+     * canonical English slug without changing either URL.
+     *
+     * Existing English posts do not need this field.
+     */
+    translationKey: z
+      .string()
+      .min(1)
+      .optional(),
+
     title: z.string().min(1),
     seoTitle: z.string().min(1),
     description: z.string().min(1),
@@ -69,6 +89,7 @@ const blog = defineCollection({
     }),
 
     relatedPosts: z.array(z.string()).default([]),
+
     relatedLinks: z
       .array(
         z.object({
@@ -86,4 +107,6 @@ const blog = defineCollection({
   }),
 });
 
-export const collections = { blog };
+export const collections = {
+  blog,
+};

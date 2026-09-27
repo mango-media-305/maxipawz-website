@@ -25,6 +25,11 @@ import {
   localizedLinkLabel,
 } from '../../i18n/routes';
 
+import {
+  getBlogPostLocale,
+  getBlogPostSlug,
+} from '../../utils/blog';
+
 const iconByGuide: Record<PetGuideIcon, typeof PawPrintBold> = {
   choosing: CheckCircleBold,
   play: ConfettiBold,
@@ -142,7 +147,9 @@ const blogEntries = await getCollection('blog');
 const heroImageBySlug = new Map<string, GuideHeroImage>();
 
 for (const entry of blogEntries) {
-  const normalizedId = entry.id.replace(/\.(md|mdx)$/i, '');
+  if (getBlogPostLocale(entry) !== locale) {
+    continue;
+  }
 
   const heroImage = entry.data.heroImage;
 
@@ -150,7 +157,7 @@ for (const entry of blogEntries) {
     continue;
   }
 
-  heroImageBySlug.set(normalizedId, {
+  heroImageBySlug.set(getBlogPostSlug(entry), {
     src: heroImage.src,
     alt: heroImage.alt,
   });

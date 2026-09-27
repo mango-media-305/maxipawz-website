@@ -1,20 +1,49 @@
 ---
+import {
+  getLocaleFromPathname,
+} from '../../i18n/languages';
+
 interface ImageAttribution {
-  name: string;
-  url: string;
+  name:
+    string;
+
+  url:
+    string;
 }
 
 interface Props {
-  src: string;
-  alt: string;
-  caption?: string;
-  width?: number;
-  height?: number;
-  credit?: ImageAttribution;
-  source?: ImageAttribution;
-  loading?: 'eager' | 'lazy';
-  fetchpriority?: 'high' | 'low' | 'auto';
-  class?: string;
+  src:
+    string;
+
+  alt:
+    string;
+
+  caption?:
+    string;
+
+  width?:
+    number;
+
+  height?:
+    number;
+
+  credit?:
+    ImageAttribution;
+
+  source?:
+    ImageAttribution;
+
+  loading?:
+    'eager' |
+    'lazy';
+
+  fetchpriority?:
+    'high' |
+    'low' |
+    'auto';
+
+  class?:
+    string;
 }
 
 const {
@@ -28,12 +57,40 @@ const {
   loading = 'lazy',
   fetchpriority = 'auto',
   class: className,
-} = Astro.props;
+} =
+  Astro.props;
 
-const hasAttribution = Boolean(credit || source);
+const locale =
+  getLocaleFromPathname(
+    Astro.url.pathname,
+  );
+
+const spanish =
+  locale === 'es';
+
+const hasAttribution =
+  Boolean(
+    credit ||
+    source,
+  );
+
+const photoByLabel =
+  spanish
+    ? 'Foto de'
+    : 'Photo by';
+
+const sourceLabel =
+  spanish
+    ? 'Fuente:'
+    : 'Source:';
 ---
 
-<figure class:list={['my-8 overflow-hidden rounded-4xl border border-sand bg-white-warm shadow-sm', className]}>
+<figure
+  class:list={[
+    'my-8 overflow-hidden rounded-4xl border border-sand bg-white-warm shadow-sm',
+    className,
+  ]}
+>
   <img
     src={src}
     alt={alt}
@@ -45,43 +102,76 @@ const hasAttribution = Boolean(credit || source);
     class="h-auto w-full object-cover"
   />
 
-  {(caption || hasAttribution) && (
-    <figcaption class="border-t border-sand px-4 py-3 sm:px-5">
-      {caption && <p class="text-sm leading-6 text-ink-600">{caption}</p>}
+  {
+    (
+      caption ||
+      hasAttribution
+    ) && (
+      <figcaption class="border-t border-sand px-4 py-3 sm:px-5">
+        {
+          caption && (
+            <p class="text-sm leading-6 text-ink-600">
+              {caption}
+            </p>
+          )
+        }
 
-      {hasAttribution && (
-        <p class:list={['text-xs leading-5 text-ink-500', caption && 'mt-1.5']}>
-          {credit && (
-            <>
-              Photo by{' '}
-              <a
-                href={credit.url}
-                target="_blank"
-                rel="noopener noreferrer external"
-                class="font-bold text-brand-700 underline decoration-brand-300 underline-offset-2 hover:text-brand-800"
-              >
-                {credit.name}
-              </a>
-            </>
-          )}
+        {
+          hasAttribution && (
+            <p
+              class:list={[
+                'text-xs leading-5 text-ink-500',
 
-          {credit && source && <span aria-hidden="true"> · </span>}
+                caption &&
+                  'mt-1.5',
+              ]}
+            >
+              {
+                credit && (
+                  <>
+                    {photoByLabel}{' '}
 
-          {source && (
-            <>
-              Source:{' '}
-              <a
-                href={source.url}
-                target="_blank"
-                rel="noopener noreferrer external"
-                class="font-bold text-brand-700 underline decoration-brand-300 underline-offset-2 hover:text-brand-800"
-              >
-                {source.name}
-              </a>
-            </>
-          )}
-        </p>
-      )}
-    </figcaption>
-  )}
+                    <a
+                      href={credit.url}
+                      target="_blank"
+                      rel="noopener noreferrer external"
+                      class="font-bold text-brand-700 underline decoration-brand-300 underline-offset-2 hover:text-brand-800"
+                    >
+                      {credit.name}
+                    </a>
+                  </>
+                )
+              }
+
+              {
+                credit &&
+                source && (
+                  <span aria-hidden="true">
+                    {' '}·{' '}
+                  </span>
+                )
+              }
+
+              {
+                source && (
+                  <>
+                    {sourceLabel}{' '}
+
+                    <a
+                      href={source.url}
+                      target="_blank"
+                      rel="noopener noreferrer external"
+                      class="font-bold text-brand-700 underline decoration-brand-300 underline-offset-2 hover:text-brand-800"
+                    >
+                      {source.name}
+                    </a>
+                  </>
+                )
+              }
+            </p>
+          )
+        }
+      </figcaption>
+    )
+  }
 </figure>

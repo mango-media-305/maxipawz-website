@@ -1,0 +1,77 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+
+import BlogPostLayout from '@layouts/BlogPostLayout.astro';
+
+import {
+  buildBlogStructuredData,
+  getBlogPostLocale,
+  getBlogPostPath,
+  getBlogPostSlug,
+  getIndexableBlogPostsForLocale,
+} from '../../utils/blog';
+
+type BlogPost = CollectionEntry<'blog'>;
+
+interface Props {
+  post: BlogPost;
+}
+
+const { post } = Astro.props;
+
+const locale = getBlogPostLocale(post);
+
+const rendered = await render(post);
+
+const { Content, headings } = rendered;
+
+const structuredData = buildBlogStructuredData({
+  post,
+});
+
+const visiblePosts = getIndexableBlogPostsForLocale(await getCollection('blog'), locale);
+
+const postBySlug = new Map(
+  visiblePosts.map((candidate) => [getBlogPostSlug(candidate), candidate]),
+);
+
+const relatedPosts = post.data.relatedPosts
+  .map((slug) => postBySlug.get(slug))
+  .filter((candidate): candidate is BlogPost => Boolean(candidate))
+  .map((candidate) => ({
+    href: getBlogPostPath(candidate),
+
+    title: candidate.data.title,
+
+    description: candidate.data.description,
+
+    category: candidate.data.category,
+
+    image: {
+      src: candidate.data.heroImage.src,
+
+      alt: candidate.data.heroImage.alt,
+    },
+  }));
+---
+
+<BlogPostLayout
+  title={post.data.title}
+  description={post.data.description}
+  seoTitle={post.data.seoTitle}
+  seoDescription={post.data.seoDescription}
+  category={post.data.category}
+  publishedAt={post.data.publishedAt}
+  updatedAt={post.data.updatedAt}
+  author={post.data.author}
+  heroImage={post.data.heroImage}
+  ogImage={post.data.ogImage}
+  ogImageAlt={post.data.ogImageAlt}
+  headings={headings}
+  sources={post.data.sources}
+  relatedPosts={relatedPosts}
+  noIndex={!post.data.indexable}
+  structuredData={structuredData}
+>
+  <Content />
+</BlogPostLayout>
