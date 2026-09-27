@@ -39,6 +39,7 @@ const translatedPetGuideSlugs: ReadonlySet<string> = new Set<string>([
   'dog-toy-safety-clean-replace',
   'dog-treat-calories',
   'dog-water-safety-florida',
+  'fall-dog-walking-safety',
   'feeding-and-hydration',
   'flea-tick-prevention-florida-dogs',
   'florida-dog-yard-safety-after-rain',
