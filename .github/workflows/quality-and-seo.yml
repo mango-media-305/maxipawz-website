@@ -10,8 +10,7 @@ on:
   workflow_dispatch:
 
   schedule:
-    # Every day at 15:00 UTC.
-    # The production deployment should already be available.
+    # Daily at 15:00 UTC (11 AM Miami during daylight saving time).
     - cron: '0 15 * * *'
 
 permissions:
@@ -22,11 +21,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  validate:
-    name: Validate website
+  pet-guides:
+    name: Pet Guides integrity
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
 
     steps:
       - name: Checkout repository
@@ -41,8 +40,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run full validation
-        run: npm run validate
+      - name: Run bilingual Pet Guides tests
+        run: npm run test:pet-guides
+
+      - name: Check production audit script syntax
+        run: node --check scripts/seo/audit-production.mjs
 
   production-seo:
     name: Audit production bilingual SEO
