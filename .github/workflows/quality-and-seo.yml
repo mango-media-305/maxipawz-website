@@ -43,6 +43,9 @@ jobs:
       - name: Check Astro and TypeScript
         run: npm run check
 
+      - name: Run inventory transaction tests
+        run: node --import tsx --test tests/inventory/inventory-transactions.test.ts
+
       - name: Run bilingual Pet Guides tests
         run: npm run test:pet-guides
 
