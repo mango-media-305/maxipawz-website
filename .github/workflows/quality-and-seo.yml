@@ -1,69 +1,70 @@
+
 name: Maxi Pawz Quality & SEO
 
 on:
-    pull_request:
-        branches:
-            - dev
-            - main
+  pull_request:
+    branches:
+      - dev
+      - main
 
-    workflow_dispatch:
+  workflow_dispatch:
 
-    schedule:
-        # Every day at 15:00 UTC.
-        # The production deployment should already be available.
-        - cron: "0 15 * * *"
+  schedule:
+    # Every day at 15:00 UTC.
+    # The production deployment should already be available.
+    - cron: '0 15 * * *'
 
 permissions:
-    contents: read
+  contents: read
 
 concurrency:
-    group: maxi-pawz-quality-${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: true
+  group: maxi-pawz-quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-    validate:
-        name: Validate website
-        if: github.event_name == 'pull_request'
-        runs-on: ubuntu-latest
-        timeout-minutes: 20
+  validate:
+    name: Validate website
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-            - name: Set up Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "22"
-                  cache: npm
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
 
-            - name: Install dependencies
-              run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-            - name: Run full validation
-              run: npm run validate
+      - name: Run full validation
+        run: npm run validate
 
-    production-seo:
-        name: Audit production bilingual SEO
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-        runs-on: ubuntu-latest
-        timeout-minutes: 20
+  production-seo:
+    name: Audit production bilingual SEO
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
 
-        steps:
-            - name: Checkout production source
-              uses: actions/checkout@v4
-              with:
-                  ref: main
+    steps:
+      - name: Checkout production source
+        uses: actions/checkout@v4
+        with:
+          ref: main
 
-            - name: Set up Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "22"
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
-            - name: Check audit script syntax
-              run: node --check scripts/seo/audit-production.mjs
+      - name: Check audit script syntax
+        run: node --check scripts/seo/audit-production.mjs
 
-            - name: Audit live website
-              env:
-                  AUDIT_BASE_URL: https://maxipawz.com
-              run: node scripts/seo/audit-production.mjs
+      - name: Audit live website
+        env:
+          AUDIT_BASE_URL: https://maxipawz.com
+        run: node scripts/seo/audit-production.mjs
