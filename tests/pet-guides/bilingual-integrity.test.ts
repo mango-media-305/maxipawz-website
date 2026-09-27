@@ -4,23 +4,15 @@ import { dirname, join, resolve } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-const repositoryRoot = resolve(
-  dirname(fileURLToPath(import.meta.url)),
-  '../..',
-);
+const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 
 const blogDirectory = join(repositoryRoot, 'src/data/blog');
 const spanishDirectory = join(blogDirectory, 'es');
-const translationManifest = join(
-  repositoryRoot,
-  'src/i18n/pet-guides.ts',
-);
+const translationManifest = join(repositoryRoot, 'src/i18n/pet-guides.ts');
 
 function getPostSlugs(directory: string): string[] {
   return readdirSync(directory, { withFileTypes: true })
-    .filter(
-      (entry) => entry.isFile() && /\.mdx?$/.test(entry.name),
-    )
+    .filter((entry) => entry.isFile() && !entry.name.startsWith('_') && /\.mdx?$/.test(entry.name))
     .map((entry) => entry.name.replace(/\.mdx?$/, ''))
     .sort();
 }
@@ -39,6 +31,7 @@ test('every English Pet Guide has a Spanish peer in the translation manifest', (
   const spanishSlugs = getPostSlugs(spanishDirectory);
 
   assert.ok(englishSlugs.length > 0, 'No English Pet Guides found');
+
   assert.deepEqual(
     spanishSlugs,
     englishSlugs,
@@ -46,14 +39,15 @@ test('every English Pet Guide has a Spanish peer in the translation manifest', (
   );
 
   const manifest = readFileSync(translationManifest, 'utf8');
-  const entries = [...manifest.matchAll(/^\s*'([a-z0-9-]+)',\s*$/gm)]
-    .map((match) => match[1]);
+
+  const entries = [...manifest.matchAll(/^\s*'([a-z0-9-]+)',\s*$/gm)].map((match) => match[1]);
 
   assert.equal(
     entries.length,
     new Set(entries).size,
     'Duplicate slug in the translated Pet Guides manifest',
   );
+
   assert.deepEqual(
     [...entries].sort(),
     englishSlugs,
@@ -67,25 +61,18 @@ test('Spanish guides have matching locale metadata and no links back to English 
     const frontmatter = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
 
     assert.ok(frontmatter, `${slug}: missing YAML frontmatter`);
-    assert.match(
-      frontmatter[1],
-      /^locale:\s*es\s*$/m,
-      `${slug}: locale must be es`,
-    );
+
+    assert.match(frontmatter[1], /^locale:\s*es\s*$/m, `${slug}: locale must be es`);
 
     const translationKey = frontmatter[1].match(
       /^translationKey:\s*["']?([^"'\r\n]+)["']?\s*$/m,
     )?.[1];
 
-    assert.equal(
-      translationKey,
-      slug,
-      `${slug}: translationKey must match the English slug`,
-    );
+    assert.equal(translationKey, slug, `${slug}: translationKey must match the English slug`);
 
-    const englishLinks = [
-      ...source.matchAll(/(?<!\/es)\/pet-guides\/[a-z][a-z0-9-]*/g),
-    ].map((match) => match[0]);
+    const englishLinks = [...source.matchAll(/(?<!\/es)\/pet-guides\/[a-z][a-z0-9-]*/g)].map(
+      (match) => match[0],
+    );
 
     assert.deepEqual(
       englishLinks,
@@ -104,10 +91,7 @@ test('relative imports in Spanish MDX resolve to real files', () => {
     )) {
       const importPath = resolve(spanishDirectory, match[1]);
 
-      assert.ok(
-        existsSync(importPath),
-        `${slug}: unresolved relative MDX import ${match[1]}`,
-      );
+      assert.ok(existsSync(importPath), `${slug}: unresolved relative MDX import ${match[1]}`);
     }
   }
 });
