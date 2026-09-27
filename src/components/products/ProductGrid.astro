@@ -8,7 +8,6 @@ import ProductCard from './ProductCard.astro';
 import ProductEmptyState from './ProductEmptyState.astro';
 
 import { getLifestyleCategories } from '../../data/shop';
-
 import { getLocaleFromPathname } from '../../i18n/languages';
 
 import { petTypeValues, productAvailabilityValues, type Product } from '../../types/product';
@@ -17,18 +16,14 @@ import { formatPetType, getAvailabilityLabel } from '../../utils/products';
 
 interface Props {
   products: Product[];
-
   demoMode?: boolean;
 }
 
 const { products, demoMode = false } = Astro.props;
 
 const locale = getLocaleFromPathname(Astro.url.pathname);
-
 const spanish = locale === 'es';
-
 const hasDemoProducts = demoMode || products.some((product) => product.isDemo);
-
 const pageSize = 9;
 
 function getCategoryCount(categorySlug: string): number {
@@ -48,7 +43,6 @@ function getAvailabilityCount(availability: string): number {
 const categoryFilters = getLifestyleCategories(locale)
   .map((category) => ({
     ...category,
-
     count: getCategoryCount(category.slug),
   }))
   .filter((category) => category.count > 0);
@@ -56,9 +50,7 @@ const categoryFilters = getLifestyleCategories(locale)
 const petTypeFilters = petTypeValues
   .map((petType) => ({
     value: petType,
-
     label: formatPetType(petType, locale),
-
     count: getPetTypeCount(petType),
   }))
   .filter((petType) => petType.count > 0);
@@ -66,9 +58,7 @@ const petTypeFilters = petTypeValues
 const availabilityFilters = productAvailabilityValues
   .map((availability) => ({
     value: availability,
-
     label: getAvailabilityLabel(availability, locale),
-
     count: getAvailabilityCount(availability),
   }))
   .filter((availability) => availability.count > 0);
@@ -86,164 +76,86 @@ const maximumCatalogPrice =
 const copy = spanish
   ? {
       filters: 'Filtros',
-
       productsSingular: 'producto',
-
       productsPlural: 'productos',
-
       shopFilters: 'Filtros de la tienda',
-
       findProduct: 'Encuentra un producto',
-
       closeFilters: 'Cerrar filtros de productos',
-
       searchProducts: 'Buscar productos',
-
       searchPlaceholder: 'Buscar productos...',
-
       categories: 'Categorías',
-
       petType: 'Tipo de mascota',
-
       availability: 'Disponibilidad',
-
       demoPrice: 'Precio de demostración',
-
       minimum: 'Mínimo',
-
       maximum: 'Máximo',
-
       featuredProducts: 'Productos destacados',
-
       featuredDescription: 'Mostrar únicamente productos destacados.',
-
       clearAllFilters: 'Eliminar todos los filtros',
-
       showingInitial: `Mostrando ${products.length} productos.`,
-
       sortBy: 'Ordenar por',
-
       featured: 'Destacados',
-
       nameAscending: 'Nombre: A–Z',
-
       nameDescending: 'Nombre: Z–A',
-
       priceAscending: 'Precio: menor a mayor',
-
       priceDescending: 'Precio: mayor a menor',
-
       clearAll: 'Eliminar todos',
-
       pagination: 'Paginación de productos',
-
       removeFilter: 'Eliminar filtro',
-
       searchPrefix: 'Búsqueda',
-
       any: 'Cualquiera',
-
       price: 'Precio',
-
       previous: 'Anterior',
-
       next: 'Siguiente',
-
       previousPage: 'Ir a la página anterior de productos',
-
       nextPage: 'Ir a la página siguiente de productos',
-
       goToPage: 'Ir a la página de productos',
-
       showing: 'Mostrando',
-
       of: 'de',
-
       results: 'resultados',
-
       noResults: 'Ningún producto coincide con los filtros seleccionados.',
-
       noMatchingProducts: 'No hay productos coincidentes',
     }
   : {
       filters: 'Filters',
-
       productsSingular: 'product',
-
       productsPlural: 'products',
-
       shopFilters: 'Shop Filters',
-
       findProduct: 'Find a product',
-
       closeFilters: 'Close product filters',
-
       searchProducts: 'Search products',
-
       searchPlaceholder: 'Search products...',
-
       categories: 'Categories',
-
       petType: 'Pet type',
-
       availability: 'Availability',
-
       demoPrice: 'Demo price',
-
       minimum: 'Minimum',
-
       maximum: 'Maximum',
-
       featuredProducts: 'Featured products',
-
       featuredDescription: 'Show featured items only.',
-
       clearAllFilters: 'Clear all filters',
-
       showingInitial: `Showing ${products.length} products.`,
-
       sortBy: 'Sort by',
-
       featured: 'Featured',
-
       nameAscending: 'Name: A–Z',
-
       nameDescending: 'Name: Z–A',
-
       priceAscending: 'Price: low to high',
-
       priceDescending: 'Price: high to low',
-
       clearAll: 'Clear all',
-
       pagination: 'Product pagination',
-
       removeFilter: 'Remove',
-
       searchPrefix: 'Search',
-
       any: 'Any',
-
       price: 'Price',
-
       previous: 'Previous',
-
       next: 'Next',
-
       previousPage: 'Go to previous product page',
-
       nextPage: 'Go to next product page',
-
       goToPage: 'Go to product page',
-
       showing: 'Showing',
-
       of: 'of',
-
       results: 'results',
-
       noResults: 'No products match the selected filters.',
-
       noMatchingProducts: 'No matching products',
     };
 
@@ -293,7 +205,6 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
                 aria-expanded="false"
               >
                 <SlidersHorizontalBold class="size-5" aria-hidden="true" />
-
                 {copy.filters}
               </button>
 
@@ -536,13 +447,9 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
 
                       <select id="product-sort" class="form-control min-w-48" data-product-sort>
                         <option value="featured">{copy.featured}</option>
-
                         <option value="name-ascending">{copy.nameAscending}</option>
-
                         <option value="name-descending">{copy.nameDescending}</option>
-
                         <option value="price-ascending">{copy.priceAscending}</option>
-
                         <option value="price-descending">{copy.priceDescending}</option>
                       </select>
                     </div>
@@ -552,7 +459,7 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
                     class="mt-4 hidden items-center justify-between gap-4 border-t border-sand pt-4"
                     data-active-filter-bar
                   >
-                    <div class="flex flex-wrap gap-2" data-active-filter-list></div>
+                    <div class="flex flex-wrap gap-2" data-active-filter-list />
 
                     <button
                       type="button"
@@ -578,7 +485,7 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
                   class="mt-8 hidden items-center justify-center gap-2"
                   aria-label={copy.pagination}
                   data-product-pagination
-                ></nav>
+                />
               </div>
             </div>
           </div>
@@ -595,28 +502,21 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
 <script>
   interface CatalogState {
     search: string;
-
     categories: string[];
-
     pets: string[];
-
     availability: string[];
-
     minimumPrice: number | null;
-
     maximumPrice: number | null;
-
     featuredOnly: boolean;
-
     sort: string;
   }
 
   const productCatalogs = document.querySelectorAll<HTMLElement>('[data-product-catalog]');
 
   productCatalogs.forEach((catalog) => {
-    const filterForm = catalog.querySelector<HTMLFormElement>('[data-product-filter-form]');
+    const foundFilterForm = catalog.querySelector<HTMLFormElement>('[data-product-filter-form]');
 
-    const searchInput = catalog.querySelector<HTMLInputElement>('[data-filter-search]');
+    const foundSearchInput = catalog.querySelector<HTMLInputElement>('[data-filter-search]');
 
     const categoryInputs = Array.from(
       catalog.querySelectorAll<HTMLInputElement>('[data-filter-category]'),
@@ -628,29 +528,31 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
       catalog.querySelectorAll<HTMLInputElement>('[data-filter-availability]'),
     );
 
-    const minimumPriceInput = catalog.querySelector<HTMLInputElement>('[data-filter-min-price]');
+    const foundMinimumPriceInput =
+      catalog.querySelector<HTMLInputElement>('[data-filter-min-price]');
 
-    const maximumPriceInput = catalog.querySelector<HTMLInputElement>('[data-filter-max-price]');
+    const foundMaximumPriceInput =
+      catalog.querySelector<HTMLInputElement>('[data-filter-max-price]');
 
-    const featuredInput = catalog.querySelector<HTMLInputElement>('[data-filter-featured]');
+    const foundFeaturedInput = catalog.querySelector<HTMLInputElement>('[data-filter-featured]');
 
-    const sortSelect = catalog.querySelector<HTMLSelectElement>('[data-product-sort]');
+    const foundSortSelect = catalog.querySelector<HTMLSelectElement>('[data-product-sort]');
 
-    const productList = catalog.querySelector<HTMLElement>('[data-product-list]');
+    const foundProductList = catalog.querySelector<HTMLElement>('[data-product-list]');
 
     const productCards = Array.from(catalog.querySelectorAll<HTMLElement>('[data-product-card]'));
 
-    const emptyState = catalog.querySelector<HTMLElement>('[data-product-filter-empty]');
+    const foundEmptyState = catalog.querySelector<HTMLElement>('[data-product-filter-empty]');
 
-    const status = catalog.querySelector<HTMLElement>('[data-product-status]');
+    const foundStatus = catalog.querySelector<HTMLElement>('[data-product-status]');
 
     const mobileStatus = catalog.querySelector<HTMLElement>('[data-product-mobile-status]');
 
-    const pagination = catalog.querySelector<HTMLElement>('[data-product-pagination]');
+    const foundPagination = catalog.querySelector<HTMLElement>('[data-product-pagination]');
 
-    const activeFilterBar = catalog.querySelector<HTMLElement>('[data-active-filter-bar]');
+    const foundActiveFilterBar = catalog.querySelector<HTMLElement>('[data-active-filter-bar]');
 
-    const activeFilterList = catalog.querySelector<HTMLElement>('[data-active-filter-list]');
+    const foundActiveFilterList = catalog.querySelector<HTMLElement>('[data-active-filter-list]');
 
     const clearButtons = Array.from(
       catalog.querySelectorAll<HTMLButtonElement>('[data-clear-filters]'),
@@ -663,27 +565,37 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
     const filterClose = catalog.querySelector<HTMLButtonElement>('[data-filter-close]');
 
     if (
-      !filterForm ||
-      !searchInput ||
-      !minimumPriceInput ||
-      !maximumPriceInput ||
-      !featuredInput ||
-      !sortSelect ||
-      !productList ||
-      !emptyState ||
-      !status ||
-      !pagination ||
-      !activeFilterBar ||
-      !activeFilterList
+      !foundFilterForm ||
+      !foundSearchInput ||
+      !foundMinimumPriceInput ||
+      !foundMaximumPriceInput ||
+      !foundFeaturedInput ||
+      !foundSortSelect ||
+      !foundProductList ||
+      !foundEmptyState ||
+      !foundStatus ||
+      !foundPagination ||
+      !foundActiveFilterBar ||
+      !foundActiveFilterList
     ) {
       return;
     }
 
-    const getLabel = (
-      key: keyof DOMStringMap,
+    // Capture validated elements so nested functions retain non-null types.
+    const filterForm = foundFilterForm;
+    const searchInput = foundSearchInput;
+    const minimumPriceInput = foundMinimumPriceInput;
+    const maximumPriceInput = foundMaximumPriceInput;
+    const featuredInput = foundFeaturedInput;
+    const sortSelect = foundSortSelect;
+    const productList = foundProductList;
+    const emptyState = foundEmptyState;
+    const status = foundStatus;
+    const pagination = foundPagination;
+    const activeFilterBar = foundActiveFilterBar;
+    const activeFilterList = foundActiveFilterList;
 
-      fallback: string,
-    ): string => {
+    const getLabel = (key: keyof DOMStringMap, fallback: string): string => {
       return catalog.dataset[key] ?? fallback;
     };
 
@@ -691,44 +603,27 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
 
     const labels = {
       productSingular: getLabel('labelProductSingular', 'product'),
-
       productPlural: getLabel('labelProductPlural', 'products'),
-
       removeFilter: getLabel('labelRemoveFilter', 'Remove'),
-
       searchPrefix: getLabel('labelSearchPrefix', 'Search'),
-
       any: getLabel('labelAny', 'Any'),
-
       price: getLabel('labelPrice', 'Price'),
-
       featured: getLabel('labelFeatured', 'Featured'),
-
       previous: getLabel('labelPrevious', 'Previous'),
-
       next: getLabel('labelNext', 'Next'),
-
       previousPage: getLabel('labelPreviousPage', 'Go to previous product page'),
-
       nextPage: getLabel('labelNextPage', 'Go to next product page'),
-
       goToPage: getLabel('labelGoToPage', 'Go to product page'),
-
       showing: getLabel('labelShowing', 'Showing'),
-
       of: getLabel('labelOf', 'of'),
-
       results: getLabel('labelResults', 'results'),
-
       noResults: getLabel('labelNoResults', 'No products match the selected filters.'),
-
       noMatchingProducts: getLabel('labelNoMatchingProducts', 'No matching products'),
     };
 
     const pageSize = Number(catalog.dataset.pageSize ?? 9);
 
     let currentPage = 1;
-
     let searchTimer: number | undefined;
 
     const originalOrder = new Map(productCards.map((card, index) => [card, index]));
@@ -743,26 +638,18 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
       }
 
       const parsed = Number(value);
-
       return Number.isFinite(parsed) ? parsed : null;
     }
 
     function getState(): CatalogState {
       return {
         search: searchInput.value.trim().toLowerCase(),
-
         categories: getCheckedValues(categoryInputs),
-
         pets: getCheckedValues(petInputs),
-
         availability: getCheckedValues(availabilityInputs),
-
         minimumPrice: parseOptionalNumber(minimumPriceInput.value),
-
         maximumPrice: parseOptionalNumber(maximumPriceInput.value),
-
         featuredOnly: featuredInput.checked,
-
         sort: sortSelect.value,
       };
     }
@@ -775,25 +662,15 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
       }
 
       const price = Number(value);
-
       return Number.isFinite(price) ? price : null;
     }
 
-    function cardMatchesState(
-      card: HTMLElement,
-
-      state: CatalogState,
-    ): boolean {
+    function cardMatchesState(card: HTMLElement, state: CatalogState): boolean {
       const productSearch = card.dataset.productSearch ?? '';
-
       const category = card.dataset.productCategory ?? '';
-
       const petTypes = (card.dataset.productPets ?? '').split(',').filter(Boolean);
-
       const availability = card.dataset.productAvailability ?? '';
-
       const price = getCardPrice(card);
-
       const featured = card.dataset.productFeatured === 'true';
 
       const matchesSearch = !state.search || productSearch.includes(state.search);
@@ -825,19 +702,10 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
       );
     }
 
-    function compareCards(
-      first: HTMLElement,
-
-      second: HTMLElement,
-
-      sort: string,
-    ): number {
+    function compareCards(first: HTMLElement, second: HTMLElement, sort: string): number {
       const firstName = first.dataset.productName ?? '';
-
       const secondName = second.dataset.productName ?? '';
-
       const firstPrice = getCardPrice(first);
-
       const secondPrice = getCardPrice(second);
 
       if (sort === 'name-ascending') {
@@ -883,13 +751,8 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
       return (originalOrder.get(first) ?? 0) - (originalOrder.get(second) ?? 0);
     }
 
-    function updateUrl(
-      state: CatalogState,
-
-      totalPages: number,
-    ): void {
+    function updateUrl(state: CatalogState, totalPages: number): void {
       const url = new URL(window.location.href);
-
       url.search = '';
 
       if (state.search) {
@@ -933,21 +796,13 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
       window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
     }
 
-    function createActiveFilterChip(
-      label: string,
-
-      removeFilter: () => void,
-    ): void {
+    function createActiveFilterChip(label: string, removeFilter: () => void): void {
       const button = document.createElement('button');
 
       button.type = 'button';
-
       button.className = 'catalog-active-chip';
-
       button.textContent = `${label} ×`;
-
       button.setAttribute('aria-label', `${labels.removeFilter} ${label}`);
-
       button.addEventListener('click', removeFilter);
 
       activeFilterList.append(button);
@@ -957,65 +812,41 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
       activeFilterList.innerHTML = '';
 
       if (state.search) {
-        createActiveFilterChip(
-          `${labels.searchPrefix}: ${searchInput.value.trim()}`,
-
-          () => {
-            searchInput.value = '';
-
-            currentPage = 1;
-
-            renderCatalog(true);
-          },
-        );
+        createActiveFilterChip(`${labels.searchPrefix}: ${searchInput.value.trim()}`, () => {
+          searchInput.value = '';
+          currentPage = 1;
+          renderCatalog(true);
+        });
       }
 
       categoryInputs
         .filter((input) => input.checked)
         .forEach((input) => {
-          createActiveFilterChip(
-            input.dataset.filterLabel ?? input.value,
-
-            () => {
-              input.checked = false;
-
-              currentPage = 1;
-
-              renderCatalog(true);
-            },
-          );
+          createActiveFilterChip(input.dataset.filterLabel ?? input.value, () => {
+            input.checked = false;
+            currentPage = 1;
+            renderCatalog(true);
+          });
         });
 
       petInputs
         .filter((input) => input.checked)
         .forEach((input) => {
-          createActiveFilterChip(
-            input.dataset.filterLabel ?? input.value,
-
-            () => {
-              input.checked = false;
-
-              currentPage = 1;
-
-              renderCatalog(true);
-            },
-          );
+          createActiveFilterChip(input.dataset.filterLabel ?? input.value, () => {
+            input.checked = false;
+            currentPage = 1;
+            renderCatalog(true);
+          });
         });
 
       availabilityInputs
         .filter((input) => input.checked)
         .forEach((input) => {
-          createActiveFilterChip(
-            input.dataset.filterLabel ?? input.value,
-
-            () => {
-              input.checked = false;
-
-              currentPage = 1;
-
-              renderCatalog(true);
-            },
-          );
+          createActiveFilterChip(input.dataset.filterLabel ?? input.value, () => {
+            input.checked = false;
+            currentPage = 1;
+            renderCatalog(true);
+          });
         });
 
       if (state.minimumPrice !== null || state.maximumPrice !== null) {
@@ -1023,33 +854,20 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
 
         const maximumLabel = state.maximumPrice === null ? labels.any : `$${state.maximumPrice}`;
 
-        createActiveFilterChip(
-          `${labels.price}: ${minimumLabel}–${maximumLabel}`,
-
-          () => {
-            minimumPriceInput.value = '';
-
-            maximumPriceInput.value = '';
-
-            currentPage = 1;
-
-            renderCatalog(true);
-          },
-        );
+        createActiveFilterChip(`${labels.price}: ${minimumLabel}–${maximumLabel}`, () => {
+          minimumPriceInput.value = '';
+          maximumPriceInput.value = '';
+          currentPage = 1;
+          renderCatalog(true);
+        });
       }
 
       if (state.featuredOnly) {
-        createActiveFilterChip(
-          labels.featured,
-
-          () => {
-            featuredInput.checked = false;
-
-            currentPage = 1;
-
-            renderCatalog(true);
-          },
-        );
+        createActiveFilterChip(labels.featured, () => {
+          featuredInput.checked = false;
+          currentPage = 1;
+          renderCatalog(true);
+        });
       }
 
       activeFilterBar.classList.toggle('hidden', activeFilterList.children.length === 0);
@@ -1059,25 +877,18 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
 
     function createPageButton(
       label: string,
-
       page: number,
-
       options: {
         disabled?: boolean;
-
         current?: boolean;
-
         ariaLabel?: string;
       } = {},
     ): HTMLButtonElement {
       const button = document.createElement('button');
 
       button.type = 'button';
-
       button.textContent = label;
-
       button.className = 'catalog-page-button';
-
       button.disabled = options.disabled ?? false;
 
       if (options.current) {
@@ -1094,12 +905,10 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
         }
 
         currentPage = page;
-
         renderCatalog(true);
 
         catalog.scrollIntoView({
           behavior: 'smooth',
-
           block: 'start',
         });
       });
@@ -1112,27 +921,18 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
 
       if (totalPages <= 1) {
         pagination.classList.add('hidden');
-
         pagination.classList.remove('flex');
-
         return;
       }
 
       pagination.classList.remove('hidden');
-
       pagination.classList.add('flex');
 
       pagination.append(
-        createPageButton(
-          labels.previous,
-          currentPage - 1,
-
-          {
-            disabled: currentPage === 1,
-
-            ariaLabel: labels.previousPage,
-          },
-        ),
+        createPageButton(labels.previous, currentPage - 1, {
+          disabled: currentPage === 1,
+          ariaLabel: labels.previousPage,
+        }),
       );
 
       const visiblePages = Array.from(
@@ -1148,39 +948,25 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
           const ellipsis = document.createElement('span');
 
           ellipsis.textContent = '…';
-
           ellipsis.className = 'px-1 font-bold text-ink-400';
-
           pagination.append(ellipsis);
         }
 
         pagination.append(
-          createPageButton(
-            String(page),
-            page,
-
-            {
-              current: page === currentPage,
-
-              ariaLabel: `${labels.goToPage} ${page}`,
-            },
-          ),
+          createPageButton(String(page), page, {
+            current: page === currentPage,
+            ariaLabel: `${labels.goToPage} ${page}`,
+          }),
         );
 
         previousPage = page;
       });
 
       pagination.append(
-        createPageButton(
-          labels.next,
-          currentPage + 1,
-
-          {
-            disabled: currentPage === totalPages,
-
-            ariaLabel: labels.nextPage,
-          },
-        ),
+        createPageButton(labels.next, currentPage + 1, {
+          disabled: currentPage === totalPages,
+          ariaLabel: labels.nextPage,
+        }),
       );
     }
 
@@ -1192,13 +978,11 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
         .sort((first, second) => compareCards(first, second, state.sort));
 
       const totalMatches = matchedCards.length;
-
       const totalPages = Math.max(1, Math.ceil(totalMatches / pageSize));
 
       currentPage = Math.min(Math.max(1, currentPage), totalPages);
 
       const firstVisibleIndex = (currentPage - 1) * pageSize;
-
       const lastVisibleIndex = Math.min(firstVisibleIndex + pageSize, totalMatches);
 
       const visibleCards = matchedCards.slice(firstVisibleIndex, lastVisibleIndex);
@@ -1209,18 +993,18 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
 
       visibleCards.forEach((card) => {
         card.hidden = false;
-
         productList.append(card);
       });
 
       const hasResults = totalMatches > 0;
 
       productList.hidden = !hasResults;
-
       emptyState.hidden = hasResults;
 
       if (hasResults) {
-        status.textContent = `${labels.showing} ${firstVisibleIndex + 1}–${lastVisibleIndex} ${labels.of} ${totalMatches} ${labels.results}.`;
+        status.textContent =
+          `${labels.showing} ${firstVisibleIndex + 1}–${lastVisibleIndex} ` +
+          `${labels.of} ${totalMatches} ${labels.results}.`;
 
         if (mobileStatus) {
           mobileStatus.textContent = `${totalMatches} ${
@@ -1236,7 +1020,6 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
       }
 
       updateActiveFilters(state);
-
       renderPagination(totalPages);
 
       if (shouldUpdateUrl) {
@@ -1246,19 +1029,12 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
 
     function resetFilters(): void {
       filterForm.reset();
-
       searchInput.value = '';
-
       minimumPriceInput.value = '';
-
       maximumPriceInput.value = '';
-
       featuredInput.checked = false;
-
       sortSelect.value = 'featured';
-
       currentPage = 1;
-
       renderCatalog(true);
     }
 
@@ -1268,9 +1044,7 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
       searchInput.value = params.get('search') ?? '';
 
       const requestedCategories = new Set(params.getAll('category'));
-
       const requestedPets = new Set(params.getAll('pet'));
-
       const requestedAvailability = new Set(params.getAll('availability'));
 
       categoryInputs.forEach((input) => {
@@ -1286,9 +1060,7 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
       });
 
       minimumPriceInput.value = params.get('min_price') ?? '';
-
       maximumPriceInput.value = params.get('max_price') ?? '';
-
       featuredInput.checked = params.get('featured') === 'true';
 
       const requestedSort = params.get('sort') ?? 'featured';
@@ -1304,16 +1076,13 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
 
     filterForm.addEventListener('submit', (event) => {
       event.preventDefault();
-
       currentPage = 1;
-
       renderCatalog(true);
     });
 
     [...categoryInputs, ...petInputs, ...availabilityInputs, featuredInput].forEach((input) => {
       input.addEventListener('change', () => {
         currentPage = 1;
-
         renderCatalog(true);
       });
     });
@@ -1323,26 +1092,22 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
 
       searchTimer = window.setTimeout(() => {
         currentPage = 1;
-
         renderCatalog(true);
       }, 150);
     });
 
     minimumPriceInput.addEventListener('change', () => {
       currentPage = 1;
-
       renderCatalog(true);
     });
 
     maximumPriceInput.addEventListener('change', () => {
       currentPage = 1;
-
       renderCatalog(true);
     });
 
     sortSelect.addEventListener('change', () => {
       currentPage = 1;
-
       renderCatalog(true);
     });
 
@@ -1356,7 +1121,6 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
       }
 
       filterPanel.classList.toggle('hidden', !open);
-
       filterToggle.setAttribute('aria-expanded', String(open));
     }
 
@@ -1371,7 +1135,6 @@ const initialProductLabel = products.length === 1 ? copy.productsSingular : copy
     });
 
     applyUrlState();
-
     renderCatalog(false);
   });
 </script>
