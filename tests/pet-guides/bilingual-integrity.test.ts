@@ -23,6 +23,7 @@ function readPost(directory: string, slug: string): string {
   const path = existsSync(mdx) ? mdx : md;
 
   assert.ok(existsSync(path), `Missing post: ${path}`);
+
   return readFileSync(path, 'utf8');
 }
 
@@ -40,7 +41,10 @@ test('every English Pet Guide has a Spanish peer in the translation manifest', (
 
   const manifest = readFileSync(translationManifest, 'utf8');
 
-  const entries = [...manifest.matchAll(/^\s*'([a-z0-9-]+)',\s*$/gm)].map((match) => match[1]);
+  const entries = [...manifest.matchAll(/^\s*'([a-z0-9-]+)',\s*$/gm)].flatMap((match) => {
+    const slug = match[1];
+    return slug === undefined ? [] : [slug];
+  });
 
   assert.equal(
     entries.length,
@@ -58,15 +62,16 @@ test('every English Pet Guide has a Spanish peer in the translation manifest', (
 test('Spanish guides have matching locale metadata and no links back to English guides', () => {
   for (const slug of getPostSlugs(spanishDirectory)) {
     const source = readPost(spanishDirectory, slug);
-    const frontmatter = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
 
-    assert.ok(frontmatter, `${slug}: missing YAML frontmatter`);
+    const frontmatterMatch = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
 
-    assert.match(frontmatter[1], /^locale:\s*es\s*$/m, `${slug}: locale must be es`);
+    const frontmatter = frontmatterMatch?.[1];
 
-    const translationKey = frontmatter[1].match(
-      /^translationKey:\s*["']?([^"'\r\n]+)["']?\s*$/m,
-    )?.[1];
+    assert.ok(frontmatter !== undefined, `${slug}: missing YAML frontmatter`);
+
+    assert.match(frontmatter, /^locale:\s*es\s*$/m, `${slug}: locale must be es`);
+
+    const translationKey = frontmatter.match(/^translationKey:\s*["']?([^"'\r\n]+)["']?\s*$/m)?.[1];
 
     assert.equal(translationKey, slug, `${slug}: translationKey must match the English slug`);
 
@@ -89,9 +94,13 @@ test('relative imports in Spanish MDX resolve to real files', () => {
     for (const match of source.matchAll(
       /^\s*import\s+[^\r\n]+\s+from\s+['"](\.\.?\/[^'"]+)['"]/gm,
     )) {
-      const importPath = resolve(spanishDirectory, match[1]);
+      const relativePath = match[1];
 
-      assert.ok(existsSync(importPath), `${slug}: unresolved relative MDX import ${match[1]}`);
+      assert.ok(relativePath !== undefined, `${slug}: missing relative import path`);
+
+      const importPath = resolve(spanishDirectory, relativePath);
+
+      assert.ok(existsSync(importPath), `${slug}: unresolved relative MDX import ${relativePath}`);
     }
   }
 });
