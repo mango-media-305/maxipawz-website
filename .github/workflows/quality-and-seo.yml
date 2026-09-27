@@ -10,7 +10,8 @@ on:
   workflow_dispatch:
 
   schedule:
-    # Daily at 15:00 UTC (11 AM Miami during daylight saving time).
+    # Every day at 15:00 UTC.
+    # The production deployment should already be available.
     - cron: '0 15 * * *'
 
 permissions:
@@ -21,11 +22,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  pet-guides:
-    name: Pet Guides integrity
+  validate:
+    name: Validate website
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Checkout repository
