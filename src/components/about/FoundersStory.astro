@@ -7,7 +7,89 @@ import UsersThreeBold from 'phosphor-astro/UsersThreeBold.astro';
 
 import Badge from '../ui/Badge.astro';
 
-import { maxiLessons, maxiStory, type MaxiLessonIcon } from '../../data/about';
+import {
+  maxiLessons as englishLessons,
+  maxiStory as englishStory,
+  type MaxiLessonIcon,
+} from '../../data/about';
+import { getLocaleFromPathname } from '../../i18n/languages';
+
+const spanish = getLocaleFromPathname(Astro.url.pathname) === 'es';
+
+const paragraphs = [
+  'Maxi forma parte de nuestras vidas desde cachorro. Desde el principio buscamos juguetes que despertaran su interés, accesorios cómodos y productos útiles que facilitaran los paseos, los viajes, la alimentación, la hidratación y el cuidado diario.',
+  'Vivir con Maxi nos enseñó que no todos los productos para mascotas ofrecen la misma experiencia. Algunos juguetes se convierten enseguida en favoritos. Algunos accesorios se ven bien, pero resultan poco prácticos. Y ciertos productos cotidianos terminan siendo imprescindibles sin que apenas nos demos cuenta.',
+  'De esas experiencias nació la idea de Maxi Pawz: una tienda inspirada en la vida real con un perro de verdad. Queríamos reunir juguetes, accesorios prácticos, esenciales para viajes e hidratación, productos para el descanso y artículos de uso diario bajo una marca cercana.',
+  'No desarrollamos la idea solos. Nuestros amigos creyeron en Maxi Pawz, nos animaron, compartieron ideas y nos ayudaron a seguir adelante cuando el negocio apenas comenzaba. Su apoyo convirtió una idea personal inspirada en Maxi en un proyecto que sigue creciendo.',
+];
+
+const milestones = [
+  {
+    number: '01',
+    title: 'La vida con Maxi',
+    description:
+      'Cuidar de Maxi desde cachorro nos dio experiencia directa con juguetes, accesorios, rutinas y necesidades cotidianas de las mascotas.',
+  },
+  {
+    number: '02',
+    title: 'Aprender qué funciona',
+    description:
+      'Con el tiempo aprendimos a distinguir entre los productos que solo resultan atractivos y los que son realmente útiles.',
+  },
+  {
+    number: '03',
+    title: 'Crecer desde cero, juntos',
+    description:
+      'Nuestros amigos apoyaron la idea con ánimo, opiniones, creatividad y la confianza de que Maxi Pawz podía convertirse en algo especial.',
+  },
+  {
+    number: '04',
+    title: 'Una visión que crece',
+    description:
+      'La idea que inspiró Maxi se ha convertido en una marca que continúa evolucionando con el apoyo de nuestra comunidad.',
+  },
+];
+
+const lessons = [
+  {
+    title: 'El juego debe tener un propósito',
+    description:
+      'Un buen juguete despierta interés, actividad, curiosidad, interacción o, simplemente, un momento de felicidad.',
+  },
+  {
+    title: 'Los detalles prácticos importan',
+    description:
+      'La comodidad, la durabilidad, la facilidad de transporte, el tamaño y la facilidad de uso pueden aportar mucho valor a un producto cotidiano.',
+  },
+  {
+    title: 'Cada perro es diferente',
+    description:
+      'Los perros tienen sus propias preferencias, personalidades, rutinas y formas de jugar, igual que las personas que los quieren.',
+  },
+  {
+    title: 'Las buenas ideas crecen en compañía',
+    description:
+      'Maxi inspiró la tienda, pero el ánimo y el apoyo de nuestros amigos nos ayudaron a hacer realidad el proyecto.',
+  },
+];
+
+const maxiStory = spanish
+  ? {
+      eyebrow: 'Dónde comenzó todo',
+      title: 'Antes de la tienda, llegó Maxi.',
+      paragraphs,
+      milestones,
+    }
+  : englishStory;
+
+const lessonIcons: MaxiLessonIcon[] = ['play', 'practical', 'personal', 'community'];
+
+const maxiLessons = spanish
+  ? lessons.map((lesson, index) => ({
+      ...lesson,
+      icon: lessonIcons[index] ?? 'play',
+    }))
+  : englishLessons;
 
 const iconByLesson: Record<MaxiLessonIcon, typeof PawPrintBold> = {
   play: ConfettiBold,
@@ -24,11 +106,9 @@ const iconByLesson: Record<MaxiLessonIcon, typeof PawPrintBold> = {
 >
   <div class="site-container-wide">
     <div class="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
-      <!-- Main story -->
       <div>
         <Badge variant="brand" size="md">
           <PawPrintBold slot="icon" aria-hidden="true" />
-
           {maxiStory.eyebrow}
         </Badge>
 
@@ -48,11 +128,16 @@ const iconByLesson: Record<MaxiLessonIcon, typeof PawPrintBold> = {
         >
           <HeartBold class="size-5 shrink-0" aria-hidden="true" />
 
-          <span> Inspired by Maxi. Supported by friends. Made for pets and their people. </span>
+          <span>
+            {
+              spanish
+                ? 'Inspirados por Maxi. Apoyados por amigos. Pensados para las mascotas y sus familias.'
+                : 'Inspired by Maxi. Supported by friends. Made for pets and their people.'
+            }
+          </span>
         </div>
       </div>
 
-      <!-- Story milestones -->
       <div class="relative">
         <div
           class="pointer-events-none absolute top-8 bottom-8 left-7 hidden w-px bg-linear-to-b from-brand-400 via-accent-400 to-brand-400 sm:block"
@@ -81,22 +166,27 @@ const iconByLesson: Record<MaxiLessonIcon, typeof PawPrintBold> = {
       </div>
     </div>
 
-    <!-- Lessons from Maxi -->
     <div class="mt-16">
       <div class="mx-auto max-w-3xl text-center">
         <Badge variant="accent" size="md" class="mx-auto">
           <HeartBold slot="icon" aria-hidden="true" />
-
-          What Maxi Taught Us
+          {spanish ? 'Lo que Maxi nos enseñó' : 'What Maxi Taught Us'}
         </Badge>
 
         <h2 class="section-title mt-6 text-4xl text-ink-900 sm:text-5xl">
-          Real experience shapes every part of the vision.
+          {
+            spanish
+              ? 'La experiencia real guía nuestra visión.'
+              : 'Real experience shapes every part of the vision.'
+          }
         </h2>
 
         <p class="section-description mx-auto mt-5">
-          Living with Maxi helped us understand that the best pet products combine happiness,
-          usefulness, comfort, and a clear purpose.
+          {
+            spanish
+              ? 'Vivir con Maxi nos ayudó a entender que los mejores productos combinan felicidad, utilidad, comodidad y un propósito claro.'
+              : 'Living with Maxi helped us understand that the best pet products combine happiness, usefulness, comfort, and a clear purpose.'
+          }
         </p>
       </div>
 

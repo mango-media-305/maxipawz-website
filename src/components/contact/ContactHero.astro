@@ -11,20 +11,65 @@ import Button from '../ui/Button.astro';
 import { businessConfig } from '../../config/business';
 import { isStoreLive } from '../../config/storefront';
 
-const heroHighlights = isStoreLive
-  ? [
-      'General and product questions',
-      'Order and return support',
-      'Partnerships and website feedback',
-    ]
-  : [
-      'General and product questions',
-      'Partnership and collaboration ideas',
-      'Website feedback and suggestions',
-    ];
+import { getContactSupportResponse } from '../../i18n/contact';
+import { getLocaleFromPathname } from '../../i18n/languages';
+import {
+  localizeHref,
+  localizedLinkLabel,
+} from '../../i18n/routes';
+
+const locale =
+  getLocaleFromPathname(
+    Astro.url.pathname,
+  );
+
+const spanish =
+  locale === 'es';
+
+const supportResponse =
+  getContactSupportResponse(
+    locale,
+  );
+
+const heroHighlights =
+  isStoreLive
+    ? spanish
+      ? [
+          'Preguntas generales y sobre productos',
+          'Ayuda con pedidos y devoluciones',
+          'Alianzas y comentarios sobre el sitio',
+        ]
+      : [
+          'General and product questions',
+          'Order and return support',
+          'Partnerships and website feedback',
+        ]
+    : spanish
+      ? [
+          'Preguntas generales y sobre productos',
+          'Ideas de alianzas y colaboraciones',
+          'Comentarios y sugerencias sobre el sitio',
+        ]
+      : [
+          'General and product questions',
+          'Partnership and collaboration ideas',
+          'Website feedback and suggestions',
+        ];
+
+const petGuidesLabel =
+  localizedLinkLabel(
+    spanish
+      ? 'Explorar guías para mascotas'
+      : 'Explore Pet Guides',
+    '/pet-guides',
+    locale,
+  );
 ---
 
-<section class="relative overflow-hidden" aria-labelledby="contact-hero-title">
+<section
+  class="relative overflow-hidden"
+  aria-labelledby="contact-hero-title"
+>
   <div
     class="pointer-events-none absolute -top-40 -left-40 size-128 rounded-full bg-brand-300/25 blur-3xl"
     aria-hidden="true"
@@ -41,33 +86,64 @@ const heroHighlights = isStoreLive
     class="site-container-wide grid items-center gap-10 py-12 sm:py-14 lg:grid-cols-[1.02fr_0.98fr] lg:gap-14 lg:py-16"
   >
     <div class="relative z-10 max-w-2xl">
-      <Badge variant="accent" size="md">
-        <HeartBold slot="icon" aria-hidden="true" />
+      <Badge
+        variant="accent"
+        size="md"
+      >
+        <HeartBold
+          slot="icon"
+          aria-hidden="true"
+        />
 
-        Contact {businessConfig.shortName}
+        {
+          spanish
+            ? `Contacta con ${businessConfig.shortName}`
+            : `Contact ${businessConfig.shortName}`
+        }
       </Badge>
 
       <h1
         id="contact-hero-title"
         class="mt-6 max-w-2xl text-5xl text-ink-900 sm:text-6xl lg:text-7xl"
       >
-        We would love to{' '}
-        <span class="text-brand-gradient"> hear from you. </span>
+        {
+          spanish
+            ? 'Nos encantará '
+            : 'We would love to '
+        }
+
+        <span class="text-brand-gradient">
+          {
+            spanish
+              ? 'saber de ti.'
+              : 'hear from you.'
+          }
+        </span>
       </h1>
 
-      <p class="mt-6 max-w-xl text-lg leading-8 text-ink-600 sm:text-xl">
+      <p
+        class="mt-6 max-w-xl text-lg leading-8 text-ink-600 sm:text-xl"
+      >
         {
           isStoreLive
-            ? `Send us your general questions, product questions, order-support requests, partnership ideas, or feedback about the ${businessConfig.shortName} experience.`
-            : `Send us your questions about ${businessConfig.shortName}, future products, partnership ideas, Pet Guides, or feedback about the website.`
+            ? spanish
+              ? `Envíanos tus preguntas generales, consultas sobre productos, solicitudes de ayuda con pedidos, propuestas de colaboración o comentarios sobre tu experiencia con ${businessConfig.shortName}.`
+              : `Send us your general questions, product questions, order-support requests, partnership ideas, or feedback about the ${businessConfig.shortName} experience.`
+            : spanish
+              ? `Envíanos tus preguntas sobre ${businessConfig.shortName}, futuros productos, ideas de colaboración, guías para mascotas o comentarios sobre el sitio web.`
+              : `Send us your questions about ${businessConfig.shortName}, future products, partnership ideas, Pet Guides, or feedback about the website.`
         }
       </p>
 
-      <p class="mt-4 max-w-xl text-sm font-bold leading-6 text-ink-500">
-        {businessConfig.supportResponseTime}
+      <p
+        class="mt-4 max-w-xl text-sm font-bold leading-6 text-ink-500"
+      >
+        {supportResponse}
       </p>
 
-      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+      <div
+        class="mt-8 flex flex-col gap-3 sm:flex-row"
+      >
         <Button
           href="#contact-form"
           variant="primary"
@@ -75,33 +151,55 @@ const heroHighlights = isStoreLive
           iconPosition="right"
           class="w-full sm:w-auto"
         >
-          <HeartBold slot="icon" aria-hidden="true" />
+          <HeartBold
+            slot="icon"
+            aria-hidden="true"
+          />
 
-          Send a Message
+          {
+            spanish
+              ? 'Enviar un mensaje'
+              : 'Send a Message'
+          }
         </Button>
 
         <Button
-          href="/pet-guides"
+          href={localizeHref(
+            '/pet-guides',
+            locale,
+          )}
           variant="secondary"
           size="lg"
           iconPosition="right"
           class="w-full sm:w-auto"
         >
-          <PawPrintBold slot="icon" aria-hidden="true" />
+          <PawPrintBold
+            slot="icon"
+            aria-hidden="true"
+          />
 
-          Explore Pet Guides
+          {petGuidesLabel}
         </Button>
       </div>
 
-      <div class="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold text-ink-600">
+      <div
+        class="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold text-ink-600"
+      >
         {
-          heroHighlights.map((highlight) => (
-            <span class="inline-flex items-center gap-2">
-              <CheckCircleFill class="size-5 shrink-0 text-brand-500" aria-hidden="true" />
+          heroHighlights.map(
+            (highlight) => (
+              <span
+                class="inline-flex items-center gap-2"
+              >
+                <CheckCircleFill
+                  class="size-5 shrink-0 text-brand-500"
+                  aria-hidden="true"
+                />
 
-              {highlight}
-            </span>
-          ))
+                {highlight}
+              </span>
+            ),
+          )
         }
       </div>
     </div>
@@ -131,33 +229,84 @@ const heroHighlights = isStoreLive
           </span>
 
           <div>
-            <p class="text-xs font-extrabold tracking-[0.09em] text-brand-700 uppercase">
-              A helpful message
+            <p
+              class="text-xs font-extrabold tracking-[0.09em] text-brand-700 uppercase"
+            >
+              {
+                spanish
+                  ? 'Un mensaje útil'
+                  : 'A helpful message'
+              }
             </p>
 
-            <h2 class="mt-2 text-2xl text-ink-900 sm:text-3xl">Tell us what you need.</h2>
+            <h2
+              class="mt-2 text-2xl text-ink-900 sm:text-3xl"
+            >
+              {
+                spanish
+                  ? 'Cuéntanos qué necesitas.'
+                  : 'Tell us what you need.'
+              }
+            </h2>
           </div>
         </div>
 
         <div class="mt-6 grid gap-3">
-          <article class="rounded-2xl border border-sand/80 bg-white-warm/90 p-4">
-            <PawPrintBold class="size-6 text-brand-500" aria-hidden="true" />
+          <article
+            class="rounded-2xl border border-sand/80 bg-white-warm/90 p-4"
+          >
+            <PawPrintBold
+              class="size-6 text-brand-500"
+              aria-hidden="true"
+            />
 
-            <h3 class="mt-3 text-lg text-ink-900">Choose a clear topic</h3>
+            <h3
+              class="mt-3 text-lg text-ink-900"
+            >
+              {
+                spanish
+                  ? 'Elige un tema claro'
+                  : 'Choose a clear topic'
+              }
+            </h3>
 
-            <p class="mt-2 text-sm leading-6 text-ink-600">
-              Select the option that most closely matches your question, idea, or request.
+            <p
+              class="mt-2 text-sm leading-6 text-ink-600"
+            >
+              {
+                spanish
+                  ? 'Selecciona la opción que mejor corresponda con tu pregunta, idea o solicitud.'
+                  : 'Select the option that most closely matches your question, idea, or request.'
+              }
             </p>
           </article>
 
-          <article class="rounded-2xl border border-sand/80 bg-white-warm/90 p-4">
-            <ShoppingBagOpenBold class="size-6 text-accent-500" aria-hidden="true" />
+          <article
+            class="rounded-2xl border border-sand/80 bg-white-warm/90 p-4"
+          >
+            <ShoppingBagOpenBold
+              class="size-6 text-accent-500"
+              aria-hidden="true"
+            />
 
-            <h3 class="mt-3 text-lg text-ink-900">Add useful context</h3>
+            <h3
+              class="mt-3 text-lg text-ink-900"
+            >
+              {
+                spanish
+                  ? 'Agrega contexto útil'
+                  : 'Add useful context'
+              }
+            </h3>
 
-            <p class="mt-2 text-sm leading-6 text-ink-600">
-              Mention the product category, page, feature, order number, or pet routine connected to
-              your message.
+            <p
+              class="mt-2 text-sm leading-6 text-ink-600"
+            >
+              {
+                spanish
+                  ? 'Menciona la categoría del producto, página, característica, número de pedido o rutina de tu mascota relacionada con tu mensaje.'
+                  : 'Mention the product category, page, feature, order number, or pet routine connected to your message.'
+              }
             </p>
           </article>
         </div>

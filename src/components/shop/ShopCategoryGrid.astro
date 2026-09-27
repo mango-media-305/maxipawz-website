@@ -10,39 +10,140 @@ import CategoryCard from '../home/CategoryCard.astro';
 import Badge from '../ui/Badge.astro';
 
 import { isStoreLive } from '../../config/storefront';
-import { lifestyleCategories, type LifestyleCategoryIcon } from '../../data/shop';
-import { getLifestyleCategoryItems } from '../../utils/storefront-categories';
 
-const categoryItems = getLifestyleCategoryItems(lifestyleCategories);
+import {
+  getLifestyleCategories,
+  type LifestyleCategoryIcon,
+} from '../../data/shop';
 
-const iconByCategory: Record<LifestyleCategoryIcon, typeof PawPrintBold> = {
-  play: ConfettiBold,
-  travel: SuitcaseRollingBold,
-  hydration: HeartBold,
-  comfort: PawPrintBold,
-  care: ShieldCheckBold,
-  accessories: ShoppingBagOpenBold,
-};
+import {
+  getLocaleFromPathname,
+} from '../../i18n/languages';
 
-function getCategoryHref(slug: string, hasProducts: boolean): string {
-  if (hasProducts) {
-    return `/shop?category=${encodeURIComponent(slug)}#products`;
-  }
+import {
+  localizeHref,
+} from '../../i18n/routes';
 
-  return '/#maxi-pawz-updates';
+import {
+  getLifestyleCategoryItems,
+} from '../../utils/storefront-categories';
+
+const locale =
+  getLocaleFromPathname(
+    Astro.url.pathname,
+  );
+
+const spanish =
+  locale === 'es';
+
+const categoryItems =
+  getLifestyleCategoryItems(
+    getLifestyleCategories(
+      locale,
+    ),
+    locale,
+  );
+
+const iconByCategory:
+  Record<
+    LifestyleCategoryIcon,
+    typeof PawPrintBold
+  > = {
+    play:
+      ConfettiBold,
+
+    travel:
+      SuitcaseRollingBold,
+
+    hydration:
+      HeartBold,
+
+    comfort:
+      PawPrintBold,
+
+    care:
+      ShieldCheckBold,
+
+    accessories:
+      ShoppingBagOpenBold,
+  };
+
+function getCategoryHref(
+  slug:
+    string,
+
+  hasProducts:
+    boolean,
+): string {
+  const sourceHref =
+    hasProducts
+      ? `/shop?category=${encodeURIComponent(
+          slug,
+        )}#products`
+      : '/#maxi-pawz-updates';
+
+  return localizeHref(
+    sourceHref,
+    locale,
+  );
 }
 
-function getCategoryLinkLabel(hasProducts: boolean): string {
-  if (isStoreLive) {
-    return 'Explore category';
+function getCategoryLinkLabel(
+  hasProducts:
+    boolean,
+): string {
+  if (
+    isStoreLive
+  ) {
+    return spanish
+      ? 'Explorar categoría'
+      : 'Explore category';
   }
 
-  return hasProducts ? 'Preview category' : 'Get launch updates';
+  if (
+    hasProducts
+  ) {
+    return spanish
+      ? 'Ver categoría'
+      : 'Preview category';
+  }
+
+  return spanish
+    ? 'Recibir novedades del lanzamiento'
+    : 'Get launch updates';
 }
+
+const badgeLabel =
+  isStoreLive
+    ? spanish
+      ? 'Compra por estilo de vida'
+      : 'Shop by Lifestyle'
+    : spanish
+      ? 'Lo que encontrarás'
+      : 'What You Will Find';
+
+const heading =
+  isStoreLive
+    ? spanish
+      ? 'Encuentra una categoría para la rutina de tu mascota.'
+      : 'Find a category for your pet’s routine.'
+    : spanish
+      ? 'Productos organizados alrededor de momentos reales con mascotas.'
+      : 'Products organized around real pet moments.';
+
+const description =
+  isStoreLive
+    ? spanish
+      ? 'Explora la colección según las actividades, rutinas y experiencias que compartes con tu mascota.'
+      : 'Explore the collection based on the activities, routines, and experiences you share with your pet.'
+    : spanish
+      ? 'Descubre los tipos de productos que Maxi Pawz está preparando para jugar, pasear, viajar, alimentar, descansar, cuidar y expresar el estilo de tu mascota.'
+      : 'Discover the types of products Maxi Pawz is preparing for playtime, walks, travel, feeding, comfort, care, and personal style.';
 ---
 
 {
-  categoryItems.length > 0 && (
+  categoryItems.length >
+    0 && (
     <section
       id="shop-categories"
       class="section-spacing scroll-mt-28 relative overflow-hidden border-y border-sand bg-white-warm/70"
@@ -51,65 +152,103 @@ function getCategoryLinkLabel(hasProducts: boolean): string {
       <div
         class="pointer-events-none absolute top-8 left-1/2 size-96 -translate-x-1/2 rounded-full bg-brand-200/20 blur-3xl"
         aria-hidden="true"
-      />
+      >
+      </div>
 
       <div class="site-container relative">
         <div class="mx-auto max-w-4xl text-center">
-          <Badge variant="brand" size="md" class="mx-auto">
-            <PawPrintBold slot="icon" aria-hidden="true" />
-            {isStoreLive ? 'Shop by Lifestyle' : 'What You Will Find'}
+          <Badge
+            variant="brand"
+            size="md"
+            class="mx-auto"
+          >
+            <PawPrintBold
+              slot="icon"
+              aria-hidden="true"
+            />
+
+            {badgeLabel}
           </Badge>
 
           <h2
             id="shop-categories-title"
             class="section-title mx-auto mt-5 text-4xl sm:text-5xl"
           >
-            {isStoreLive
-              ? 'Find a category for your pet’s routine.'
-              : 'Products organized around real pet moments.'}
+            {heading}
           </h2>
 
           <p class="section-description mx-auto mt-4">
-            {isStoreLive
-              ? 'Explore the collection based on the activities, routines, and experiences you share with your pet.'
-              : 'Discover the types of products Maxi Pawz is preparing for playtime, walks, travel, feeding, comfort, care, and personal style.'}
+            {description}
           </p>
         </div>
 
         <div
           class:list={[
             'mt-10 grid gap-4 sm:gap-5 lg:mt-12 lg:gap-6',
-            categoryItems.length === 1 && 'mx-auto max-w-xl',
-            categoryItems.length === 2 && 'mx-auto max-w-4xl sm:grid-cols-2',
-            categoryItems.length >= 3 && 'sm:grid-cols-2 lg:grid-cols-3',
+
+            categoryItems.length ===
+              1 &&
+              'mx-auto max-w-xl',
+
+            categoryItems.length ===
+              2 &&
+              'mx-auto max-w-4xl sm:grid-cols-2',
+
+            categoryItems.length >=
+              3 &&
+              'sm:grid-cols-2 lg:grid-cols-3',
           ]}
         >
-          {categoryItems.map((category, index) => {
-            const Icon = iconByCategory[category.icon];
+          {
+            categoryItems.map(
+              (
+                category,
+                index,
+              ) => {
+                const Icon =
+                  iconByCategory[
+                    category.icon
+                  ];
 
-            return (
-              <CategoryCard
-                title={category.title}
-                description={category.description}
-                href={getCategoryHref(category.slug, category.hasProducts)}
-                linkLabel={getCategoryLinkLabel(category.hasProducts)}
-                tone={category.tone}
-                backgroundImage={category.backgroundImage}
-                backgroundPosition={category.backgroundPosition}
-                backgroundOverlay={category.backgroundOverlay}
-                index={index}
-              >
-                <Icon slot="icon" aria-hidden="true" />
-              </CategoryCard>
-            );
-          })}
+                return (
+                  <CategoryCard
+                    title={category.title}
+                    description={category.description}
+                    href={getCategoryHref(
+                      category.slug,
+                      category.hasProducts,
+                    )}
+                    linkLabel={getCategoryLinkLabel(
+                      category.hasProducts,
+                    )}
+                    tone={category.tone}
+                    backgroundImage={category.backgroundImage}
+                    backgroundPosition={category.backgroundPosition}
+                    backgroundOverlay={category.backgroundOverlay}
+                    index={index}
+                  >
+                    <Icon
+                      slot="icon"
+                      aria-hidden="true"
+                    />
+                  </CategoryCard>
+                );
+              },
+            )
+          }
         </div>
 
-        {!isStoreLive && (
-          <p class="mx-auto mt-8 max-w-2xl text-center text-sm leading-6 text-ink-500">
-            Get launch updates for categories without products to preview yet.
-          </p>
-        )}
+        {
+          !isStoreLive && (
+            <p class="mx-auto mt-8 max-w-2xl text-center text-sm leading-6 text-ink-500">
+              {
+                spanish
+                  ? 'Recibe novedades del lanzamiento para las categorías que todavía no tienen productos disponibles para explorar.'
+                  : 'Get launch updates for categories without products to preview yet.'
+              }
+            </p>
+          )
+        }
       </div>
     </section>
   )

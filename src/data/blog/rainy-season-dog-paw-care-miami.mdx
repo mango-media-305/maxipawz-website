@@ -20,6 +20,8 @@ indexable: true
 heroImage:
   src: "https://images.unsplash.com/photo-1581887936036-3f4f7f0b6679?auto=format&fit=crop&w=1600&q=82"
   alt: "Wet brown dog being dried with a towel after getting wet"
+  width: 1600
+  height: 2011
   caption: "A towel by the door can turn wet-weather cleanup into a quick, repeatable part of the walk routine."
   credit:
     name: "Jamie Street"
@@ -30,6 +32,8 @@ heroImage:
 images:
   - src: "https://images.unsplash.com/photo-1760907219691-190b168d7800?auto=format&fit=crop&w=1400&q=82"
     alt: "Close-up of a dog's paw resting on a textured rug"
+    width: 1400
+    height: 930
     caption: "A close look at pads, nails, and the spaces between toes can reveal debris or irritation that a quick wipe may miss."
     credit:
       name: "Peyton Clough"
@@ -39,6 +43,8 @@ images:
       url: "https://unsplash.com/photos/close-up-of-a-dogs-paw-on-a-textured-surface-7YBYT0cWWK0"
   - src: "https://images.unsplash.com/photo-1767363592636-6ec7ecd3c06b?auto=format&fit=crop&w=1400&q=82"
     alt: "Close-up view of a puppy's paw pads and fur"
+    width: 1400
+    height: 1400
     caption: "Paw checks should include the pads and the fur and skin between the toes, especially after wet or messy outings."
     credit:
       name: "Ludek Pytloun"
@@ -118,7 +124,7 @@ Check for:
 
 The goal is observation, not diagnosing a skin problem at home. A change that persists, worsens, looks painful, smells unusual, drains, or affects the way your dog walks deserves veterinary guidance.
 
-<BlogImage image={frontmatter.images[0]} />
+<BlogImage {...frontmatter.images[0]} />
 
 ## Rain and humidity make drying more important
 
@@ -141,7 +147,7 @@ So think of paw care as a two-part weather routine:
 
 Our [hot-pavement guide](/pet-guides/hot-pavement-dog-walks-miami) goes deeper on timing walks and recognizing surface-heat risk.
 
-<BlogImage image={frontmatter.images[1]} />
+<BlogImage {...frontmatter.images[1]} />
 
 ## What about boots, paw cleaners, and wipes?
 

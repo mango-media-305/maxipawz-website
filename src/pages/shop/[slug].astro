@@ -1,53 +1,44 @@
 ---
-import DemoCatalogNotice from '@components/products/DemoCatalogNotice.astro';
-import ProductDetails from '@components/products/ProductDetails.astro';
-import BaseLayout from '@layouts/BaseLayout.astro';
+import ProductRoutePage from '@components/products/ProductRoutePage.astro';
 
-import { isStoreLive } from '../../config/storefront';
+import type {
+  Product,
+} from '../../types/product';
 
-import type { Product } from '../../types/product';
-
-import { getActiveProducts } from '../../utils/products';
+import {
+  getActiveProducts,
+} from '../../utils/products';
 
 interface Props {
-  product: Product;
+  product:
+    Product;
 }
 
-/**
- * Active demo products are generated during prelaunch so that
- * product-detail layouts can be tested before the real store opens.
- */
 export function getStaticPaths() {
-  return getActiveProducts().map((product) => ({
-    params: {
-      slug: product.slug,
-    },
-
-    props: {
+  return getActiveProducts(
+    'en',
+  ).map(
+    (
       product,
-    },
-  }));
+    ) => ({
+      params: {
+        slug:
+          product.slug,
+      },
+
+      props: {
+        product,
+      },
+    }),
+  );
 }
 
-const { product } = Astro.props as Props;
-
-const pageTitle = product.seoTitle ?? product.name;
-
-const pageDescription = product.seoDescription ?? product.shortDescription;
-
-const shouldNoIndex = !isStoreLive || Boolean(product.isDemo);
+const {
+  product,
+} =
+  Astro.props as Props;
 ---
 
-<BaseLayout title={pageTitle} description={pageDescription} noIndex={shouldNoIndex}>
-  {
-    product.isDemo && (
-      <section class="pt-8 sm:pt-10">
-        <div class="site-container">
-          <DemoCatalogNotice compact={true} />
-        </div>
-      </section>
-    )
-  }
-
-  <ProductDetails product={product} />
-</BaseLayout>
+<ProductRoutePage
+  product={product}
+/>

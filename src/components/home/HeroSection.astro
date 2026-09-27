@@ -20,6 +20,14 @@ import {
   getPrimaryProductImage,
 } from '../../utils/products';
 
+import { getLocaleFromPathname } from '../../i18n/languages';
+import { localizeHref, localizedLinkLabel } from '../../i18n/routes';
+
+const locale = getLocaleFromPathname(Astro.url.pathname);
+
+const t = (english: string, spanish: string): string =>
+  locale === 'es' ? spanish : english;
+
 const catalog = getActiveProducts().filter(
   (product) => product.availability !== 'discontinued',
 );
@@ -46,35 +54,49 @@ const hasCollection = Boolean(heroProduct);
 const primaryAction = hasCollection
   ? {
       href: '/#home-collection',
-      label: 'Explore the Collection',
+      label: t('Explore the Collection', 'Explorar la colección'),
     }
   : {
       href: '/#maxi-pawz-updates',
-      label: isStoreLive ? 'Get Product Updates' : 'Get Launch Updates',
+      label: isStoreLive
+        ? t('Get Product Updates', 'Recibir novedades de productos')
+        : t('Get Launch Updates', 'Recibir novedades del lanzamiento'),
     };
 
 const secondaryAction = hasCollection
   ? {
       href: '/about',
-      label: 'Meet Maxi',
+      label: t('Meet Maxi', 'Conoce a Maxi'),
     }
   : isStoreLive
     ? {
         href: '/pet-guides',
-        label: 'Read Pet Guides',
+        label: t('Read Pet Guides', 'Leer guías para mascotas'),
       }
     : {
         href: '/#shop-by-lifestyle',
-        label: 'Explore What Is Coming',
+        label: t('Explore What Is Coming', 'Descubrir lo que viene'),
       };
 
 const heroDescription = hasCollection
-  ? 'Discover thoughtful products for the everyday moments you share with your pet.'
+  ? t(
+      'Discover thoughtful products for the everyday moments you share with your pet.',
+      'Descubre productos elegidos con cuidado para los momentos que compartes cada día con tu mascota.',
+    )
   : isStoreLive
-    ? 'Stay in the loop on product news and explore practical guides for everyday pet life.'
-    : 'Our first collection is on its way. Get launch updates and discover what we are creating for pets and their people.';
+    ? t(
+        'Stay in the loop on product news and explore practical guides for everyday pet life.',
+        'Recibe novedades de productos y explora guías prácticas para el día a día con tu mascota.',
+      )
+    : t(
+        'Our first collection is on its way. Get launch updates and discover what we are creating for pets and their people.',
+        'Nuestra primera colección está en camino. Recibe novedades del lanzamiento y descubre lo que estamos creando para las mascotas y sus familias.',
+      );
 
-const heroHighlights = ['Chosen with purpose', 'Inspired by life with Maxi'];
+const heroHighlights = [
+  t('Chosen with purpose', 'Elegidos con propósito'),
+  t('Inspired by life with Maxi', 'Inspirados en la vida con Maxi'),
+];
 ---
 
 <section
@@ -103,17 +125,21 @@ const heroHighlights = ['Chosen with purpose', 'Inspired by life with Maxi'];
       <Badge variant={hasCollection ? 'brand' : 'accent'} size="md">
         <PawPrintBold slot="icon" aria-hidden="true" />
 
-        {hasCollection ? 'Discover Maxi Pawz' : 'Built for real pet life'}
+        {
+          hasCollection
+            ? t('Discover Maxi Pawz', 'Descubre Maxi Pawz')
+            : t('Built for real pet life', 'Pensado para la vida con mascotas')
+        }
       </Badge>
 
       <h1
         id="home-hero-title"
         class="mt-5 text-4xl leading-[1.08] text-ink-900 sm:text-5xl xl:text-6xl"
       >
-        Pet essentials.
+        {t('Pet essentials.', 'Esenciales para mascotas.')}
 
         <span class="mt-1 block text-brand-700">
-          Happier everyday moments.
+          {t('Happier everyday moments.', 'Más felicidad cada día.')}
         </span>
       </h1>
 
@@ -123,30 +149,30 @@ const heroHighlights = ['Chosen with purpose', 'Inspired by life with Maxi'];
 
       <div class="mt-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
         <Button
-          href={primaryAction.href}
+          href={localizeHref(primaryAction.href, locale)}
           variant="primary"
           size="lg"
           iconPosition="right"
           class="w-full sm:w-auto"
         >
           <ArrowRightBold slot="icon" aria-hidden="true" />
-          {primaryAction.label}
+          {localizedLinkLabel(primaryAction.label, primaryAction.href, locale)}
         </Button>
 
         <Button
-          href={secondaryAction.href}
+          href={localizeHref(secondaryAction.href, locale)}
           variant="ghost"
           size="lg"
           class="w-full sm:w-auto"
         >
-          {secondaryAction.label}
+          {localizedLinkLabel(secondaryAction.label, secondaryAction.href, locale)}
         </Button>
       </div>
 
       {
         heroProduct && (
           <a
-            href={'/shop/' + heroProduct.slug}
+            href={localizeHref('/shop/' + heroProduct.slug, locale)}
             class="mt-6 flex min-w-0 items-center gap-4 rounded-2xl border border-sand bg-white-warm p-3 shadow-sm transition hover:border-brand-300 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-200 lg:hidden"
           >
             <ProductImage
@@ -160,17 +186,22 @@ const heroHighlights = ['Chosen with purpose', 'Inspired by life with Maxi'];
 
             <div class="min-w-0 flex-1">
               <p class="text-xs font-extrabold uppercase tracking-wider text-brand-700">
-                {heroProduct.isDemo ? 'Demo product preview' : 'Explore the collection'}
+                {heroProduct.isDemo
+                  ? t('Demo product preview', 'Vista previa de producto de muestra')
+                  : t('Explore the collection', 'Explora la colección')}
               </p>
 
-              <p class="mt-1 break-words text-base font-extrabold leading-6 text-ink-900">
+              <p
+                class="mt-1 break-words text-base font-extrabold leading-6 text-ink-900"
+                lang={locale === 'es' ? 'en' : undefined}
+              >
                 {heroProduct.name}
               </p>
 
               <p class="mt-1 text-sm font-bold text-ink-700">
                 {heroProduct.price
                   ? formatProductPrice(heroProduct.price)
-                  : 'Details coming soon'}
+                  : t('Details coming soon', 'Próximamente más detalles')}
               </p>
             </div>
 

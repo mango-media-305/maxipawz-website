@@ -1,12 +1,38 @@
-import { useEffect, useRef, useState } from 'preact/hooks';
+import {
+  useEffect,
+  useRef,
+  useState,
+} from 'preact/hooks';
 
-import { commerceConfig } from '../../config/commerce';
+import {
+  commerceConfig,
+} from '../../config/commerce';
 
-import { clearCart } from '../../stores/cart';
+import {
+  commerceText,
+} from '../../i18n/commerce';
 
-import type { OrderStatusResponse, OrderStatusSuccessResponse } from '../../types/order';
+import type {
+  Locale,
+} from '../../i18n/languages';
 
-import { formatCartAmount } from '../../utils/cart';
+import {
+  localizeHref,
+  localizedLinkLabel,
+} from '../../i18n/routes';
+
+import {
+  clearCart,
+} from '../../stores/cart';
+
+import type {
+  OrderStatusResponse,
+  OrderStatusSuccessResponse,
+} from '../../types/order';
+
+import {
+  formatCartAmount,
+} from '../../utils/cart';
 
 type ViewStatus =
   | 'checking'
@@ -18,31 +44,76 @@ type ViewStatus =
   | 'error';
 
 interface ViewState {
-  status: ViewStatus;
-  message: string;
+  status:
+    ViewStatus;
 
-  order?: OrderStatusSuccessResponse;
+  message:
+    string;
+
+  order?:
+    OrderStatusSuccessResponse;
 }
 
-const MAXIMUM_STATUS_ATTEMPTS = 12;
-const POLL_DELAY_MS = 2000;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
+interface Props {
+  locale?:
+    Locale;
 }
 
-function isSuccessResponse(value: unknown): value is OrderStatusSuccessResponse {
+const MAXIMUM_STATUS_ATTEMPTS =
+  12;
+
+const POLL_DELAY_MS =
+  2000;
+
+function isRecord(
+  value:
+    unknown,
+): value is Record<
+  string,
+  unknown
+> {
   return (
-    isRecord(value) &&
-    value.ok === true &&
-    typeof value.status === 'string' &&
-    typeof value.amountTotal === 'number' &&
-    typeof value.itemCount === 'number'
+    typeof value ===
+      'object' &&
+    value !==
+      null &&
+    !Array.isArray(
+      value,
+    )
   );
 }
 
-function StatusIcon({ status }: { status: ViewStatus }) {
-  if (status === 'checking' || status === 'processing') {
+function isSuccessResponse(
+  value:
+    unknown,
+): value is OrderStatusSuccessResponse {
+  return (
+    isRecord(
+      value,
+    ) &&
+    value.ok ===
+      true &&
+    typeof value.status ===
+      'string' &&
+    typeof value.amountTotal ===
+      'number' &&
+    typeof value.itemCount ===
+      'number'
+  );
+}
+
+function StatusIcon({
+  status,
+}: {
+  status:
+    ViewStatus;
+}) {
+  if (
+    status ===
+      'checking' ||
+    status ===
+      'processing'
+  ) {
     return (
       <svg
         viewBox="0 0 24 24"
@@ -52,14 +123,25 @@ function StatusIcon({ status }: { status: ViewStatus }) {
         strokeWidth="2.5"
         aria-hidden="true"
       >
-        <circle cx="12" cy="12" r="9" className="opacity-25" />
+        <circle
+          cx="12"
+          cy="12"
+          r="9"
+          className="opacity-25"
+        />
 
-        <path d="M21 12a9 9 0 0 0-9-9" className="opacity-90" />
+        <path
+          d="M21 12a9 9 0 0 0-9-9"
+          className="opacity-90"
+        />
       </svg>
     );
   }
 
-  if (status === 'confirmed') {
+  if (
+    status ===
+    'confirmed'
+  ) {
     return (
       <svg
         viewBox="0 0 24 24"
@@ -69,7 +151,11 @@ function StatusIcon({ status }: { status: ViewStatus }) {
         strokeWidth="2.5"
         aria-hidden="true"
       >
-        <circle cx="12" cy="12" r="9" />
+        <circle
+          cx="12"
+          cy="12"
+          r="9"
+        />
 
         <path d="m8 12 2.5 2.5L16.5 8.5" />
       </svg>
@@ -85,269 +171,561 @@ function StatusIcon({ status }: { status: ViewStatus }) {
       strokeWidth="2.5"
       aria-hidden="true"
     >
-      <circle cx="12" cy="12" r="9" />
+      <circle
+        cx="12"
+        cy="12"
+        r="9"
+      />
 
       <path d="M12 7v6" />
 
-      <circle cx="12" cy="17" r="1" fill="currentColor" stroke="none" />
+      <circle
+        cx="12"
+        cy="17"
+        r="1"
+        fill="currentColor"
+        stroke="none"
+      />
     </svg>
   );
 }
 
-function getPresentation(viewState: ViewState): {
-  eyebrow: string;
-  title: string;
-  description: string;
-  iconClasses: string;
+function getPresentation(
+  viewState:
+    ViewState,
+
+  locale:
+    Locale,
+): {
+  eyebrow:
+    string;
+
+  title:
+    string;
+
+  description:
+    string;
+
+  iconClasses:
+    string;
 } {
-  switch (viewState.status) {
+  const spanish =
+    locale === 'es';
+
+  switch (
+    viewState.status
+  ) {
     case 'confirmed':
       return {
-        eyebrow: 'Payment Confirmed',
+        eyebrow:
+          spanish
+            ? 'Pago confirmado'
+            : 'Payment Confirmed',
 
-        title: viewState.order?.livemode
-          ? 'Your payment has been confirmed.'
-          : 'Your Stripe test payment has been confirmed.',
+        title:
+          viewState.order
+            ?.livemode
+            ? spanish
+              ? 'Tu pago ha sido confirmado.'
+              : 'Your payment has been confirmed.'
+            : spanish
+              ? 'Tu pago de prueba de Stripe ha sido confirmado.'
+              : 'Your Stripe test payment has been confirmed.',
 
         description:
-          'The signed Stripe webhook reached the Maxi Pawz order system and the payment status was verified.',
+          spanish
+            ? 'El webhook firmado de Stripe llegó al sistema de pedidos de Maxi Pawz y el estado del pago fue verificado.'
+            : 'The signed Stripe webhook reached the Maxi Pawz order system and the payment status was verified.',
 
-        iconClasses: 'border-success-100 bg-success-50 text-success-700',
+        iconClasses:
+          'border-success-100 bg-success-50 text-success-700',
       };
 
     case 'processing':
       return {
-        eyebrow: 'Payment Processing',
+        eyebrow:
+          spanish
+            ? 'Pago en proceso'
+            : 'Payment Processing',
 
-        title: 'Stripe is still processing the payment.',
+        title:
+          spanish
+            ? 'Stripe todavía está procesando el pago.'
+            : 'Stripe is still processing the payment.',
 
         description:
-          'Some payment methods finish asynchronously. This page will continue checking for a final result.',
+          spanish
+            ? 'Algunos métodos de pago se completan de forma asíncrona. Esta página continuará comprobando el resultado final.'
+            : 'Some payment methods finish asynchronously. This page will continue checking for a final result.',
 
-        iconClasses: 'border-brand-200 bg-brand-50 text-brand-700',
+        iconClasses:
+          'border-brand-200 bg-brand-50 text-brand-700',
       };
 
     case 'failed':
       return {
-        eyebrow: 'Payment Failed',
+        eyebrow:
+          spanish
+            ? 'Pago fallido'
+            : 'Payment Failed',
 
-        title: 'The payment was not completed.',
+        title:
+          spanish
+            ? 'El pago no se completó.'
+            : 'The payment was not completed.',
 
         description:
-          'Stripe reported that the delayed payment did not succeed. Review the cart before trying again.',
+          spanish
+            ? 'Stripe informó que el pago diferido no se completó correctamente. Revisa el carrito antes de intentarlo nuevamente.'
+            : 'Stripe reported that the delayed payment did not succeed. Review the cart before trying again.',
 
-        iconClasses: 'border-danger-100 bg-danger-50 text-danger-700',
+        iconClasses:
+          'border-danger-100 bg-danger-50 text-danger-700',
       };
 
     case 'not-found':
       return {
-        eyebrow: 'Confirmation Delayed',
+        eyebrow:
+          spanish
+            ? 'Confirmación demorada'
+            : 'Confirmation Delayed',
 
-        title: 'The order confirmation has not arrived yet.',
+        title:
+          spanish
+            ? 'La confirmación del pedido todavía no ha llegado.'
+            : 'The order confirmation has not arrived yet.',
 
         description:
-          'The Checkout Session returned successfully, but no verified webhook record was found after several attempts.',
+          spanish
+            ? 'La sesión de Checkout regresó correctamente, pero no encontramos un registro de webhook verificado después de varios intentos.'
+            : 'The Checkout Session returned successfully, but no verified webhook record was found after several attempts.',
 
-        iconClasses: 'border-accent-200 bg-accent-50 text-accent-700',
+        iconClasses:
+          'border-accent-200 bg-accent-50 text-accent-700',
       };
 
     case 'invalid':
       return {
-        eyebrow: 'Invalid Checkout Return',
+        eyebrow:
+          spanish
+            ? 'Regreso de pago no válido'
+            : 'Invalid Checkout Return',
 
-        title: 'The Checkout Session ID is missing or invalid.',
+        title:
+          spanish
+            ? 'El ID de la sesión de Checkout falta o no es válido.'
+            : 'The Checkout Session ID is missing or invalid.',
 
-        description: 'Return to the cart and begin checkout again from the Maxi Pawz website.',
+        description:
+          spanish
+            ? 'Regresa al carrito e inicia nuevamente el proceso de pago desde el sitio web de Maxi Pawz.'
+            : 'Return to the cart and begin checkout again from the Maxi Pawz website.',
 
-        iconClasses: 'border-accent-200 bg-accent-50 text-accent-700',
+        iconClasses:
+          'border-accent-200 bg-accent-50 text-accent-700',
       };
 
     case 'error':
       return {
-        eyebrow: 'Status Unavailable',
+        eyebrow:
+          spanish
+            ? 'Estado no disponible'
+            : 'Status Unavailable',
 
-        title: 'Payment status could not be checked.',
+        title:
+          spanish
+            ? 'No pudimos verificar el estado del pago.'
+            : 'Payment status could not be checked.',
 
-        description: viewState.message,
+        description:
+          spanish
+            ? 'No pudimos consultar el estado del pago en este momento. Inténtalo nuevamente o regresa al carrito.'
+            : viewState.message,
 
-        iconClasses: 'border-danger-100 bg-danger-50 text-danger-700',
+        iconClasses:
+          'border-danger-100 bg-danger-50 text-danger-700',
       };
 
     default:
       return {
-        eyebrow: 'Confirming Payment',
+        eyebrow:
+          spanish
+            ? 'Confirmando el pago'
+            : 'Confirming Payment',
 
-        title: 'We are checking the signed Stripe confirmation.',
+        title:
+          spanish
+            ? 'Estamos verificando la confirmación firmada de Stripe.'
+            : 'We are checking the signed Stripe confirmation.',
 
         description:
-          'Please keep this page open while the order system verifies the Checkout Session.',
+          spanish
+            ? 'Mantén esta página abierta mientras el sistema de pedidos verifica la sesión de Checkout.'
+            : 'Please keep this page open while the order system verifies the Checkout Session.',
 
-        iconClasses: 'border-brand-200 bg-brand-50 text-brand-700',
+        iconClasses:
+          'border-brand-200 bg-brand-50 text-brand-700',
       };
   }
 }
 
-export default function OrderStatus() {
-  const [viewState, setViewState] = useState<ViewState>({
-    status: 'checking',
+export default function OrderStatus({
+  locale = 'en',
+}: Props) {
+  const [
+    viewState,
+    setViewState,
+  ] =
+    useState<ViewState>({
+      status:
+        'checking',
 
-    message: 'Checking payment confirmation.',
-  });
+      message:
+        commerceText(
+          locale,
+          'Checking payment confirmation.',
+          'Verificando la confirmación del pago.',
+        ),
+    });
 
-  const cartCleared = useRef(false);
+  const cartCleared =
+    useRef(
+      false,
+    );
 
-  useEffect(() => {
-    const sessionId = new URLSearchParams(window.location.search).get('session_id')?.trim();
+  useEffect(
+    () => {
+      const sessionId =
+        new URLSearchParams(
+          window.location.search,
+        )
+          .get(
+            'session_id',
+          )
+          ?.trim();
 
-    if (!sessionId) {
-      setViewState({
-        status: 'invalid',
+      if (
+        !sessionId
+      ) {
+        setViewState({
+          status:
+            'invalid',
 
-        message: 'The Checkout Session ID is missing.',
-      });
+          message:
+            commerceText(
+              locale,
+              'The Checkout Session ID is missing.',
+              'Falta el ID de la sesión de Checkout.',
+            ),
+        });
 
-      return;
-    }
-
-    let cancelled = false;
-    let attempt = 0;
-
-    let pollTimer: number | undefined;
-
-    const controller = new AbortController();
-
-    function scheduleNextCheck(): void {
-      if (cancelled || attempt >= MAXIMUM_STATUS_ATTEMPTS) {
         return;
       }
 
-      pollTimer = window.setTimeout(() => {
-        void checkStatus();
-      }, POLL_DELAY_MS);
-    }
+      let cancelled =
+        false;
 
-    async function checkStatus(): Promise<void> {
-      attempt += 1;
+      let attempt =
+        0;
 
-      try {
-        const endpoint = new URL(
-          commerceConfig.orderStatusEndpoint,
+      let pollTimer:
+        number |
+        undefined;
 
-          window.location.origin,
-        );
+      const controller =
+        new AbortController();
 
-        endpoint.searchParams.set('session_id', sessionId);
+      function scheduleNextCheck():
+        void {
+        if (
+          cancelled ||
+          attempt >=
+            MAXIMUM_STATUS_ATTEMPTS
+        ) {
+          return;
+        }
 
-        const response = await fetch(endpoint, {
-          method: 'GET',
+        pollTimer =
+          window.setTimeout(
+            () => {
+              void checkStatus();
+            },
 
-          headers: {
-            Accept: 'application/json',
-          },
+            POLL_DELAY_MS,
+          );
+      }
 
-          cache: 'no-store',
+      async function checkStatus():
+        Promise<void> {
+        attempt +=
+          1;
 
-          signal: controller.signal,
-        });
+        try {
+          const endpoint =
+            new URL(
+              commerceConfig
+                .orderStatusEndpoint,
 
-        const payload = (await response.json().catch(() => null)) as OrderStatusResponse | null;
+              window.location
+                .origin,
+            );
 
-        if (response.status === 404) {
-          if (attempt < MAXIMUM_STATUS_ATTEMPTS) {
+          endpoint.searchParams.set(
+            'session_id',
+            sessionId,
+          );
+
+          const response =
+            await fetch(
+              endpoint,
+
+              {
+                method:
+                  'GET',
+
+                headers: {
+                  Accept:
+                    'application/json',
+                },
+
+                cache:
+                  'no-store',
+
+                signal:
+                  controller.signal,
+              },
+            );
+
+          const payload =
+            (await response
+              .json()
+              .catch(
+                () =>
+                  null,
+              )) as
+              | OrderStatusResponse
+              | null;
+
+          if (
+            response.status ===
+            404
+          ) {
+            if (
+              attempt <
+              MAXIMUM_STATUS_ATTEMPTS
+            ) {
+              setViewState({
+                status:
+                  'checking',
+
+                message:
+                  commerceText(
+                    locale,
+                    'Waiting for the Stripe webhook.',
+                    'Esperando el webhook de Stripe.',
+                  ),
+              });
+
+              scheduleNextCheck();
+
+              return;
+            }
+
             setViewState({
-              status: 'checking',
+              status:
+                'not-found',
 
-              message: 'Waiting for the Stripe webhook.',
+              message:
+                commerceText(
+                  locale,
+                  'No verified order record was found.',
+                  'No encontramos un registro de pedido verificado.',
+                ),
             });
 
-            scheduleNextCheck();
+            return;
+          }
+
+          if (
+            !response.ok ||
+            !isSuccessResponse(
+              payload,
+            )
+          ) {
+            throw new Error(
+              locale ===
+                'en' &&
+              isRecord(
+                payload,
+              ) &&
+              typeof payload.message ===
+                'string'
+                ? payload.message
+                : commerceText(
+                    locale,
+                    'Payment status could not be checked.',
+                    'No pudimos verificar el estado del pago.',
+                  ),
+            );
+          }
+
+          if (
+            payload.status ===
+            'confirmed'
+          ) {
+            if (
+              payload.clearCart &&
+              !cartCleared.current
+            ) {
+              cartCleared.current =
+                true;
+
+              clearCart();
+            }
+
+            setViewState({
+              status:
+                'confirmed',
+
+              message:
+                commerceText(
+                  locale,
+                  'Payment confirmed.',
+                  'Pago confirmado.',
+                ),
+
+              order:
+                payload,
+            });
+
+            return;
+          }
+
+          if (
+            payload.status ===
+            'failed'
+          ) {
+            setViewState({
+              status:
+                'failed',
+
+              message:
+                commerceText(
+                  locale,
+                  'Payment failed.',
+                  'El pago falló.',
+                ),
+
+              order:
+                payload,
+            });
+
             return;
           }
 
           setViewState({
-            status: 'not-found',
+            status:
+              'processing',
 
-            message: 'No verified order record was found.',
+            message:
+              commerceText(
+                locale,
+                'Payment is still processing.',
+                'El pago todavía está siendo procesado.',
+              ),
+
+            order:
+              payload,
           });
 
-          return;
-        }
-
-        if (!response.ok || !isSuccessResponse(payload)) {
-          throw new Error(
-            isRecord(payload) && typeof payload.message === 'string'
-              ? payload.message
-              : 'Payment status could not be checked.',
-          );
-        }
-
-        if (payload.status === 'confirmed') {
-          if (payload.clearCart && !cartCleared.current) {
-            cartCleared.current = true;
-
-            clearCart();
+          if (
+            attempt <
+            MAXIMUM_STATUS_ATTEMPTS
+          ) {
+            scheduleNextCheck();
+          }
+        } catch (
+          error
+        ) {
+          if (
+            controller.signal
+              .aborted
+          ) {
+            return;
           }
 
           setViewState({
-            status: 'confirmed',
+            status:
+              'error',
 
-            message: 'Payment confirmed.',
-
-            order: payload,
+            message:
+              locale ===
+                'en' &&
+              error instanceof
+                Error
+                ? error.message
+                : commerceText(
+                    locale,
+                    'Payment status could not be checked.',
+                    'No pudimos verificar el estado del pago.',
+                  ),
           });
-
-          return;
         }
-
-        if (payload.status === 'failed') {
-          setViewState({
-            status: 'failed',
-
-            message: 'Payment failed.',
-
-            order: payload,
-          });
-
-          return;
-        }
-
-        setViewState({
-          status: 'processing',
-
-          message: 'Payment is still processing.',
-
-          order: payload,
-        });
-
-        if (attempt < MAXIMUM_STATUS_ATTEMPTS) {
-          scheduleNextCheck();
-        }
-      } catch (error) {
-        if (controller.signal.aborted) {
-          return;
-        }
-
-        setViewState({
-          status: 'error',
-
-          message: error instanceof Error ? error.message : 'Payment status could not be checked.',
-        });
       }
-    }
 
-    void checkStatus();
+      void checkStatus();
 
-    return () => {
-      cancelled = true;
-      controller.abort();
+      return () => {
+        cancelled =
+          true;
 
-      if (pollTimer) {
-        window.clearTimeout(pollTimer);
-      }
-    };
-  }, []);
+        controller.abort();
 
-  const presentation = getPresentation(viewState);
+        if (
+          pollTimer
+        ) {
+          window.clearTimeout(
+            pollTimer,
+          );
+        }
+      };
+    },
+    [
+      locale,
+    ],
+  );
+
+  const presentation =
+    getPresentation(
+      viewState,
+      locale,
+    );
+
+  const cartHref =
+    localizeHref(
+      '/cart',
+      locale,
+    );
+
+  const shopSourceHref =
+    '/shop#products';
+
+  const shopHref =
+    localizeHref(
+      shopSourceHref,
+      locale,
+    );
+
+  const shopLabel =
+    localizedLinkLabel(
+      commerceText(
+        locale,
+        'Continue Shopping',
+        'Seguir comprando',
+      ),
+      shopSourceHref,
+      locale,
+    );
 
   return (
     <section className="py-10 sm:py-14 lg:py-18">
@@ -367,66 +745,115 @@ export default function OrderStatus() {
             <span
               className={[
                 'mx-auto grid size-20 place-items-center rounded-full border shadow-soft',
-                presentation.iconClasses,
-              ].join(' ')}
+                presentation
+                  .iconClasses,
+              ].join(
+                ' ',
+              )}
               aria-hidden="true"
             >
-              <StatusIcon status={viewState.status} />
+              <StatusIcon
+                status={
+                  viewState.status
+                }
+              />
             </span>
 
             <p className="mt-6 text-sm font-extrabold tracking-[0.09em] text-brand-700 uppercase">
-              {presentation.eyebrow}
+              {
+                presentation
+                  .eyebrow
+              }
             </p>
 
             <h1 className="mt-4 text-4xl text-ink-900 sm:text-5xl lg:text-6xl">
-              {presentation.title}
+              {
+                presentation
+                  .title
+              }
             </h1>
 
             <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-ink-600">
-              {presentation.description}
+              {
+                presentation
+                  .description
+              }
             </p>
 
-            {viewState.order && (
-              <dl className="mx-auto mt-8 grid max-w-2xl gap-3 text-left sm:grid-cols-2">
-                <div className="rounded-2xl border border-sand bg-white-warm p-4">
-                  <dt className="text-xs font-extrabold tracking-[0.08em] text-ink-500 uppercase">
-                    Amount
-                  </dt>
+            {
+              viewState.order && (
+                <dl className="mx-auto mt-8 grid max-w-2xl gap-3 text-left sm:grid-cols-2">
+                  <div className="rounded-2xl border border-sand bg-white-warm p-4">
+                    <dt className="text-xs font-extrabold tracking-[0.08em] text-ink-500 uppercase">
+                      {
+                        commerceText(
+                          locale,
+                          'Amount',
+                          'Importe',
+                        )
+                      }
+                    </dt>
 
-                  <dd className="mt-2 text-xl font-black text-ink-900">
-                    {formatCartAmount(
-                      viewState.order.amountTotal,
+                    <dd className="mt-2 text-xl font-black text-ink-900">
+                      {
+                        formatCartAmount(
+                          viewState
+                            .order
+                            .amountTotal,
 
-                      viewState.order.currency.toUpperCase(),
-                    )}
-                  </dd>
-                </div>
+                          viewState
+                            .order
+                            .currency
+                            .toUpperCase(),
 
-                <div className="rounded-2xl border border-sand bg-white-warm p-4">
-                  <dt className="text-xs font-extrabold tracking-[0.08em] text-ink-500 uppercase">
-                    Items
-                  </dt>
+                          locale,
+                        )
+                      }
+                    </dd>
+                  </div>
 
-                  <dd className="mt-2 text-xl font-black text-ink-900">
-                    {viewState.order.itemCount}
-                  </dd>
-                </div>
-              </dl>
-            )}
+                  <div className="rounded-2xl border border-sand bg-white-warm p-4">
+                    <dt className="text-xs font-extrabold tracking-[0.08em] text-ink-500 uppercase">
+                      {
+                        commerceText(
+                          locale,
+                          'Items',
+                          'Productos',
+                        )
+                      }
+                    </dt>
+
+                    <dd className="mt-2 text-xl font-black text-ink-900">
+                      {
+                        viewState
+                          .order
+                          .itemCount
+                      }
+                    </dd>
+                  </div>
+                </dl>
+              )
+            }
 
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <a
-                href="/cart"
+                href={cartHref}
                 className="inline-flex min-h-12 items-center justify-center rounded-full border border-brand-600 bg-brand-500 px-6 font-extrabold text-white shadow-blue transition hover:-translate-y-0.5 hover:bg-brand-600"
               >
-                Return to Cart
+                {
+                  commerceText(
+                    locale,
+                    'Return to Cart',
+                    'Volver al carrito',
+                  )
+                }
               </a>
 
               <a
-                href="/shop#products"
+                href={shopHref}
                 className="inline-flex min-h-12 items-center justify-center rounded-full border border-brand-300 bg-white-warm px-6 font-extrabold text-brand-800 transition hover:bg-brand-50"
               >
-                Continue Shopping
+                {shopLabel}
               </a>
             </div>
           </div>

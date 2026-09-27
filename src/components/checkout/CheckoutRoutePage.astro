@@ -1,0 +1,91 @@
+---
+import EmbeddedCheckout from '@components/checkout/EmbeddedCheckout';
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+import { isTestCheckoutEnabled } from '../../config/commerce';
+
+import { getLocaleFromPathname } from '../../i18n/languages';
+
+import { localizeHref } from '../../i18n/routes';
+
+const locale =
+  getLocaleFromPathname(
+    Astro.url.pathname,
+  );
+
+const spanish =
+  locale === 'es';
+
+const title =
+  isTestCheckoutEnabled
+    ? spanish
+      ? 'Pago de prueba'
+      : 'Test Checkout'
+    : spanish
+      ? 'Pago'
+      : 'Checkout';
+
+const description =
+  isTestCheckoutEnabled
+    ? spanish
+      ? 'Explora el proceso de pago de Maxi Pawz con pagos simulados.'
+      : 'Preview the Maxi Pawz checkout flow with simulated payments.'
+    : spanish
+      ? 'Revisa tu carrito de Maxi Pawz y la disponibilidad del proceso de pago.'
+      : 'Review your Maxi Pawz cart and checkout availability.';
+
+const intro =
+  isTestCheckoutEnabled
+    ? spanish
+      ? 'Los pagos son simulados en este proceso. No se cobra dinero real.'
+      : 'Payments are simulated in this checkout. No real payment is collected.'
+    : spanish
+      ? 'Revisa tu carrito y la disponibilidad del proceso de pago a continuación.'
+      : 'Review your cart and checkout availability below.';
+
+const cartHref =
+  localizeHref(
+    '/cart',
+    locale,
+  );
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  noIndex={true}
+>
+  <section class="py-6 sm:py-8 lg:py-10">
+    <div class="site-container">
+      <div class="mx-auto max-w-4xl">
+        <a
+          href={cartHref}
+          class="inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-extrabold text-brand-700 underline underline-offset-4 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-300/45"
+        >
+          {
+            spanish
+              ? 'Volver a tu carrito'
+              : 'Back to your cart'
+          }
+        </a>
+
+        <div class="mt-4 mb-6 text-center sm:mb-8">
+          <h1 class="text-3xl text-ink-900 sm:text-4xl">
+            {title}
+          </h1>
+
+          <p class="mx-auto mt-3 max-w-2xl text-base leading-7 text-ink-600">
+            {intro}
+          </p>
+        </div>
+
+        <div class="rounded-3xl border border-brand-200 bg-white-warm p-3 shadow-card sm:p-6">
+          <EmbeddedCheckout
+            locale={locale}
+            client:load
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

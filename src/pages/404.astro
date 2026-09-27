@@ -7,38 +7,174 @@ import Badge from '@components/ui/Badge.astro';
 import Button from '@components/ui/Button.astro';
 import BaseLayout from '@layouts/BaseLayout.astro';
 
-const helpfulLinks = [
-  {
-    title: 'Explore pet guides',
+import {
+  getLocaleFromPathname,
+} from '../i18n/languages';
 
-    description:
-      'Read practical guidance about play, travel, hydration, comfort, grooming, and everyday pet care.',
+import {
+  localizeHref,
+  localizedLinkLabel,
+} from '../i18n/routes';
 
-    href: '/pet-guides',
-  },
+const locale =
+  getLocaleFromPathname(
+    Astro.url.pathname,
+  );
 
-  {
-    title: 'Discover Maxi Pawz',
+const spanish =
+  locale === 'es';
 
-    description: 'Learn about the story, values, and happy dog behind the Maxi Pawz name.',
+const copy = spanish
+  ? {
+      title:
+        'Página no encontrada',
 
-    href: '/about',
-  },
+      description:
+        'No pudimos encontrar la página que solicitaste. Regresa a Maxi Pawz Store o explora nuestras guías prácticas para mascotas.',
 
-  {
-    title: 'Contact the pack',
+      badge:
+        '404 — Camino equivocado',
 
-    description:
-      'Send us a message if you were looking for something specific or found a broken link.',
+      heading:
+        'Esta página se fue de paseo.',
 
-    href: '/contact',
-  },
-];
+      message:
+        'Es posible que la página se haya movido, que el enlace esté desactualizado o que la dirección se haya escrito incorrectamente. Podemos ayudarte a encontrar el camino de regreso.',
+
+      homeButton:
+        'Volver al inicio',
+
+      petGuidesButton:
+        'Explorar guías para mascotas',
+
+      helpfulLinksLabel:
+        'Enlaces útiles de Maxi Pawz',
+
+      visitPage:
+        'Visitar esta página',
+    }
+  : {
+      title:
+        'Page Not Found',
+
+      description:
+        'The page you requested could not be found. Return to Maxi Pawz Store or explore our practical pet guides.',
+
+      badge:
+        '404 — Wrong Turn',
+
+      heading:
+        'This page wandered off.',
+
+      message:
+        'The page may have moved, the link may be outdated, or the address may have been entered incorrectly. No worries—we can help you find your way back.',
+
+      homeButton:
+        'Return Home',
+
+      petGuidesButton:
+        'Explore Pet Guides',
+
+      helpfulLinksLabel:
+        'Helpful Maxi Pawz links',
+
+      visitPage:
+        'Visit this page',
+    };
+
+const helpfulLinks = spanish
+  ? [
+      {
+        title:
+          'Explorar guías para mascotas',
+
+        description:
+          'Lee consejos prácticos sobre juego, viajes, hidratación, comodidad, aseo y el cuidado diario de tu mascota.',
+
+        href:
+          '/pet-guides',
+      },
+
+      {
+        title:
+          'Descubre Maxi Pawz',
+
+        description:
+          'Conoce la historia, los valores y el perro feliz que inspiró el nombre Maxi Pawz.',
+
+        href:
+          '/about',
+      },
+
+      {
+        title:
+          'Contacta con el Pack',
+
+        description:
+          'Envíanos un mensaje si buscabas algo específico o encontraste un enlace que no funciona.',
+
+        href:
+          '/contact',
+      },
+    ]
+  : [
+      {
+        title:
+          'Explore pet guides',
+
+        description:
+          'Read practical guidance about play, travel, hydration, comfort, grooming, and everyday pet care.',
+
+        href:
+          '/pet-guides',
+      },
+
+      {
+        title:
+          'Discover Maxi Pawz',
+
+        description:
+          'Learn about the story, values, and happy dog behind the Maxi Pawz name.',
+
+        href:
+          '/about',
+      },
+
+      {
+        title:
+          'Contact the pack',
+
+        description:
+          'Send us a message if you were looking for something specific or found a broken link.',
+
+        href:
+          '/contact',
+      },
+    ];
+
+const homeHref =
+  localizeHref(
+    '/',
+    locale,
+  );
+
+const petGuidesHref =
+  localizeHref(
+    '/pet-guides',
+    locale,
+  );
+
+const petGuidesLabel =
+  localizedLinkLabel(
+    copy.petGuidesButton,
+    '/pet-guides',
+    locale,
+  );
 ---
 
 <BaseLayout
-  title="Page Not Found"
-  description="The page you requested could not be found. Return to Maxi Pawz Store or explore our practical pet guides."
+  title={copy.title}
+  description={copy.description}
   noIndex={true}
 >
   <section
@@ -69,76 +205,114 @@ const helpfulLinks = [
             <PawPrintBold class="size-10" />
           </span>
 
-          <Badge variant="accent" size="md" class="mx-auto mt-7">
-            <HeartBold slot="icon" aria-hidden="true" />
+          <Badge
+            variant="accent"
+            size="md"
+            class="mx-auto mt-7"
+          >
+            <HeartBold
+              slot="icon"
+              aria-hidden="true"
+            />
 
-            404 — Wrong Turn
+            {copy.badge}
           </Badge>
 
           <h1
             id="not-found-title"
             class="mx-auto mt-6 max-w-3xl text-5xl text-ink-900 sm:text-6xl lg:text-7xl"
           >
-            This page wandered off.
+            {copy.heading}
           </h1>
 
           <p
             class="mx-auto mt-5 max-w-2xl text-base leading-7 text-ink-600 sm:text-lg sm:leading-8"
           >
-            The page may have moved, the link may be outdated, or the address may have been entered
-            incorrectly. No worries—we can help you find your way back.
+            {copy.message}
           </p>
 
           <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Button
-              href="/"
+              href={homeHref}
               variant="primary"
               size="lg"
               iconPosition="right"
               class="w-full sm:w-auto"
             >
-              <ArrowRightBold slot="icon" aria-hidden="true" />
+              <ArrowRightBold
+                slot="icon"
+                aria-hidden="true"
+              />
 
-              Return Home
+              {copy.homeButton}
             </Button>
 
             <Button
-              href="/pet-guides"
+              href={petGuidesHref}
               variant="secondary"
               size="lg"
               iconPosition="right"
               class="w-full sm:w-auto"
             >
-              <PawPrintBold slot="icon" aria-hidden="true" />
+              <PawPrintBold
+                slot="icon"
+                aria-hidden="true"
+              />
 
-              Explore Pet Guides
+              {petGuidesLabel}
             </Button>
           </div>
         </div>
 
         <div
           class="mt-10 grid gap-4 border-t border-brand-200 pt-8 md:grid-cols-3"
-          aria-label="Helpful Maxi Pawz links"
+          aria-label={copy.helpfulLinksLabel}
         >
           {
-            helpfulLinks.map(({ title, description, href }) => (
-              <a
-                href={href}
-                class="group flex h-full flex-col rounded-3xl border border-sand bg-white-warm p-5 shadow-soft transition hover:-translate-y-1 hover:border-brand-300 hover:shadow-card"
-              >
-                <h2 class="text-xl text-ink-900">{title}</h2>
+            helpfulLinks.map(
+              ({
+                title,
+                description,
+                href,
+              }) => {
+                const localizedHref =
+                  localizeHref(
+                    href,
+                    locale,
+                  );
 
-                <p class="mt-3 flex-1 text-sm leading-6 text-ink-600">{description}</p>
+                const localizedTitle =
+                  localizedLinkLabel(
+                    title,
+                    href,
+                    locale,
+                  );
 
-                <span class="mt-5 inline-flex items-center gap-2 text-sm font-extrabold text-brand-700">
-                  Visit this page
-                  <ArrowRightBold
-                    class="size-4 transition group-hover:translate-x-1"
-                    aria-hidden="true"
-                  />
-                </span>
-              </a>
-            ))
+                return (
+                  <a
+                    href={localizedHref}
+                    class="group flex h-full flex-col rounded-3xl border border-sand bg-white-warm p-5 shadow-soft transition hover:-translate-y-1 hover:border-brand-300 hover:shadow-card"
+                  >
+                    <h2 class="text-xl text-ink-900">
+                      {localizedTitle}
+                    </h2>
+
+                    <p class="mt-3 flex-1 text-sm leading-6 text-ink-600">
+                      {description}
+                    </p>
+
+                    <span class="mt-5 inline-flex items-center gap-2 text-sm font-extrabold text-brand-700">
+                      {copy.visitPage}
+
+                      <ArrowRightBold
+                        class="size-4 transition group-hover:translate-x-1"
+                        aria-hidden="true"
+                      />
+                    </span>
+                  </a>
+                );
+              },
+            )
           }
         </div>
       </div>

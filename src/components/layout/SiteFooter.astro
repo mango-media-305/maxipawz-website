@@ -8,7 +8,13 @@ import BrandLogo from '../brand/BrandLogo.astro';
 import { businessConfig } from '../../config/business';
 import { siteConfig } from '../../config/site';
 
-import { footerNavigation } from '../../data/navigation';
+import { getLocaleFromPathname } from '../../i18n/languages';
+import { localizeHref, localizedLinkLabel } from '../../i18n/routes';
+import { getFooterNavigation, sharedCopy } from '../../i18n/shared';
+
+const locale = getLocaleFromPathname(Astro.url.pathname);
+const copy = sharedCopy[locale];
+const footerNavigation = getFooterNavigation(locale);
 
 const currentYear = new Date().getFullYear();
 
@@ -48,20 +54,19 @@ const socialLinks = [
     <div class="grid gap-12 lg:grid-cols-[1.1fr_2fr]">
       <div>
         <a
-          href="/"
+          href={localizeHref('/', locale)}
           class="inline-flex rounded-2xl"
-          aria-label={`${businessConfig.publicName} home`}
+          aria-label={localizedLinkLabel(copy.home, '/', locale)}
         >
           <BrandLogo variant="logo" class="h-auto w-44 object-contain" />
         </a>
 
         <p class="mt-5 max-w-sm text-base leading-7 text-ink-600">
-          Thoughtfully selected toys, accessories, and everyday essentials that support play,
-          travel, comfort, care, and joyful moments between pets and their people.
+          {copy.footerDescription}
         </p>
 
         <div class="mt-6 max-w-sm rounded-2xl border border-sand-dark/60 bg-white-warm/70 p-4">
-          <p class="text-xs font-black tracking-[0.09em] text-brand-700 uppercase">Questions?</p>
+          <p class="text-xs font-black tracking-[0.09em] text-brand-700 uppercase">{copy.questions}</p>
 
           <a
             href={`mailto:${businessConfig.generalEmail}`}
@@ -71,7 +76,7 @@ const socialLinks = [
           </a>
 
           <p class="mt-2 text-xs leading-5 text-ink-500">
-            {businessConfig.supportResponseTime}
+            {copy.supportResponse}
           </p>
         </div>
 
@@ -82,7 +87,7 @@ const socialLinks = [
                 <a
                   href={href}
                   class="grid size-11 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-800 transition hover:-translate-y-1 hover:border-brand-500 hover:bg-brand-50"
-                  aria-label={`${businessConfig.shortName} on ${label}`}
+                  aria-label={`${businessConfig.shortName} ${copy.socialOn} ${label}`}
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -125,15 +130,21 @@ const socialLinks = [
     >
       <p>
         © {currentYear}
-        {businessConfig.publicName}. All rights reserved.
+        {businessConfig.publicName}. {copy.rights}
       </p>
 
       <div class="flex flex-wrap gap-x-5 gap-y-2">
-        <a href="/privacy-policy" class="transition hover:text-brand-700"> Privacy </a>
+        <a href={localizeHref('/privacy-policy', locale)} class="transition hover:text-brand-700">
+          {localizedLinkLabel(copy.privacy, '/privacy-policy', locale)}
+        </a>
 
-        <a href="/terms" class="transition hover:text-brand-700"> Terms </a>
+        <a href={localizeHref('/terms', locale)} class="transition hover:text-brand-700">
+          {localizedLinkLabel(copy.terms, '/terms', locale)}
+        </a>
 
-        <a href="/accessibility" class="transition hover:text-brand-700"> Accessibility </a>
+        <a href={localizeHref('/accessibility', locale)} class="transition hover:text-brand-700">
+          {localizedLinkLabel(copy.accessibility, '/accessibility', locale)}
+        </a>
       </div>
     </div>
   </div>

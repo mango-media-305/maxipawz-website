@@ -1,0 +1,76 @@
+---
+import HeartBold from 'phosphor-astro/HeartBold.astro';
+import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
+import ShieldCheckBold from 'phosphor-astro/ShieldCheckBold.astro';
+
+import { getLocaleFromPathname } from '../../i18n/languages';
+
+const locale = getLocaleFromPathname(Astro.url.pathname);
+const t = (english: string, spanish: string): string => (locale === 'es' ? spanish : english);
+
+const benefits = [
+    {
+        icon: ShieldCheckBold,
+
+        title: t('Selected with purpose', 'Elegidos con propósito'),
+
+        description: t(
+        'We consider usefulness, play value, comfort, portability, quality, and how each product fits into everyday pet life.',
+        'Consideramos la utilidad, el valor para el juego, la comodidad, la facilidad de transporte, la calidad y cómo encaja cada producto en la vida diaria con mascotas.',
+        ),
+    },
+
+    {
+        icon: PawPrintBold,
+
+        title: t('Made for real routines', 'Pensados para el día a día'),
+
+        description: t(
+        'Maxi Pawz is being built around the moments pet owners experience every day—from playtime to walks, travel, feeding, and rest.',
+        'Maxi Pawz nace de los momentos que compartimos cada día con nuestras mascotas: el juego, los paseos, los viajes, la alimentación y el descanso.',
+        ),
+    },
+
+    {
+        icon: HeartBold,
+
+        title: t('Inspired by Maxi', 'Inspirados en Maxi'),
+
+        description: t(
+        'Our perspective comes from caring for Maxi and learning which products make pets happy while making life easier for their people.',
+        'Nuestra perspectiva nace de cuidar a Maxi y descubrir qué productos hacen felices a las mascotas y facilitan la vida de sus familias.',
+        ),
+    },
+];
+---
+
+<section class="border-y border-sand bg-white-warm/65" aria-labelledby="why-maxipawz-title">
+    <h2 id="why-maxipawz-title" class="sr-only">
+        {t('Why Maxi Pawz', 'Por qué Maxi Pawz')}
+    </h2>
+
+    <div class="site-container grid gap-2 py-6 sm:py-8 md:grid-cols-3 md:gap-4">
+        {
+        benefits.map(({ icon: Icon, title, description }, index) => (
+            <article
+            class="flex gap-4 rounded-3xl p-4 transition hover:bg-cream sm:p-5"
+            data-reveal
+            style={`--reveal-delay: ${index * 90}ms;`}
+            >
+            <span
+                class="grid size-11 shrink-0 place-items-center rounded-2xl bg-brand-100 text-brand-700 sm:size-12"
+                aria-hidden="true"
+            >
+                <Icon class="size-5 sm:size-6" />
+            </span>
+
+            <div class="min-w-0">
+                <h3 class="interface-heading text-lg">{title}</h3>
+
+                <p class="mt-2 text-sm leading-6 text-ink-600">{description}</p>
+            </div>
+            </article>
+        ))
+        }
+    </div>
+</section>

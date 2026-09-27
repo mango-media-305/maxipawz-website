@@ -10,18 +10,180 @@ import Badge from '@components/ui/Badge.astro';
 import Button from '@components/ui/Button.astro';
 import BaseLayout from '@layouts/BaseLayout.astro';
 
-import { businessConfig, businessDisplayName } from '../config/business';
+import {
+  businessConfig,
+  businessDisplayName,
+} from '../config/business';
 
-import type { LegalDocument, LegalDocumentIcon, LegalDocumentTone } from '../data/legal';
+import type {
+  LegalDocument,
+  LegalDocumentIcon,
+  LegalDocumentTone,
+} from '../data/legal';
+
+import {
+  getLocaleFromPathname,
+} from '../i18n/languages';
+
+import {
+  localizeHref,
+  localizedLinkLabel,
+} from '../i18n/routes';
 
 interface Props {
   document: LegalDocument;
   noIndex?: boolean;
 }
 
-const { document, noIndex = true } = Astro.props;
+const {
+  document,
+  noIndex = true,
+} = Astro.props;
 
-const iconByDocument: Record<LegalDocumentIcon, typeof PawPrintBold> = {
+const locale =
+  getLocaleFromPathname(
+    Astro.url.pathname,
+  );
+
+const spanish =
+  locale === 'es';
+
+const copy =
+  spanish
+    ? {
+        readPolicy:
+          'Leer la política',
+
+        contact:
+          'Contactar a Maxi Pawz',
+
+        policySummary:
+          'Resumen de la política',
+
+        documentSummary:
+          'Resumen del documento',
+
+        importantDetails:
+          'Detalles importantes',
+
+        websiteOperator:
+          'Operador del sitio web',
+
+        currentStatus:
+          'Estado actual',
+
+        effectiveDate:
+          'Fecha de entrada en vigor',
+
+        lastUpdated:
+          'Última actualización',
+
+        readCarefully:
+          'Lee cada sección con atención.',
+
+        currentWebsiteDescription:
+          'Este documento refleja el sitio web actual durante la etapa previa al lanzamiento y será revisado a medida que Maxi Pawz incorpore nuevos servicios y funciones de la tienda.',
+
+        onThisPage:
+          'En esta página',
+
+        sectionsAria:
+          `Secciones de ${document.title}`,
+
+        prelaunchDocument:
+          'Documento de pre-lanzamiento',
+
+        prelaunchDescription:
+          'Los detalles operativos deben revisarse y finalizarse antes de que la tienda comience a aceptar pedidos.',
+
+        relatedInformation:
+          'Información relacionada',
+
+        continueResource:
+          'Continúa con otro recurso de Maxi Pawz.',
+
+        openResource:
+          'Abrir recurso',
+
+        policyQuestions:
+          'Preguntas sobre políticas',
+
+        clarificationTitle:
+          '¿Necesitas aclarar algo sobre este documento?',
+
+        clarificationDescription:
+          'Envía un mensaje a Maxi Pawz e identifica la sección de la política relacionada con tu pregunta.',
+      }
+    : {
+        readPolicy:
+          'Read the Policy',
+
+        contact:
+          'Contact Maxi Pawz',
+
+        policySummary:
+          'Policy summary',
+
+        documentSummary:
+          'Document Summary',
+
+        importantDetails:
+          'Important details',
+
+        websiteOperator:
+          'Website operator',
+
+        currentStatus:
+          'Current status',
+
+        effectiveDate:
+          'Effective date',
+
+        lastUpdated:
+          'Last updated',
+
+        readCarefully:
+          'Read each section carefully.',
+
+        currentWebsiteDescription:
+          'This document reflects the current prelaunch website and will be reviewed as Maxi Pawz adds new services and store functionality.',
+
+        onThisPage:
+          'On This Page',
+
+        sectionsAria:
+          `${document.title} sections`,
+
+        prelaunchDocument:
+          'Prelaunch document',
+
+        prelaunchDescription:
+          'Operational details must be reviewed and finalized before the store begins accepting orders.',
+
+        relatedInformation:
+          'Related Information',
+
+        continueResource:
+          'Continue with another Maxi Pawz resource.',
+
+        openResource:
+          'Open resource',
+
+        policyQuestions:
+          'Policy Questions',
+
+        clarificationTitle:
+          'Need clarification about this document?',
+
+        clarificationDescription:
+          'Send Maxi Pawz a message and identify the policy section connected to your question.',
+      };
+
+const iconByDocument:
+  Record<
+    LegalDocumentIcon,
+    typeof PawPrintBold
+  > = {
   privacy: ShieldCheckBold,
   terms: SparkleBold,
   shipping: ShoppingBagOpenBold,
@@ -29,42 +191,113 @@ const iconByDocument: Record<LegalDocumentIcon, typeof PawPrintBold> = {
   accessibility: HeartBold,
 };
 
-const badgeVariantByTone: Record<LegalDocumentTone, 'brand' | 'accent' | 'neutral'> = {
+const badgeVariantByTone:
+  Record<
+    LegalDocumentTone,
+    'brand' | 'accent' | 'neutral'
+  > = {
   brand: 'brand',
   accent: 'accent',
   sand: 'neutral',
 };
 
-const heroClasses: Record<LegalDocumentTone, string> = {
-  brand: 'border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50',
+const heroClasses:
+  Record<
+    LegalDocumentTone,
+    string
+  > = {
+  brand:
+    'border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50',
 
-  accent: 'border-accent-200 bg-linear-to-br from-accent-50 via-white-warm to-brand-50',
+  accent:
+    'border-accent-200 bg-linear-to-br from-accent-50 via-white-warm to-brand-50',
 
-  sand: 'border-sand-dark/70 bg-linear-to-br from-cream-soft via-white-warm to-sand/60',
+  sand:
+    'border-sand-dark/70 bg-linear-to-br from-cream-soft via-white-warm to-sand/60',
 };
 
-const iconClasses: Record<LegalDocumentTone, string> = {
-  brand: 'bg-brand-500 text-white shadow-blue',
+const iconClasses:
+  Record<
+    LegalDocumentTone,
+    string
+  > = {
+  brand:
+    'bg-brand-500 text-white shadow-blue',
 
-  accent: 'bg-accent-500 text-ink-950 shadow-orange',
+  accent:
+    'bg-accent-500 text-ink-950 shadow-orange',
 
-  sand: 'bg-ink-800 text-white shadow-soft',
+  sand:
+    'bg-ink-800 text-white shadow-soft',
 };
 
-const DocumentIcon = iconByDocument[document.icon];
+const DocumentIcon =
+  iconByDocument[
+    document.icon
+  ];
 
-const badgeVariant = badgeVariantByTone[document.tone];
+const badgeVariant =
+  badgeVariantByTone[
+    document.tone
+  ];
+
+const contactHref =
+  localizeHref(
+    businessConfig.contactHref,
+    locale,
+  );
+
+function isInternalHref(
+  href: string,
+): boolean {
+  return (
+    href.startsWith('/') &&
+    !href.startsWith('//')
+  );
+}
+
+function getRelatedHref(
+  href: string,
+): string {
+  return isInternalHref(href)
+    ? localizeHref(
+        href,
+        locale,
+      )
+    : href;
+}
+
+function getRelatedLabel(
+  label: string,
+  href: string,
+): string {
+  return isInternalHref(href)
+    ? localizedLinkLabel(
+        label,
+        href,
+        locale,
+      )
+    : label;
+}
 ---
 
-<BaseLayout title={document.title} description={document.description} noIndex={noIndex}>
-  <!-- Rounded document hero -->
-  <section class="py-8 sm:py-10 lg:py-12" aria-labelledby="legal-page-title">
+<BaseLayout
+  title={document.title}
+  description={document.description}
+  noIndex={noIndex}
+>
+  <section
+    class="py-8 sm:py-10 lg:py-12"
+    aria-labelledby="legal-page-title"
+  >
     <div class="site-container">
       <div
         class:list={[
           'relative overflow-hidden rounded-[2.75rem] border p-6 shadow-card',
           'sm:p-8 lg:p-10',
-          heroClasses[document.tone],
+          heroClasses[
+            document.tone
+          ],
         ]}
       >
         <div
@@ -79,23 +312,40 @@ const badgeVariant = badgeVariantByTone[document.tone];
         >
         </div>
 
-        <div class="relative grid items-center gap-9 lg:grid-cols-[1.08fr_0.92fr] lg:gap-12">
+        <div
+          class="relative grid items-center gap-9 lg:grid-cols-[1.08fr_0.92fr] lg:gap-12"
+        >
           <div class="max-w-2xl">
-            <Badge variant={badgeVariant} size="md">
-              <DocumentIcon slot="icon" aria-hidden="true" />
+            <Badge
+              variant={badgeVariant}
+              size="md"
+            >
+              <DocumentIcon
+                slot="icon"
+                aria-hidden="true"
+              />
 
               {document.eyebrow}
             </Badge>
 
-            <h1 id="legal-page-title" class="mt-6 text-5xl text-ink-900 sm:text-6xl lg:text-7xl">
+            <h1
+              id="legal-page-title"
+              class="mt-6 text-5xl text-ink-900 sm:text-6xl lg:text-7xl"
+            >
               {document.title}
             </h1>
 
-            <p class="mt-6 max-w-2xl text-lg leading-8 text-ink-600">
-              {document.introduction}
+            <p
+              class="mt-6 max-w-2xl text-lg leading-8 text-ink-600"
+            >
+              {
+                document.introduction
+              }
             </p>
 
-            <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+            <div
+              class="mt-8 flex flex-col gap-3 sm:flex-row"
+            >
               <Button
                 href="#policy-content"
                 variant="primary"
@@ -103,36 +353,47 @@ const badgeVariant = badgeVariantByTone[document.tone];
                 iconPosition="right"
                 class="w-full sm:w-auto"
               >
-                <ArrowRightBold slot="icon" aria-hidden="true" />
+                <ArrowRightBold
+                  slot="icon"
+                  aria-hidden="true"
+                />
 
-                Read the Policy
+                {copy.readPolicy}
               </Button>
 
               <Button
-                href={businessConfig.contactHref}
+                href={contactHref}
                 variant="secondary"
                 size="lg"
                 iconPosition="right"
                 class="w-full sm:w-auto"
               >
-                <HeartBold slot="icon" aria-hidden="true" />
+                <HeartBold
+                  slot="icon"
+                  aria-hidden="true"
+                />
 
-                Contact Maxi Pawz
+                {copy.contact}
               </Button>
             </div>
           </div>
 
-          <!-- Policy summary -->
           <aside
             class="rounded-card-lg border border-sand bg-white-warm/85 p-5 shadow-sm sm:p-6"
-            aria-label="Policy summary"
+            aria-label={
+              copy.policySummary
+            }
           >
-            <div class="flex items-start gap-4">
+            <div
+              class="flex items-start gap-4"
+            >
               <span
                 class:list={[
                   'grid size-12 shrink-0 place-items-center rounded-2xl',
                   '[&>svg]:size-6',
-                  iconClasses[document.tone],
+                  iconClasses[
+                    document.tone
+                  ],
                 ]}
                 aria-hidden="true"
               >
@@ -140,52 +401,104 @@ const badgeVariant = badgeVariantByTone[document.tone];
               </span>
 
               <div>
-                <p class="text-xs font-extrabold tracking-[0.09em] text-brand-700 uppercase">
-                  Document Summary
+                <p
+                  class="text-xs font-extrabold tracking-[0.09em] text-brand-700 uppercase"
+                >
+                  {
+                    copy.documentSummary
+                  }
                 </p>
 
-                <h2 class="mt-2 text-2xl text-ink-900">Important details</h2>
+                <h2
+                  class="mt-2 text-2xl text-ink-900"
+                >
+                  {
+                    copy.importantDetails
+                  }
+                </h2>
               </div>
             </div>
 
-            <dl class="mt-6 grid gap-3">
-              <div class="rounded-2xl border border-sand/80 bg-cream-soft/80 p-4">
-                <dt class="text-xs font-extrabold tracking-[0.08em] text-ink-500 uppercase">
-                  Website operator
+            <dl
+              class="mt-6 grid gap-3"
+            >
+              <div
+                class="rounded-2xl border border-sand/80 bg-cream-soft/80 p-4"
+              >
+                <dt
+                  class="text-xs font-extrabold tracking-[0.08em] text-ink-500 uppercase"
+                >
+                  {
+                    copy.websiteOperator
+                  }
                 </dt>
 
-                <dd class="mt-2 text-sm font-extrabold text-ink-800">
-                  {businessDisplayName}
+                <dd
+                  class="mt-2 text-sm font-extrabold text-ink-800"
+                >
+                  {
+                    businessDisplayName
+                  }
                 </dd>
               </div>
 
-              <div class="rounded-2xl border border-sand/80 bg-cream-soft/80 p-4">
-                <dt class="text-xs font-extrabold tracking-[0.08em] text-ink-500 uppercase">
-                  Current status
+              <div
+                class="rounded-2xl border border-sand/80 bg-cream-soft/80 p-4"
+              >
+                <dt
+                  class="text-xs font-extrabold tracking-[0.08em] text-ink-500 uppercase"
+                >
+                  {
+                    copy.currentStatus
+                  }
                 </dt>
 
-                <dd class="mt-2 text-sm font-extrabold text-ink-800">
-                  {document.statusLabel}
+                <dd
+                  class="mt-2 text-sm font-extrabold text-ink-800"
+                >
+                  {
+                    document.statusLabel
+                  }
                 </dd>
               </div>
 
-              <div class="rounded-2xl border border-sand/80 bg-cream-soft/80 p-4">
-                <dt class="text-xs font-extrabold tracking-[0.08em] text-ink-500 uppercase">
-                  Effective date
+              <div
+                class="rounded-2xl border border-sand/80 bg-cream-soft/80 p-4"
+              >
+                <dt
+                  class="text-xs font-extrabold tracking-[0.08em] text-ink-500 uppercase"
+                >
+                  {
+                    copy.effectiveDate
+                  }
                 </dt>
 
-                <dd class="mt-2 text-sm font-extrabold text-ink-800">
-                  {document.effectiveDate}
+                <dd
+                  class="mt-2 text-sm font-extrabold text-ink-800"
+                >
+                  {
+                    document.effectiveDate
+                  }
                 </dd>
               </div>
 
-              <div class="rounded-2xl border border-sand/80 bg-cream-soft/80 p-4">
-                <dt class="text-xs font-extrabold tracking-[0.08em] text-ink-500 uppercase">
-                  Last updated
+              <div
+                class="rounded-2xl border border-sand/80 bg-cream-soft/80 p-4"
+              >
+                <dt
+                  class="text-xs font-extrabold tracking-[0.08em] text-ink-500 uppercase"
+                >
+                  {
+                    copy.lastUpdated
+                  }
                 </dt>
 
-                <dd class="mt-2 text-sm font-extrabold text-ink-800">
-                  {document.lastUpdated}
+                <dd
+                  class="mt-2 text-sm font-extrabold text-ink-800"
+                >
+                  {
+                    document.lastUpdated
+                  }
                 </dd>
               </div>
             </dl>
@@ -195,7 +508,6 @@ const badgeVariant = badgeVariantByTone[document.tone];
     </div>
   </section>
 
-  <!-- Rounded policy workspace -->
   <section
     id="policy-content"
     class="scroll-mt-24 pb-12 sm:pb-16 lg:pb-20"
@@ -208,8 +520,15 @@ const badgeVariant = badgeVariantByTone[document.tone];
         <div
           class="rounded-card-lg border border-sand/80 bg-cream-soft/80 px-5 py-6 text-center sm:px-8 sm:py-8"
         >
-          <Badge variant={badgeVariant} size="md" class="mx-auto">
-            <DocumentIcon slot="icon" aria-hidden="true" />
+          <Badge
+            variant={badgeVariant}
+            size="md"
+            class="mx-auto"
+          >
+            <DocumentIcon
+              slot="icon"
+              aria-hidden="true"
+            />
 
             {document.shortTitle}
           </Badge>
@@ -218,144 +537,266 @@ const badgeVariant = badgeVariantByTone[document.tone];
             id="policy-content-title"
             class="mx-auto mt-5 max-w-3xl text-3xl text-ink-900 sm:text-4xl"
           >
-            Read each section carefully.
+            {copy.readCarefully}
           </h2>
 
-          <p class="mx-auto mt-3 max-w-2xl text-base leading-7 text-ink-600">
-            This document reflects the current prelaunch website and will be reviewed as Maxi Pawz
-            adds new services and store functionality.
+          <p
+            class="mx-auto mt-3 max-w-2xl text-base leading-7 text-ink-600"
+          >
+            {
+              copy.currentWebsiteDescription
+            }
           </p>
         </div>
 
-        <div class="mt-6 grid items-start gap-6 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-8">
-          <!-- Rounded contents navigation -->
-          <aside class="lg:sticky lg:top-28">
-            <div class="rounded-card-lg border border-brand-200 bg-brand-50/80 p-4">
-              <p class="px-2 text-xs font-extrabold tracking-[0.09em] text-brand-700 uppercase">
-                On This Page
+        <div
+          class="mt-6 grid items-start gap-6 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-8"
+        >
+          <aside
+            class="lg:sticky lg:top-28"
+          >
+            <div
+              class="rounded-card-lg border border-brand-200 bg-brand-50/80 p-4"
+            >
+              <p
+                class="px-2 text-xs font-extrabold tracking-[0.09em] text-brand-700 uppercase"
+              >
+                {copy.onThisPage}
               </p>
 
-              <nav class="mt-3 grid gap-1.5" aria-label={`${document.title} sections`}>
+              <nav
+                class="mt-3 grid gap-1.5"
+                aria-label={
+                  copy.sectionsAria
+                }
+              >
                 {
-                  document.sections.map((section) => (
-                    <a
-                      href={`#${section.id}`}
-                      class:list={[
-                        'rounded-2xl px-3 py-2.5',
-                        'text-sm font-extrabold leading-5 text-ink-700',
-                        'transition duration-200',
-                        'hover:bg-white-warm hover:text-brand-800',
-                        'focus-visible:outline-none focus-visible:ring-4',
-                        'focus-visible:ring-brand-200',
-                      ]}
-                    >
-                      {section.title}
-                    </a>
-                  ))
+                  document.sections.map(
+                    (section) => (
+                      <a
+                        href={`#${section.id}`}
+                        class:list={[
+                          'rounded-2xl px-3 py-2.5',
+                          'text-sm font-extrabold leading-5 text-ink-700',
+                          'transition duration-200',
+                          'hover:bg-white-warm hover:text-brand-800',
+                          'focus-visible:outline-none focus-visible:ring-4',
+                          'focus-visible:ring-brand-200',
+                        ]}
+                      >
+                        {
+                          section.title
+                        }
+                      </a>
+                    ),
+                  )
                 }
               </nav>
             </div>
 
-            <div class="mt-4 rounded-card-lg border border-accent-200 bg-accent-50 p-4">
-              <ShieldCheckBold class="size-6 text-accent-600" aria-hidden="true" />
+            <div
+              class="mt-4 rounded-card-lg border border-accent-200 bg-accent-50 p-4"
+            >
+              <ShieldCheckBold
+                class="size-6 text-accent-600"
+                aria-hidden="true"
+              />
 
-              <h3 class="mt-3 text-base text-ink-900">Prelaunch document</h3>
+              <h3
+                class="mt-3 text-base text-ink-900"
+              >
+                {
+                  copy.prelaunchDocument
+                }
+              </h3>
 
-              <p class="mt-2 text-sm leading-6 text-ink-600">
-                Operational details must be reviewed and finalized before the store begins accepting
-                orders.
+              <p
+                class="mt-2 text-sm leading-6 text-ink-600"
+              >
+                {
+                  copy.prelaunchDescription
+                }
               </p>
             </div>
           </aside>
 
-          <!-- Rounded policy sections -->
-          <div class="grid min-w-0 gap-5">
+          <div
+            class="grid min-w-0 gap-5"
+          >
             {
-              document.sections.map((section) => (
-                <article
-                  id={section.id}
-                  class="scroll-mt-28 rounded-card-lg border border-sand bg-white-warm p-5 shadow-sm sm:p-6 lg:p-7"
-                  aria-labelledby={`${section.id}-title`}
-                >
-                  <h2 id={`${section.id}-title`} class="text-2xl text-ink-900 sm:text-3xl">
-                    {section.title}
-                  </h2>
+              document.sections.map(
+                (section) => (
+                  <article
+                    id={section.id}
+                    class="scroll-mt-28 rounded-card-lg border border-sand bg-white-warm p-5 shadow-sm sm:p-6 lg:p-7"
+                    aria-labelledby={`${section.id}-title`}
+                  >
+                    <h2
+                      id={`${section.id}-title`}
+                      class="text-2xl text-ink-900 sm:text-3xl"
+                    >
+                      {
+                        section.title
+                      }
+                    </h2>
 
-                  <div class="mt-4 max-w-4xl space-y-4 text-sm leading-7 text-ink-600 sm:text-base">
-                    {section.paragraphs.map((paragraph) => (
-                      <p>{paragraph}</p>
-                    ))}
-                  </div>
+                    <div
+                      class="mt-4 max-w-4xl space-y-4 text-sm leading-7 text-ink-600 sm:text-base"
+                    >
+                      {
+                        section.paragraphs.map(
+                          (
+                            paragraph,
+                          ) => (
+                            <p>
+                              {
+                                paragraph
+                              }
+                            </p>
+                          ),
+                        )
+                      }
+                    </div>
 
-                  {section.bullets && (
-                    <ul class="mt-5 grid gap-3">
-                      {section.bullets.map((point) => (
-                        <li class="flex items-start gap-3 rounded-2xl border border-sand/80 bg-cream-soft/75 p-3.5">
-                          <PawPrintBold
-                            class="mt-0.5 size-5 shrink-0 text-brand-500"
-                            aria-hidden="true"
-                          />
+                    {
+                      section.bullets && (
+                        <ul
+                          class="mt-5 grid gap-3"
+                        >
+                          {
+                            section.bullets.map(
+                              (
+                                point,
+                              ) => (
+                                <li
+                                  class="flex items-start gap-3 rounded-2xl border border-sand/80 bg-cream-soft/75 p-3.5"
+                                >
+                                  <PawPrintBold
+                                    class="mt-0.5 size-5 shrink-0 text-brand-500"
+                                    aria-hidden="true"
+                                  />
 
-                          <span class="text-sm font-bold leading-6 text-ink-700">{point}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                                  <span
+                                    class="text-sm font-bold leading-6 text-ink-700"
+                                  >
+                                    {
+                                      point
+                                    }
+                                  </span>
+                                </li>
+                              ),
+                            )
+                          }
+                        </ul>
+                      )
+                    }
 
-                  {section.notice && (
-                    <p class="mt-5 rounded-2xl border border-accent-200 bg-accent-50 p-4 text-sm font-bold leading-6 text-ink-700">
-                      {section.notice}
-                    </p>
-                  )}
-                </article>
-              ))
+                    {
+                      section.notice && (
+                        <p
+                          class="mt-5 rounded-2xl border border-accent-200 bg-accent-50 p-4 text-sm font-bold leading-6 text-ink-700"
+                        >
+                          {
+                            section.notice
+                          }
+                        </p>
+                      )
+                    }
+                  </article>
+                ),
+              )
             }
           </div>
         </div>
 
-        <!-- Related policies -->
         <section
           class="mt-8 rounded-card-lg border border-brand-200 bg-linear-to-br from-brand-50 via-white-warm to-accent-50 p-5 sm:p-6 lg:p-8"
           aria-labelledby="related-policies-title"
         >
-          <div class="max-w-3xl">
-            <Badge variant="brand" size="md">
-              <PawPrintBold slot="icon" aria-hidden="true" />
+          <div
+            class="max-w-3xl"
+          >
+            <Badge
+              variant="brand"
+              size="md"
+            >
+              <PawPrintBold
+                slot="icon"
+                aria-hidden="true"
+              />
 
-              Related Information
+              {
+                copy.relatedInformation
+              }
             </Badge>
 
-            <h2 id="related-policies-title" class="mt-5 text-3xl text-ink-900 sm:text-4xl">
-              Continue with another Maxi Pawz resource.
+            <h2
+              id="related-policies-title"
+              class="mt-5 text-3xl text-ink-900 sm:text-4xl"
+            >
+              {
+                copy.continueResource
+              }
             </h2>
           </div>
 
-          <div class="mt-7 grid gap-4 md:grid-cols-3">
+          <div
+            class="mt-7 grid gap-4 md:grid-cols-3"
+          >
             {
-              document.relatedLinks.map((link) => (
-                <a
-                  href={link.href}
-                  class={[
-                    'group flex h-full flex-col rounded-card border',
-                    'border-sand bg-white-warm p-5 shadow-sm',
-                    'transition duration-200',
-                    'hover:-translate-y-1 hover:border-brand-300',
-                    'hover:shadow-card',
-                    'focus-visible:outline-none',
-                    'focus-visible:ring-4',
-                    'focus-visible:ring-brand-200',
-                  ]}
-                >
-                  <h3 class="text-xl text-ink-900">{link.label}</h3>
+              document.relatedLinks.map(
+                (link) => (
+                  <a
+                    href={
+                      getRelatedHref(
+                        link.href,
+                      )
+                    }
+                    class={[
+                      'group flex h-full flex-col rounded-card border',
+                      'border-sand bg-white-warm p-5 shadow-sm',
+                      'transition duration-200',
+                      'hover:-translate-y-1 hover:border-brand-300',
+                      'hover:shadow-card',
+                      'focus-visible:outline-none',
+                      'focus-visible:ring-4',
+                      'focus-visible:ring-brand-200',
+                    ]}
+                  >
+                    <h3
+                      class="text-xl text-ink-900"
+                    >
+                      {
+                        getRelatedLabel(
+                          link.label,
+                          link.href,
+                        )
+                      }
+                    </h3>
 
-                  <p class="mt-3 flex-1 text-sm leading-6 text-ink-600">{link.description}</p>
+                    <p
+                      class="mt-3 flex-1 text-sm leading-6 text-ink-600"
+                    >
+                      {
+                        link.description
+                      }
+                    </p>
 
-                  <span class="mt-5 inline-flex items-center gap-2 font-extrabold text-brand-700 transition group-hover:gap-3">
-                    Open resource
-                    <ArrowRightBold class="size-4" aria-hidden="true" />
-                  </span>
-                </a>
-              ))
+                    <span
+                      class="mt-5 inline-flex items-center gap-2 font-extrabold text-brand-700 transition group-hover:gap-3"
+                    >
+                      {
+                        copy.openResource
+                      }
+
+                      <ArrowRightBold
+                        class="size-4"
+                        aria-hidden="true"
+                      />
+                    </span>
+                  </a>
+                ),
+              )
             }
           </div>
         </section>
@@ -363,8 +804,9 @@ const badgeVariant = badgeVariantByTone[document.tone];
     </div>
   </section>
 
-  <!-- Rounded final contact panel -->
-  <section class="pb-16 sm:pb-20 lg:pb-24">
+  <section
+    class="pb-16 sm:pb-20 lg:pb-24"
+  >
     <div class="site-container">
       <div
         class="relative overflow-hidden rounded-[2.5rem] bg-ink-950 p-6 text-white shadow-card sm:p-8 lg:p-10"
@@ -381,33 +823,56 @@ const badgeVariant = badgeVariantByTone[document.tone];
         >
         </div>
 
-        <div class="relative grid items-center gap-8 lg:grid-cols-[1fr_auto]">
-          <div class="max-w-2xl">
-            <Badge variant="accent" size="md">
-              <HeartBold slot="icon" aria-hidden="true" />
+        <div
+          class="relative grid items-center gap-8 lg:grid-cols-[1fr_auto]"
+        >
+          <div
+            class="max-w-2xl"
+          >
+            <Badge
+              variant="accent"
+              size="md"
+            >
+              <HeartBold
+                slot="icon"
+                aria-hidden="true"
+              />
 
-              Policy Questions
+              {
+                copy.policyQuestions
+              }
             </Badge>
 
-            <h2 class="mt-5 text-3xl text-white sm:text-4xl">
-              Need clarification about this document?
+            <h2
+              class="mt-5 text-3xl text-white sm:text-4xl"
+            >
+              {
+                copy.clarificationTitle
+              }
             </h2>
 
-            <p class="mt-4 text-base leading-7 text-white/70">
-              Send Maxi Pawz a message and identify the policy section connected to your question.
+            <p
+              class="mt-4 text-base leading-7 text-white/70"
+            >
+              {
+                copy.clarificationDescription
+              }
             </p>
           </div>
 
           <Button
-            href={businessConfig.contactHref}
+            href={contactHref}
             variant="primary"
             size="lg"
             iconPosition="right"
             class="w-full lg:w-auto"
           >
-            <ArrowRightBold slot="icon" aria-hidden="true" />
+            <ArrowRightBold
+              slot="icon"
+              aria-hidden="true"
+            />
 
-            Contact Maxi Pawz
+            {copy.contact}
           </Button>
         </div>
       </div>

@@ -48,6 +48,10 @@ const CHECKOUT_SESSION_LIFETIME_SECONDS =
   35 *
   60;
 
+type CheckoutLocale =
+  | 'en'
+  | 'es';
+
 class CheckoutConfigurationError
   extends Error {
   readonly status:
@@ -89,6 +93,24 @@ function jsonResponse(
       },
     },
   );
+}
+
+function getCheckoutLocale(
+  request:
+    Request,
+): CheckoutLocale {
+  const requestedLocale =
+    request.headers
+      .get(
+        'X-Maxi-Pawz-Locale',
+      )
+      ?.trim()
+      .toLowerCase();
+
+  return requestedLocale ===
+    'es'
+    ? 'es'
+    : 'en';
 }
 
 function getStripeSecretKey():
@@ -164,9 +186,9 @@ function getSiteOrigin():
 
   if (
     url.protocol !==
-    'https:' &&
+      'https:' &&
     url.protocol !==
-    'http:'
+      'http:'
   ) {
     throw new CheckoutConfigurationError(
       503,
@@ -186,7 +208,7 @@ function getCheckoutExpiration(): {
   const stripeExpiresAt =
     Math.floor(
       Date.now() /
-      1000,
+        1000,
     ) +
     CHECKOUT_SESSION_LIFETIME_SECONDS;
 
@@ -196,7 +218,7 @@ function getCheckoutExpiration(): {
     expiresAt:
       new Date(
         stripeExpiresAt *
-        1000,
+          1000,
       ),
   };
 }
@@ -206,11 +228,11 @@ function isIndeterminateStripeCreationError(
 ): boolean {
   return (
     error instanceof
-    Stripe.errors
-      .StripeConnectionError ||
+      Stripe.errors
+        .StripeConnectionError ||
     error instanceof
-    Stripe.errors
-      .StripeAPIError
+      Stripe.errors
+        .StripeAPIError
   );
 }
 
@@ -221,12 +243,12 @@ function getInventoryErrorResponse(
   status: number;
 
   code:
-  CheckoutErrorCode;
+    CheckoutErrorCode;
 
   message: string;
 } {
   switch (
-  error.code
+    error.code
   ) {
     case 'insufficient-stock':
       return {
@@ -298,9 +320,9 @@ function addMetadataValue(
 ): void {
   if (
     value ===
-    undefined ||
+      undefined ||
     value ===
-    ''
+      ''
   ) {
     return;
   }
@@ -446,7 +468,7 @@ async function releaseReservationAfterFailedStripeCreation(
 
     return true;
   } catch (
-  error
+    error
   ) {
     console.error(
       'Inventory reservation could not be released after Stripe Session creation failed.',
@@ -478,7 +500,7 @@ async function expireStripeSession(
       'expired'
     );
   } catch (
-  error
+    error
   ) {
     console.error(
       'An unusable Stripe Checkout Session could not be expired.',
@@ -548,6 +570,11 @@ export default async function handler(
       405,
     );
   }
+
+  const checkoutLocale =
+    getCheckoutLocale(
+      request,
+    );
 
   let inventoryReservation:
     | InventoryReservation
@@ -679,6 +706,9 @@ export default async function handler(
             ui_mode:
               'embedded_page',
 
+            locale:
+              checkoutLocale,
+
             permissions: {
               update_shipping_details:
                 'server_only',
@@ -715,7 +745,10 @@ export default async function handler(
                   },
 
                   display_name:
-                    'Shipping calculated after address',
+                    checkoutLocale ===
+                      'es'
+                      ? 'Envío calculado después de ingresar la dirección'
+                      : 'Shipping calculated after address',
 
                   tax_behavior:
                     taxConfig
@@ -755,10 +788,10 @@ export default async function handler(
 
             ...(inventoryReservation
               ? {
-                expires_at:
-                  checkoutExpiration
-                    .stripeExpiresAt,
-              }
+                  expires_at:
+                    checkoutExpiration
+                      .stripeExpiresAt,
+                }
               : {}),
 
             metadata: {
@@ -770,6 +803,9 @@ export default async function handler(
 
               storefront:
                 'maxipawz',
+
+              storefront_locale:
+                checkoutLocale,
 
               checkout_mode:
                 'test',
@@ -817,20 +853,25 @@ export default async function handler(
 
               ...(inventoryReservation
                 ? {
-                  inventory_reservation_id:
-                    inventoryReservation.id,
+                    inventory_reservation_id:
+                      inventoryReservation.id,
 
-                  inventory_reservation_expires_at:
-                    String(
-                      checkoutExpiration
-                        .stripeExpiresAt,
-                    ),
-                }
+                    inventory_reservation_expires_at:
+                      String(
+                        checkoutExpiration
+                          .stripeExpiresAt,
+                      ),
+                  }
                 : {}),
             },
 
             return_url:
-              `${siteOrigin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+              `${siteOrigin}${
+                checkoutLocale ===
+                'es'
+                  ? '/es'
+                  : ''
+              }/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
           },
 
           {
@@ -839,7 +880,7 @@ export default async function handler(
           },
         );
     } catch (
-    error
+      error
     ) {
       if (
         inventoryReservation
@@ -894,7 +935,7 @@ export default async function handler(
           session.id,
         );
       } catch (
-      error
+        error
       ) {
         const cleanedUp =
           await expireSessionAndReleaseReservation(
@@ -985,7 +1026,7 @@ export default async function handler(
       },
     );
   } catch (
-  error
+    error
   ) {
     if (
       error instanceof

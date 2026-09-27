@@ -13,6 +13,18 @@ import {
   commerceConfig,
 } from '../../config/commerce';
 
+import {
+  commerceText,
+} from '../../i18n/commerce';
+
+import type {
+  Locale,
+} from '../../i18n/languages';
+
+import {
+  localizeHref,
+} from '../../i18n/routes';
+
 import type {
   CheckoutCampaignAttribution,
   CheckoutSessionResponse,
@@ -44,6 +56,11 @@ import {
   useCheckoutInventoryReadiness,
 } from './useCheckoutInventoryReadiness';
 
+interface Props {
+  locale?:
+    Locale;
+}
+
 function isRecord(
   value: unknown,
 ): value is Record<
@@ -52,8 +69,9 @@ function isRecord(
 > {
   return (
     typeof value ===
-    'object' &&
-    value !== null &&
+      'object' &&
+    value !==
+      null &&
     !Array.isArray(
       value,
     )
@@ -68,25 +86,32 @@ function isCheckoutSuccess(
       value,
     ) &&
     value.ok ===
-    true &&
+      true &&
     typeof value.sessionId ===
-    'string' &&
+      'string' &&
     typeof value.clientSecret ===
-    'string'
+      'string'
   );
 }
 
 function getErrorMessage(
-  value: unknown,
+  value:
+    unknown,
 
-  fallback: string,
+  fallback:
+    string,
+
+  locale:
+    Locale,
 ): string {
   if (
+    locale ===
+      'en' &&
     isRecord(
       value,
     ) &&
     typeof value.message ===
-    'string'
+      'string'
   ) {
     return value.message;
   }
@@ -106,7 +131,7 @@ function parseShippingChangeEvent(
       value,
     ) ||
     typeof value.checkoutSessionId !==
-    'string'
+      'string'
   ) {
     return null;
   }
@@ -120,7 +145,9 @@ function parseShippingChangeEvent(
   };
 }
 
-export default function EmbeddedCheckout() {
+export default function EmbeddedCheckout({
+  locale = 'en',
+}: Props) {
   const {
     state,
 
@@ -157,13 +184,6 @@ export default function EmbeddedCheckout() {
       false,
     );
 
-  /*
-   * Attribution lives separately from the cart.
-   *
-   * Read it once when checkout hydrates in the browser.
-   * A visitor without campaign attribution simply receives
-   * a normal checkout request without an attribution field.
-   */
   useEffect(
     () => {
       const storedAttribution =
@@ -185,9 +205,11 @@ export default function EmbeddedCheckout() {
       () =>
         resolveCartLines(
           state,
+          locale,
         ),
       [
         state,
+        locale,
       ],
     );
 
@@ -196,9 +218,11 @@ export default function EmbeddedCheckout() {
       () =>
         getCheckoutReadiness(
           resolvedLines,
+          locale,
         ),
       [
         resolvedLines,
+        locale,
       ],
     );
 
@@ -212,6 +236,8 @@ export default function EmbeddedCheckout() {
           hydrated &&
           catalogReadiness
             .ready,
+
+        locale,
       },
     );
 
@@ -260,12 +286,12 @@ export default function EmbeddedCheckout() {
 
       let checkout: {
         mount:
-        (
-          selector: string,
-        ) => void;
+          (
+            selector: string,
+          ) => void;
 
         destroy:
-        () => void;
+          () => void;
       } | null =
         null;
 
@@ -299,6 +325,9 @@ export default function EmbeddedCheckout() {
 
                     'Content-Type':
                       'application/json',
+
+                    'X-Maxi-Pawz-Locale':
+                      locale,
                   },
 
                   body:
@@ -326,7 +355,13 @@ export default function EmbeddedCheckout() {
                 getErrorMessage(
                   payload,
 
-                  'Checkout could not be started.',
+                  commerceText(
+                    locale,
+                    'Checkout could not be started.',
+                    'No se pudo iniciar el proceso de pago.',
+                  ),
+
+                  locale,
                 ),
               );
             }
@@ -341,16 +376,16 @@ export default function EmbeddedCheckout() {
         event: unknown,
       ): Promise<
         | {
-          type:
-          'accept';
-        }
+            type:
+              'accept';
+          }
         | {
-          type:
-          'reject';
+            type:
+              'reject';
 
-          errorMessage:
-          string;
-        }
+            errorMessage:
+              string;
+          }
       > {
         const parsedEvent =
           parseShippingChangeEvent(
@@ -365,7 +400,11 @@ export default function EmbeddedCheckout() {
               'reject',
 
             errorMessage:
-              'The shipping address could not be read.',
+              commerceText(
+                locale,
+                'The shipping address could not be read.',
+                'No pudimos leer la dirección de envío.',
+              ),
           };
         }
 
@@ -415,7 +454,7 @@ export default function EmbeddedCheckout() {
           !response.ok ||
           !payload ||
           payload.ok !==
-          true
+            true
         ) {
           return {
             type:
@@ -425,7 +464,13 @@ export default function EmbeddedCheckout() {
               getErrorMessage(
                 payload,
 
-                'Shipping rates could not be calculated for this address.',
+                commerceText(
+                  locale,
+                  'Shipping rates could not be calculated for this address.',
+                  'No pudimos calcular las tarifas de envío para esta dirección.',
+                ),
+
+                locale,
               ),
           };
         }
@@ -453,7 +498,11 @@ export default function EmbeddedCheckout() {
             !stripe
           ) {
             throw new Error(
-              'Stripe.js could not be loaded.',
+              commerceText(
+                locale,
+                'Stripe.js could not be loaded.',
+                'No se pudo cargar Stripe.js.',
+              ),
             );
           }
 
@@ -481,7 +530,7 @@ export default function EmbeddedCheckout() {
             '#maxipawz-embedded-checkout',
           );
         } catch (
-        checkoutError
+          checkoutError
         ) {
           if (
             cancelled
@@ -496,10 +545,16 @@ export default function EmbeddedCheckout() {
           );
 
           setError(
+            locale ===
+              'en' &&
             checkoutError instanceof
               Error
               ? checkoutError.message
-              : 'Checkout could not be initialized.',
+              : commerceText(
+                  locale,
+                  'Checkout could not be initialized.',
+                  'No se pudo inicializar el proceso de pago.',
+                ),
           );
         }
       }
@@ -516,21 +571,30 @@ export default function EmbeddedCheckout() {
     [
       checkoutReady,
       requestFingerprint,
+      locale,
     ],
   );
+
+  const cartHref =
+    localizeHref(
+      '/cart',
+      locale,
+    );
 
   if (
     !hydrated ||
     !attributionHydrated
   ) {
     return (
-      <div
-        className="rounded-[2.5rem] border border-sand bg-white-warm p-8 text-center shadow-card"
-      >
-        <p
-          className="font-bold text-ink-600"
-        >
-          Preparing secure checkout…
+      <div className="rounded-[2.5rem] border border-sand bg-white-warm p-8 text-center shadow-card">
+        <p className="font-bold text-ink-600">
+          {
+            commerceText(
+              locale,
+              'Preparing secure checkout…',
+              'Preparando el pago seguro…',
+            )
+          }
         </p>
       </div>
     );
@@ -540,42 +604,46 @@ export default function EmbeddedCheckout() {
     !catalogReadiness.ready
   ) {
     return (
-      <div
-        className="rounded-[2.5rem] border border-accent-200 bg-accent-50 p-6 shadow-card"
-      >
-        <h2
-          className="text-2xl text-ink-900"
-        >
-          Checkout isn't ready yet.
+      <div className="rounded-[2.5rem] border border-accent-200 bg-accent-50 p-6 shadow-card">
+        <h2 className="text-2xl text-ink-900">
+          {
+            commerceText(
+              locale,
+              "Checkout isn't ready yet.",
+              'El proceso de pago todavía no está disponible.',
+            )
+          }
         </h2>
 
-        <ul
-          className="mt-4 grid gap-2"
-        >
-          {catalogReadiness.reasons.map(
-            (
-              reason,
-            ) => (
-              <li
-                key={
-                  reason
-                }
-                className="text-sm font-bold leading-6 text-ink-700"
-              >
-                •{' '}
-                {
-                  reason
-                }
-              </li>
-            ),
-          )}
+        <ul className="mt-4 grid gap-2">
+          {
+            catalogReadiness.reasons.map(
+              (
+                reason,
+              ) => (
+                <li
+                  key={reason}
+                  className="text-sm font-bold leading-6 text-ink-700"
+                >
+                  •{' '}
+                  {reason}
+                </li>
+              ),
+            )
+          }
         </ul>
 
         <a
-          href="/cart"
+          href={cartHref}
           className="mt-6 inline-flex min-h-12 items-center justify-center rounded-full bg-brand-500 px-6 font-extrabold text-white shadow-blue"
         >
-          Return to Cart
+          {
+            commerceText(
+              locale,
+              'Return to Cart',
+              'Volver al carrito',
+            )
+          }
         </a>
       </div>
     );
@@ -583,24 +651,30 @@ export default function EmbeddedCheckout() {
 
   if (
     inventoryReadiness.status ===
-    'idle' ||
+      'idle' ||
     inventoryReadiness.status ===
-    'checking'
+      'checking'
   ) {
     return (
-      <div
-        className="rounded-[2.5rem] border border-brand-200 bg-brand-50 p-8 text-center shadow-card"
-      >
-        <p
-          className="font-extrabold text-ink-900"
-        >
-          Checking live stock…
+      <div className="rounded-[2.5rem] border border-brand-200 bg-brand-50 p-8 text-center shadow-card">
+        <p className="font-extrabold text-ink-900">
+          {
+            commerceText(
+              locale,
+              'Checking live stock…',
+              'Verificando inventario…',
+            )
+          }
         </p>
 
-        <p
-          className="mt-2 text-sm leading-6 text-ink-600"
-        >
-          We're confirming that everything in your cart is still available before starting secure checkout.
+        <p className="mt-2 text-sm leading-6 text-ink-600">
+          {
+            commerceText(
+              locale,
+              "We're confirming that everything in your cart is still available before starting secure checkout.",
+              'Estamos confirmando que todos los productos de tu carrito continúen disponibles antes de iniciar el pago seguro.',
+            )
+          }
         </p>
       </div>
     );
@@ -611,40 +685,36 @@ export default function EmbeddedCheckout() {
     'blocked'
   ) {
     return (
-      <div
-        className="rounded-[2.5rem] border border-accent-200 bg-accent-50 p-6 shadow-card"
-      >
-        <h2
-          className="text-2xl text-ink-900"
-        >
-          Checkout isn't ready yet.
+      <div className="rounded-[2.5rem] border border-accent-200 bg-accent-50 p-6 shadow-card">
+        <h2 className="text-2xl text-ink-900">
+          {
+            commerceText(
+              locale,
+              "Checkout isn't ready yet.",
+              'El proceso de pago todavía no está disponible.',
+            )
+          }
         </h2>
 
-        <ul
-          className="mt-4 grid gap-2"
-        >
-          {inventoryReadiness.reasons.map(
-            (
-              reason,
-            ) => (
-              <li
-                key={
-                  reason
-                }
-                className="text-sm font-bold leading-6 text-ink-700"
-              >
-                •{' '}
-                {
-                  reason
-                }
-              </li>
-            ),
-          )}
+        <ul className="mt-4 grid gap-2">
+          {
+            inventoryReadiness.reasons.map(
+              (
+                reason,
+              ) => (
+                <li
+                  key={reason}
+                  className="text-sm font-bold leading-6 text-ink-700"
+                >
+                  •{' '}
+                  {reason}
+                </li>
+              ),
+            )
+          }
         </ul>
 
-        <div
-          className="mt-6 flex flex-wrap gap-3"
-        >
+        <div className="mt-6 flex flex-wrap gap-3">
           <button
             type="button"
             className="inline-flex min-h-12 items-center justify-center rounded-full bg-brand-500 px-6 font-extrabold text-white shadow-blue"
@@ -652,14 +722,26 @@ export default function EmbeddedCheckout() {
               void inventoryReadiness.revalidate();
             }}
           >
-            Recheck Stock
+            {
+              commerceText(
+                locale,
+                'Recheck Stock',
+                'Comprobar inventario',
+              )
+            }
           </button>
 
           <a
-            href="/cart"
+            href={cartHref}
             className="inline-flex min-h-12 items-center justify-center rounded-full border border-brand-300 bg-white-warm px-6 font-extrabold text-brand-800"
           >
-            Return to Cart
+            {
+              commerceText(
+                locale,
+                'Return to Cart',
+                'Volver al carrito',
+              )
+            }
           </a>
         </div>
       </div>
@@ -670,19 +752,17 @@ export default function EmbeddedCheckout() {
     <div>
       <div
         id="maxipawz-embedded-checkout"
-        ref={
-          containerRef
-        }
+        ref={containerRef}
         className="min-h-128"
       />
 
-      {error && (
-        <div
-          className="mt-5 rounded-2xl border border-danger-100 bg-danger-50 p-4 text-sm font-bold leading-6 text-danger-700"
-        >
-          {error}
-        </div>
-      )}
+      {
+        error && (
+          <div className="mt-5 rounded-2xl border border-danger-100 bg-danger-50 p-4 text-sm font-bold leading-6 text-danger-700">
+            {error}
+          </div>
+        )
+      }
     </div>
   );
 }

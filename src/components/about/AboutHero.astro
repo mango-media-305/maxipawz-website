@@ -10,7 +10,25 @@ import Badge from '../ui/Badge.astro';
 import Button from '../ui/Button.astro';
 
 import { isStoreLive } from '../../config/storefront';
-import { aboutHero } from '../../data/about';
+import { aboutHero as englishHero } from '../../data/about';
+import { getLocaleFromPathname } from '../../i18n/languages';
+import { localizeHref, localizedLinkLabel } from '../../i18n/routes';
+
+const locale = getLocaleFromPathname(Astro.url.pathname);
+const spanish = locale === 'es';
+
+const aboutHero = spanish
+  ? {
+      eyebrow: 'Conoce a Maxi',
+      description:
+        'Maxi es nuestro perro, la inspiración de nuestra mascota de marca y la razón por la que existe esta tienda. Nuestra experiencia al elegir productos comenzó en casa, cuidándolo desde cachorro y descubriendo qué marca la diferencia en la vida diaria de un perro.',
+      highlights: [
+        'Inspirados por nuestro propio perro',
+        'Guiados por la experiencia directa',
+        'Acompañados por el apoyo de nuestros amigos',
+      ],
+    }
+  : englishHero;
 ---
 
 <section class="relative overflow-hidden" aria-labelledby="about-page-title">
@@ -29,11 +47,9 @@ import { aboutHero } from '../../data/about';
   <div
     class="site-container-wide grid items-center gap-14 py-14 lg:grid-cols-[1.02fr_0.98fr] lg:py-20"
   >
-    <!-- Hero copy -->
     <div class="relative z-10">
       <Badge variant="accent" size="md">
         <PawPrintBold slot="icon" aria-hidden="true" />
-
         {aboutHero.eyebrow}
       </Badge>
 
@@ -41,7 +57,7 @@ import { aboutHero } from '../../data/about';
         id="about-page-title"
         class="mt-7 max-w-3xl text-5xl text-ink-900 sm:text-6xl lg:text-7xl"
       >
-        Meet Maxi, the heart behind{' '}
+        {spanish ? 'Conoce a Maxi, el corazón de' : 'Meet Maxi, the heart behind'}{' '}
         <span class="text-brand-gradient"> Maxi Pawz. </span>
       </h1>
 
@@ -52,20 +68,37 @@ import { aboutHero } from '../../data/about';
       <div class="mt-9 flex flex-col gap-3 sm:flex-row">
         <Button href="#maxis-story" variant="primary" size="lg" iconPosition="right">
           <ArrowRightBold slot="icon" aria-hidden="true" />
-
-          Discover Maxi’s Story
+          {spanish ? 'Descubrir la historia de Maxi' : 'Discover Maxi’s Story'}
         </Button>
 
         {
           isStoreLive ? (
-            <Button href="/shop" variant="secondary" size="lg" iconPosition="right">
+            <Button
+              href={localizeHref('/shop', locale)}
+              variant="secondary"
+              size="lg"
+              iconPosition="right"
+            >
               <ShoppingBagOpenBold slot="icon" aria-hidden="true" />
-              Explore the Shop
+              {localizedLinkLabel(
+                spanish ? 'Explorar la tienda' : 'Explore the Shop',
+                '/shop',
+                locale,
+              )}
             </Button>
           ) : (
-            <Button href="/#join-the-pack" variant="secondary" size="lg" iconPosition="right">
+            <Button
+              href={localizeHref('/#join-the-pack', locale)}
+              variant="secondary"
+              size="lg"
+              iconPosition="right"
+            >
               <HeartBold slot="icon" aria-hidden="true" />
-              Join the Pack
+              {localizedLinkLabel(
+                spanish ? 'Unirme a la comunidad' : 'Join the Pack',
+                '/#join-the-pack',
+                locale,
+              )}
             </Button>
           )
         }
@@ -76,7 +109,6 @@ import { aboutHero } from '../../data/about';
           aboutHero.highlights.map((highlight) => (
             <span class="inline-flex items-center gap-2">
               <CheckCircleFill class="size-5 shrink-0 text-brand-500" aria-hidden="true" />
-
               {highlight}
             </span>
           ))
@@ -84,7 +116,6 @@ import { aboutHero } from '../../data/about';
       </div>
     </div>
 
-    <!-- Maxi artwork -->
     <div class="relative mx-auto w-full max-w-xl">
       <div
         class="pointer-events-none absolute inset-8 -z-10 rounded-full bg-linear-to-br from-brand-300/55 via-cream to-accent-300/55 blur-3xl"
@@ -96,7 +127,12 @@ import { aboutHero } from '../../data/about';
         class="relative overflow-hidden rounded-[3rem] border-4 border-white-warm bg-linear-to-br from-brand-100 via-cream-soft to-accent-100 p-4 shadow-2xl shadow-ink-950/15"
       >
         <div class="relative aspect-4/5 overflow-hidden rounded-[2.35rem] bg-white-warm">
-          <BrandLogo variant="maxi" class="size-full object-cover" eager={true} />
+          <BrandLogo
+            variant="maxi"
+            class="size-full object-cover"
+            eager={true}
+            alt={spanish ? 'Maxi, el perro que inspiró Maxi Pawz' : undefined}
+          />
 
           <div
             class="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-linear-to-t from-ink-950/70 to-transparent"
@@ -117,11 +153,15 @@ import { aboutHero } from '../../data/about';
 
               <div>
                 <p class="font-display text-xl leading-tight text-white sm:text-2xl">
-                  The original Maxi Paw.
+                  {spanish ? 'El Maxi Paw original.' : 'The original Maxi Paw.'}
                 </p>
 
                 <p class="mt-1 text-sm leading-5 text-white/70">
-                  The real dog who inspired our name, mascot, and mission.
+                  {
+                    spanish
+                      ? 'El perro de verdad que inspiró nuestro nombre, nuestra mascota de marca y nuestra misión.'
+                      : 'The real dog who inspired our name, mascot, and mission.'
+                  }
                 </p>
               </div>
             </div>

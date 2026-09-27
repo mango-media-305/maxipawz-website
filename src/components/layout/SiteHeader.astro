@@ -4,73 +4,152 @@ import MagnifyingGlassBold from 'phosphor-astro/MagnifyingGlassBold.astro';
 
 import BrandLogo from '../brand/BrandLogo.astro';
 import CartButton from '../cart/CartButton';
+import LanguageSwitcher from './LanguageSwitcher.astro';
 import MobileNavigation from './MobileNavigation.astro';
 import Button from '../ui/Button.astro';
 
-import { businessConfig } from '../../config/business';
+import { isStoreLive } from '../../config/storefront';
 
-import { isStoreLive, storefrontState } from '../../config/storefront';
+import { getLocaleFromPathname } from '../../i18n/languages';
 
-import { mobileNavigation, primaryNavigation } from '../../data/navigation';
+import {
+  getEnglishPathname,
+  localizeHref,
+  localizedLinkLabel,
+} from '../../i18n/routes';
+
+import {
+  getMobileNavigation,
+  getPrimaryNavigation,
+  getStorefrontCopy,
+  sharedCopy,
+} from '../../i18n/shared';
 
 import { getActiveProducts } from '../../utils/products';
 
-function normalizePath(path: string): string {
-  if (path === '/') {
-    return '/';
-  }
+const locale =
+  getLocaleFromPathname(
+    Astro.url.pathname,
+  );
 
-  return path.replace(/\/+$/, '') || '/';
-}
+const copy =
+  sharedCopy[
+    locale
+  ];
 
-const currentPath = normalizePath(Astro.url.pathname);
+const primaryNavigation =
+  getPrimaryNavigation(
+    locale,
+  );
 
-const activeNavigationHref = primaryNavigation
-  .filter((item) => {
-    const itemPath = normalizePath(item.href);
+const mobileNavigation =
+  getMobileNavigation(
+    locale,
+  );
 
-    return currentPath === itemPath || currentPath.startsWith(`${itemPath}/`);
-  })
-  .sort((firstItem, secondItem) => secondItem.href.length - firstItem.href.length)[0]?.href;
+const storefrontState =
+  getStorefrontCopy(
+    locale,
+  );
 
-function isCurrentRoute(href: string): boolean {
-  if (!activeNavigationHref) {
+const currentPath =
+  getEnglishPathname(
+    Astro.url.pathname,
+  );
+
+const activeNavigationHref =
+  primaryNavigation
+    .filter(
+      (
+        item,
+      ) => {
+        const itemPath =
+          getEnglishPathname(
+            item.href,
+          );
+
+        return (
+          currentPath ===
+            itemPath ||
+          currentPath.startsWith(
+            `${itemPath}/`,
+          )
+        );
+      },
+    )
+    .sort(
+      (
+        firstItem,
+        secondItem,
+      ) =>
+        secondItem.href.length -
+        firstItem.href.length,
+    )[0]?.href;
+
+function isCurrentRoute(
+  href:
+    string,
+): boolean {
+  if (
+    !activeNavigationHref
+  ) {
     return false;
   }
 
-  return normalizePath(href) === normalizePath(activeNavigationHref);
+  return (
+    getEnglishPathname(
+      href,
+    ) ===
+    getEnglishPathname(
+      activeNavigationHref,
+    )
+  );
 }
 
-const headerAction = storefrontState.headerAction;
+const headerAction =
+  storefrontState.headerAction;
 
-const activeProducts = getActiveProducts();
+const activeProducts =
+  getActiveProducts();
 
-const hasDemoProducts = activeProducts.some((product) => product.isDemo);
+const hasDemoProducts =
+  activeProducts.some(
+    (
+      product,
+    ) =>
+      product.isDemo,
+  );
 
-const cartEnabled = isStoreLive || hasDemoProducts;
+const cartEnabled =
+  isStoreLive ||
+  hasDemoProducts;
 ---
 
 <header
   class="sticky top-0 z-40 isolate w-full border-b border-sand/60 shadow-[0_8px_28px_-24px_rgba(53,39,31,0.35)]"
   data-site-header
 >
-  <!--
-    An almost-opaque surface replaces the permanent full-width
-    backdrop blur. The header retains the same warm floating appearance
-    without forcing a blur repaint during every scroll frame.
-  -->
-  <div class="pointer-events-none absolute inset-0 z-0 bg-cream-soft/98" aria-hidden="true"></div>
+  <div
+    class="pointer-events-none absolute inset-0 z-0 bg-cream-soft/98"
+    aria-hidden="true"
+  >
+  </div>
 
   <div
     class="site-container-wide relative z-10 flex min-h-16 items-center justify-between gap-3 py-1.5 sm:min-h-17"
   >
     <a
-      href="/"
+      href={localizeHref('/', locale)}
       class="group relative z-10 inline-flex shrink-0 items-center rounded-full focus-visible:outline-offset-4 md:rounded-2xl"
-      aria-label={`${businessConfig.publicName} home`}
+      aria-label={localizedLinkLabel(
+        copy.home,
+        '/',
+        locale,
+      )}
     >
       <BrandLogo
         variant="mascot"
+        decorative={true}
         class="size-11 rounded-full border border-brand-100 bg-white-warm object-cover shadow-sm transition duration-200 group-hover:-translate-y-0.5 group-hover:shadow-blue md:hidden"
         eager={true}
       />
@@ -82,34 +161,50 @@ const cartEnabled = isStoreLive || hasDemoProducts;
       />
     </a>
 
-    <nav class="hidden items-center gap-0.5 lg:flex" aria-label="Primary navigation">
+    <nav
+      class="hidden items-center gap-0.5 xl:flex"
+      aria-label={copy.primaryNavigation}
+    >
       {
-        primaryNavigation.map((item) => {
-          const isCurrent = isCurrentRoute(item.href);
+        primaryNavigation.map(
+          (
+            item,
+          ) => {
+            const isCurrent =
+              isCurrentRoute(
+                item.href,
+              );
 
-          return (
-            <a
-              href={item.href}
-              class:list={[
-                'relative inline-flex min-h-10 items-center rounded-full px-3 py-2 text-sm font-extrabold transition duration-200',
+            return (
+              <a
+                href={item.href}
+                class:list={[
+                  'relative inline-flex min-h-10 items-center rounded-full px-3 py-2 text-sm font-extrabold transition duration-200',
 
-                isCurrent
-                  ? 'bg-brand-100 text-brand-800'
-                  : 'text-ink-700 hover:bg-white-warm hover:text-brand-700',
-              ]}
-              aria-current={isCurrent ? 'page' : undefined}
-            >
-              {item.label}
+                  isCurrent
+                    ? 'bg-brand-100 text-brand-800'
+                    : 'text-ink-700 hover:bg-white-warm hover:text-brand-700',
+                ]}
+                aria-current={
+                  isCurrent
+                    ? 'page'
+                    : undefined
+                }
+              >
+                {item.label}
 
-              {isCurrent && (
-                <span
-                  class="absolute inset-x-4 -bottom-0.5 h-0.5 rounded-full bg-accent-500"
-                  aria-hidden="true"
-                />
-              )}
-            </a>
-          );
-        })
+                {
+                  isCurrent && (
+                    <span
+                      class="absolute inset-x-4 -bottom-0.5 h-0.5 rounded-full bg-accent-500"
+                      aria-hidden="true"
+                    />
+                  )
+                }
+              </a>
+            );
+          },
+        )
       }
     </nav>
 
@@ -117,19 +212,42 @@ const cartEnabled = isStoreLive || hasDemoProducts;
       {
         cartEnabled && (
           <a
-            href="/shop#products"
+            href={localizeHref(
+              '/shop#products',
+              locale,
+            )}
             class="hidden size-10 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-800 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-brand-400 hover:bg-brand-50 xl:grid"
-            aria-label={`Search ${businessConfig.shortName} products`}
+            aria-label={localizedLinkLabel(
+              copy.search,
+              '/shop',
+              locale,
+            )}
           >
-            <MagnifyingGlassBold class="size-4.5" aria-hidden="true" />
+            <MagnifyingGlassBold
+              class="size-4.5"
+              aria-hidden="true"
+            />
           </a>
         )
       }
 
-      {cartEnabled && <CartButton client:idle />}
+      {
+        cartEnabled && (
+          <div
+            lang={locale}
+            class="contents"
+          >
+            <CartButton
+              locale={locale}
+              client:idle
+            />
+          </div>
+        )
+      }
 
       {
-        !isStoreLive && headerAction && (
+        !isStoreLive &&
+        headerAction && (
           <div class="hidden xl:block">
             <Button
               href={headerAction.href}
@@ -138,13 +256,18 @@ const cartEnabled = isStoreLive || hasDemoProducts;
               iconPosition="right"
               ariaLabel={headerAction.label}
             >
-              <ArrowRightBold slot="icon" aria-hidden="true" />
+              <ArrowRightBold
+                slot="icon"
+                aria-hidden="true"
+              />
 
               {headerAction.label}
             </Button>
           </div>
         )
       }
+
+      <LanguageSwitcher />
 
       <MobileNavigation
         items={mobileNavigation}

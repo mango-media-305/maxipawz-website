@@ -12,19 +12,31 @@ import maxiStoryTwo from '../../assets/home/maxi-story-slide-2.webp';
 import maxiStoryThree from '../../assets/home/maxi-story-slide-3.webp';
 
 import BrandLogo from '../brand/BrandLogo.astro';
+import { getLocaleFromPathname } from '../../i18n/languages';
+
+const locale = getLocaleFromPathname(Astro.url.pathname);
+const t = (english: string, spanish: string): string =>
+  locale === 'es' ? spanish : english;
+
+const controls = {
+  pause: t('Pause', 'Pausar'),
+  play: t('Play', 'Reproducir'),
+  pauseLabel: t('Pause the Maxi story slider', 'Pausar las imágenes de la historia de Maxi'),
+  resumeLabel: t('Resume the Maxi story slider', 'Reanudar las imágenes de la historia de Maxi'),
+};
 
 const storySlides = [
   {
     image: maxiStoryOne,
 
-    alt: 'Maxi, the dog who inspired the Maxi Pawz name',
+    alt: t("Maxi, the dog who inspired the Maxi Pawz name", "Maxi, el perro que inspiró el nombre Maxi Pawz"),
 
-    eyebrow: 'The original inspiration',
+    eyebrow: t("The original inspiration", "La inspiración original"),
 
-    title: 'Maxi, the heart behind the name.',
+    title: t("Maxi, the heart behind the name.", "Maxi, el corazón de nuestro nombre."),
 
     description:
-      'His personality, joyful energy, and everyday routines inspired a pet store built around stronger moments between pets and their people.',
+      t("His personality, joyful energy, and everyday routines inspired a pet store built around stronger moments between pets and their people.", "Su personalidad, su alegría y sus rutinas inspiraron una tienda que busca fortalecer el vínculo entre las mascotas y sus familias."),
 
     icon: HeartBold,
 
@@ -34,14 +46,14 @@ const storySlides = [
   {
     image: maxiStoryTwo,
 
-    alt: 'Maxi enjoying a playful everyday moment',
+    alt: t("Maxi enjoying a playful everyday moment", "Maxi disfrutando de un momento de juego"),
 
-    eyebrow: 'Everyday joy',
+    eyebrow: t("Everyday joy", "Alegría cada día"),
 
-    title: 'The little moments that shaped the idea.',
+    title: t("The little moments that shaped the idea.", "Los pequeños momentos que dieron forma a la idea."),
 
     description:
-      'Playtime, comfort, walks, feeding, travel, and life at home helped shape the way we think about useful and enjoyable pet products.',
+      t("Playtime, comfort, walks, feeding, travel, and life at home helped shape the way we think about useful and enjoyable pet products.", "El juego, el descanso, los paseos, la alimentación, los viajes y la vida en casa nos ayudaron a descubrir qué hace que un producto sea útil y agradable para las mascotas."),
 
     icon: SparkleBold,
 
@@ -51,14 +63,14 @@ const storySlides = [
   {
     image: maxiStoryThree,
 
-    alt: 'Maxi ready for another outdoor adventure',
+    alt: t("Maxi ready for another outdoor adventure", "Maxi listo para otra aventura al aire libre"),
 
-    eyebrow: 'Real pet life',
+    eyebrow: t("Real pet life", "La vida con mascotas"),
 
-    title: 'A brand inspired by life together.',
+    title: t("A brand inspired by life together.", "Una marca inspirada en la vida juntos."),
 
     description:
-      'Maxi Pawz grew from real experiences and a simple goal: help make everyday life with pets happier, easier, and more thoughtful.',
+      t("Maxi Pawz grew from real experiences and a simple goal: help make everyday life with pets happier, easier, and more thoughtful.", "Maxi Pawz nació de experiencias reales y de un objetivo sencillo: ayudar a que la vida con mascotas sea más feliz, más fácil y llena de cuidados."),
 
     icon: PawPrintBold,
 
@@ -71,8 +83,12 @@ const slideCount = storySlides.length;
 
 <section
   class="brand-story-slider relative"
-  aria-label="The Maxi Pawz story in pictures"
+  aria-label={t("The Maxi Pawz story in pictures", "La historia de Maxi Pawz en imágenes")}
   data-brand-story-slider
+  data-pause-label={controls.pauseLabel}
+  data-resume-label={controls.resumeLabel}
+  data-pause-text={controls.pause}
+  data-play-text={controls.play}
 >
   <div
     class="brand-story-slider__halo pointer-events-none absolute inset-10 -z-10 rounded-full bg-linear-to-br from-brand-400/45 via-white/10 to-accent-400/45 blur-3xl"
@@ -136,7 +152,7 @@ const slideCount = storySlides.length;
     <div
       class="mt-2 flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-white/10 bg-ink-950/94 p-3 sm:mt-3 sm:p-4"
     >
-      <div class="flex items-center gap-2" aria-label="Choose a Maxi story slide">
+      <div class="flex items-center gap-2" aria-label={t("Choose a Maxi story slide", "Elige una imagen de la historia de Maxi")}>
         {
           storySlides.map((_, index) => (
             <button
@@ -145,7 +161,7 @@ const slideCount = storySlides.length;
                 'brand-story-slider__dot size-2.5 rounded-full bg-white/28 transition',
                 index === 0 && 'is-active',
               ]}
-              aria-label={`Show story slide ${index + 1} of ${slideCount}`}
+              aria-label={t(`Show story slide ${index + 1} of ${slideCount}`, `Mostrar imagen ${index + 1} de ${slideCount} de la historia`)}
               aria-current={index === 0 ? 'true' : undefined}
               data-brand-story-dot
               data-slide-index={index}
@@ -158,16 +174,16 @@ const slideCount = storySlides.length;
         <button
           type="button"
           class="hidden min-h-10 rounded-full border border-white/14 bg-white/8 px-4 text-xs font-extrabold text-white/75 transition hover:bg-white/14 hover:text-white"
-          aria-label="Pause the Maxi story slider"
+          aria-label={controls.pauseLabel}
           data-brand-story-autoplay
         >
-          <span data-brand-story-autoplay-label> Pause </span>
+          <span data-brand-story-autoplay-label> {controls.pause} </span>
         </button>
 
         <button
           type="button"
           class="grid size-10 place-items-center rounded-full border border-white/14 bg-white/8 text-white transition hover:-translate-y-0.5 hover:bg-white/14"
-          aria-label="Show previous story slide"
+          aria-label={t("Show previous story slide", "Mostrar la imagen anterior de la historia")}
           data-brand-story-previous
         >
           <ArrowLeftBold class="size-4.5" aria-hidden="true" />
@@ -176,7 +192,7 @@ const slideCount = storySlides.length;
         <button
           type="button"
           class="grid size-10 place-items-center rounded-full border border-brand-500 bg-brand-500 text-white shadow-blue transition hover:-translate-y-0.5 hover:bg-brand-600"
-          aria-label="Show next story slide"
+          aria-label={t("Show next story slide", "Mostrar la siguiente imagen de la historia")}
           data-brand-story-next
         >
           <ArrowRightBold class="size-4.5" aria-hidden="true" />
@@ -400,13 +416,15 @@ const slideCount = storySlides.length;
 
       const updateAutoplayControl = (): void => {
         const buttonLabel = isUserPaused
-          ? 'Resume the Maxi story slider'
-          : 'Pause the Maxi story slider';
+          ? (slider.dataset.resumeLabel ?? 'Resume the Maxi story slider')
+          : (slider.dataset.pauseLabel ?? 'Pause the Maxi story slider');
 
         autoplayButton.setAttribute('aria-label', buttonLabel);
 
         if (autoplayLabel) {
-          autoplayLabel.textContent = isUserPaused ? 'Play' : 'Pause';
+          autoplayLabel.textContent = isUserPaused
+            ? (slider.dataset.playText ?? 'Play')
+            : (slider.dataset.pauseText ?? 'Pause');
         }
       };
 
