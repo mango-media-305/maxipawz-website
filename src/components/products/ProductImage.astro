@@ -1,112 +1,52 @@
 ---
-import type { ImageMetadata } from 'astro';
 import { Image } from 'astro:assets';
 
 import PawPrintBold from 'phosphor-astro/PawPrintBold.astro';
 
-import {
-  getLocaleFromPathname,
-} from '../../i18n/languages';
+import { getLocaleFromPathname } from '../../i18n/languages';
 
 import type {
   ProductImage as ProductImageData,
   ProductImagePosition,
+  RemoteProductImage,
 } from '../../types/product';
 
-type ProductImageVariant =
-  | 'card'
-  | 'detail'
-  | 'thumbnail';
+type ProductImageVariant = 'card' | 'detail' | 'thumbnail';
 
 interface Props {
-  image?:
-    ProductImageData;
-
-  eager?:
-    boolean;
-
-  class?:
-    string;
-
-  imageClass?:
-    string;
-
-  variant?:
-    ProductImageVariant;
-
-  sizes?:
-    string;
-
-  widths?:
-    number[];
-
-  quality?:
-    number;
+  image?: ProductImageData;
+  eager?: boolean;
+  class?: string;
+  imageClass?: string;
+  variant?: ProductImageVariant;
+  sizes?: string;
+  widths?: number[];
+  quality?: number;
 }
 
 interface ImageProfile {
-  sizes:
-    string;
-
-  widths:
-    number[];
-
-  quality:
-    number;
+  sizes: string;
+  widths: number[];
+  quality: number;
 }
 
-const imageProfiles:
-  Record<
-    ProductImageVariant,
-    ImageProfile
-  > = {
-    card: {
-      sizes:
-        '(min-width: 1280px) 22vw, (min-width: 768px) 44vw, calc(100vw - 2.5rem)',
-
-      widths: [
-        320,
-        480,
-        640,
-        800,
-      ],
-
-      quality:
-        78,
-    },
-
-    detail: {
-      sizes:
-        '(min-width: 1280px) 34rem, (min-width: 1024px) 43vw, calc(100vw - 2rem)',
-
-      widths: [
-        480,
-        640,
-        800,
-        960,
-        1200,
-      ],
-
-      quality:
-        82,
-    },
-
-    thumbnail: {
-      sizes:
-        '(min-width: 1024px) 13vw, (min-width: 640px) 30vw, 46vw',
-
-      widths: [
-        160,
-        240,
-        320,
-        480,
-        640,
-      ],
-
-      quality:
-        76,
-    },
-  };
+const imageProfiles: Record<ProductImageVariant, ImageProfile> = {
+  card: {
+    sizes: '(min-width: 1280px) 22vw, (min-width: 768px) 44vw, calc(100vw - 2.5rem)',
+    widths: [320, 480, 640, 800],
+    quality: 78,
+  },
+  detail: {
+    sizes: '(min-width: 1280px) 34rem, (min-width: 1024px) 43vw, calc(100vw - 2rem)',
+    widths: [480, 640, 800, 960, 1200],
+    quality: 82,
+  },
+  thumbnail: {
+    sizes: '(min-width: 1024px) 13vw, (min-width: 640px) 30vw, 46vw',
+    widths: [160, 240, 320, 480, 640],
+    quality: 76,
+  },
+};
 
 const {
   image,
@@ -117,287 +57,136 @@ const {
   sizes,
   widths,
   quality,
-} =
-  Astro.props;
+} = Astro.props;
 
-const locale =
-  getLocaleFromPathname(
-    Astro.url.pathname,
-  );
+const locale = getLocaleFromPathname(Astro.url.pathname);
 
 const imageComingSoonLabel =
-  locale ===
-    'es'
+  locale === 'es'
     ? 'Imagen del producto próximamente'
     : 'Product image coming soon';
 
-const profile =
-  imageProfiles[
-    variant
-  ];
+const profile = imageProfiles[variant];
+const resolvedSizes = sizes ?? profile.sizes;
+const requestedWidths = widths ?? profile.widths;
+const resolvedQuality = quality ?? profile.quality;
 
-const resolvedSizes =
-  sizes ??
-  profile.sizes;
+const positionClasses: Record<ProductImagePosition, string> = {
+  center: 'object-center',
+  top: 'object-top',
+  bottom: 'object-bottom',
+  left: 'object-left',
+  right: 'object-right',
+};
 
-const requestedWidths =
-  widths ??
-  profile.widths;
-
-const resolvedQuality =
-  quality ??
-  profile.quality;
-
-const positionClasses:
-  Record<
-    ProductImagePosition,
-    string
-  > = {
-    center:
-      'object-center',
-
-    top:
-      'object-top',
-
-    bottom:
-      'object-bottom',
-
-    left:
-      'object-left',
-
-    right:
-      'object-right',
-  };
-
-const imagePosition =
-  positionClasses[
-    image?.position ??
-    'center'
-  ];
+const imagePosition = positionClasses[image?.position ?? 'center'];
 
 const imageClasses = [
   'h-full w-full object-cover',
   imagePosition,
   imageClass,
 ]
-  .filter(
-    Boolean,
-  )
-  .join(
-    ' ',
-  );
+  .filter(Boolean)
+  .join(' ');
 
-const loading =
-  eager
-    ? 'eager'
-    : 'lazy';
+const loading = eager ? 'eager' : 'lazy';
+const fetchPriority = eager ? 'high' : 'auto';
 
-const fetchPriority =
-  eager
-    ? 'high'
-    : 'auto';
+function isRemoteProductImage(
+  sourceImage: ProductImageData,
+): sourceImage is RemoteProductImage {
+  return typeof sourceImage.src === 'string';
+}
 
-function getSourceWidth(
-  sourceImage:
-    ProductImageData,
-): number {
-  return typeof sourceImage.src ===
-    'string'
+function getSourceWidth(sourceImage: ProductImageData): number {
+  return isRemoteProductImage(sourceImage)
     ? sourceImage.width
     : sourceImage.src.width;
 }
 
-function getResponsiveWidths(
-  sourceImage:
-    ProductImageData,
-): number[] {
-  const sourceWidth =
-    getSourceWidth(
-      sourceImage,
-    );
+function getResponsiveWidths(sourceImage: ProductImageData): number[] {
+  const sourceWidth = getSourceWidth(sourceImage);
 
-  const validWidths =
-    requestedWidths
-      .filter(
-        (
-          width,
-        ) =>
-          Number.isFinite(
-            width,
-          ) &&
-          width >
-            0 &&
-          width <=
-            sourceWidth,
-      )
-      .map(
-        (
-          width,
-        ) =>
-          Math.round(
-            width,
-          ),
-      );
+  const validWidths = requestedWidths
+    .filter(
+      (width) =>
+        Number.isFinite(width) &&
+        width > 0 &&
+        width <= sourceWidth,
+    )
+    .map((width) => Math.round(width));
 
-  if (
-    validWidths.length ===
-    0
-  ) {
-    validWidths.push(
-      sourceWidth,
-    );
+  if (validWidths.length === 0) {
+    validWidths.push(sourceWidth);
   }
 
-  return Array.from(
-    new Set(
-      validWidths,
-    ),
-  ).sort(
-    (
-      firstWidth,
-      secondWidth,
-    ) =>
-      firstWidth -
-      secondWidth,
+  return Array.from(new Set(validWidths)).sort(
+    (firstWidth, secondWidth) => firstWidth - secondWidth,
   );
 }
 
-function isUnsplashImage(
-  source:
-    string,
-): boolean {
+function isUnsplashImage(source: string): boolean {
   try {
-    return (
-      new URL(
-        source,
-      ).hostname ===
-      'images.unsplash.com'
-    );
+    return new URL(source).hostname === 'images.unsplash.com';
   } catch {
     return false;
   }
 }
 
 function createUnsplashVariant(
-  source:
-    string,
-
-  width:
-    number,
-
-  height:
-    number,
+  source: string,
+  width: number,
+  height: number,
 ): string {
-  const url =
-    new URL(
-      source,
-    );
+  const url = new URL(source);
 
-  url.searchParams.set(
-    'auto',
-    'format',
-  );
-
-  url.searchParams.set(
-    'fit',
-    'crop',
-  );
-
-  url.searchParams.set(
-    'w',
-    String(
-      width,
-    ),
-  );
-
-  url.searchParams.set(
-    'h',
-    String(
-      height,
-    ),
-  );
-
-  url.searchParams.set(
-    'q',
-    String(
-      resolvedQuality,
-    ),
-  );
+  url.searchParams.set('auto', 'format');
+  url.searchParams.set('fit', 'crop');
+  url.searchParams.set('w', String(width));
+  url.searchParams.set('h', String(height));
+  url.searchParams.set('q', String(resolvedQuality));
 
   return url.toString();
 }
 
-const responsiveWidths =
-  image
-    ? getResponsiveWidths(
-        image,
-      )
-    : [];
+const responsiveWidths = image ? getResponsiveWidths(image) : [];
 
 const remoteImage =
-  image &&
-  typeof image.src ===
-    'string'
-    ? image
-    : undefined;
+  image && isRemoteProductImage(image) ? image : undefined;
 
 const remoteSourceSet =
-  remoteImage &&
-  isUnsplashImage(
-    remoteImage.src,
-  )
+  remoteImage && isUnsplashImage(remoteImage.src)
     ? responsiveWidths
-        .map(
-          (
-            width,
-          ) => {
-            const height =
-              Math.max(
-                1,
-                Math.round(
-                  width *
-                    (
-                      remoteImage.height /
-                      remoteImage.width
-                    ),
-                ),
-              );
+        .map((width) => {
+          const height = Math.max(
+            1,
+            Math.round(
+              width * (remoteImage.height / remoteImage.width),
+            ),
+          );
 
-            return `${createUnsplashVariant(
-              remoteImage.src,
-              width,
-              height,
-            )} ${width}w`;
-          },
-        )
-        .join(
-          ', ',
-        )
+          return `${createUnsplashVariant(
+            remoteImage.src,
+            width,
+            height,
+          )} ${width}w`;
+        })
+        .join(', ')
     : undefined;
 
 const remoteFallbackSource =
-  remoteImage &&
-  isUnsplashImage(
-    remoteImage.src,
-  )
+  remoteImage && isUnsplashImage(remoteImage.src)
     ? (() => {
         const fallbackWidth =
-          responsiveWidths.at(
-            -1,
-          ) ??
-          remoteImage.width;
+          responsiveWidths.at(-1) ?? remoteImage.width;
 
-        const fallbackHeight =
-          Math.max(
-            1,
-            Math.round(
-              fallbackWidth *
-                (
-                  remoteImage.height /
-                  remoteImage.width
-                ),
-            ),
-          );
+        const fallbackHeight = Math.max(
+          1,
+          Math.round(
+            fallbackWidth *
+              (remoteImage.height / remoteImage.width),
+          ),
+        );
 
         return createUnsplashVariant(
           remoteImage.src,
@@ -415,60 +204,51 @@ const remoteFallbackSource =
   ]}
 >
   {
-    image
-      ? (
-          typeof image.src ===
-            'string'
-            ? (
-                <img
-                  src={remoteFallbackSource}
-                  srcset={remoteSourceSet}
-                  sizes={
-                    remoteSourceSet
-                      ? resolvedSizes
-                      : undefined
-                  }
-                  alt={image.alt}
-                  width={image.width}
-                  height={image.height}
-                  loading={loading}
-                  decoding="async"
-                  fetchpriority={fetchPriority}
-                  class={imageClasses}
-                />
-              )
-            : (
-                <Image
-                  src={image.src as ImageMetadata}
-                  alt={image.alt}
-                  loading={loading}
-                  decoding="async"
-                  fetchpriority={fetchPriority}
-                  widths={responsiveWidths}
-                  sizes={resolvedSizes}
-                  quality={resolvedQuality}
-                  class={imageClasses}
-                />
-              )
-        )
-      : (
-          <div
-            class="grid h-full min-h-64 place-items-center p-8 text-center"
-            aria-label={imageComingSoonLabel}
+    image ? (
+      isRemoteProductImage(image) ? (
+        <img
+          src={remoteFallbackSource}
+          srcset={remoteSourceSet}
+          sizes={remoteSourceSet ? resolvedSizes : undefined}
+          alt={image.alt}
+          width={image.width}
+          height={image.height}
+          loading={loading}
+          decoding="async"
+          fetchpriority={fetchPriority}
+          class={imageClasses}
+        />
+      ) : (
+        <Image
+          src={image.src}
+          alt={image.alt}
+          loading={loading}
+          decoding="async"
+          fetchpriority={fetchPriority}
+          widths={responsiveWidths}
+          sizes={resolvedSizes}
+          quality={resolvedQuality}
+          class={imageClasses}
+        />
+      )
+    ) : (
+      <div
+        class="grid h-full min-h-64 place-items-center p-8 text-center"
+        aria-label={imageComingSoonLabel}
+      >
+        <div>
+          <span
+            class="mx-auto grid size-16 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-600 shadow-soft"
+            aria-hidden="true"
           >
-            <div>
-              <span
-                class="mx-auto grid size-16 place-items-center rounded-full border border-brand-200 bg-white-warm text-brand-600 shadow-soft"
-                aria-hidden="true"
-              >
-                <PawPrintBold class="size-8" />
-              </span>
+            <PawPrintBold class="size-8" />
+          </span>
 
-              <p class="mt-4 text-sm font-extrabold text-ink-600">
-                {imageComingSoonLabel}
-              </p>
-            </div>
-          </div>
-        )
+          <p class="mt-4 text-sm font-extrabold text-ink-600">
+            {imageComingSoonLabel}
+          </p>
+        </div>
+      </div>
+    )
   }
 </div>
