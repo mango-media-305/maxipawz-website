@@ -7,6 +7,8 @@
  */
 
 const translatedPetGuideSlugs: ReadonlySet<string> = new Set<string>([
+  'dog-home-alone-routine',
+  'dog-harness-fit-check',
   'newly-adopted-dog-first-week',
   'switching-dog-food-gradually',
   'dog-water-bowl-cleaning-routine',
